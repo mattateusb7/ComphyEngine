@@ -1,6 +1,6 @@
-#include <Comphy.h>
+#include <Comphi.h>
 
-class Sandbox : public Comphy::Application
+class Sandbox : public Comphi::Application
 {
 public:
 	Sandbox()
@@ -15,6 +15,6 @@ private:
 
 };
 
-Comphy::Application* Comphy::CreateApplication() {
+Comphi::Application* Comphi::CreateApplication() {
 	return new Sandbox();
 }
