@@ -8,7 +8,15 @@ workspace "Comphi"
         "Dist"
     }
 
+-- VARS --
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+
+--Include Directories
+IncludeDir = {};
+IncludeDir["GLFW"] = "Comphi/vendor/GLFW/include";
+
+--premake5 file for vendor projects
+include "Comphi/vendor"
 
 project "Comphi"
     location "Comphi"
@@ -29,8 +37,15 @@ project "Comphi"
 
     includedirs
     {
-		"%{prj.name}/src",
-        "%{prj.name}/vendor/spdlog/include"
+        "%{prj.name}/src",
+        "%{prj.name}/vendor/spdlog/include",
+        "%{IncludeDir.GLFW}"
+    }
+
+    links
+    {
+        "GLFW",
+        "opengl32.lib"
     }
 
     filter "system:windows"     
@@ -82,7 +97,7 @@ project "Sandbox"
     {
         "Comphi/vendor/spdlog/include",
         "Comphi/src",
-		"%{prj.name}/src"
+        "%{prj.name}/src"
     }
 
     links
