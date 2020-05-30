@@ -8,16 +8,16 @@ namespace Comphi {
 	{
 	public:
 
-		inline Uint GetKeyCode() { return _keycode; };
+		inline Uint GetKeyCode() { return m_keycode; };
 
 		EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryKeyboard);
 
 	protected:
 		KeyboardEvent(Uint keycode)
-			: _keycode(keycode) {}
+			: m_keycode(keycode) {}
 		~KeyboardEvent() {}
 
-		Uint _keycode;
+		Uint m_keycode;
 	};
 
 	class CPHI_API KeyPressedEvent : public KeyboardEvent
@@ -30,7 +30,7 @@ namespace Comphi {
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "KeyboardPressedEvent:" << _keycode;
+			ss << "KeyboardPressedEvent:" << m_keycode;
 			return ss.str();
 		}
 
@@ -49,7 +49,7 @@ namespace Comphi {
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "KeyboardReleasedEvent:" << _keycode;
+			ss << "KeyboardReleasedEvent:" << m_keycode;
 			return ss.str();
 		}
 

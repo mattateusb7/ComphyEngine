@@ -9,14 +9,14 @@ namespace Comphi {
 	public:
 
 		MouseMovedEvent(Uint posX, Uint posY) 
-			: _posX(posX), _posY(posY){}
+			: m_posX(posX), m_posY(posY){}
 
-		inline Uint GetX() { return _posX; };
-		inline Uint GetY() { return _posY; };
+		inline Uint GetX() { return m_posX; };
+		inline Uint GetY() { return m_posY; };
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "MouseMovedEvent: " << _posX << ", " << _posY;
+			ss << "MouseMovedEvent: " << m_posX << ", " << m_posY;
 			return ss.str();
 		}
 
@@ -24,7 +24,7 @@ namespace Comphi {
 		EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryMouse);
 
 	private:
-		Uint _posX, _posY;
+		Uint m_posX, m_posY;
 	};
 	
 	class CPHI_API MouseScrolledEvent : public Event
@@ -32,14 +32,14 @@ namespace Comphi {
 	public:
 
 		MouseScrolledEvent(int offsetX, int offsetY)
-			: _offsetX(offsetX), _offsetY(offsetY){}
+			: m_offsetX(offsetX), m_offsetY(offsetY){}
 
-		inline Uint GetOffsetX() { return _offsetX; };
-		inline Uint GetOffsetY() { return _offsetY; };
+		inline Uint GetOffsetX() { return m_offsetX; };
+		inline Uint GetOffsetY() { return m_offsetY; };
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "MouseScrolledEvent: " << _offsetX << ", " << _offsetY;
+			ss << "MouseScrolledEvent: " << m_offsetX << ", " << m_offsetY;
 			return ss.str();
 		}
 
@@ -47,7 +47,7 @@ namespace Comphi {
 		EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryMouse);
 
 	private:
-		Uint _offsetX, _offsetY;
+		Uint m_offsetX, m_offsetY;
 	};
 
 
@@ -55,15 +55,15 @@ namespace Comphi {
 	{
 	public:
 
-		inline Uint GetMouseButton() { return _button; };
+		inline Uint GetMouseButton() { return m_button; };
 
 		EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryMouseButton);
 	
 	protected :
 		MouseButtonEvent(int button)
-			: _button(button) {}
+			: m_button(button) {}
 
-		Uint _button;
+		Uint m_button;
 	};
 
 	class CPHI_API MouseButtonPressedEvent : public MouseButtonEvent
@@ -75,7 +75,7 @@ namespace Comphi {
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "MouseButtonPressedEvent: " << _button;
+			ss << "MouseButtonPressedEvent: " << m_button;
 			return ss.str();
 		}
 
@@ -92,7 +92,7 @@ namespace Comphi {
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "MouseButtonReleasedEvent: " << _button;
+			ss << "MouseButtonReleasedEvent: " << m_button;
 			return ss.str();
 		}
 
