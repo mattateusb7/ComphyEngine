@@ -1,3 +1,4 @@
+#include "cphipch.h"
 #include "Log.h"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
@@ -9,12 +10,12 @@ namespace Comphi {
 
 	void Log::Init() {
 
-		spdlog::set_pattern("%^[%H:%M:%S:%e] %n: %v%$");
+		spdlog::set_pattern("%^[%n:%H:%M:%S:%e]>> %v%$");
 		
 		s_CoreLogger = spdlog::stdout_color_mt("COMPHI");
 		s_CoreLogger->set_level(spdlog::level::trace);
 		
-		s_ClientLogger = spdlog::stdout_color_mt("Client");
+		s_ClientLogger = spdlog::stdout_color_mt("CLIENT");
 		s_ClientLogger->set_level(spdlog::level::trace);
 	}
 

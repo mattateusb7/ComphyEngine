@@ -8,15 +8,18 @@ extern Comphi::Application* Comphi::CreateApplication();
 
 int main(int argc, char** argv) {
 	
-	printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
-	printf("~ Be Comphi with CPHI_Engine ~\n");
-	printf("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
+	printf(" _^___________^_\n");
+	printf("|~ CPHI_Engine ~|\n");
+	printf(" `-------------´\n");
+	printf("  |0|||||||||0|\n");
+	printf("  |^|||/ \\|||^|\n");
+	printf("´´´´´´´´´´´´´´´´´\n");
 		
 	Comphi::Log::Init();
-	CPHY_WARN("OWO");
-	auto app = Comphi::CreateApplication();
-	app->Run();
-	delete app;
+	auto app = 
+		Comphi::CreateApplication(); 
+		app->Run(); 
+		delete app;
 }
 
 #endif // CPHI_WINDOWS_PLATFORM

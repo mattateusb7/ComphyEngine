@@ -7,3 +7,7 @@
 #else
 	#error Only Comphi Support for Windows
 #endif // CPHI_WINDOWS_PLATFORM
+
+#define BIT(x) (1 << x)
+
+typedef unsigned int Uint;
