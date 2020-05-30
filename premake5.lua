@@ -18,6 +18,9 @@ project "Comphi"
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
     
+    pchheader "cphipch.h"
+    pchsource "Comphi/src/cphipch.cpp"
+
     files
     {
         "%{prj.name}/src/**.h",
@@ -26,6 +29,7 @@ project "Comphi"
 
     includedirs
     {
+		"%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include"
     }
 
@@ -77,7 +81,8 @@ project "Sandbox"
     includedirs
     {
         "Comphi/vendor/spdlog/include",
-        "Comphi/src"
+        "Comphi/src",
+		"%{prj.name}/src"
     }
 
     links
