@@ -1,13 +1,13 @@
 #include "cphipch.h"
 #include "Application.h"
 
-#include "Comphi/Events/ApplicationEvent.h"
-#include "Comphi/Log.h"
+#include <GLFW/glfw3.h>
 
 namespace Comphi {
 
 	Application::Application()
 	{
+		m_Window = std::unique_ptr<Window>(Window::Create());
 	}
 
 	Application::~Application()
@@ -16,10 +16,11 @@ namespace Comphi {
 
 	void Application::Run()
 	{
-		WindowResizedEvent e(1280, 720);
-		LOG_CPHY_CORE_INFO(e);
-
-		while (true);
+		while (m_running) {
+			glClearColor(1, 0, 1, 1);
+			glClear(GL_COLOR_BUFFER_BIT);
+			m_Window->OnUpdate(); 
+		};
 	}
 
 }

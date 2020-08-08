@@ -99,15 +99,19 @@ project "Comphi"
         cleancommands { "" }
     
     filter "configurations:Debug"
-        defines "CPHY_DEBUG"
+        defines 
+        {
+            "CPHI_DEBUG", 
+            "CPHI_ENABLE_ASSERTS"
+        }
         symbols "On"
         
     filter "configurations:Release"
-        defines "CPHY_RELEASE"
+        defines "CPHI_RELEASE"
         optimize "On"
     
     filter "configurations:Dist"
-        defines "CPHY_DIST"
+        defines "CPHI_DIST"
         optimize "On"
 
 project "Sandbox"
@@ -147,13 +151,13 @@ project "Sandbox"
         }
 
     filter "configurations:Debug"
-        defines "CPHY_DEBUG"
+        defines "CPHI_DEBUG"
         symbols "On"
         
     filter "configurations:Release"
-        defines "CPHY_RELEASE"
+        defines "CPHI_RELEASE"
         optimize "On"
     
     filter "configurations:Dist"
-        defines "CPHY_DIST"
+        defines "CPHI_DIST"
         optimize "On"

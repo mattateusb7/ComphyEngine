@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Comphi/Log.h"
+
 #ifdef CPHI_WINDOWS_PLATFORM 
 	#include <Windows.h>
 #endif
