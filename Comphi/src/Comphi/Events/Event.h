@@ -46,7 +46,7 @@ namespace Comphi {
 
 	
 	class EventDispatcher {
-		template<typename T>
+		template<typename T> 
 		using EventFn = std::function<bool(T&)>;
 	public:
 		EventDispatcher(Event& event) 
@@ -55,6 +55,8 @@ namespace Comphi {
 		template<typename T>
 		bool Dispatch(EventFn<T> func) {
 			if (m_event.GetEventType() == T::GetStaticType()) {
+				//point to event reference with correct type pointer 
+				//then dereference the pointer to get correct(cast) event reference type
 				m_event.m_Handled = func(*(T*)&m_event);
 				return true;
 			}

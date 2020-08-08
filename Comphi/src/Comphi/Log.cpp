@@ -8,9 +8,9 @@ namespace Comphi {
 
 	void Log::Init() {
 
-		spdlog::set_pattern("%^[%n:%H:%M:%S:%e]>> %v%$");
+		spdlog::set_pattern("%^[%n:%H:%M:%S]>> %v%$");
 		
-		s_CoreLogger = spdlog::stdout_color_mt("COMPHI");
+		s_CoreLogger = spdlog::stdout_color_mt("_cphi_");
 		s_CoreLogger->set_level(spdlog::level::trace);
 		
 		s_ClientLogger = spdlog::stdout_color_mt("CLIENT");

@@ -15,7 +15,7 @@ namespace Comphi {
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "MouseMovedEvent: " << m_posX << ", " << m_posY;
+			ss << "MouseMovedEvent: (" << m_posX << "," << m_posY << ")";
 			return ss.str();
 		}
 
@@ -30,15 +30,15 @@ namespace Comphi {
 	{
 	public:
 
-		MouseScrolledEvent(int offsetX, int offsetY)
+		MouseScrolledEvent(double offsetX, double offsetY)
 			: m_offsetX(offsetX), m_offsetY(offsetY){}
 
-		inline Uint GetOffsetX() { return m_offsetX; };
-		inline Uint GetOffsetY() { return m_offsetY; };
+		inline double GetOffsetX() { return m_offsetX; };
+		inline double GetOffsetY() { return m_offsetY; };
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "MouseScrolledEvent: " << m_offsetX << ", " << m_offsetY;
+			ss << "MouseScrolledEvent: (" << m_offsetX << "," << m_offsetY << ")";
 			return ss.str();
 		}
 
@@ -46,7 +46,7 @@ namespace Comphi {
 		EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryMouse);
 
 	private:
-		Uint m_offsetX, m_offsetY;
+		double m_offsetX, m_offsetY;
 	};
 
 

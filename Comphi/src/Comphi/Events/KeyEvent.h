@@ -12,24 +12,28 @@ namespace Comphi {
 		EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryKeyboard);
 
 	protected:
-		KeyboardEvent(Uint keycode)
-			: m_keycode(keycode) {}
+		KeyboardEvent(Uint keycode, Uint keyRepeatCount)
+			: m_keycode(keycode), m_keyRepeatCount(keyRepeatCount) {}
 		~KeyboardEvent() {}
 
 		Uint m_keycode;
+		Uint m_keyRepeatCount;
 	};
 
 	class CPHI_API KeyPressedEvent : public KeyboardEvent
 	{
 	public:
 
-		KeyPressedEvent(Uint  keycode)
-			: KeyboardEvent(keycode) {}
+		KeyPressedEvent(Uint keycode, Uint keyRepeatCount)
+			: KeyboardEvent(keycode, keyRepeatCount) {}
 		~KeyPressedEvent() {}
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "KeyboardPressedEvent:" << m_keycode;
+			if (m_keyRepeatCount > 0) 
+				ss << "KeyboardPressedEvent (repeat):" << m_keycode;
+			else 
+				ss << "KeyboardPressedEvent:" << m_keycode;
 			return ss.str();
 		}
 
@@ -42,8 +46,8 @@ namespace Comphi {
 	{
 	public:
 
-		KeyReleasedEvent(Uint  keycode)
-			: KeyboardEvent(keycode) {}
+		KeyReleasedEvent(Uint keycode)
+			: KeyboardEvent(keycode, 0) {}
 		~KeyReleasedEvent() {}
 
 		std::string ToString() const override {
