@@ -31,17 +31,18 @@ namespace Comphi {
 
 	class CPHI_API Event {
 		friend class EventDispatcher;
+		friend class Application;
 	public:
 		virtual EventType GetEventType() const = 0;
 		virtual int GetCategoryFlags() const = 0;
 		virtual const char* GetName() const = 0; //Probably debug only
-		virtual std::string ToString() const { return GetName(); }
-
+		
+		virtual inline std::string ToString() const { return GetName(); }
 		inline bool isInCategory(EventCategory category) {
 			return GetCategoryFlags() & category;
 		}
 	protected:
-		bool m_Handled = false;
+		bool Handled = false;
 	};
 
 	
@@ -57,7 +58,7 @@ namespace Comphi {
 			if (m_event.GetEventType() == T::GetStaticType()) {
 				//point to event reference with correct type pointer 
 				//then dereference the pointer to get correct(cast) event reference type
-				m_event.m_Handled = func(*(T*)&m_event);
+				m_event.Handled = func(*(T*)&m_event);
 				return true;
 			}
 			return false;

@@ -6,7 +6,7 @@ namespace Comphi {
 	static bool s_GLFWInitialized = false;
 
 	static void GLFWErrorCallback(int error, const char* description) {
-		CPHI_LOG_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
+		COMPHI_LOG_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
 	Window* Window::Create(const WindowProperties& props) 
@@ -29,11 +29,11 @@ namespace Comphi {
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
-		CPHI_LOG_CORE_INFO("Creating Window {0} ({1},{2})", props.Title, props.Width, props.Height);
+		COMPHI_LOG_CORE_INFO("Creating Window {0} ({1},{2})", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInitialized) {
 			int success = glfwInit();
-			CPHI_CORE_ASSERT(success, "Could not initialize GLFW");
+			COMPHI_CORE_ASSERT(success, "Could not initialize GLFW");
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}

@@ -1,6 +1,7 @@
 #pragma once 
 #include "Comphi/Core.h"
 #include "Comphi/Window.h"
+#include "Comphi/LayerStack.h"
 #include "Comphi/Events/ApplicationEvent.h"
 
 
@@ -15,10 +16,16 @@ namespace Comphi {
 		void Run();
 
 		void OnEvent(Event& e);
-
+		void PushLayer(Layer* layer);
+		void PushOverlay(Layer* overlay);		
+		void PopLayer(Layer* layer);
+		void PopOverlay(Layer* overlay);
+	
 	private:
-		bool OnWindowClose(WindowCloseEvent& e);
 
+		bool OnWindowClose(WindowCloseEvent& e);
+	
+		LayerStack m_LayerStack;
 		std::unique_ptr<Window> m_Window;
 		bool m_running = true;
 	};
