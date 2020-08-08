@@ -8,6 +8,8 @@ workspace "Comphi"
         "Dist"
     }
 
+    startproject "Sandbox"
+
 -- VARS --
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
@@ -15,7 +17,9 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {};
 IncludeDir["GLFW"] = "Comphi/vendor/GLFW/include";
 
---premake5 file for vendor projects
+-- END VARS --
+
+--premake5 file for vendor submodules
 include "Comphi/vendor"
 
 project "Comphi"
@@ -28,6 +32,33 @@ project "Comphi"
     
     pchheader "cphipch.h"
     pchsource "Comphi/src/cphipch.cpp"
+
+    --vpaths 
+    --{
+    --    --real folders
+    --    ["Comphi"] = {
+    --        "Comphi/src/**.h", "Comphi/src/**.cpp"
+    --    },
+    --    ["Comphi/Events"] = {
+    --        "Comphi/src/Comphi/Events/*.h", 
+    --        "Comphi/src/Comphi/Events/*.cpp"
+    --    },
+    --    --virtual folders
+    --    ["Comphi/Core"] = {
+    --        "Comphi/src/Comphi/Core.h",
+    --        "Comphi/src/Comphi/Log.cpp",
+    --        "Comphi/src/Comphi/Log.h",
+    --        "Comphi/src/Comphi/Window.h"
+    --    },
+    --    ["Comphi/Application"] = {
+    --        "Comphi/src/Comphi/Application.h", 
+    --        "Comphi/src/Comphi/Application.cpp",
+    --        "Comphi/src/Comphi/EntryPoint.h"
+    --    },
+    --    ["Comphi/Application/Platform/Windows"] = {
+    --        "Comphi/src/Comphi/WindowsWindow.h"
+    --    }
+    --}
 
     files
     {

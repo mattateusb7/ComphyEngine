@@ -4,6 +4,7 @@
 
 #include "Log.h"
 
+// To be defined by Client
 extern Comphi::Application* Comphi::CreateApplication();
 
 int main(int argc, char** argv) {

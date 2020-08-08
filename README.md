@@ -1,2 +1,2 @@
 # COMΦ Engine
-Modern 3D OpenGL GameEngine
+Modern 2D/3D GameEngine

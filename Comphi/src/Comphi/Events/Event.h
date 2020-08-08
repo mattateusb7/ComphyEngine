@@ -54,8 +54,8 @@ namespace Comphi {
 
 		template<typename T>
 		bool Dispatch(EventFn<T> func) {
-			if (_event.GetEventType() == T::GetStaticType()) {
-				_event.m_Handled = func(*(T*)&m_event);
+			if (m_event.GetEventType() == T::GetStaticType()) {
+				m_event.m_Handled = func(*(T*)&m_event);
 				return true;
 			}
 			return false;
