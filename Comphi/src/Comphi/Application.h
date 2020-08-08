@@ -2,8 +2,6 @@
 #include "Comphi/Core.h"
 #include "Comphi/Window.h"
 #include "Comphi/LayerStack.h"
-#include "Comphi/Events/ApplicationEvent.h"
-
 
 namespace Comphi {
 

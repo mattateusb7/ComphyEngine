@@ -1,6 +1,7 @@
 #pragma once
 #include "Comphi/Core.h"
 #include "Comphi/Window.h"
+
 #include <GLFW/glfw3.h>
 
 namespace Comphi {

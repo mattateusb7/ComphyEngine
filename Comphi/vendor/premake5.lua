@@ -1,3 +1,5 @@
+----------------------GLFW PROJECT----------------------
+
 project "GLFW"
     location "GLFW"
 	kind "StaticLib"
@@ -17,34 +19,15 @@ project "GLFW"
 		"%{prj.name}/src/monitor.c",
 		"%{prj.name}/src/vulkan.c",
 		"%{prj.name}/src/window.c"
-    }
-    
---	filter "system:linux"
---		pic "On"
---
---		systemversion "latest"
---		staticruntime "On"
---
---		files
---		{
---			"src/x11_init.c",
---			"src/x11_monitor.c",
---			"src/x11_window.c",
---			"src/xkb_unicode.c",
---			"src/posix_time.c",
---			"src/posix_thread.c",
---			"src/glx_context.c",
---			"src/egl_context.c",
---			"src/osmesa_context.c",
---			"src/linux_joystick.c"
---		}
---
---		defines
---		{
---			"_GLFW_X11"
---		}
+	}
+	
+	includedirs
+	{
+		"%{prj.name}/include"
+	}
 
 	filter "system:windows"
+		buildoptions {"/MT"}
 		systemversion "latest"
 		staticruntime "On"
 
@@ -67,10 +50,29 @@ project "GLFW"
 			"_CRT_SECURE_NO_WARNINGS"
 		}
 
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "on"
+----------------------Glad PROJECT----------------------
 
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "on"
+project "Glad"
+    location "Glad"
+	kind "StaticLib"
+	language "C"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"%{prj.name}/include/glad/glad.h",
+		"%{prj.name}/include/KHR/khrplatform.h",
+		"%{prj.name}/src/glad.c"
+	}
+	
+	includedirs
+	{
+		"%{prj.name}/include"
+	}
+
+	filter "system:windows"
+		buildoptions "/MT"
+		systemversion "latest"
+		staticruntime "On"

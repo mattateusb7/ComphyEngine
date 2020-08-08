@@ -1,6 +1,8 @@
 #include "cphipch.h"
 #include "WindowsWindow.h"
 
+#include <glad/glad.h>
+
 namespace Comphi {
 
 	static bool s_GLFWInitialized = false;
@@ -33,13 +35,15 @@ namespace Comphi {
 
 		if (!s_GLFWInitialized) {
 			int success = glfwInit();
-			COMPHI_CORE_ASSERT(success, "Could not initialize GLFW");
+			COMPHI_CORE_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}
 		
 		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_Window);
+		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		COMPHI_CORE_ASSERT(status, "Could not initialize Glad!");
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 

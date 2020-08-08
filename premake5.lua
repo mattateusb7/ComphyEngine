@@ -16,6 +16,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 --Include Directories
 IncludeDir = {};
 IncludeDir["GLFW"] = "Comphi/vendor/GLFW/include";
+IncludeDir["Glad"] = "Comphi/vendor/Glad/include";
 
 -- END VARS --
 
@@ -70,12 +71,14 @@ project "Comphi"
     {
         "%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include",
-        "%{IncludeDir.GLFW}"
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}"
     }
 
     links
     {
         "GLFW",
+        "Glad",
         "opengl32.lib"
     }
 
@@ -87,7 +90,8 @@ project "Comphi"
         defines
         {
             "CPHI_WINDOWS_PLATFORM",
-            "CPHI_BUILD_DLL" 
+            "CPHI_BUILD_DLL",
+            "GLFW_INCLUDE_NONE"
         }
 
         postbuildcommands

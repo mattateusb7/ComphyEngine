@@ -1,7 +1,6 @@
 #pragma once
 #include "Comphi/Core.h"
 #include "Comphi/Events/Event.h"
-
 #include "Comphi/Events/ApplicationEvent.h"
 #include "Comphi/Events/MouseEvent.h"
 #include "Comphi/Events/KeyEvent.h"
