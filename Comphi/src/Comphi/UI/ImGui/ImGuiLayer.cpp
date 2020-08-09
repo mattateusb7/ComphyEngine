@@ -99,7 +99,6 @@ namespace Comphi {
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseDown[e.GetMouseButton()] = true;
-
 		return false; 
 	}
 
@@ -107,7 +106,6 @@ namespace Comphi {
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseDown[e.GetMouseButton()] = false;
-
 		return false; 
 	}
 
@@ -116,7 +114,6 @@ namespace Comphi {
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.MousePos = ImVec2(e.GetX(),e.GetY());
-
 		return false; 
 	}
 
@@ -125,7 +122,6 @@ namespace Comphi {
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseWheelH += e.GetOffsetX();
 		io.MouseWheel += e.GetOffsetY();
-
 		return false; 
 	}
 
@@ -160,7 +156,6 @@ namespace Comphi {
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.AddInputCharacter(e.GetKeyCode());
-		COMPHILOG_CORE_INFO("OK");
 		return false;
 	}
 
@@ -169,8 +164,7 @@ namespace Comphi {
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(e.GetOffsetX(), e.GetOffsetY());
 		io.DisplayFramebufferScale = ImVec2(1.0f,1.0f);
-
-		return false; 
+		return false;
 	}
 
 

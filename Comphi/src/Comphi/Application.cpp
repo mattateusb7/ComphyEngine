@@ -78,8 +78,6 @@ namespace Comphi {
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
 			}
-
-			COMPHILOG_CORE_INFO("COMPHILOG {0}", Input::GetMouseX());
 				
 			m_Window->OnUpdate(); 
 		};

@@ -7,12 +7,12 @@ public:
 
 	void OnUpdate() override 
 	{
-
+		
 	};
 
 	void OnEvent(Comphi::Event& e) override 
 	{
-		COMPHILOG_TRACE("{0}", e);
+		//COMPHILOG_TRACE("{0}", e);
 	};
 
 private:
