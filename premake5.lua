@@ -17,6 +17,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {};
 IncludeDir["GLFW"] = "Comphi/vendor/GLFW/include";
 IncludeDir["Glad"] = "Comphi/vendor/Glad/include";
+IncludeDir["Imgui"] = "Comphi/vendor/imgui";
 
 -- END VARS --
 
@@ -72,13 +73,15 @@ project "Comphi"
         "%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include",
         "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}"
+        "%{IncludeDir.Glad}",
+        "%{IncludeDir.Imgui}"
     }
 
     links
     {
         "GLFW",
         "Glad",
+        "Imgui",
         "opengl32.lib"
     }
 

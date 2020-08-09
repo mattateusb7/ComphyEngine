@@ -7,7 +7,7 @@ public:
 
 	void OnUpdate() override 
 	{
-		COMPHI_TRACE("UPDATE");
+		//COMPHI_TRACE("UPDATE");
 	};
 	void OnEvent(Comphi::Event& e) override 
 	{
@@ -23,6 +23,7 @@ class Sandbox : public Comphi::Application
 public:
 	Sandbox(){
 		PushLayer(new TestLayer());
+		PushOverlay(new Comphi::ImGuiLayer());
 	}
 
 	~Sandbox(){}

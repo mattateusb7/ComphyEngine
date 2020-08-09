@@ -3,7 +3,7 @@
 
 namespace Comphi {
 
-	class CPHI_API AppTickEvent : public Event
+	class COMPHI_API AppTickEvent : public Event
 	{
 	public:
 		AppTickEvent(){}
@@ -12,7 +12,7 @@ namespace Comphi {
 		EVENT_CLASS_CATEGORY(EventCategoryApplication);
 	};
 	
-	class CPHI_API AppUpdateEvent : public Event
+	class COMPHI_API AppUpdateEvent : public Event
 	{
 	public:
 		AppUpdateEvent(){}
@@ -21,7 +21,7 @@ namespace Comphi {
 		EVENT_CLASS_CATEGORY(EventCategoryApplication);
 	};
 
-	class CPHI_API AppRenderEvent : public Event
+	class COMPHI_API AppRenderEvent : public Event
 	{
 	public:
 		AppRenderEvent(){}
@@ -30,7 +30,7 @@ namespace Comphi {
 		EVENT_CLASS_CATEGORY(EventCategoryApplication);
 	};
 
-	class CPHI_API WindowCloseEvent : public Event
+	class COMPHI_API WindowCloseEvent : public Event
 	{
 	public:
 		WindowCloseEvent(){}
@@ -40,7 +40,7 @@ namespace Comphi {
 
 	};	
 	
-	class CPHI_API WindowOpenEvent : public Event
+	class COMPHI_API WindowOpenEvent : public Event
 	{
 	public:
 		WindowOpenEvent(){}
@@ -50,7 +50,7 @@ namespace Comphi {
 
 	};	
 	
-	class CPHI_API WindowFocusEvent : public Event
+	class COMPHI_API WindowFocusEvent : public Event
 	{
 	public:
 		WindowFocusEvent(){}
@@ -60,7 +60,7 @@ namespace Comphi {
 
 	};
 
-	class CPHI_API WindowLostFocusEvent : public Event
+	class COMPHI_API WindowLostFocusEvent : public Event
 	{
 	public:
 		WindowLostFocusEvent(){}
@@ -70,7 +70,7 @@ namespace Comphi {
 
 	};
 
-	class CPHI_API WindowMovedEvent : public Event
+	class COMPHI_API WindowMovedEvent : public Event
 	{
 	public:
 		WindowMovedEvent(Uint posX, Uint posY)
@@ -85,7 +85,7 @@ namespace Comphi {
 		Uint m_posX, m_posY;
 	};
 		
-	class CPHI_API WindowResizedEvent : public Event
+	class COMPHI_API WindowResizedEvent : public Event
 	{
 	public:
 		WindowResizedEvent(Uint offsetX, Uint offsetY) 

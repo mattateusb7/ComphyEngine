@@ -5,7 +5,7 @@
 
 namespace Comphi {
 
-	class CPHI_API Application
+	class COMPHI_API Application
 	{
 	public:
 		Application();
@@ -19,13 +19,16 @@ namespace Comphi {
 		void PopLayer(Layer* layer);
 		void PopOverlay(Layer* overlay);
 	
+		inline Window& GetWindow() { return *m_Window; };
+		inline static Application& Get() { return *s_instance; };
 	private:
-
 		bool OnWindowClose(WindowCloseEvent& e);
 	
 		LayerStack m_LayerStack;
 		std::unique_ptr<Window> m_Window;
 		bool m_running = true;
+	private:
+		static Application* s_instance;
 	};
 
 	// To be defined by Client

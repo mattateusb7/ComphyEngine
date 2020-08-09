@@ -1,8 +1,8 @@
 #ifdef CPHI_WINDOWS_PLATFORM
     #ifdef CPHI_BUILD_DLL
-		#define CPHI_API __declspec(dllexport)
+		#define COMPHI_API __declspec(dllexport)
     #else		
-		#define CPHI_API __declspec(dllimport)
+		#define COMPHI_API __declspec(dllimport)
     #endif
 #else
 	#error Comphi Support Windows Only

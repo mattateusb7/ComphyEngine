@@ -3,7 +3,7 @@
 #include "Comphi/Events/Event.h"
 
 namespace Comphi {
-	class CPHI_API Layer
+	class COMPHI_API Layer
 	{
 	public:
 		Layer(const std::string& debugName = "Layer");

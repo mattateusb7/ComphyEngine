@@ -17,7 +17,7 @@ namespace Comphi{
 			: Title(title), Width(width), Height(height) {}
 	};
 
-	class CPHI_API Window
+	class COMPHI_API Window
 	{
 	public:
 		using EventCallback = std::function<void(Event&)>;

@@ -3,7 +3,7 @@
 
 namespace Comphi {
 
-	class CPHI_API MouseMovedEvent : public Event
+	class COMPHI_API MouseMovedEvent : public Event
 	{
 	public:
 
@@ -26,7 +26,7 @@ namespace Comphi {
 		Uint m_posX, m_posY;
 	};
 	
-	class CPHI_API MouseScrolledEvent : public Event
+	class COMPHI_API MouseScrolledEvent : public Event
 	{
 	public:
 
@@ -50,7 +50,7 @@ namespace Comphi {
 	};
 
 
-	class CPHI_API MouseButtonEvent : public Event
+	class COMPHI_API MouseButtonEvent : public Event
 	{
 	public:
 
@@ -65,7 +65,7 @@ namespace Comphi {
 		Uint m_button;
 	};
 
-	class CPHI_API MouseButtonPressedEvent : public MouseButtonEvent
+	class COMPHI_API MouseButtonPressedEvent : public MouseButtonEvent
 	{
 	public:
 
@@ -82,7 +82,7 @@ namespace Comphi {
 
 	};
 	
-	class CPHI_API MouseButtonReleasedEvent : public MouseButtonEvent
+	class COMPHI_API MouseButtonReleasedEvent : public MouseButtonEvent
 	{
 	public:
 

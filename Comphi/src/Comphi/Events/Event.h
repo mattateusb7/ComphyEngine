@@ -29,7 +29,7 @@ namespace Comphi {
 
 #define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override {return category; }
 
-	class CPHI_API Event {
+	class COMPHI_API Event {
 		friend class EventDispatcher;
 		friend class Application;
 	public:

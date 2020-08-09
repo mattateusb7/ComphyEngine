@@ -3,7 +3,7 @@
 
 namespace Comphi {
 
-	class CPHI_API KeyboardEvent : public Event
+	class COMPHI_API KeyboardEvent : public Event
 	{
 	public:
 
@@ -20,7 +20,7 @@ namespace Comphi {
 		Uint m_keyRepeatCount;
 	};
 
-	class CPHI_API KeyPressedEvent : public KeyboardEvent
+	class COMPHI_API KeyPressedEvent : public KeyboardEvent
 	{
 	public:
 
@@ -42,7 +42,7 @@ namespace Comphi {
 	};	
 	
 	
-	class CPHI_API KeyReleasedEvent : public KeyboardEvent
+	class COMPHI_API KeyReleasedEvent : public KeyboardEvent
 	{
 	public:
 
