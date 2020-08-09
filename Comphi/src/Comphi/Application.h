@@ -23,6 +23,7 @@ namespace Comphi {
 		inline static Application& Get() { return *s_instance; };
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
+		bool OnWindowResized(WindowResizedEvent& e);
 	
 		LayerStack m_LayerStack;
 		std::unique_ptr<Window> m_Window;

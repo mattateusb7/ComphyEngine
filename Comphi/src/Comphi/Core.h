@@ -9,14 +9,15 @@
 #endif // CPHI_WINDOWS_PLATFORM
 
 #ifdef CPHI_ENABLE_ASSERTS
-	#define COMPHI_CORE_ASSERT(b,...) { if(!b){ COMPHI_LOG_CORE_ERROR("Assertion Failed: {0}",__VA_ARGS__); __debugbreak(); } }
-	#define COMPHI_ASSERT(b,...) { if(!b){ COMPHI_ERROR("Assertion Failed: {0}",__VA_ARGS__); __debugbreak(); } }
+	#define COMPHILOG_CORE_ASSERT(b,...) { if(!b){ COMPHILOG_CORE_ERROR("Assertion Failed: {0}",__VA_ARGS__); __debugbreak(); } }
+	#define COMPHILOG_ASSERT(b,...) { if(!b){ COMPHILOG_ERROR("Assertion Failed: {0}",__VA_ARGS__); __debugbreak(); } }
 #else
-	#define COMPHI_CORE_ASSERT(b,...)
-	#define COMPHI_ASSERT(b,...)
+	#define COMPHILOG_CORE_ASSERT(b,...)
+	#define COMPHILOG_ASSERT(b,...)
 #endif
 
 #define BIT(x) (1 << x)
+#define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
 namespace Comphi {
 	typedef unsigned int Uint;

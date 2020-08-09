@@ -9,7 +9,7 @@ namespace Comphi {
 		None = 0,
 		WindowClose, WindowOpen, WindowFocus, WindowLostFocus, WindowMoved, WindowResized,
 		AppTick, AppUpdate, AppRender,
-		KeyPressed, KeyReleased,
+		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
 

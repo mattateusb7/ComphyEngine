@@ -5,17 +5,17 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 
 //CORE
-#define COMPHI_LOG_CORE_FATAL(...) Comphi::Log::GetCoreLogger()->critical(__VA_ARGS__)
-#define COMPHI_LOG_CORE_ERROR(...) Comphi::Log::GetCoreLogger()->error(__VA_ARGS__)
-#define COMPHI_LOG_CORE_WARN(...) Comphi::Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define COMPHI_LOG_CORE_INFO(...) Comphi::Log::GetCoreLogger()->info(__VA_ARGS__)
-#define COMPHI_LOG_CORE_TRACE(...) Comphi::Log::GetCoreLogger()->trace(__VA_ARGS__)
+#define COMPHILOG_CORE_FATAL(...) Comphi::Log::GetCoreLogger()->critical(__VA_ARGS__)
+#define COMPHILOG_CORE_ERROR(...) Comphi::Log::GetCoreLogger()->error(__VA_ARGS__)
+#define COMPHILOG_CORE_WARN(...) Comphi::Log::GetCoreLogger()->warn(__VA_ARGS__)
+#define COMPHILOG_CORE_INFO(...) Comphi::Log::GetCoreLogger()->info(__VA_ARGS__)
+#define COMPHILOG_CORE_TRACE(...) Comphi::Log::GetCoreLogger()->trace(__VA_ARGS__)
 //CLIENT
-#define COMPHI_FATAL(...) Comphi::Log::GetClientLogger()->critical(__VA_ARGS__)
-#define COMPHI_ERROR(...) Comphi::Log::GetClientLogger()->error(__VA_ARGS__)
-#define COMPHI_WARN(...) Comphi::Log::GetClientLogger()->warn(__VA_ARGS__)
-#define COMPHI_INFO(...) Comphi::Log::GetClientLogger()->info(__VA_ARGS__)
-#define COMPHI_TRACE(...) Comphi::Log::GetClientLogger()->trace(__VA_ARGS__)
+#define COMPHILOG_FATAL(...) Comphi::Log::GetClientLogger()->critical(__VA_ARGS__)
+#define COMPHILOG_ERROR(...) Comphi::Log::GetClientLogger()->error(__VA_ARGS__)
+#define COMPHILOG_WARN(...) Comphi::Log::GetClientLogger()->warn(__VA_ARGS__)
+#define COMPHILOG_INFO(...) Comphi::Log::GetClientLogger()->info(__VA_ARGS__)
+#define COMPHILOG_TRACE(...) Comphi::Log::GetClientLogger()->trace(__VA_ARGS__)
 
 namespace Comphi {
 	class COMPHI_API Log

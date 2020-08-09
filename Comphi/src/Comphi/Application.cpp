@@ -1,21 +1,17 @@
 #include "cphipch.h"
 #include "Application.h"
 
-#include <glad/glad.h>
-
 namespace Comphi {
-
-	#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
 	Application* Application::s_instance = nullptr;
 
 	Application::Application()
 	{
-		COMPHI_CORE_ASSERT(!s_instance, "Application Already Exists!");
+		COMPHILOG_CORE_ASSERT(!s_instance, "Application Already Exists!");
 		s_instance = this;
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
-		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 	}
 
 	Application::~Application()
@@ -25,7 +21,8 @@ namespace Comphi {
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher Dispatcher(e);
-		Dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+		Dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
+		Dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(Application::OnWindowResized));
 
 		//set Layer Events Handling
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
@@ -64,11 +61,17 @@ namespace Comphi {
 		return true; //Return "event was handled"
 	}
 
+	bool Application::OnWindowResized(WindowResizedEvent& e)
+	{
+		m_Window->OnWindowResized(e.GetOffsetX(), e.GetOffsetY());
+		return false;
+	}
+
 	void Application::Run()
 	{
 		while (m_running) {
-			glClearColor(1, 0, 1, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			
+			m_Window->OnBeginUpdate();
 
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
@@ -77,5 +80,4 @@ namespace Comphi {
 			m_Window->OnUpdate(); 
 		};
 	}
-
 }

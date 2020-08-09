@@ -24,6 +24,8 @@ namespace Comphi{
 
 		virtual ~Window() {};
 
+		virtual void OnWindowResized(Uint x, Uint y) = 0;
+		virtual void OnBeginUpdate() = 0;
 		virtual void OnUpdate() = 0;
 
 		virtual Uint GetWidth() const = 0;

@@ -12,6 +12,8 @@ namespace Comphi {
 		virtual ~WindowsWindow();
 
 		void OnUpdate() override;
+		void OnBeginUpdate() override;
+		void OnWindowResized(Uint x, Uint y) override;
 
 		inline Uint GetWidth() const override { return m_Data.Width; };
 		inline Uint GetHeight() const override { return m_Data.Height; };
