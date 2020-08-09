@@ -1,9 +1,9 @@
-[submodule "Comphi/vendor/spdlog"]
-	path = Comphi/vendor/spdlog
-	url = https://github.com/gabime/spdlog
 [submodule "Comphi/vendor/GLFW"]
 	path = Comphi/vendor/GLFW
 	url = https://github.com/glfw/glfw
 [submodule "Comphi/vendor/imgui"]
 	path = Comphi/vendor/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "Comphi/vendor/spdlog"]
+	path = Comphi/vendor/spdlog
+	url = https://github.com/gabime/spdlog

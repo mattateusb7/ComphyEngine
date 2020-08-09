@@ -1,14 +1,6 @@
 # Copyright(c) 2019 spdlog authors Distributed under the MIT License (http://opensource.org/licenses/MIT)
 
-cmake_minimum_required(VERSION 3.2)
-
-if(${CMAKE_VERSION} VERSION_LESS 3.11)
-    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-else()
-    cmake_policy(VERSION 3.11)
-endif()
-
-enable_language(C)
+cmake_minimum_required(VERSION 3.10)
 
 # ---------------------------------------------------------------------------------------
 # Start spdlog project
@@ -131,16 +123,15 @@ if(NOT SPDLOG_FMT_EXTERNAL AND NOT SPDLOG_FMT_EXTERNAL_HO)
     list(APPEND SPDLOG_SRCS src/fmt.cpp)
 endif()
 
-if(WIN32 AND SPDLOG_BUILD_SHARED)
-    list(APPEND SPDLOG_SRCS ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
-endif()
-
 if(SPDLOG_BUILD_SHARED)
+    if(WIN32)
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc @ONLY)
+        list(APPEND SPDLOG_SRCS ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+    endif()
     add_library(spdlog SHARED ${SPDLOG_SRCS} ${SPDLOG_ALL_HEADERS})
     target_compile_definitions(spdlog PUBLIC SPDLOG_SHARED_LIB)
-    if(WIN32)
+    if(MSVC)
         target_compile_options(spdlog PUBLIC /wd4251 /wd4275)
-        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc @ONLY)
     endif()
     if(NOT SPDLOG_FMT_EXTERNAL AND NOT SPDLOG_FMT_EXTERNAL_HO)
         target_compile_definitions(spdlog PRIVATE FMT_EXPORT PUBLIC FMT_SHARED)
@@ -200,49 +191,25 @@ endif()
 # ---------------------------------------------------------------------------------------
 # Misc definitions according to tweak options
 # ---------------------------------------------------------------------------------------
-if(SPDLOG_WCHAR_SUPPORT)
-    target_compile_definitions(spdlog PUBLIC SPDLOG_WCHAR_TO_UTF8_SUPPORT)
-    target_compile_definitions(spdlog_header_only INTERFACE SPDLOG_WCHAR_TO_UTF8_SUPPORT)
-endif()
-
-if(SPDLOG_WCHAR_FILENAMES)
-    target_compile_definitions(spdlog PUBLIC SPDLOG_WCHAR_FILENAMES)
-    target_compile_definitions(spdlog_header_only INTERFACE SPDLOG_WCHAR_FILENAMES)
-endif()
-
-if(SPDLOG_NO_EXCEPTIONS)
-    target_compile_definitions(spdlog PUBLIC SPDLOG_NO_EXCEPTIONS)
-
-    target_compile_definitions(spdlog_header_only INTERFACE SPDLOG_NO_EXCEPTIONS)
-
-    if(NOT MSVC)
-        target_compile_options(spdlog PRIVATE -fno-exceptions)
+set(SPDLOG_WCHAR_TO_UTF8_SUPPORT ${SPDLOG_WCHAR_SUPPORT})
+foreach(SPDLOG_OPTION
+    SPDLOG_WCHAR_TO_UTF8_SUPPORT
+    SPDLOG_WCHAR_FILENAMES
+    SPDLOG_NO_EXCEPTIONS
+    SPDLOG_CLOCK_COARSE
+    SPDLOG_PREVENT_CHILD_FD
+    SPDLOG_NO_THREAD_ID
+    SPDLOG_NO_TLS
+    SPDLOG_NO_ATOMIC_LEVELS
+)
+    if(${SPDLOG_OPTION})
+        target_compile_definitions(spdlog PUBLIC ${SPDLOG_OPTION})
+        target_compile_definitions(spdlog_header_only INTERFACE ${SPDLOG_OPTION})
     endif()
-endif()
+endforeach()
 
-if(SPDLOG_CLOCK_COARSE)
-    target_compile_definitions(spdlog PRIVATE SPDLOG_CLOCK_COARSE)
-    target_compile_definitions(spdlog_header_only INTERFACE SPDLOG_CLOCK_COARSE)
-endif()
-
-if(SPDLOG_PREVENT_CHILD_FD)
-    target_compile_definitions(spdlog PRIVATE SPDLOG_PREVENT_CHILD_FD)
-    target_compile_definitions(spdlog_header_only INTERFACE SPDLOG_PREVENT_CHILD_FD)
-endif()
-
-if(SPDLOG_NO_THREAD_ID)
-    target_compile_definitions(spdlog PRIVATE SPDLOG_NO_THREAD_ID)
-    target_compile_definitions(spdlog_header_only INTERFACE SPDLOG_NO_THREAD_ID)
-endif()
-
-if(SPDLOG_NO_TLS)
-    target_compile_definitions(spdlog PRIVATE SPDLOG_NO_TLS)
-    target_compile_definitions(spdlog_header_only INTERFACE SPDLOG_NO_TLS)
-endif()
-
-if(SPDLOG_NO_ATOMIC_LEVELS)
-    target_compile_definitions(spdlog PUBLIC SPDLOG_NO_ATOMIC_LEVELS)
-    target_compile_definitions(spdlog_header_only INTERFACE SPDLOG_NO_ATOMIC_LEVELS)
+if(SPDLOG_NO_EXCEPTIONS AND NOT MSVC)
+    target_compile_options(spdlog PRIVATE -fno-exceptions)
 endif()
 
 # ---------------------------------------------------------------------------------------
