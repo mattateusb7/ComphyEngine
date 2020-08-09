@@ -20,6 +20,7 @@ namespace Comphi {
 		void PopOverlay(Layer* overlay);
 	
 		inline Window& GetWindow() { return *m_Window; };
+
 		inline static Application& Get() { return *s_instance; };
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);

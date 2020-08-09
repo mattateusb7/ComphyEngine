@@ -21,6 +21,7 @@ namespace Comphi {
 
 		void SetVSync(bool enabled) override;
 		void SetEventCallback(const EventCallback& callback) override;
+		inline void* GetNativeWindow() const override { return m_Window; };
 
 	private:
 		virtual void Init(const WindowProperties& props);

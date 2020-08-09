@@ -7,8 +7,9 @@ public:
 
 	void OnUpdate() override 
 	{
-		//COMPHI_TRACE("UPDATE");
+
 	};
+
 	void OnEvent(Comphi::Event& e) override 
 	{
 		COMPHILOG_TRACE("{0}", e);
