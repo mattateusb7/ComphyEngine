@@ -15,6 +15,10 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 --Include Directories
 IncludeDir = {};
+--Libs
+IncludeDir["spdlog"] = "Comphi/vendor/spdlog/include";
+IncludeDir["glm"] = "Comphi/vendor/glm";
+--Projs
 IncludeDir["GLFW"] = "Comphi/vendor/GLFW/include";
 IncludeDir["Glad"] = "Comphi/vendor/Glad/include";
 IncludeDir["Imgui"] = "Comphi/vendor/imgui";
@@ -35,43 +39,21 @@ project "Comphi"
     pchheader "cphipch.h"
     pchsource "Comphi/src/cphipch.cpp"
 
-    --vpaths 
-    --{
-    --    --real folders
-    --    ["Comphi"] = {
-    --        "Comphi/src/**.h", "Comphi/src/**.cpp"
-    --    },
-    --    ["Comphi/Events"] = {
-    --        "Comphi/src/Comphi/Events/*.h", 
-    --        "Comphi/src/Comphi/Events/*.cpp"
-    --    },
-    --    --virtual folders
-    --    ["Comphi/Core"] = {
-    --        "Comphi/src/Comphi/Core.h",
-    --        "Comphi/src/Comphi/Log.cpp",
-    --        "Comphi/src/Comphi/Log.h",
-    --        "Comphi/src/Comphi/Window.h"
-    --    },
-    --    ["Comphi/Application"] = {
-    --        "Comphi/src/Comphi/Application.h", 
-    --        "Comphi/src/Comphi/Application.cpp",
-    --        "Comphi/src/Comphi/EntryPoint.h"
-    --    },
-    --    ["Comphi/Application/Platform/Windows"] = {
-    --        "Comphi/src/Comphi/WindowsWindow.h"
-    --    }
-    --}
-
     files
     {
         "%{prj.name}/src/**.h",
-        "%{prj.name}/src/**.cpp"
+        "%{prj.name}/src/**.cpp",
+        "%{prj.name}/vendor/glm/glm/**.hpp",
+        "%{prj.name}/vendor/glm/glm/**.inl"
     }
 
     includedirs
     {
+        --Libs
         "%{prj.name}/src",
-        "%{prj.name}/vendor/spdlog/include",
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.glm}",
+        --Projs
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.Imgui}"
@@ -140,7 +122,8 @@ project "Sandbox"
 
     includedirs
     {
-        "Comphi/vendor/spdlog/include",
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.glm}",
         "Comphi/src",
         "%{prj.name}/src"
     }

@@ -13,6 +13,7 @@
 #include "Comphi/Application.h" 
 #include "Comphi/Layer.h"
 #include "Comphi/Log.h"
+#include <glm/glm.hpp>
 
 // ------------ Comphi Entry Point ------------
 #include "Comphi/EntryPoint.h"
