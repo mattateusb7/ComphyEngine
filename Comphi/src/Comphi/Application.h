@@ -2,6 +2,7 @@
 #include "Comphi/Core.h"
 #include "Comphi/Window.h"
 #include "Comphi/LayerStack.h"
+#include "Comphi/UI/ImGui/ImGuiLayer.h"
 
 namespace Comphi {
 
@@ -28,6 +29,7 @@ namespace Comphi {
 	
 		LayerStack m_LayerStack;
 		std::unique_ptr<Window> m_Window;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_running = true;
 	private:
 		static Application* s_instance;

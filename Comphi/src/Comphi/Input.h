@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Comphi/Core.h"
 
 namespace Comphi {

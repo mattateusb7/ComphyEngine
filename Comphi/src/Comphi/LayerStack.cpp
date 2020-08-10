@@ -5,7 +5,6 @@ namespace Comphi {
 
 	LayerStack::LayerStack() 
 	{
-		m_LayerInsert = m_Layers.begin();
 	}
 
 	LayerStack::~LayerStack() 
@@ -15,7 +14,7 @@ namespace Comphi {
 
 	void LayerStack::PushLayer(Layer* layer)
 	{
-		m_LayerInsert = m_Layers.emplace(m_LayerInsert, layer);
+		m_Layers.emplace(m_Layers.begin()+m_LayerInsertIndex++, layer);
 	}
 
 	void LayerStack::PushOverlay(Layer* overlay)
@@ -28,7 +27,7 @@ namespace Comphi {
 		auto it = std::find(begin(), end(), layer);
 		if (it != end()) {
 			m_Layers.erase(it);
-			m_LayerInsert--;
+			m_LayerInsertIndex--;
 		}
 	}
 
