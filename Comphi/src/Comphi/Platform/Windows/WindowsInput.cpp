@@ -23,7 +23,7 @@ namespace Comphi {
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		double xPos,yPos;
 		glfwGetCursorPos(window, &xPos, &yPos);
-		return std::pair<int, int>(xPos, yPos);
+		return std::pair<int, int>((int)xPos, (int)yPos);
 	}
 }
 

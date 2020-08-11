@@ -133,7 +133,7 @@ namespace Comphi {
 			glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				MouseMovedEvent event(x, y);
+				MouseMovedEvent event((Uint)x, (Uint)y);
 				data.EventCallback(event);
 			});
 		}
@@ -158,7 +158,7 @@ namespace Comphi {
 
 	void WindowsWindow::OnBeginUpdate()
 	{
-		glClearColor(0.3, 0.6, 0.8, 1);
+		glClearColor(0.3f, 0.6f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 

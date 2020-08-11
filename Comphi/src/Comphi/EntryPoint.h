@@ -9,15 +9,8 @@ extern Comphi::Application* Comphi::CreateApplication();
 
 int main(int argc, char** argv) {
 	
-	printf("            comphi\n");
-	printf("              ##\n");
-	printf("              #\n");
-	printf("     /\        #\n");
-	printf("    /~~\	  #\n");
-	printf("   / __ \      #\n");
-	printf("  / || | \	  º$+\n");
-	printf(" /  | \|  \  /x!&\ \n");
-	printf("´´´´´´´´´´´´´´´´´´´´´\n");
+
+	printf("´´´comphi´´´\n");
 		
 	Comphi::Log::Init();
 	auto app = Comphi::CreateApplication(); 

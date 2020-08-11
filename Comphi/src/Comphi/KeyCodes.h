@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Comphi::MouseButton {
-	static enum {
+	enum {
 		MB_1             =0,
 		MB_2             =1,
 		MB_3             =2,
@@ -17,7 +17,7 @@ namespace Comphi::MouseButton {
 	};
 }
 namespace Comphi::KeyCode {
-	static enum {
+	enum {
 
 	/* The unknown key */
 	KC_UNKNOWN           =-1,

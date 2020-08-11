@@ -4,6 +4,7 @@ project "GLFW"
     location "GLFW"
 	kind "StaticLib"
 	language "C"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -27,9 +28,7 @@ project "GLFW"
 	}
 
 	filter "system:windows"
-		buildoptions {"/MT"}
 		systemversion "latest"
-		staticruntime "On"
 
 		files
 		{
@@ -50,12 +49,21 @@ project "GLFW"
 			"_CRT_SECURE_NO_WARNINGS"
 		}
 
+	filter "configurations:Release"
+		runtime "Release"
+        optimize "on"
+    
+    filter "configurations:Dist"
+		runtime "Release"
+        optimize "on"
+
 ----------------------Glad PROJECT----------------------
 
 project "Glad"
     location "Glad"
 	kind "StaticLib"
 	language "C"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -73,41 +81,54 @@ project "Glad"
 	}
 
 	filter "system:windows"
-		buildoptions "/MT"
 		systemversion "latest"
-		staticruntime "On"
+
+	filter "configurations:Release"
+		runtime "Release"
+        optimize "on"
+    
+    filter "configurations:Dist"
+		runtime "Release"
+        optimize "on"
 
 ----------------------imgui PROJECT----------------------
 
 project "ImGui"
-location "imgui"
-kind "StaticLib"
-language "C++"
-
-targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
-files
-	{
-        "%{prj.name}/imconfig.h",
-        "%{prj.name}/imgui.h",
-        "%{prj.name}/imgui.cpp",
-        "%{prj.name}/imgui_draw.cpp",
-        "%{prj.name}/imgui_internal.h",
-        "%{prj.name}/imgui_widgets.cpp",
-        "%{prj.name}/imstb_rectpack.h",
-        "%{prj.name}/imstb_textedit.h",
-        "%{prj.name}/imstb_truetype.h",
-        "%{prj.name}/imgui_demo.cpp"
-    }
-
-includedirs
-{
-	"%{prj.name}"
-}
-
-filter "system:windows"
+	location "imgui"
+	kind "StaticLib"
+	language "C++"
 	cppdialect "C++17"
-	systemversion "latest"
-	buildoptions "/MT"
-	staticruntime "On"
+	staticruntime "on"
+	
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	
+	files
+		{
+	        "%{prj.name}/imconfig.h",
+	        "%{prj.name}/imgui.h",
+	        "%{prj.name}/imgui.cpp",
+	        "%{prj.name}/imgui_draw.cpp",
+	        "%{prj.name}/imgui_internal.h",
+	        "%{prj.name}/imgui_widgets.cpp",
+	        "%{prj.name}/imstb_rectpack.h",
+	        "%{prj.name}/imstb_textedit.h",
+	        "%{prj.name}/imstb_truetype.h",
+	        "%{prj.name}/imgui_demo.cpp"
+	    }
+	
+	includedirs
+	{
+		"%{prj.name}"
+	}
+	
+	filter "system:windows"
+		systemversion "latest"
+
+	filter "configurations:Release"
+		runtime "Release"
+        optimize "on"
+    
+    filter "configurations:Dist"
+		runtime "Release"
+        optimize "on"

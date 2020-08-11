@@ -28,13 +28,16 @@ namespace Comphi {
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
-
+	
 		struct WindowData {
-			std::string Title;
-			Uint Width, Height;
-			bool VSync;
+			std::string Title = "";
+			Uint Width = 0;
+			Uint Height = 0;
+			bool VSync = false;
 
 			EventCallback EventCallback;
+
+			WindowData() :Title(""), Width(0), Height(0) {}
 
 		}m_Data;
 	};
