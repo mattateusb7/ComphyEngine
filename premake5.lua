@@ -40,6 +40,10 @@ project "Comphi"
     
     pchheader "cphipch.h"
     pchsource "Comphi/src/cphipch.cpp"
+    
+    defines{
+        "_CRT_SECURE_NO_WARNINGS"
+    }
 
     files
     {
@@ -76,8 +80,7 @@ project "Comphi"
         {
             "CPHI_WINDOWS_PLATFORM",
             "CPHI_BUILD_DLL",
-            "GLFW_INCLUDE_NONE",
-			"_CRT_SECURE_NO_WARNINGS"
+            "GLFW_INCLUDE_NONE"
         }
 
     filter "configurations:Debug"
