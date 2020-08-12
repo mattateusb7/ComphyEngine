@@ -3,7 +3,7 @@
 
 namespace Comphi {
 
-	class COMPHI_API KeyboardEvent : public Event
+	class KeyboardEvent : public Event
 	{
 	public:
 
@@ -18,7 +18,7 @@ namespace Comphi {
 		Uint m_keycode;
 	};
 
-	class COMPHI_API KeyPressedEvent : public KeyboardEvent
+	class KeyPressedEvent : public KeyboardEvent
 	{
 	public:
 
@@ -38,7 +38,7 @@ namespace Comphi {
 	};	
 	
 	
-	class COMPHI_API KeyReleasedEvent : public KeyboardEvent
+	class KeyReleasedEvent : public KeyboardEvent
 	{
 	public:
 
@@ -55,7 +55,7 @@ namespace Comphi {
 
 	};	
 	
-	class COMPHI_API KeyTypedEvent : public KeyboardEvent
+	class KeyTypedEvent : public KeyboardEvent
 	{
 	public:
 

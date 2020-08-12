@@ -18,7 +18,7 @@
 #define COMPHILOG_TRACE(...) Comphi::Log::GetClientLogger()->trace(__VA_ARGS__)
 
 namespace Comphi {
-	class COMPHI_API Log
+	class Log
 	{
 	public:
 		static void Init();

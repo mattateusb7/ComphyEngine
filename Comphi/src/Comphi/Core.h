@@ -1,13 +1,13 @@
 #ifdef CPHI_WINDOWS_PLATFORM
-	#ifdef CPHI_DYNAMIC_LINKING
+	/*#ifdef CPHI_DYNAMIC_LINKING
 	    #ifdef CPHI_BUILD_DLL
-			#define COMPHI_API __declspec(dllexport)
+			#define  __declspec(dllexport)
 	    #else		
-			#define COMPHI_API __declspec(dllimport)
+			#define  __declspec(dllimport)
 	    #endif
 	#else
-		#define	COMPHI_API
-	#endif
+		#define	
+	#endif*/
 #else
 	#error Comphi Support Windows Only
 #endif // CPHI_WINDOWS_PLATFORM

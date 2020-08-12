@@ -3,7 +3,7 @@
 
 namespace Comphi {
 
-	class COMPHI_API Input
+	class Input
 	{
 	public:
 		~Input() { delete s_instance; };

@@ -6,7 +6,7 @@ namespace Comphi {
 	
 	typedef std::vector<Layer*> Layers;
 	
-	class COMPHI_API LayerStack
+	class LayerStack
 	{
 	public:
 		LayerStack();

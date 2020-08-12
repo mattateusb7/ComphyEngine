@@ -1,9 +1,11 @@
 #pragma once
-#include "Comphi/Core.h"
+//Events
 #include "Comphi/Events/Event.h"
 #include "Comphi/Events/ApplicationEvent.h"
 #include "Comphi/Events/MouseEvent.h"
 #include "Comphi/Events/KeyEvent.h"
+//Graphics Contexts
+#include "Comphi/Platform/Windows/OpenGLContext.h"
 
 namespace Comphi{
 	
@@ -17,7 +19,7 @@ namespace Comphi{
 			: Title(title), Width(width), Height(height) {}
 	};
 
-	class COMPHI_API Window
+	class Window
 	{
 	public:
 		using EventCallback = std::function<void(Event&)>;

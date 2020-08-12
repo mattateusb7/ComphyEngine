@@ -3,7 +3,7 @@
 #include "Comphi/Layer.h"
 
 namespace Comphi{
-	class COMPHI_API ImGuiLayer : public Layer
+	class ImGuiLayer : public Layer
 	{
 	public:
 		ImGuiLayer();

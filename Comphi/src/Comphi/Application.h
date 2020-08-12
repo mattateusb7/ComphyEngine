@@ -6,7 +6,7 @@
 
 namespace Comphi {
 
-	class COMPHI_API Application
+	class Application
 	{
 	public:
 		Application();
