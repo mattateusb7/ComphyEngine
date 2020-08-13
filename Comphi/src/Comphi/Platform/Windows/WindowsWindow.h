@@ -1,8 +1,9 @@
 #pragma once
-#include "Comphi/Core.h"
 #include "Comphi/Window.h"
 
-#include <GLFW/glfw3.h>
+#include "Comphi/Renderer/GraphicsContext.h"
+
+#include <GLFW/glfw3.h> //TEMP - future platform independent
 
 namespace Comphi {
 	class WindowsWindow : public Window
@@ -28,7 +29,8 @@ namespace Comphi {
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
-	
+		GraphicsContext* m_GraphicsContext;
+
 		struct WindowData {
 			std::string Title = "";
 			Uint Width = 0;

@@ -4,8 +4,6 @@
 #include "Comphi/Events/ApplicationEvent.h"
 #include "Comphi/Events/MouseEvent.h"
 #include "Comphi/Events/KeyEvent.h"
-//Graphics Contexts
-#include "Comphi/Platform/Windows/OpenGLContext.h"
 
 namespace Comphi{
 	

@@ -1,7 +1,7 @@
 #include "cphipch.h"
 #include "WindowsWindow.h"
 
-#include <glad/glad.h>
+#include "Comphi/Renderer/OpenGL/OpenGLContext.h" //TEMP - future platform independent
 
 namespace Comphi {
 
@@ -39,12 +39,12 @@ namespace Comphi {
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}
-		
-		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_Window);
 
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		COMPHILOG_CORE_ASSERT(status, "Could not initialize Glad!");
+		COMPHILOG_CORE_INFO("GLFW Initialized...");
+
+		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
+		m_GraphicsContext = new OpenGLContext(m_Window);
+		m_GraphicsContext->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
@@ -137,7 +137,8 @@ namespace Comphi {
 				data.EventCallback(event);
 			});
 		}
-		
+
+		COMPHILOG_CORE_INFO("EventCallBacks SetUp...");
 	}
 
 	void WindowsWindow::SetEventCallback(const EventCallback& callback)
@@ -153,13 +154,12 @@ namespace Comphi {
 	void WindowsWindow::OnUpdate()
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window); 
+		m_GraphicsContext->SwapBuffers();
 	}
 
 	void WindowsWindow::OnBeginUpdate()
 	{
-		glClearColor(0.3f, 0.6f, 0.8f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		m_GraphicsContext->Draw();
 	}
 
 	void WindowsWindow::OnWindowResized(Uint x, Uint y)
