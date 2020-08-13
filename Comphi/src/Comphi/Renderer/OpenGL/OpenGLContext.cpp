@@ -15,7 +15,10 @@ namespace Comphi {
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		COMPHILOG_CORE_ASSERT(status, "Could not initialize Glad!");
 
-		COMPHILOG_CORE_INFO("OpenGL Renderer: {0} {1}", glGetString(GL_VENDOR));
+		COMPHILOG_CORE_INFO("OpenGL Info:");
+		COMPHILOG_CORE_INFO("	OpenGL Vendor: {0}", glGetString(GL_VENDOR));
+		COMPHILOG_CORE_INFO("	OpenGL Renderer: {0}", glGetString(GL_RENDERER));
+		COMPHILOG_CORE_INFO("	OpenGL Version: {0}", glGetString(GL_VERSION));
 
 		COMPHILOG_CORE_INFO("OpenGLContext Initialized...");
 
