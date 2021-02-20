@@ -73,26 +73,26 @@ namespace Comphi {
 	class WindowMovedEvent : public Event
 	{
 	public:
-		WindowMovedEvent(Uint posX, Uint posY)
+		WindowMovedEvent(uint posX, uint posY)
 			: m_posX(posX), m_posY(posY) {}
 
-		inline Uint GetposX() { return m_posX; };
-		inline Uint GetposY() { return m_posY; };
+		inline uint GetposX() { return m_posX; };
+		inline uint GetposY() { return m_posY; };
 
 		EVENT_CLASS_TYPE(WindowMoved);
 		EVENT_CLASS_CATEGORY(EventCategoryApplication);
 	private:
-		Uint m_posX, m_posY;
+		uint m_posX, m_posY;
 	};
 		
 	class WindowResizedEvent : public Event
 	{
 	public:
-		WindowResizedEvent(Uint offsetX, Uint offsetY) 
+		WindowResizedEvent(uint offsetX, uint offsetY) 
 			: m_offsetX(offsetX), m_offsetY(offsetY) {}
 
-		inline Uint GetOffsetX() { return m_offsetX; };
-		inline Uint GetOffsetY() { return m_offsetY; };
+		inline uint GetOffsetX() { return m_offsetX; };
+		inline uint GetOffsetY() { return m_offsetY; };
 
 		std::string ToString() const override {
 			std::stringstream ss;
@@ -104,7 +104,7 @@ namespace Comphi {
 		EVENT_CLASS_CATEGORY(EventCategoryApplication);
 
 	private:
-		Uint m_offsetX, m_offsetY;
+		uint m_offsetX, m_offsetY;
 	};
 
 }

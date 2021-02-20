@@ -1,6 +1,10 @@
 #pragma once
 #include "Comphi/Renderer/GraphicsContext.h"
 
+#include "Comphi/Renderer/OpenGL/OpenGLShaderPipeline.h"
+#include "Comphi/Renderer/OpenGL/OpenGLShaderWizard.h"
+#include "Comphi/Renderer/OpenGL/OpenGLShaderProgram.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -16,7 +20,13 @@ namespace Comphi {
 
 	private:
 		GLFWwindow* m_WindowHandle;
-		Uint m_VertexArray, m_VertexBuffer, m_IndexBuffer;
+	
+		//DEBUG
+		uint m_VertexArray, m_VertexBuffer, m_IndexBuffer;
+		
+		OpenGLShaderPipeline pipe;
+		OpenGLShaderProgram vertexShader = OpenGLShaderProgram(ShaderType::VertexShader, FileRef("Shaders/vert.glsl"));
+		OpenGLShaderProgram fragmentShader = OpenGLShaderProgram(ShaderType::FragmentShader, FileRef("Shaders/frag.glsl"));
 	};
 
 }

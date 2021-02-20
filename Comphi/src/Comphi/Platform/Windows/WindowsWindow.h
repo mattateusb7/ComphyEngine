@@ -14,10 +14,10 @@ namespace Comphi {
 
 		void OnUpdate() override;
 		void OnBeginUpdate() override;
-		void OnWindowResized(Uint x, Uint y) override;
+		void OnWindowResized(uint x, uint y) override;
 
-		inline Uint GetWidth() const override { return m_Data.Width; };
-		inline Uint GetHeight() const override { return m_Data.Height; };
+		inline uint GetWidth() const override { return m_Data.Width; };
+		inline uint GetHeight() const override { return m_Data.Height; };
 		inline bool IsVSync() const override { return m_Data.VSync; };
 
 		void SetVSync(bool enabled) override;
@@ -33,8 +33,8 @@ namespace Comphi {
 
 		struct WindowData {
 			std::string Title = "";
-			Uint Width = 0;
-			Uint Height = 0;
+			uint Width = 0;
+			uint Height = 0;
 			bool VSync = false;
 
 			EventCallback EventCallback;

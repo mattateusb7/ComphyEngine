@@ -21,6 +21,6 @@ namespace Comphi {
 		const inline Layers::iterator end() { return m_Layers.end(); }
 	private:
 		Layers m_Layers;
-		Uint m_LayerInsertIndex = 0;
+		uint m_LayerInsertIndex = 0;
 	};
 }

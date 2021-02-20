@@ -95,7 +95,7 @@ namespace Comphi {
 			});
 
 			//KEY TYPED CALLBACK
-			glfwSetCharCallback(m_Window, [](GLFWwindow*window, Uint keycode)
+			glfwSetCharCallback(m_Window, [](GLFWwindow*window, uint keycode)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				KeyTypedEvent event(keycode);
@@ -133,7 +133,7 @@ namespace Comphi {
 			glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				MouseMovedEvent event((Uint)x, (Uint)y);
+				MouseMovedEvent event((uint)x, (uint)y);
 				data.EventCallback(event);
 			});
 		}
@@ -162,7 +162,7 @@ namespace Comphi {
 		m_GraphicsContext->Draw();
 	}
 
-	void WindowsWindow::OnWindowResized(Uint x, Uint y)
+	void WindowsWindow::OnWindowResized(uint x, uint y)
 	{
 		glViewport(0, 0, x, y);
 	}

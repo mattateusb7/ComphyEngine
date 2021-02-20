@@ -7,7 +7,10 @@
 #include <functional>
 
 #include <string>
+#include <fstream>
+#include <streambuf>
 #include <sstream>
+
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>

@@ -9,11 +9,11 @@ namespace Comphi{
 	
 	struct WindowProperties {
 		std::string Title;
-		Uint Width;
-		Uint Height;
+		uint Width;
+		uint Height;
 
 		WindowProperties(const std::string& title = "[Comphi Engine]",
-			Uint width = 1280, Uint height = 720)
+			uint width = 1280, uint height = 720)
 			: Title(title), Width(width), Height(height) {}
 	};
 
@@ -24,12 +24,12 @@ namespace Comphi{
 
 		virtual ~Window() {};
 
-		virtual void OnWindowResized(Uint x, Uint y) = 0;
+		virtual void OnWindowResized(uint x, uint y) = 0;
 		virtual void OnBeginUpdate() = 0;
 		virtual void OnUpdate() = 0;
 
-		virtual Uint GetWidth() const = 0;
-		virtual Uint GetHeight() const = 0;
+		virtual uint GetWidth() const = 0;
+		virtual uint GetHeight() const = 0;
 
 		//Attributes
 		virtual void SetEventCallback(const EventCallback& callback) = 0;

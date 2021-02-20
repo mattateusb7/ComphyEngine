@@ -7,11 +7,11 @@ namespace Comphi {
 	{
 	public:
 
-		MouseMovedEvent(Uint posX, Uint posY) 
+		MouseMovedEvent(uint posX, uint posY) 
 			: m_posX(posX), m_posY(posY){}
 
-		inline Uint GetX() { return m_posX; };
-		inline Uint GetY() { return m_posY; };
+		inline uint GetX() { return m_posX; };
+		inline uint GetY() { return m_posY; };
 
 		std::string ToString() const override {
 			std::stringstream ss;
@@ -23,7 +23,7 @@ namespace Comphi {
 		EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryMouse);
 
 	private:
-		Uint m_posX, m_posY;
+		uint m_posX, m_posY;
 	};
 	
 	class MouseScrolledEvent : public Event
@@ -54,7 +54,7 @@ namespace Comphi {
 	{
 	public:
 
-		inline Uint GetMouseButton() { return m_button; };
+		inline uint GetMouseButton() { return m_button; };
 
 		EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryMouseButton);
 	
@@ -62,7 +62,7 @@ namespace Comphi {
 		MouseButtonEvent(int button)
 			: m_button(button) {}
 
-		Uint m_button;
+		uint m_button;
 	};
 
 	class MouseButtonPressedEvent : public MouseButtonEvent

@@ -3,10 +3,9 @@
 
 namespace Comphi {
 
-	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle) 
-		: m_WindowHandle(windowHandle)
+	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle) : m_WindowHandle(windowHandle)
 	{
-		COMPHILOG_CORE_ASSERT(windowHandle, "Window Handle is NULL!");
+		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
 	}
 
 	void OpenGLContext::Init()
@@ -21,6 +20,12 @@ namespace Comphi {
 		COMPHILOG_CORE_INFO("	OpenGL Version: {0}", glGetString(GL_VERSION));
 
 		COMPHILOG_CORE_INFO("OpenGLContext Initialized...");
+
+		//vertexShader.shaderFile.setData("awa");
+		//fragmentShader.shaderFile.setData("owo");
+		OpenGLShaderWizard wiz;
+		wiz.Compile(vertexShader);
+		wiz.Compile(fragmentShader);
 
 		//VERTEX BUFFER
 		glGenVertexArrays(1, &m_VertexArray);
@@ -43,24 +48,30 @@ namespace Comphi {
 		glGenBuffers(1, &m_IndexBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
 
-		Uint indexes[3] = { 0,1,2 };
+		uint indexes[3] = { 0,1,2 };
 
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexes), indexes, GL_STATIC_DRAW);
-	}
 
-	void OpenGLContext::SwapBuffers()
-	{
-		glfwSwapBuffers(m_WindowHandle);
+		
 	}
 
 	void OpenGLContext::Draw()
 	{
 		glClearColor(0.3f, 0.6f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		pipe.InitPipeline();
 
 		glBindVertexArray(m_VertexArray);
+
+		pipe.BindProgram(vertexShader);
+		pipe.BindProgram(fragmentShader);
+
 		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
 	}
 
+	void OpenGLContext::SwapBuffers()
+	{
+		glfwSwapBuffers(m_WindowHandle);
+	}
 }

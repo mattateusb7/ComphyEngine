@@ -32,7 +32,7 @@ private:
 class Sandbox : public Comphi::Application
 {
 public:
-	Sandbox(){
+	Sandbox() {
 		PushLayer(new TestLayer());
 	}
 
