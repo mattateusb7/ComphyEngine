@@ -12,6 +12,7 @@ namespace Comphi{
 		bool InitPipeline() override;
 		bool BindProgram(ShaderProgram& shaderProgram) override;
 		bool UnbindProgram(ShaderProgram& shaderProgram) override;
+		bool BindPipeline() override;
 
 		/*bool LinkProgram(ShaderProgram& shaderProgram)
 		{

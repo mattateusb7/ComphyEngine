@@ -5,15 +5,22 @@ namespace Comphi {
 	class FileManager
 	{
 	public:
-		FileManager(std::string filePath) : m_filePath(filePath) { load(); };
-		~FileManager() { unload(); };
+		FileManager(std::string filePath) : m_filePath(filePath) {};
+		virtual ~FileManager() = default;
 
-		virtual const bool getData(std::string& out) = 0;
-		virtual bool setData(const std::string in) = 0;
+		const std::string& getFilePath() { return m_filePath; };
+		const std::string& getFileContent() { return m_fileContent; };
+		void setFileContent(const std::string in) { m_fileContent = in; };
+		
+		virtual bool setFileData(const std::string in) = 0;
+		virtual const std::string getFilename() = 0;
+		virtual const std::string getBaseFolder() = 0;
 
 	protected:
-		virtual const bool load() { return false; };
-		virtual const bool unload() { return false; };
+		virtual const bool load() = 0;
+		virtual const bool unload()  = 0;
+
+	private:
 		std::string m_filePath;
 		std::string m_fileContent;
 	};

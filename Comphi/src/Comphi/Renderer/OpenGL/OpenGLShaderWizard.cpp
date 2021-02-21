@@ -16,41 +16,42 @@ namespace Comphi {
 
 		// Send the vertex shader source code to GL
 		// Note that std::string's .c_str is NULL character terminated.
-		const GLchar* source = (const GLchar*)shaderProgram.shaderSource.c_str();
+		const GLchar* source = (const GLchar*)shaderProgram.shaderFile.getFileContent().c_str();
 		glShaderSource(shader, 1, &source, 0);
 
 		glCompileShader(shader);
-		/*if (!CheckCompileStatus(shader)) {
+		if (!CheckCompileStatus(shader)) {
 			shaderProgram.shaderID = -1;
 			return false;
-		}*/
+		}
 		// Shader compilation is successful.
 
 		// Attach the shader to its respective program
 		glAttachShader(shaderProgram.shaderID, shader);
 
 		glLinkProgram(shaderProgram.shaderID);
-		/*if (!CheckLinkStatus(shaderProgram.shaderID)) {
+		if (!CheckLinkStatus(shaderProgram.shaderID)) {
 			shaderProgram.shaderID = -1;
 			return false;
-		}*/
+		}
+
+		COMPHILOG_CORE_INFO("Successfully Attached Shader \"" + shaderProgram.shaderFile.getFilename() + "\" to ID: " + std::to_string(shaderProgram.shaderID));
 
 		// Detach? and delete the shader object
 		//glDetachShader(shaderProgram.shaderID, shader);
 		glDeleteShader(shader);
 
-		COMPHILOG_CORE_INFO("Shader ID Compile: %i ... success!", shaderProgram.shaderID);
 		return true;
 	}
 
 	bool OpenGLShaderWizard::CheckCompileStatus(uint shaderID)
 	{
-		return checkStatus(shaderID, glGetProgramiv, glGetProgramInfoLog, GL_COMPILE_STATUS);
+		return checkStatus(shaderID, glGetShaderiv, glGetShaderInfoLog, GL_COMPILE_STATUS);
 	}
 
 	bool OpenGLShaderWizard::CheckLinkStatus(uint programID)
 	{
-		return checkStatus(programID, glGetShaderiv, glGetShaderInfoLog, GL_LINK_STATUS);
+		return checkStatus(programID, glGetProgramiv, glGetProgramInfoLog, GL_LINK_STATUS);
 	}
 
 	bool OpenGLShaderWizard::checkStatus(GLuint objectID,
@@ -68,7 +69,7 @@ namespace Comphi {
 
 			GLsizei bufferSize;
 			getInfoLogFunc(objectID, infoLogLength, &bufferSize, buffer);
-			COMPHILOG_CORE_ERROR("%s", buffer);
+			COMPHILOG_CORE_ERROR(buffer);
 			delete[] buffer;
 			return false;
 		}

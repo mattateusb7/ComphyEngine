@@ -16,16 +16,13 @@ namespace Comphi{
 	class ShaderProgram
 	{
 	public:
-		ShaderProgram(ShaderType shaderType, FileManager& file) : m_shaderType(shaderType), shaderFile(file){
-			shaderFile.getData(shaderSource);
-		};
+		ShaderProgram(ShaderType shaderType, FileManager* file) : m_shaderType(shaderType), shaderFile(*file) {};
 		virtual ~ShaderProgram() = default;
 
 		virtual uint GetType() = 0; 
 		virtual uint GetTypeMask() = 0; 
-		
+
 		FileManager& shaderFile;
-		std::string shaderSource;
 		uint shaderID;
 
 	protected:

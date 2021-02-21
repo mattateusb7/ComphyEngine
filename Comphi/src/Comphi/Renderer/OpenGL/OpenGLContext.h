@@ -25,8 +25,8 @@ namespace Comphi {
 		uint m_VertexArray, m_VertexBuffer, m_IndexBuffer;
 		
 		OpenGLShaderPipeline pipe;
-		OpenGLShaderProgram vertexShader = OpenGLShaderProgram(ShaderType::VertexShader, FileRef("Shaders/vert.glsl"));
-		OpenGLShaderProgram fragmentShader = OpenGLShaderProgram(ShaderType::FragmentShader, FileRef("Shaders/frag.glsl"));
+		OpenGLShaderProgram* vertexShader;
+		OpenGLShaderProgram* fragmentShader;
 	};
 
 }

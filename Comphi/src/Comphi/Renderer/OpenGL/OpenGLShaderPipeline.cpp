@@ -40,4 +40,10 @@ namespace Comphi {
 		return false;
 	}
 
+	bool OpenGLShaderPipeline::BindPipeline()
+	{
+		glBindProgramPipeline(m_pipeline);
+		return false;
+	}
+
 }

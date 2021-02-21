@@ -21,11 +21,11 @@ namespace Comphi {
 
 		COMPHILOG_CORE_INFO("OpenGLContext Initialized...");
 
-		//vertexShader.shaderFile.setData("awa");
-		//fragmentShader.shaderFile.setData("owo");
-		OpenGLShaderWizard wiz;
-		wiz.Compile(vertexShader);
-		wiz.Compile(fragmentShader);
+		/***DEBUG***/
+		vertexShader = new OpenGLShaderProgram(ShaderType::VertexShader, new FileRef("C:\\ComphiEngine\\Sandbox\\..\\bin\\Debug-windows-x86_64\\Sandbox\\vert.glsl"));
+		fragmentShader = new OpenGLShaderProgram(ShaderType::FragmentShader, new FileRef("C:\\ComphiEngine\\Sandbox\\..\\bin\\Debug-windows-x86_64\\Sandbox\\frag.glsl"));
+		OpenGLShaderWizard::CompileShader(*vertexShader);
+		OpenGLShaderWizard::CompileShader(*fragmentShader);
 
 		//VERTEX BUFFER
 		glGenVertexArrays(1, &m_VertexArray);
@@ -51,7 +51,7 @@ namespace Comphi {
 		uint indexes[3] = { 0,1,2 };
 
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexes), indexes, GL_STATIC_DRAW);
-
+		/***DEBUG***/
 		
 	}
 
@@ -59,12 +59,15 @@ namespace Comphi {
 	{
 		glClearColor(0.3f, 0.6f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
 		pipe.InitPipeline();
 
 		glBindVertexArray(m_VertexArray);
 
-		pipe.BindProgram(vertexShader);
-		pipe.BindProgram(fragmentShader);
+		pipe.BindProgram(*vertexShader);
+		pipe.BindProgram(*fragmentShader);
+
+		pipe.BindPipeline();
 
 		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 

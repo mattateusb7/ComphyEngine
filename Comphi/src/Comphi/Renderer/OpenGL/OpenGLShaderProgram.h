@@ -21,11 +21,10 @@ namespace Comphi {
 	class OpenGLShaderProgram : public ShaderProgram
 	{
 	public:
-		OpenGLShaderProgram(ShaderType shaderType, FileRef& shaderFile) : ShaderProgram(shaderType, shaderFile) {};
+		OpenGLShaderProgram(ShaderType shaderType, FileRef* shaderFile) : ShaderProgram(shaderType, shaderFile) {};
 		~OpenGLShaderProgram();
 		uint GetType() override;
 		uint GetTypeMask() override;
-	private:
 	};
 
 }
