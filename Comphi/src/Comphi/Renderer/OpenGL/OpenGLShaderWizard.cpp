@@ -1,8 +1,8 @@
 #include "cphipch.h"
 #include "OpenGLShaderWizard.h"
 
-namespace Comphi {
-	bool OpenGLShaderWizard::Compile(ShaderProgram& shaderProgram)
+namespace Comphi::OpenGL {
+	bool ShaderWizard::Compile(IShaderProgram& shaderProgram)
 	{
 		if (shaderProgram.shaderID == -1) return false;
 
@@ -44,17 +44,17 @@ namespace Comphi {
 		return true;
 	}
 
-	bool OpenGLShaderWizard::CheckCompileStatus(uint shaderID)
+	bool ShaderWizard::CheckCompileStatus(uint shaderID)
 	{
 		return checkStatus(shaderID, glGetShaderiv, glGetShaderInfoLog, GL_COMPILE_STATUS);
 	}
 
-	bool OpenGLShaderWizard::CheckLinkStatus(uint programID)
+	bool ShaderWizard::CheckLinkStatus(uint programID)
 	{
 		return checkStatus(programID, glGetProgramiv, glGetProgramInfoLog, GL_LINK_STATUS);
 	}
 
-	bool OpenGLShaderWizard::checkStatus(GLuint objectID,
+	bool ShaderWizard::checkStatus(GLuint objectID,
 		PFNGLGETSHADERIVPROC objectPropertyGetterFunc,
 		PFNGLGETSHADERINFOLOGPROC getInfoLogFunc,
 		GLenum statusType)

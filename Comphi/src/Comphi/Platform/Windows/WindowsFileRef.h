@@ -1,8 +1,8 @@
 #pragma once
-#include "../FileManager.h"
+#include "../IFileRef.h"
 
-namespace Comphi{
-	class FileRef : public FileManager
+namespace Comphi::Windows{
+	class FileRef : public IFileRef
 	{
 	public:
 		FileRef(std::string filePath);

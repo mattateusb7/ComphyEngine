@@ -1,12 +1,12 @@
 #pragma once
 #include "Comphi/Core.h"
-#include "Comphi/Input.h"
+#include "../IInput.h"
 
 #include <GLFW/glfw3.h>
 
-namespace Comphi {
+namespace Comphi::Windows {
 
-	class WindowsInput : public Input
+	class Input : public IInput
 	{
 	protected:
 		virtual bool IsKeyPressedImpl(int KeyCode) override;

@@ -17,12 +17,12 @@ namespace Comphi{
 			: Title(title), Width(width), Height(height) {}
 	};
 
-	class Window
+	class IWindow
 	{
 	public:
 		using EventCallback = std::function<void(Event&)>;
 
-		virtual ~Window() {};
+		virtual ~IWindow() {};
 
 		virtual void OnWindowResized(uint x, uint y) = 0;
 		virtual void OnBeginUpdate() = 0;
@@ -39,7 +39,7 @@ namespace Comphi{
 		virtual void* GetNativeWindow() const = 0;
 
 		//Implement in Platform Specific File
-		static Window* Create(const WindowProperties& props = WindowProperties());
+		static IWindow* Create(const WindowProperties& props = WindowProperties());
 	};
 
 }

@@ -1,9 +1,14 @@
 #include "cphipch.h"
 #include "WindowsWindow.h"
 
-#include "Comphi/Renderer/OpenGL/OpenGLContext.h" //TEMP - future platform independent
+#include "Comphi/Renderer/OpenGL/OpenGLGraphicsContext.h" //TEMP - future platform independent
 
-namespace Comphi {
+Comphi::IWindow* Comphi::IWindow::Create(const WindowProperties& props)
+{
+	return new Comphi::Windows::Window(props);
+}
+
+namespace Comphi::Windows {
 
 	static bool s_GLFWInitialized = false;
 
@@ -11,22 +16,17 @@ namespace Comphi {
 		COMPHILOG_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
-	Window* Window::Create(const WindowProperties& props) 
-	{
-		return new WindowsWindow(props);
-	}
-
-	WindowsWindow::WindowsWindow(const WindowProperties& props)
+	Window::Window(const WindowProperties& props)
 	{
 		Init(props);
 	}	
 	
-	WindowsWindow::~WindowsWindow()
+	Window::~Window()
 	{
 		Shutdown();
 	}
 
-	void WindowsWindow::Init(const WindowProperties& props)
+	void Window::Init(const WindowProperties& props)
 	{
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
@@ -43,7 +43,7 @@ namespace Comphi {
 		COMPHILOG_CORE_INFO("GLFW Initialized...");
 
 		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
-		m_GraphicsContext = new OpenGLContext(m_Window);
+		m_GraphicsContext = new Comphi::OpenGL::GraphicsContext(m_Window);
 		m_GraphicsContext->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
@@ -138,36 +138,36 @@ namespace Comphi {
 			});
 		}
 
-		COMPHILOG_CORE_INFO("EventCallBacks SetUp...");
+		COMPHILOG_CORE_INFO("Creating Window {0} ({1},{2}) - Success!", props.Title, props.Width, props.Height);
 	}
 
-	void WindowsWindow::SetEventCallback(const EventCallback& callback)
+	void Window::SetEventCallback(const EventCallback& callback)
 	{
 		m_Data.EventCallback = callback;
 	}
 
-	void WindowsWindow::Shutdown()
+	void Window::Shutdown()
 	{
 		glfwDestroyWindow(m_Window);
 	}
 
-	void WindowsWindow::OnUpdate()
+	void Window::OnUpdate()
 	{
 		glfwPollEvents();
 		m_GraphicsContext->SwapBuffers();
 	}
 
-	void WindowsWindow::OnBeginUpdate()
+	void Window::OnBeginUpdate()
 	{
 		m_GraphicsContext->Draw();
 	}
 
-	void WindowsWindow::OnWindowResized(uint x, uint y)
+	void Window::OnWindowResized(uint x, uint y)
 	{
 		glViewport(0, 0, x, y);
 	}
 
-	void WindowsWindow::SetVSync(bool enabled)
+	void Window::SetVSync(bool enabled)
 	{
 		if (enabled) 
 			glfwSwapInterval(1);

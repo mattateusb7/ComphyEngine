@@ -2,11 +2,11 @@
 
 namespace Comphi {
 
-	class FileManager
+	class IFileRef
 	{
 	public:
-		FileManager(std::string filePath) : m_filePath(filePath) {};
-		virtual ~FileManager() = default;
+		IFileRef(std::string filePath) : m_filePath(filePath) {};
+		virtual ~IFileRef() = default;
 
 		const std::string& getFilePath() { return m_filePath; };
 		const std::string& getFileContent() { return m_fileContent; };

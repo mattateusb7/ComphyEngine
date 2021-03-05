@@ -1,14 +1,16 @@
 #include "cphipch.h"
-#include "OpenGLContext.h"
+#include "OpenGLGraphicsContext.h"
 
-namespace Comphi {
+#include "Comphi/Platform/Windows/WindowsFileRef.h" //TEMP Debug, ShaderPrograms are not initialized here
 
-	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle) : m_WindowHandle(windowHandle)
+namespace Comphi::OpenGL {
+
+	GraphicsContext::GraphicsContext(GLFWwindow* windowHandle) : m_WindowHandle(windowHandle)
 	{
 		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
 	}
 
-	void OpenGLContext::Init()
+	void GraphicsContext::Init()
 	{
 		glfwMakeContextCurrent(m_WindowHandle);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -22,10 +24,10 @@ namespace Comphi {
 		COMPHILOG_CORE_INFO("OpenGLContext Initialized...");
 
 		/***DEBUG***/
-		vertexShader = new OpenGLShaderProgram(ShaderType::VertexShader, new FileRef("C:\\ComphiEngine\\Sandbox\\..\\bin\\Debug-windows-x86_64\\Sandbox\\vert.glsl"));
-		fragmentShader = new OpenGLShaderProgram(ShaderType::FragmentShader, new FileRef("C:\\ComphiEngine\\Sandbox\\..\\bin\\Debug-windows-x86_64\\Sandbox\\frag.glsl"));
-		OpenGLShaderWizard::CompileShader(*vertexShader);
-		OpenGLShaderWizard::CompileShader(*fragmentShader);
+		vertexShader = new ShaderProgram(Comphi::ShaderType::VertexShader, new Windows::FileRef("C:\\ComphiEngine\\Sandbox\\..\\bin\\Debug-windows-x86_64\\Sandbox\\vert.glsl"));
+		fragmentShader = new ShaderProgram(Comphi::ShaderType::FragmentShader, new Windows::FileRef("C:\\ComphiEngine\\Sandbox\\..\\bin\\Debug-windows-x86_64\\Sandbox\\frag.glsl"));
+		ShaderWizard::CompileShader(*vertexShader);
+		ShaderWizard::CompileShader(*fragmentShader);
 
 		//VERTEX BUFFER
 		glGenVertexArrays(1, &m_VertexArray);
@@ -55,7 +57,7 @@ namespace Comphi {
 		
 	}
 
-	void OpenGLContext::Draw()
+	void OpenGL::GraphicsContext::Draw()
 	{
 		glClearColor(0.3f, 0.6f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -73,7 +75,7 @@ namespace Comphi {
 
 	}
 
-	void OpenGLContext::SwapBuffers()
+	void OpenGL::GraphicsContext::SwapBuffers()
 	{
 		glfwSwapBuffers(m_WindowHandle);
 	}

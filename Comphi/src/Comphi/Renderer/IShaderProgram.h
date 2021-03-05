@@ -1,6 +1,5 @@
 #pragma once
-#include "Comphi/Platform/FileManager.h"
-#include <Comphi\Platform\Windows\FileRef.h>
+#include "Comphi/Platform/IFileRef.h"
 
 namespace Comphi{
 
@@ -13,16 +12,16 @@ namespace Comphi{
 		ComputeShader = 4,
 	};
 
-	class ShaderProgram
+	class IShaderProgram
 	{
 	public:
-		ShaderProgram(ShaderType shaderType, FileManager* file) : m_shaderType(shaderType), shaderFile(*file) {};
-		virtual ~ShaderProgram() = default;
+		IShaderProgram(ShaderType shaderType, IFileRef* file) : m_shaderType(shaderType), shaderFile(*file) {};
+		virtual ~IShaderProgram() = default;
 
 		virtual uint GetType() = 0; 
 		virtual uint GetTypeMask() = 0; 
 
-		FileManager& shaderFile;
+		IFileRef& shaderFile;
 		uint shaderID;
 
 	protected:

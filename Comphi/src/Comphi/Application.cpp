@@ -1,6 +1,6 @@
 #include "cphipch.h"
 #include "Application.h"
-#include "Input.h"
+#include "Platform/IInput.h"
 
 namespace Comphi {
 
@@ -13,7 +13,7 @@ namespace Comphi {
 		s_instance = this;
 
 		//INIT WINDOW & EventCallback
-		m_Window = std::unique_ptr<Window>(Window::Create());
+		m_Window = std::unique_ptr<IWindow>(IWindow::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
 		//INIT IMGUI

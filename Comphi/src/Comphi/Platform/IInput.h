@@ -3,10 +3,10 @@
 
 namespace Comphi {
 
-	class Input
+	class IInput
 	{
 	public:
-		~Input() { delete s_instance; };
+		~IInput() { delete s_instance; };
 		inline static bool IsKeyPressed(int keycode) { return s_instance->IsKeyPressedImpl(keycode); };
 		inline static bool IsMouseButtonPressed(int button) { return s_instance->IsMouseButtonPressedImpl(button); };
 		inline static std::pair<int, int> GetMousePos() { return s_instance->GetMousePosImpl(); };
@@ -19,7 +19,9 @@ namespace Comphi {
 		virtual int GetMouseXImpl() = 0;
 		virtual int GetMouseYImpl() = 0;
 	private:
-		static Input* s_instance;
+
+		//Implement in Platform Specific File
+		static IInput* s_instance;
 	};
 
 }

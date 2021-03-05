@@ -1,5 +1,5 @@
 #pragma once
-#include "Comphi/Renderer/GraphicsContext.h"
+#include "Comphi/Renderer/IGraphicsContext.h"
 
 #include "Comphi/Renderer/OpenGL/OpenGLShaderPipeline.h"
 #include "Comphi/Renderer/OpenGL/OpenGLShaderWizard.h"
@@ -8,25 +8,23 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-namespace Comphi {
-
-	class OpenGLContext : public GraphicsContext
+namespace Comphi::OpenGL {
+	class GraphicsContext : public IGraphicsContext
 	{
 	public:
-		OpenGLContext(GLFWwindow* windowHandle);
+		GraphicsContext(GLFWwindow* windowHandle);
 		void Init() override;
 		void SwapBuffers() override;
 		void Draw() override;
 
 	private:
 		GLFWwindow* m_WindowHandle;
-	
+
 		//DEBUG
 		uint m_VertexArray, m_VertexBuffer, m_IndexBuffer;
-		
-		OpenGLShaderPipeline pipe;
-		OpenGLShaderProgram* vertexShader;
-		OpenGLShaderProgram* fragmentShader;
-	};
 
+		ShaderPipeline pipe;
+		ShaderProgram* vertexShader;
+		ShaderProgram* fragmentShader;
+	};
 }

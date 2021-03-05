@@ -1,11 +1,11 @@
 #pragma once
-#include "ShaderProgram.h"
+#include "IShaderProgram.h"
 
 namespace Comphi {
-	class ShaderWizard
+	class IShaderWizard
 	{
 	private:
-		virtual bool Compile(ShaderProgram& shaderProgram) = 0;
+		virtual bool Compile(IShaderProgram& shaderProgram) = 0;
 		virtual bool CheckCompileStatus(uint shaderID) = 0;
 		virtual bool CheckLinkStatus(uint programID) = 0;
 	};

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <utility>
 
-#include "Comphi/Input.h"
+#include "Comphi/Platform/IInput.h"
 #include "Comphi/KeyCodes.h" 
 
 #include "Comphi/UI/ImGui/ImGuiLayer.h"

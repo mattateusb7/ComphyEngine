@@ -2,23 +2,23 @@
 #include "WindowsInput.h"
 #include "Comphi/Application.h"
 
-namespace Comphi {
-	
-	Input* Input::s_instance = new WindowsInput();
+Comphi::IInput* Comphi::IInput::s_instance = new Comphi::Windows::Input();
 
-	bool WindowsInput::IsKeyPressedImpl(int keycode)
+namespace Comphi::Windows {
+	
+	bool Input::IsKeyPressedImpl(int keycode)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetKey(window, keycode);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
-	bool WindowsInput::IsMouseButtonPressedImpl(int button)
+	bool Input::IsMouseButtonPressedImpl(int button)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetMouseButton(window, button);
 		return state == GLFW_PRESS;
 	}
-	std::pair<int, int> WindowsInput::GetMousePosImpl()
+	std::pair<int, int> Input::GetMousePosImpl()
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		double xPos,yPos;

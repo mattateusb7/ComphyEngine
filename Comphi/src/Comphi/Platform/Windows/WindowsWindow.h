@@ -1,16 +1,15 @@
 #pragma once
-#include "Comphi/Window.h"
-
-#include "Comphi/Renderer/GraphicsContext.h"
+#include "../IWindow.h"
+#include "Comphi/Renderer/IGraphicsContext.h"
 
 #include <GLFW/glfw3.h> //TEMP - future platform independent
 
-namespace Comphi {
-	class WindowsWindow : public Window
+namespace Comphi::Windows {
+	class Window : public IWindow
 	{
 	public:
-		WindowsWindow(const WindowProperties& props);
-		virtual ~WindowsWindow();
+		Window(const WindowProperties& props);
+		virtual ~Window();
 
 		void OnUpdate() override;
 		void OnBeginUpdate() override;
@@ -29,7 +28,7 @@ namespace Comphi {
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
-		GraphicsContext* m_GraphicsContext;
+		IGraphicsContext* m_GraphicsContext;
 
 		struct WindowData {
 			std::string Title = "";

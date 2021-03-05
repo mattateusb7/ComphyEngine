@@ -1,17 +1,17 @@
 #pragma once
-#include "../ShaderWizard.h"
+#include "../IShaderWizard.h"
 #include <glad\glad.h>
 
-namespace Comphi {
-	static class OpenGLShaderWizard : ShaderWizard
+namespace Comphi::OpenGL {
+	class ShaderWizard : IShaderWizard
 	{
 	public:
-		static bool CompileShader(ShaderProgram& shaderProgram) { 
-			OpenGLShaderWizard wiz;
-			return wiz.Compile(shaderProgram); 
+		static bool CompileShader(IShaderProgram& shaderProgram) {
+			ShaderWizard wiz;
+			return wiz.Compile(shaderProgram);
 		};
 	private:
-		bool Compile(ShaderProgram& shaderProgram) override;
+		bool Compile(IShaderProgram& shaderProgram) override;
 		bool CheckCompileStatus(uint shaderID) override;
 		bool CheckLinkStatus(uint programID) override;
 		bool checkStatus(GLuint objectID, PFNGLGETSHADERIVPROC objectPropertyGetterFunc, PFNGLGETSHADERINFOLOGPROC getInfoLogFunc, GLenum statusType);

@@ -1,28 +1,28 @@
 #pragma once
 #include <glad\glad.h>
-#include "../ShaderPipeline.h"
+#include "Comphi/Renderer/IShaderProgram.h"
 
-namespace Comphi {
+namespace Comphi::OpenGL {
 
-	enum class OpenGLShaderType {
+	enum class ShaderType {
 		VertexShader = GL_VERTEX_SHADER,
 		//TessellationShader = GL_TESS_EVALUATION_SHADER,
 		GeometryShader = GL_GEOMETRY_SHADER,
 		FragmentShader = GL_FRAGMENT_SHADER,
 		ComputeShader = GL_COMPUTE_SHADER
 	};
-	enum class OpenGLShaderTypeMask {
+	enum class ShaderTypeMask {
 		VertexShader = GL_VERTEX_SHADER_BIT,
 		//TessellationShader = GL_TESS_EVALUATION_SHADER_BIT,
 		GeometryShader = GL_GEOMETRY_SHADER_BIT,
 		FragmentShader = GL_FRAGMENT_SHADER_BIT,
 		ComputeShader = GL_COMPUTE_SHADER_BIT
 	};
-	class OpenGLShaderProgram : public ShaderProgram
+	class ShaderProgram : public IShaderProgram
 	{
 	public:
-		OpenGLShaderProgram(ShaderType shaderType, FileRef* shaderFile) : ShaderProgram(shaderType, shaderFile) {};
-		~OpenGLShaderProgram();
+		ShaderProgram(Comphi::ShaderType shaderType, IFileRef* shaderFile) : IShaderProgram(shaderType, shaderFile) {};
+		~ShaderProgram();
 		uint GetType() override;
 		uint GetTypeMask() override;
 	};
