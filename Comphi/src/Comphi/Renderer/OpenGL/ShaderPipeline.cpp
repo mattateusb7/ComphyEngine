@@ -1,7 +1,12 @@
 #include "cphipch.h"
-#include "OpenGLShaderPipeline.h"
+#include "ShaderPipeline.h"
 
 namespace Comphi::OpenGL {
+
+	ShaderPipeline::ShaderPipeline() {
+		glGenProgramPipelines(1, &m_pipeline);
+	}
+
 	ShaderPipeline::~ShaderPipeline()
 	{
 		glDeleteProgramPipelines(1, &m_pipeline);
@@ -10,12 +15,8 @@ namespace Comphi::OpenGL {
 	bool ShaderPipeline::InitPipeline()
 	{
 		// Init program pipeline
-		if (m_pipeline == -1)
-		{
-			glGenProgramPipelines(1, &m_pipeline);
-		}
-		glUseProgramStages(m_pipeline, GL_ALL_SHADER_BITS, 0);
-
+		if (m_pipeline == -1) return false;
+		glUseProgramStages(m_pipeline, GL_ALL_SHADER_BITS, NULL);
 		return true;
 	}
 
@@ -30,13 +31,13 @@ namespace Comphi::OpenGL {
 	bool ShaderPipeline::UnbindProgram(IShaderProgram& shaderProgram)
 	{
 		glUseProgramStages(m_pipeline, shaderProgram.GetTypeMask(), 0);
-		return false;
+		return true;
 	}
 
 	bool ShaderPipeline::BindPipeline()
 	{
 		glBindProgramPipeline(m_pipeline);
-		return false;
+		return true;
 	}
 
 }

@@ -11,6 +11,8 @@ namespace Comphi{
 		std::string Title;
 		uint Width;
 		uint Height;
+		bool VSync = false;
+		EventCallback EventCallback;
 
 		WindowProperties(const std::string& title = "[Comphi Engine]",
 			uint width = 1280, uint height = 720)
@@ -20,7 +22,6 @@ namespace Comphi{
 	class IWindow
 	{
 	public:
-		using EventCallback = std::function<void(Event&)>;
 
 		virtual ~IWindow() {};
 

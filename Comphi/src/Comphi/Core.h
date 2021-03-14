@@ -1,3 +1,4 @@
+#pragma once
 #ifdef CPHI_WINDOWS_PLATFORM
 	/*#ifdef CPHI_DYNAMIC_LINKING
 	    #ifdef CPHI_BUILD_DLL
@@ -24,5 +25,6 @@
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
 namespace Comphi {
-	typedef unsigned int uint;
+	typedef uint32_t uint;
+	typedef uint64_t uint64;
 }

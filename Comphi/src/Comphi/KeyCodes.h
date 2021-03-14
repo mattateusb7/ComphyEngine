@@ -11,8 +11,8 @@ namespace Comphi::MouseButton {
 		MB_7             =6,
 		MB_8             =7,
 		MB_LAST          =MB_8,
-		MB_LEFT          =MB_1,
-		MB_RIGHT         =MB_2,
+		MB_L			 =MB_1,
+		MB_R			 =MB_2,
 		MB_MIDDLE        =MB_3
 	};
 }

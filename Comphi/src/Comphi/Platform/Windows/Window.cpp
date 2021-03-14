@@ -1,7 +1,7 @@
 #include "cphipch.h"
-#include "WindowsWindow.h"
+#include "Window.h"
 
-#include "Comphi/Renderer/OpenGL/OpenGLGraphicsContext.h" //TEMP - future platform independent
+#include "Comphi/Renderer/OpenGL/GraphicsContext.h" //TEMP - future platform independent
 
 Comphi::IWindow* Comphi::IWindow::Create(const WindowProperties& props)
 {
@@ -54,7 +54,7 @@ namespace Comphi::Windows {
 			//WINDOW SIZE CALLBACK
 			glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 				data.Width = width;
 				data.Height = height;
 
@@ -65,7 +65,7 @@ namespace Comphi::Windows {
 			//WINDOW CLOSE CALLBACK
 			glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 				WindowCloseEvent event;
 				data.EventCallback(event);
 			});
@@ -73,7 +73,7 @@ namespace Comphi::Windows {
 			//KEY CALLBACK
 			glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 
 				switch (action) {
 					case GLFW_PRESS: {
@@ -97,7 +97,7 @@ namespace Comphi::Windows {
 			//KEY TYPED CALLBACK
 			glfwSetCharCallback(m_Window, [](GLFWwindow*window, uint keycode)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 				KeyTypedEvent event(keycode);
 				data.EventCallback(event);
 			});
@@ -105,7 +105,7 @@ namespace Comphi::Windows {
 			//MOUSE BTN CALLBACK
 			glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 
 				switch (action) {
 					case GLFW_PRESS: {
@@ -124,7 +124,7 @@ namespace Comphi::Windows {
 			//MOUSE SCROLL CALLBACK
 			glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double x, double y)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 				MouseScrolledEvent event(x, y);
 				data.EventCallback(event);
 			});
@@ -132,7 +132,7 @@ namespace Comphi::Windows {
 			//MOUSE POS CALLBACK
 			glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 				MouseMovedEvent event((uint)x, (uint)y);
 				data.EventCallback(event);
 			});
@@ -164,7 +164,7 @@ namespace Comphi::Windows {
 
 	void Window::OnWindowResized(uint x, uint y)
 	{
-		glViewport(0, 0, x, y);
+		m_GraphicsContext->ResizeWindow(x, y);
 	}
 
 	void Window::SetVSync(bool enabled)

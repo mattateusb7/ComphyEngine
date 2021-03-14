@@ -1,5 +1,5 @@
 #include "cphipch.h"
-#include "WindowsInput.h"
+#include "Input.h"
 #include "Comphi/Application.h"
 
 Comphi::IInput* Comphi::IInput::s_instance = new Comphi::Windows::Input();

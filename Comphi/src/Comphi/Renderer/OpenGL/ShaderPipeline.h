@@ -7,6 +7,7 @@ namespace Comphi::OpenGL{
 	class ShaderPipeline : public IShaderPipeline
 	{
 	public:
+		ShaderPipeline();
 		~ShaderPipeline() override;
 		bool InitPipeline() override;
 		bool BindProgram(IShaderProgram& shaderProgram) override;

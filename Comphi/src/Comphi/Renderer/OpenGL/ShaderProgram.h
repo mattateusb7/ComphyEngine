@@ -21,7 +21,7 @@ namespace Comphi::OpenGL {
 	class ShaderProgram : public IShaderProgram
 	{
 	public:
-		ShaderProgram(Comphi::ShaderType shaderType, IFileRef* shaderFile) : IShaderProgram(shaderType, shaderFile) {};
+		ShaderProgram(Comphi::ShaderType shaderType, IFileRef* shaderFile);
 		~ShaderProgram();
 		uint GetType() override;
 		uint GetTypeMask() override;

@@ -1,5 +1,6 @@
 #include "cphipch.h"
-#include "OpenGLShaderWizard.h"
+#include "ShaderWizard.h"
+#include "GLError.h"
 
 namespace Comphi::OpenGL {
 	bool ShaderWizard::Compile(IShaderProgram& shaderProgram)
@@ -21,6 +22,8 @@ namespace Comphi::OpenGL {
 
 		glCompileShader(shader);
 		if (!CheckCompileStatus(shader)) {
+			glDetachShader(shaderProgram.shaderID, shader);
+			glDeleteShader(shader);
 			shaderProgram.shaderID = -1;
 			return false;
 		}
@@ -31,16 +34,20 @@ namespace Comphi::OpenGL {
 
 		glLinkProgram(shaderProgram.shaderID);
 		if (!CheckLinkStatus(shaderProgram.shaderID)) {
+			glDetachShader(shaderProgram.shaderID, shader);
+			glDeleteShader(shader);
 			shaderProgram.shaderID = -1;
 			return false;
 		}
 
 		COMPHILOG_CORE_INFO("Successfully Attached Shader \"" + shaderProgram.shaderFile.getFilename() + "\" to ID: " + std::to_string(shaderProgram.shaderID));
+		
+		/*debug Content*/
+		//COMPHILOG_CORE_INFO(shaderProgram.shaderFile.getFileContent());
 
 		// Detach? and delete the shader object
-		//glDetachShader(shaderProgram.shaderID, shader);
 		glDeleteShader(shader);
-
+		check_gl_error();
 		return true;
 	}
 

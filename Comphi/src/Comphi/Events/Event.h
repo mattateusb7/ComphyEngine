@@ -72,6 +72,8 @@ namespace Comphi {
 		return os << e.ToString();
 	}
 
+	using EventCallback = std::function<void(Event&)>;
+
 //Add Log types ToString Variants
 	//inline std::ostream& operator<<(std::ostream& os, const Event& e) {
 	//	return os << e.ToString();

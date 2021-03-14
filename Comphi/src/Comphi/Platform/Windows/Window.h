@@ -29,17 +29,6 @@ namespace Comphi::Windows {
 	private:
 		GLFWwindow* m_Window;
 		IGraphicsContext* m_GraphicsContext;
-
-		struct WindowData {
-			std::string Title = "";
-			uint Width = 0;
-			uint Height = 0;
-			bool VSync = false;
-
-			EventCallback EventCallback;
-
-			WindowData() :Title(""), Width(0), Height(0) {}
-
-		}m_Data;
+		WindowProperties m_Data;
 	};
 }
