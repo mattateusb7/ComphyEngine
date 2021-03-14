@@ -8,7 +8,7 @@ namespace Comphi {
         return new OpenGL::ShaderPipeline();
     }
 
-    IVertexBuffer* GraphicsAPI::create::VertexBuffer(float* vertices, uint count)
+    IVertexBuffer* GraphicsAPI::create::VertexBuffer(const float* vertices, const uint& count)
     {
         switch (activeAPI)
         {
@@ -23,7 +23,7 @@ namespace Comphi {
         return nullptr;
     }
 
-    IIndexBuffer* GraphicsAPI::create::IndexBuffer(uint* indices)
+    IIndexBuffer* GraphicsAPI::create::IndexBuffer(const uint* indices)
     {
         switch (activeAPI)
         {

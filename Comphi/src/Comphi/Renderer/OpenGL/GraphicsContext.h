@@ -18,8 +18,7 @@ namespace Comphi::OpenGL {
 	private:
 		GLFWwindow* m_WindowHandle;
 		
-		std::unique_ptr<IVertexBuffer> vbo;
-		std::unique_ptr<IIndexBuffer> ibo;
+		std::unique_ptr<IVertexBuffer> vao;
 		std::unique_ptr<IShaderProgram> vertexShader;
 		std::unique_ptr<IShaderProgram> fragmentShader;
 		std::unique_ptr<IShaderPipeline> shaderPipe;

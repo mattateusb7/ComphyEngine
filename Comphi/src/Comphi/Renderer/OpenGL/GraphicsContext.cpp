@@ -12,9 +12,6 @@ namespace Comphi::OpenGL {
 		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
 	}
 
-
-
-
 	void GraphicsContext::Init()
 	{
 		glfwMakeContextCurrent(m_WindowHandle);
@@ -33,6 +30,7 @@ namespace Comphi::OpenGL {
 		/***DEBUG***/
 
 		check_gl_error_on();
+
 		Windows::FileRef* vert = new Windows::FileRef("C:\\ComphiEngine\\bin\\Debug-windows-x86_64\\Sandbox\\vert.glsl");
 		Windows::FileRef* frag = new Windows::FileRef("C:\\ComphiEngine\\bin\\Debug-windows-x86_64\\Sandbox\\frag.glsl");
 
@@ -47,8 +45,7 @@ namespace Comphi::OpenGL {
 		
 		uint indexes[3] = { 0,1,2 };
 
-		vbo.reset(GraphicsAPI::create::VertexBuffer(vertices,3));
-		ibo.reset(GraphicsAPI::create::IndexBuffer(indexes));
+		vao.reset(GraphicsAPI::create::VertexBuffer(vertices,3));
 		shaderPipe.reset(GraphicsAPI::create::ShaderPipeline());
 
 		/***DEBUG***/
@@ -61,15 +58,14 @@ namespace Comphi::OpenGL {
 		glClearColor(0.3f, 0.6f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		shaderPipe->InitPipeline();
-
-		vbo->bind();
 		shaderPipe->BindProgram(*vertexShader);
 		shaderPipe->BindProgram(*fragmentShader);
-
 		shaderPipe->BindPipeline();
 
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+		vao->bind();
+
+		glDrawArrays(GL_TRIANGLES, 0, 9);
+		//glDrawArraysInstanced(GL_TRIANGLES, 0, 9, 1);
 
 		check_gl_error();
 	}

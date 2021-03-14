@@ -7,23 +7,49 @@
 
 namespace Comphi::OpenGL {
 
-    VertexBuffer::VertexBuffer(GLfloat* vertices, GLuint count)
+    VertexBuffer::VertexBuffer(const GLfloat* vertices, const GLuint& count)
     {
-        //VERTEX BUFFER
-        glGenVertexArrays(1, &arrayID);
-        glBindVertexArray(arrayID);
+        GLsizei elemsPerVertex = 3;
+        GLsizei length = (elemsPerVertex * count);
+        GLsizei floatSize = sizeof(GLfloat);
+        GLsizei VAOsize = (floatSize * length);
+        GLsizei VAOstride = (floatSize * elemsPerVertex);
 
-        glGenBuffers(1, &bufferID);
-        glBindBuffer(GL_ARRAY_BUFFER, bufferID);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        /**Vertex Array Object Attributes**/
+        const GLsizei Pos_atrib = 0;
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, count, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * count, NULL);
+        /**VERTEX BUFFER OBJ**/
+        glCreateBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, VAOsize, vertices, GL_STATIC_DRAW);
+
+        /**VERTEX BUFFER OBJECT**/
+        glCreateVertexArrays(1, &VAO);
+        glEnableVertexArrayAttrib(VAO, Pos_atrib);
+        //glEnableVertexArrayAttrib(vao, _NL::Core::GLSL_AU::Norm_atrib);
+        //glEnableVertexArrayAttrib(vao, _NL::Core::GLSL_AU::Tangent_atrib);
+        //glEnableVertexArrayAttrib(vao, _NL::Core::GLSL_AU::TexC_atrib);
+
+        //Vertex Array Format
+        glVertexArrayAttribBinding(VAO, Pos_atrib, 0);
+        glVertexArrayAttribFormat(VAO, Pos_atrib, 3, GL_FLOAT, GL_FALSE, floatSize * 0);
+
+        //glVertexArrayAttribBinding(vao, _NL::Core::GLSL_AU::Norm_atrib, 0);
+        //glVertexArrayAttribFormat(vao, _NL::Core::GLSL_AU::Norm_atrib, 3, GL_FLOAT, GL_FALSE, foatSize * 3);
+        //
+        //glVertexArrayAttribBinding(vao, _NL::Core::GLSL_AU::Tangent_atrib, 0);
+        //glVertexArrayAttribFormat(vao, _NL::Core::GLSL_AU::Tangent_atrib, 3, GL_FLOAT, GL_FALSE, foatSize * 6);
+        //
+        //glVertexArrayAttribBinding(vao, _NL::Core::GLSL_AU::TexC_atrib, 0);
+        //glVertexArrayAttribFormat(vao, _NL::Core::GLSL_AU::TexC_atrib, 2, GL_FLOAT, GL_FALSE, foatSize * 9);
+
+        /**Configure : link Buffers to Vertex Array **/
+        glVertexArrayVertexBuffer(VAO, 0, VBO, 0, VAOstride);
     }
 
     void VertexBuffer::bind()
-	{
-		glBindVertexArray(arrayID);
+	{   
+		glBindVertexArray(VAO);
 	}
 
 	void VertexBuffer::unbind()
@@ -31,7 +57,7 @@ namespace Comphi::OpenGL {
         glBindVertexArray(0);
 	}
 
-    IndexBuffer::IndexBuffer(GLuint* indices)
+    IndexBuffer::IndexBuffer(const GLuint* indices)
     {
         //INDEX BUFFER
         glGenBuffers(1, &ID);

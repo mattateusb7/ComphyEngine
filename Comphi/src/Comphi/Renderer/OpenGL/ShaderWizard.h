@@ -7,7 +7,7 @@ namespace Comphi::OpenGL {
 	{
 	public:
 		static bool CompileShader(IShaderProgram& shaderProgram) {
-			ShaderWizard wiz;
+			static ShaderWizard wiz;
 			return wiz.Compile(shaderProgram);
 		};
 	private:

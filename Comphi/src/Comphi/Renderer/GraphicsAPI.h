@@ -33,8 +33,8 @@ namespace Comphi {
 		inline RenderingAPI getActiveAPI() { return activeAPI; }
 
 		struct create {
-			static IVertexBuffer* VertexBuffer(float* vertices, uint count);
-			static IIndexBuffer* IndexBuffer(uint* indices);
+			static IVertexBuffer* VertexBuffer(const float* vertices, const uint& count);
+			static IIndexBuffer* IndexBuffer(const uint* indices);
 			static IShaderPipeline* ShaderPipeline();
 			static IShaderProgram* ShaderProgram(Comphi::ShaderType shaderType, IFileRef* shaderFile);
 		};

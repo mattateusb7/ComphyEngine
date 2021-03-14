@@ -4,6 +4,7 @@
 namespace Comphi::OpenGL {
 
 	ShaderPipeline::ShaderPipeline() {
+		// Init pipeline
 		glGenProgramPipelines(1, &m_pipeline);
 	}
 
@@ -14,9 +15,6 @@ namespace Comphi::OpenGL {
 	
 	bool ShaderPipeline::InitPipeline()
 	{
-		// Init program pipeline
-		if (m_pipeline == -1) return false;
-		glUseProgramStages(m_pipeline, GL_ALL_SHADER_BITS, NULL);
 		return true;
 	}
 
