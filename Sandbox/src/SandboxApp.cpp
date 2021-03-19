@@ -35,7 +35,7 @@ class Sandbox : public Comphi::Application
 {
 public:
 	Sandbox() {
-		PushLayer(new TestLayer());
+		//PushLayer(new TestLayer());
 	}
 
 	~Sandbox(){}

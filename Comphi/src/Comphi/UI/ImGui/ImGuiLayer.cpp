@@ -1,11 +1,12 @@
 #include "cphipch.h"
 #include "ImGuiLayer.h"
 
-#include "examples/imgui_impl_opengl3.h"
-#include "examples/imgui_impl_glfw.h"
+#include <examples/imgui_impl_opengl3.h>
+#include <examples/imgui_impl_vulkan.h>
+#include <examples/imgui_impl_glfw.h>
 
 #include "Comphi/Application.h"
-#include "GLFW/glfw3.h"
+#include "Comphi/Renderer/GraphicsAPI.h"
 
 namespace Comphi {
 
@@ -47,8 +48,20 @@ namespace Comphi {
 
 		// Setup Platform/Renderer bindings
 		Application& app = Application::Get();
-		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)app.GetWindow().GetNativeWindow(), true);
-		ImGui_ImplOpenGL3_Init("#version 410");
+
+		switch (GraphicsAPI::getActiveAPI()) {
+		case GraphicsAPI::Vulkan:
+			ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)app.GetWindow().GetNativeWindow(), true);
+			//ImGui_ImplVulkan_Init(NULL); //! FIX
+			break;
+		case GraphicsAPI::OpenGL:
+			ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)app.GetWindow().GetNativeWindow(), true);
+			ImGui_ImplOpenGL3_Init("#version 410");
+			break;
+		default:
+			COMPHILOG_CORE_ERROR("No rendering API Selected.");
+			break;
+		}
 
 		// Load Fonts
 		// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -57,13 +70,13 @@ namespace Comphi {
 		// - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
 		// - Read 'docs/FONTS.md' for more instructions and details.
 		// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-		//io.Fonts->AddFontDefault();
+		ImFont* font = io.Fonts->AddFontDefault();
 		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
 		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
 		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
 		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
 		//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-		//IM_ASSERT(font != NULL);
+		IM_ASSERT(font != NULL);
 
 		// Our state
 		bool show_demo_window = true;
@@ -74,14 +87,36 @@ namespace Comphi {
 
 	void ImGuiLayer::OnDetach()
 	{
-		ImGui_ImplOpenGL3_Shutdown();
+		switch (GraphicsAPI::getActiveAPI()) {
+		case GraphicsAPI::Vulkan:
+			ImGui_ImplVulkan_Shutdown();
+			break;
+		case GraphicsAPI::OpenGL:
+			ImGui_ImplOpenGL3_Shutdown();
+			break;
+		default:
+			COMPHILOG_CORE_ERROR("No rendering API Selected.");
+			break;
+		}
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
 
 	void ImGuiLayer::Begin()
 	{
-		ImGui_ImplOpenGL3_NewFrame();
+
+		switch (GraphicsAPI::getActiveAPI()) {
+		case GraphicsAPI::Vulkan:
+			ImGui_ImplVulkan_NewFrame();
+			break;
+		case GraphicsAPI::OpenGL:
+			ImGui_ImplOpenGL3_NewFrame();
+			break;
+		default:
+			COMPHILOG_CORE_ERROR("No rendering API Selected.");
+			break;
+		}
+
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
@@ -95,7 +130,19 @@ namespace Comphi {
 
 		//Rendering 
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		switch (GraphicsAPI::getActiveAPI()) {
+		case GraphicsAPI::Vulkan:
+			//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),NULL); //! FIX
+			break;
+		case GraphicsAPI::OpenGL:
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			break;
+		default:
+			COMPHILOG_CORE_ERROR("No rendering API Selected.");
+			break;
+
+		}
 
 		//Docking Branch:
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {

@@ -21,6 +21,11 @@
 	#define COMPHILOG_ASSERT(b,...)
 #endif
 
+#define GLFW_INCLUDE_VULKAN
+
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 #define BIT(x) (1 << x)
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 

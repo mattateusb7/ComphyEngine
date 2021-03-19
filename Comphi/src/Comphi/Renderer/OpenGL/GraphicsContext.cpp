@@ -2,7 +2,7 @@
 #include "GraphicsContext.h"
 #include "GLError.h"
 
-#include "Comphi/Renderer/GraphicsAPI.h"
+#include "Comphi/Renderer/GraphicsAPI.h" //DEBUG!
 #include "Comphi/Platform/Windows/FileRef.h"
 
 namespace Comphi::OpenGL {
@@ -25,14 +25,12 @@ namespace Comphi::OpenGL {
 
 		COMPHILOG_CORE_INFO("OpenGLContext Initialized.");
 
-		GraphicsAPI::selectOpenGL();
-		
 		/***DEBUG***/
 
 		check_gl_error_on();
 
-		Windows::FileRef* vert = new Windows::FileRef("C:\\ComphiEngine\\bin\\Debug-windows-x86_64\\Sandbox\\vert.glsl");
-		Windows::FileRef* frag = new Windows::FileRef("C:\\ComphiEngine\\bin\\Debug-windows-x86_64\\Sandbox\\frag.glsl");
+		Windows::FileRef* vert = new Windows::FileRef("C:\\ComphiEngine\\Sandbox\\shaders\\vert.glsl");
+		Windows::FileRef* frag = new Windows::FileRef("C:\\ComphiEngine\\Sandbox\\shaders\\frag.glsl");
 
 		vertexShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::VertexShader,vert));
 		fragmentShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::FragmentShader,frag));
@@ -43,8 +41,6 @@ namespace Comphi::OpenGL {
 			0.0f, 0.5f, 0.0f
 		};
 		
-		uint indexes[3] = { 0,1,2 };
-
 		vao.reset(GraphicsAPI::create::VertexBuffer(vertices,3));
 		shaderPipe.reset(GraphicsAPI::create::ShaderPipeline());
 
@@ -66,7 +62,6 @@ namespace Comphi::OpenGL {
 
 		glDrawArrays(GL_TRIANGLES, 0, 9);
 		//glDrawArraysInstanced(GL_TRIANGLES, 0, 9, 1);
-
 		check_gl_error();
 	}
 

@@ -2,7 +2,7 @@
 #include "../IWindow.h"
 #include "Comphi/Renderer/IGraphicsContext.h"
 
-#include <GLFW/glfw3.h> //TEMP - future platform independent
+#include <GLFW/glfw3.h>
 
 namespace Comphi::Windows {
 	class Window : public IWindow

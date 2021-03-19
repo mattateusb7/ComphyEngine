@@ -11,7 +11,7 @@ namespace Comphi{
 		std::string Title;
 		uint Width;
 		uint Height;
-		bool VSync = false;
+		bool VSync = true;
 		EventCallback EventCallback;
 
 		WindowProperties(const std::string& title = "[Comphi Engine]",

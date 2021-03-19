@@ -19,8 +19,14 @@
     <Filter Include="src\Comphi\Renderer">
       <UniqueIdentifier>{C26292A2-2EC4-6FB0-B731-B6622392A66F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Comphi\Renderer\Objects">
+      <UniqueIdentifier>{7BA3C10B-E7B0-EFF1-7097-EBDCDCA3BBA8}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Comphi\Renderer\OpenGL">
       <UniqueIdentifier>{B61D10EA-A22D-BCBA-0BE7-20D9F715AB53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Comphi\Renderer\Vulkan">
+      <UniqueIdentifier>{0282C2FA-EE91-6ECB-574B-D3E9437A5D64}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Comphi\UI">
       <UniqueIdentifier>{49CD55F2-B58D-D128-7EC8-1AA6EA471605}</UniqueIdentifier>
@@ -86,6 +92,60 @@
     </ClInclude>
     <ClInclude Include="src\Comphi\Log.h">
       <Filter>src\Comphi</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Platform\IFileRef.h">
+      <Filter>src\Comphi\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Platform\IInput.h">
+      <Filter>src\Comphi\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Platform\IWindow.h">
+      <Filter>src\Comphi\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Platform\Windows\FileRef.h">
+      <Filter>src\Comphi\Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Platform\Windows\Input.h">
+      <Filter>src\Comphi\Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Platform\Windows\Window.h">
+      <Filter>src\Comphi\Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\GraphicsAPI.h">
+      <Filter>src\Comphi\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\IGraphicsContext.h">
+      <Filter>src\Comphi\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\IShaderPipeline.h">
+      <Filter>src\Comphi\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h">
+      <Filter>src\Comphi\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\IShaderWizard.h">
+      <Filter>src\Comphi\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Objects\IBuffers.h">
+      <Filter>src\Comphi\Renderer\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\GLError.h">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\GraphicsContext.h">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderPipeline.h">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderProgram.h">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderWizard.h">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsContext.h">
+      <Filter>src\Comphi\Renderer\Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\UI\ImGui\ImGuiLayer.h">
       <Filter>src\Comphi\UI\ImGui</Filter>
@@ -1317,34 +1377,6 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\IShaderWizard.h" />
-    <ClInclude Include="src\Comphi\Renderer\IShaderPipeline.h" />
-    <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h" />
-    <ClInclude Include="src\Comphi\Renderer\IGraphicsContext.h">
-      <Filter>src\Comphi\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Platform\IFileRef.h" />
-    <ClInclude Include="src\Comphi\Platform\IWindow.h">
-      <Filter>src\Comphi</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Platform\IInput.h">
-      <Filter>src\Comphi</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\GraphicsAPI.h" />
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderProgram.h" />
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderWizard.h" />
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\GraphicsContext.h">
-      <Filter>src\Comphi\Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\Objects\IBuffers.h" />
-    <ClInclude Include="src\Comphi\Platform\Windows\FileRef.h" />
-    <ClInclude Include="src\Comphi\Platform\Windows\Input.h">
-      <Filter>src\Comphi\Platform\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Platform\Windows\Window.h">
-      <Filter>src\Comphi\Platform\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\GLError.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Comphi\Application.cpp">
@@ -1359,6 +1391,39 @@
     <ClCompile Include="src\Comphi\Log.cpp">
       <Filter>src\Comphi</Filter>
     </ClCompile>
+    <ClCompile Include="src\Comphi\Platform\Windows\FileRef.cpp">
+      <Filter>src\Comphi\Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Platform\Windows\Input.cpp">
+      <Filter>src\Comphi\Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Platform\Windows\Window.cpp">
+      <Filter>src\Comphi\Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\GraphicsAPI.cpp">
+      <Filter>src\Comphi\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Objects\IBuffers.cpp">
+      <Filter>src\Comphi\Renderer\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\OpenGL\GLError.cpp">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\OpenGL\GraphicsContext.cpp">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderPipeline.cpp">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderProgram.cpp">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderWizard.cpp">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsContext.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan</Filter>
+    </ClCompile>
     <ClCompile Include="src\Comphi\UI\ImGui\ImGuiBuild.cpp">
       <Filter>src\Comphi\UI\ImGui</Filter>
     </ClCompile>
@@ -1368,24 +1433,5 @@
     <ClCompile Include="src\cphipch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderProgram.cpp" />
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderWizard.cpp" />
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderPipeline.cpp" />
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\GraphicsContext.cpp">
-      <Filter>src\Comphi\Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\GraphicsAPI.cpp" />
-    <ClCompile Include="src\Comphi\Platform\Windows\FileRef.cpp" />
-    <ClCompile Include="src\Comphi\Platform\Windows\Input.cpp">
-      <Filter>src\Comphi\Platform\Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Comphi\Platform\Windows\Window.cpp">
-      <Filter>src\Comphi\Platform\Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\Objects\IBuffers.cpp" />
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\GLError.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Comphi\Renderer\OpenGL\ShaderPipeline.h" />
   </ItemGroup>
 </Project>

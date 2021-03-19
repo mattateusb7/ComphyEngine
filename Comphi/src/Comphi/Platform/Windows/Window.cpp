@@ -1,7 +1,8 @@
 #include "cphipch.h"
 #include "Window.h"
 
-#include "Comphi/Renderer/OpenGL/GraphicsContext.h" //TEMP - future platform independent
+#include "Comphi/Renderer/OpenGL/GraphicsContext.h"
+#include "Comphi/Renderer/Vulkan/GraphicsContext.h"
 
 Comphi::IWindow* Comphi::IWindow::Create(const WindowProperties& props)
 {
@@ -31,7 +32,7 @@ namespace Comphi::Windows {
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
-		COMPHILOG_CORE_INFO("Creating Window {0} ({1},{2})", props.Title, props.Width, props.Height);
+		COMPHILOG_CORE_INFO("Creating Window {0} ({1},{2}) - . . .", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInitialized) {
 			int success = glfwInit();
@@ -40,14 +41,19 @@ namespace Comphi::Windows {
 			s_GLFWInitialized = true;
 		}
 
-		COMPHILOG_CORE_INFO("GLFW Initialized...");
+		COMPHILOG_CORE_INFO("GLFW Initialized.");
 
 		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
-		m_GraphicsContext = new Comphi::OpenGL::GraphicsContext(m_Window);
+		
+		//Select API
+		//GraphicsAPI::selectOpenGL();
+		GraphicsAPI::selectVulkan();
+		
+		m_GraphicsContext = GraphicsAPI::create::GraphicsContext(m_Window);
 		m_GraphicsContext->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
-		SetVSync(true);
+		SetVSync(props.VSync);
 
 		//Set GLFW Callbacks
 		{

@@ -14,8 +14,9 @@ namespace Comphi {
         {
         case RenderingAPI::OpenGL:
             return new OpenGL::VertexBuffer(vertices, count);
-        case RenderingAPI::DirectX:
-            return new DirectX::VertexBuffer();
+        case RenderingAPI::Vulkan:
+            COMPHILOG_CORE_ERROR("Not Implemented!");
+            break;
         default:
             COMPHILOG_CORE_ERROR("No rendering API Selected!");
             break;
@@ -29,8 +30,9 @@ namespace Comphi {
         {
         case RenderingAPI::OpenGL:
             return new OpenGL::IndexBuffer(indices);
-        case RenderingAPI::DirectX:
-            return new DirectX::IndexBuffer();
+        case RenderingAPI::Vulkan:
+            COMPHILOG_CORE_ERROR("Not Implemented!");
+            break;
         default:
             COMPHILOG_CORE_ERROR("No rendering API Selected!");
             break;
@@ -44,7 +46,24 @@ namespace Comphi {
         {
         case RenderingAPI::OpenGL:
             return new OpenGL::ShaderProgram(shaderType,shaderFile);
-        case RenderingAPI::DirectX:
+        case RenderingAPI::Vulkan:
+            COMPHILOG_CORE_ERROR("Not Implemented!");
+            break;
+        default:
+            COMPHILOG_CORE_ERROR("No rendering API Selected!");
+            break;
+        }
+        return nullptr;
+    }
+
+    IGraphicsContext* GraphicsAPI::create::GraphicsContext(GLFWwindow* windowHandler)
+    {
+        switch (activeAPI)
+        {
+        case RenderingAPI::OpenGL:
+            return new OpenGL::GraphicsContext(windowHandler);
+        case RenderingAPI::Vulkan:
+            return new Vulkan::GraphicsContext(windowHandler);
         default:
             COMPHILOG_CORE_ERROR("No rendering API Selected!");
             break;

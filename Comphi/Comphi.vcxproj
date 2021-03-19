@@ -78,7 +78,7 @@
       <PrecompiledHeaderFile>cphipch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPHI_WINDOWS_PLATFORM;CPHI_BUILD_DLL;GLFW_INCLUDE_NONE;CPHI_DEBUG;CPHI_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;C:\VulkanSDK\1.2.170.0\Include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -89,7 +89,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -98,7 +98,7 @@
       <PrecompiledHeaderFile>cphipch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPHI_WINDOWS_PLATFORM;CPHI_BUILD_DLL;GLFW_INCLUDE_NONE;CPHI_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;C:\VulkanSDK\1.2.170.0\Include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -113,7 +113,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -122,7 +122,7 @@
       <PrecompiledHeaderFile>cphipch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPHI_WINDOWS_PLATFORM;CPHI_BUILD_DLL;GLFW_INCLUDE_NONE;CPHI_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;C:\VulkanSDK\1.2.170.0\Include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -137,7 +137,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -149,27 +149,29 @@
     <ClInclude Include="src\Comphi\Events\Event.h" />
     <ClInclude Include="src\Comphi\Events\KeyEvent.h" />
     <ClInclude Include="src\Comphi\Events\MouseEvent.h" />
-    <ClInclude Include="src\Comphi\Platform\IInput.h" />
     <ClInclude Include="src\Comphi\KeyCodes.h" />
     <ClInclude Include="src\Comphi\Layer.h" />
     <ClInclude Include="src\Comphi\LayerStack.h" />
     <ClInclude Include="src\Comphi\Log.h" />
     <ClInclude Include="src\Comphi\Platform\IFileRef.h" />
+    <ClInclude Include="src\Comphi\Platform\IInput.h" />
+    <ClInclude Include="src\Comphi\Platform\IWindow.h" />
     <ClInclude Include="src\Comphi\Platform\Windows\FileRef.h" />
     <ClInclude Include="src\Comphi\Platform\Windows\Input.h" />
     <ClInclude Include="src\Comphi\Platform\Windows\Window.h" />
     <ClInclude Include="src\Comphi\Renderer\GraphicsAPI.h" />
-    <ClInclude Include="src\Comphi\Renderer\Objects\IBuffers.h" />
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\GLError.h" />
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderProgram.h" />
     <ClInclude Include="src\Comphi\Renderer\IGraphicsContext.h" />
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\GraphicsContext.h" />
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderWizard.h" />
     <ClInclude Include="src\Comphi\Renderer\IShaderPipeline.h" />
     <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h" />
     <ClInclude Include="src\Comphi\Renderer\IShaderWizard.h" />
+    <ClInclude Include="src\Comphi\Renderer\Objects\IBuffers.h" />
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\GLError.h" />
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\GraphicsContext.h" />
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderPipeline.h" />
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderProgram.h" />
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderWizard.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsContext.h" />
     <ClInclude Include="src\Comphi\UI\ImGui\ImGuiLayer.h" />
-    <ClInclude Include="src\Comphi\Platform\IWindow.h" />
     <ClInclude Include="src\cphipch.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
@@ -588,13 +590,16 @@
     <ClCompile Include="src\Comphi\Platform\Windows\FileRef.cpp" />
     <ClCompile Include="src\Comphi\Platform\Windows\Input.cpp" />
     <ClCompile Include="src\Comphi\Platform\Windows\Window.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\GraphicsAPI.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Objects\IBuffers.cpp" />
     <ClCompile Include="src\Comphi\Renderer\OpenGL\GLError.cpp" />
     <ClCompile Include="src\Comphi\Renderer\OpenGL\GraphicsContext.cpp" />
-    <ClCompile Include="src\Comphi\Renderer\GraphicsAPI.cpp" />
     <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderPipeline.cpp" />
     <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderProgram.cpp" />
     <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderWizard.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsContext.cpp">
+      <ObjectFileName>$(IntDir)\GraphicsContext1.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="src\Comphi\UI\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Comphi\UI\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\cphipch.cpp">
@@ -611,9 +616,6 @@
     <ProjectReference Include="vendor\imgui\ImGui.vcxproj">
       <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Comphi\Renderer\OpenGL\ShaderPipeline.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

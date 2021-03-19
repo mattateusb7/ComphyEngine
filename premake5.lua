@@ -18,6 +18,8 @@ IncludeDir = {};
 --Libs
 IncludeDir["spdlog"] = "Comphi/vendor/spdlog/include";
 IncludeDir["glm"] = "Comphi/vendor/glm";
+IncludeDir["vulkan"] = "C:/VulkanSDK/1.2.170.0/Include";
+IncludeDir["vulkanLib"] = "C:/VulkanSDK/1.2.170.0/Lib";
 --Projs
 IncludeDir["GLFW"] = "Comphi/vendor/GLFW/include";
 IncludeDir["Glad"] = "Comphi/vendor/Glad/include";
@@ -59,6 +61,7 @@ project "Comphi"
         "%{prj.name}/src",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.glm}",
+        "%{IncludeDir.vulkan}",
         --Projs
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
@@ -70,7 +73,8 @@ project "Comphi"
         "GLFW",
         "Glad",
         "Imgui",
-        "opengl32.lib"
+        "opengl32.lib",
+        "%{IncludeDir.vulkanLib}/vulkan-1.lib"
     }
 
     filter "system:windows"     
