@@ -133,7 +133,7 @@ namespace Comphi {
 
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
-			//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),NULL); //! FIX
+			//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),NULL); //TODO: Fix imGUI for vulkan
 			break;
 		case GraphicsAPI::OpenGL:
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

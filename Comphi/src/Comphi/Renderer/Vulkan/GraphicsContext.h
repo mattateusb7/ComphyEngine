@@ -10,10 +10,13 @@ namespace Comphi::Vulkan {
 	{
 	public:
 		GraphicsContext(GLFWwindow* windowHandle);
+		~GraphicsContext();
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 		virtual void Draw() override;
 		virtual void ResizeWindow(uint x, uint y) override;
+		bool checkGLFWRequiredInstanceExtensions(const char**& glfwExtensions, uint32_t& glfwExtensionCount);
+		bool checkValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
 	private:
 		GLFWwindow* m_WindowHandle;

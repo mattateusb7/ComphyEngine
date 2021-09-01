@@ -43,11 +43,22 @@ namespace Comphi::Windows {
 
 		COMPHILOG_CORE_INFO("GLFW Initialized.");
 
-		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
-		
 		//Select API
 		//GraphicsAPI::selectOpenGL();
 		GraphicsAPI::selectVulkan();
+
+		switch (GraphicsAPI::getActiveAPI()) {
+			case GraphicsAPI::OpenGL: {
+				break;
+			}
+			case GraphicsAPI::Vulkan: {
+				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+				glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+				break;
+			}
+		};
+
+		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
 		
 		m_GraphicsContext = GraphicsAPI::create::GraphicsContext(m_Window);
 		m_GraphicsContext->Init();

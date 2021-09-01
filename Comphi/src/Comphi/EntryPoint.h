@@ -9,12 +9,20 @@ extern Comphi::Application* Comphi::CreateApplication();
 
 int main(int argc, char** argv) {
 	
-	printf("```comphi´´´\n");
+	printf("~ ~ ~ c o m p h i ~ ~ ~\n");
 		
 	Comphi::Log::Init();
 	auto app = Comphi::CreateApplication(); 
-	app->Run(); 
+	try {
+		app->Run(); 
+	}
+	catch (std::exception& e) {
+		COMPHILOG_CORE_ERROR(e.what());
+		delete app;
+		return EXIT_FAILURE;
+	}
 	delete app;
+	return EXIT_SUCCESS;
 }
 
 #endif // CPHI_WINDOWS_PLATFORM

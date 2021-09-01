@@ -21,6 +21,7 @@
 	#define COMPHILOG_ASSERT(b,...)
 #endif
 
+//Let GLFW include Vulkan
 #define GLFW_INCLUDE_VULKAN
 
 #define GLM_FORCE_RADIANS
