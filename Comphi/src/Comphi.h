@@ -2,14 +2,18 @@
 
 // For use by Comphi Applications
 
+//utilities
 #include <stdio.h>
 #include <utility>
 
+//Input
 #include "Comphi/Platform/IInput.h"
 #include "Comphi/KeyCodes.h" 
 
-#include "Comphi/UI/ImGui/ImGuiLayer.h"
+//UI Layers
+//#include "Comphi/UI/ImGui/ImGuiLayer.h"
 
+//Core
 #include "Comphi/Application.h" 
 #include "Comphi/Layer.h"
 #include "Comphi/Log.h"
