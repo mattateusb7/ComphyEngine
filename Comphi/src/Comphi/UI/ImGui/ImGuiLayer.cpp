@@ -22,9 +22,12 @@ namespace Comphi {
 	void ImGuiLayer::OnAttach()
 	{
 		
+		
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		
+		
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -82,6 +85,7 @@ namespace Comphi {
 		bool show_demo_window = true;
 		bool show_another_window = false;
 		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+		
 
 	}
 
@@ -102,10 +106,12 @@ namespace Comphi {
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 		
+		
 	}
 
 	void ImGuiLayer::Begin()
 	{
+		
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
 			ImGui_ImplVulkan_NewFrame();
@@ -120,11 +126,13 @@ namespace Comphi {
 
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		
 	}
 		
 	
 	void ImGuiLayer::End()
 	{
+		
 		ImGuiIO io = ImGui::GetIO();
 		Application& app = Application::Get();
 		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
@@ -152,6 +160,7 @@ namespace Comphi {
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backup_current_context);
 		}
+		
 	}
 
 

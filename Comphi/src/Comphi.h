@@ -17,7 +17,6 @@
 #include "Comphi/Platform/KeyCodes.h" 
 
 //UI
-#include <imgui.h>
 #include "Comphi/UI/ImGui/ImGuiLayer.h"
 
 // ------------ Comphi Entry Point ------------

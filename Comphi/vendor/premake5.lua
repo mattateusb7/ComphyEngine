@@ -110,6 +110,7 @@ project "ImGui"
 	        "%{prj.name}/imgui.cpp",
 	        "%{prj.name}/imgui_draw.cpp",
 	        "%{prj.name}/imgui_internal.h",
+			"%{prj.name}/imgui_tables.cpp",
 	        "%{prj.name}/imgui_widgets.cpp",
 	        "%{prj.name}/imstb_rectpack.h",
 	        "%{prj.name}/imstb_textedit.h",

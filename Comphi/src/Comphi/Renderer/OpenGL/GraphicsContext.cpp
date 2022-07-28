@@ -29,8 +29,8 @@ namespace Comphi::OpenGL {
 
 		check_gl_error_on();
 
-		Windows::FileRef* vert = new Windows::FileRef("C:\\ComphiEngine\\Sandbox\\shaders\\vert.glsl");
-		Windows::FileRef* frag = new Windows::FileRef("C:\\ComphiEngine\\Sandbox\\shaders\\frag.glsl");
+		Windows::FileRef* vert = new Windows::FileRef("shaders\\vert.glsl");
+		Windows::FileRef* frag = new Windows::FileRef("shaders\\frag.glsl");
 
 		vertexShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::VertexShader,vert));
 		fragmentShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::FragmentShader,frag));
