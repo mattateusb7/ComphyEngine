@@ -1,6 +1,6 @@
 #include "cphipch.h"
 #include "Application.h"
-#include "Platform/IInput.h"
+#include "Comphi/Platform/IInput.h"
 
 namespace Comphi {
 
@@ -37,7 +37,7 @@ namespace Comphi {
 
 			//m_ImGuiLayer->Begin();
 				for (Layer* layer : m_LayerStack) {
-					layer->OnImGuiRender();
+					layer->OnUIRender();
 				}
 			//m_ImGuiLayer->End();
 		

@@ -1,5 +1,5 @@
 #pragma once
-#include "Comphi/Core.h"
+#include "Comphi/Core/Core.h"
 #include "Comphi/Renderer/IGraphicsContext.h"
 #include "Comphi/Renderer/GraphicsAPI.h"
 

@@ -2,7 +2,7 @@
 
 #ifdef CPHI_WINDOWS_PLATFORM
 
-#include "Comphi/Log.h"
+#include "Log.h"
 
 // To be defined by Client
 extern Comphi::Application* Comphi::CreateApplication();

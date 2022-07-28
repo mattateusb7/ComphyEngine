@@ -48,25 +48,6 @@ namespace Comphi::Windows {
 
 	const bool FileRef::load()
 	{
-		/*std::ifstream myfile;
-		myfile.open(m_filePath);
-
-		while (myfile.good()) {
-			To += myfile.get();
-		}
-
-		myfile.close();
-		*/
-		/*std::ifstream Input(m_filePath);
-		if (!Input.good()) {
-			COMPHILOG_CORE_ERROR("Failed To Read: %s", m_filePath);
-			Input.close();
-			return false;
-		}
-		To = std::string{ std::istreambuf_iterator<char>(Input), {} };
-		Input.close();
-		*/
-
 		std::ifstream ifs(getFilePath().c_str(), std::ios::ate); //set to end
 		if (!ifs.good()) {
 			COMPHILOG_CORE_ERROR("Failed To Read: \"" + getFilePath() + "\"");

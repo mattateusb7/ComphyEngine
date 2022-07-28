@@ -1,8 +1,8 @@
 #pragma once 
-#include "Comphi/Core.h"
-#include "Comphi/LayerStack.h"
-#include "Comphi/Platform/IWindow.h"
-#include "Comphi/UI/ImGui/ImGuiLayer.h"
+#include "Core.h"
+#include "LayerStack.h"
+#include "../Platform/IWindow.h"
+#include "../UI/ImGui/ImGuiLayer.h"
 
 namespace Comphi {
 

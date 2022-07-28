@@ -1,14 +1,12 @@
 #include "cphipch.h"
 #include "ImGuiLayer.h"
 
-#include "Comphi/Application.h"
+#include "Comphi/Core/Application.h"
 #include "Comphi/Renderer/GraphicsAPI.h"
 
-//#include <examples/imgui_impl_opengl3.h>
-//#include <examples/imgui_impl_vulkan.h>
-//#include <examples/imgui_impl_glfw.h>
-//#include <examples/example_glfw_opengl3/main.cpp>
-//#include <examples/example_glfw_vulkan/main.cpp>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_vulkan.h>
+#include <backends/imgui_impl_opengl3.h>
 
 namespace Comphi {
 
@@ -23,7 +21,7 @@ namespace Comphi {
 
 	void ImGuiLayer::OnAttach()
 	{
-		/*
+		
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -53,8 +51,8 @@ namespace Comphi {
 
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
-			ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)app.GetWindow().GetNativeWindow(), true);//!COMFIX
-			ImGui_ImplVulkan_Init(NULL); //!COMFIX
+			ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)app.GetWindow().GetNativeWindow(), true);
+			//ImGui_ImplVulkan_Init(NULL); //!COMFIX
 			break;
 		case GraphicsAPI::OpenGL:
 			ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)app.GetWindow().GetNativeWindow(), true);
@@ -84,13 +82,12 @@ namespace Comphi {
 		bool show_demo_window = true;
 		bool show_another_window = false;
 		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-		*/
 
 	}
 
 	void ImGuiLayer::OnDetach()
 	{
-		/*
+		
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
 			ImGui_ImplVulkan_Shutdown();
@@ -104,12 +101,11 @@ namespace Comphi {
 		}
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-		*/
+		
 	}
 
 	void ImGuiLayer::Begin()
 	{
-		/*
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
 			ImGui_ImplVulkan_NewFrame();
@@ -124,13 +120,11 @@ namespace Comphi {
 
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		*/
 	}
 		
 	
 	void ImGuiLayer::End()
 	{
-		/*
 		ImGuiIO io = ImGui::GetIO();
 		Application& app = Application::Get();
 		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
@@ -140,7 +134,7 @@ namespace Comphi {
 
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
-			//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),NULL); //TODO: Fix imGUI for vulkan
+			ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),NULL); //TODO: Fix imGUI for vulkan
 			break;
 		case GraphicsAPI::OpenGL:
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -158,11 +152,10 @@ namespace Comphi {
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backup_current_context);
 		}
-		*/
 	}
 
 
-	void ImGuiLayer::OnImGuiRender()
+	void ImGuiLayer::OnUIRender()
 	{
 		//ImGui::ShowDemoWindow(&m_Enabled);
 	}

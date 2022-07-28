@@ -1,5 +1,5 @@
 #pragma once
-#include "../IWindow.h"
+#include "Comphi/Platform/IWindow.h"
 #include "Comphi/Renderer/IGraphicsContext.h"
 
 #include <GLFW/glfw3.h>

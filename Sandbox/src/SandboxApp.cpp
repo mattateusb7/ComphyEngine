@@ -4,22 +4,20 @@
 class TestLayer : public Comphi::Layer
 {
 public:
-	TestLayer() : Layer("Test") {
+	TestLayer() : Layer("TestWin") {
 	
 	};
 
 	void OnUpdate() override 
 	{
 
-
-
 	};
 		
-	void OnImGuiRender() override 
+	void OnUIRender() override 
 	{
-		ImGui::Begin("Test");
-		ImGui::Text("HelloWorld");	
-		ImGui::End();
+		//ImGui::Begin("Test");
+		//ImGui::Text("HelloWorld");	
+		//ImGui::End();
 	};
 
 	void OnEvent(Comphi::Event& e) override 
@@ -35,7 +33,7 @@ class Sandbox : public Comphi::Application
 {
 public:
 	Sandbox() {
-		//PushLayer(new TestLayer());
+		PushLayer(new TestLayer());
 	}
 
 	~Sandbox(){}

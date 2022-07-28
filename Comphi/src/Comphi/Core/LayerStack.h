@@ -1,6 +1,6 @@
 #pragma once
-#include "Comphi/Core.h"
-#include "Comphi/Layer.h"
+#include "Core.h"
+#include "Layer.h"
 
 namespace Comphi {
 	

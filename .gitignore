@@ -10,3 +10,4 @@ bin-int/
 .filters
 .sln
 .vscode/
+vendor/premake/premake5.exe

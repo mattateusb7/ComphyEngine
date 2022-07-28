@@ -141,20 +141,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Comphi.h" />
-    <ClInclude Include="src\Comphi\Application.h" />
-    <ClInclude Include="src\Comphi\Core.h" />
-    <ClInclude Include="src\Comphi\EntryPoint.h" />
+    <ClInclude Include="src\Comphi\Core\Application.h" />
+    <ClInclude Include="src\Comphi\Core\Core.h" />
+    <ClInclude Include="src\Comphi\Core\EntryPoint.h" />
+    <ClInclude Include="src\Comphi\Core\Layer.h" />
+    <ClInclude Include="src\Comphi\Core\LayerStack.h" />
+    <ClInclude Include="src\Comphi\Core\Log.h" />
     <ClInclude Include="src\Comphi\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Comphi\Events\Event.h" />
     <ClInclude Include="src\Comphi\Events\KeyEvent.h" />
     <ClInclude Include="src\Comphi\Events\MouseEvent.h" />
-    <ClInclude Include="src\Comphi\KeyCodes.h" />
-    <ClInclude Include="src\Comphi\Layer.h" />
-    <ClInclude Include="src\Comphi\LayerStack.h" />
-    <ClInclude Include="src\Comphi\Log.h" />
     <ClInclude Include="src\Comphi\Platform\IFileRef.h" />
     <ClInclude Include="src\Comphi\Platform\IInput.h" />
     <ClInclude Include="src\Comphi\Platform\IWindow.h" />
+    <ClInclude Include="src\Comphi\Platform\KeyCodes.h" />
     <ClInclude Include="src\Comphi\Platform\Windows\FileRef.h" />
     <ClInclude Include="src\Comphi\Platform\Windows\Input.h" />
     <ClInclude Include="src\Comphi\Platform\Windows\Window.h" />
@@ -589,10 +589,10 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Comphi\Application.cpp" />
-    <ClCompile Include="src\Comphi\Layer.cpp" />
-    <ClCompile Include="src\Comphi\LayerStack.cpp" />
-    <ClCompile Include="src\Comphi\Log.cpp" />
+    <ClCompile Include="src\Comphi\Core\Application.cpp" />
+    <ClCompile Include="src\Comphi\Core\Layer.cpp" />
+    <ClCompile Include="src\Comphi\Core\LayerStack.cpp" />
+    <ClCompile Include="src\Comphi\Core\Log.cpp" />
     <ClCompile Include="src\Comphi\Platform\Windows\FileRef.cpp" />
     <ClCompile Include="src\Comphi\Platform\Windows\Input.cpp" />
     <ClCompile Include="src\Comphi\Platform\Windows\Window.cpp" />

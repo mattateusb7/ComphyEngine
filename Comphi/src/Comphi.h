@@ -6,19 +6,19 @@
 #include <stdio.h>
 #include <utility>
 
-//Input
+//Platform
 #include "Comphi/Platform/IInput.h"
-#include "Comphi/KeyCodes.h" 
+#include "Comphi/Platform/KeyCodes.h" 
 
-//UI Layers
-//#include "Comphi/UI/ImGui/ImGuiLayer.h"
+//UI
+#include "Comphi/UI/ImGui/ImGuiLayer.h"
 
 //Core
-#include "Comphi/Application.h" 
-#include "Comphi/Layer.h"
-#include "Comphi/Log.h"
+#include "Comphi/Core/Application.h" 
+#include "Comphi/Core/Layer.h"
+#include "Comphi/Core/Log.h"
 #include <glm/glm.hpp>
 
 // ------------ Comphi Entry Point ------------
-#include "Comphi/EntryPoint.h"
+#include "Comphi/Core/EntryPoint.h"
 // --------------------------------------------

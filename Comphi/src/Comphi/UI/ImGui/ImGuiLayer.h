@@ -1,6 +1,6 @@
 #pragma once
-#include "Comphi/Core.h"
-#include "Comphi/Layer.h"
+#include "Comphi/Core/Core.h"
+#include "Comphi/Core/Layer.h"
 
 namespace Comphi{
 	class ImGuiLayer : public Layer
@@ -9,7 +9,7 @@ namespace Comphi{
 		ImGuiLayer();
 		~ImGuiLayer();
 
-		void OnImGuiRender() override;
+		void OnUIRender() override;
 		void OnAttach() override;
 		void OnDetach() override;
 

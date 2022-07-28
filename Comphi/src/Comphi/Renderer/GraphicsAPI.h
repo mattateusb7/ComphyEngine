@@ -1,5 +1,5 @@
 #pragma once
-#include "Comphi/Log.h"
+#include "Comphi/Core/Log.h"
 #include "Objects/IBuffers.h"
 
 #include "OpenGL/ShaderPipeline.h"

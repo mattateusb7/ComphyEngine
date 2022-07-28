@@ -1,6 +1,6 @@
 #pragma once
-#include "Comphi/Core.h"
-#include "../IInput.h"
+#include "Comphi/Core/Core.h"
+#include "Comphi/Platform/IInput.h"
 
 #include <GLFW/glfw3.h>
 
