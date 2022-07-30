@@ -9,7 +9,7 @@ namespace Comphi::OpenGL {
 	class GraphicsContext : public IGraphicsContext
 	{
 	public:
-		GraphicsContext(GLFWwindow* windowHandle);
+		GraphicsContext(GLFWwindow& windowHandle);
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 		virtual void Draw() override;

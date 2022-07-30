@@ -84,6 +84,9 @@
     <ClInclude Include="src\Comphi\Events\ApplicationEvent.h">
       <Filter>src\Comphi\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\Events\ErrorEvent.h">
+      <Filter>src\Comphi\Events</Filter>
+    </ClInclude>
     <ClInclude Include="src\Comphi\Events\Event.h">
       <Filter>src\Comphi\Events</Filter>
     </ClInclude>
@@ -1401,7 +1404,6 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Events\ErrorEvent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Comphi\Core\Application.cpp">

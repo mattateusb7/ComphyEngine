@@ -9,7 +9,7 @@ namespace Comphi {
 
 	LayerStack::~LayerStack() 
 	{
-		for (Layer* Layer : m_Layers) delete Layer;
+		//for (Layer* Layer : m_Layers) delete Layer;
 	}
 
 	void LayerStack::PushLayer(Layer* layer)

@@ -41,11 +41,11 @@ namespace Comphi {
 		static inline RenderingAPI getActiveAPI() { return activeAPI; }
 
 		struct create {
-			static IGraphicsContext* GraphicsContext(GLFWwindow* windowHandler);
-			static IVertexBuffer* VertexBuffer(const float* vertices, const uint& count);
-			static IIndexBuffer* IndexBuffer(const uint* indices);
+			static IGraphicsContext* GraphicsContext(GLFWwindow& windowHandler);
+			static IVertexBuffer* VertexBuffer(const float& vertices, const uint& count);
+			static IIndexBuffer* IndexBuffer(const uint& indices);
 			static IShaderPipeline* ShaderPipeline();
-			static IShaderProgram* ShaderProgram(Comphi::ShaderType shaderType, IFileRef* shaderFile);
+			static IShaderProgram* ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile);
 		};
 
 		//struct start {

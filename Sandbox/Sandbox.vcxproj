@@ -78,7 +78,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>CPHI_WINDOWS_PLATFORM;CPHI_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CPHI_WINDOWS_PLATFORM;CPHI_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Comphi\vendor\spdlog\include;..\Comphi\vendor\glm;..\Comphi\vendor\imgui;..\Comphi\src;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -94,7 +94,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>CPHI_WINDOWS_PLATFORM;CPHI_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CPHI_WINDOWS_PLATFORM;NDEBUG;RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Comphi\vendor\spdlog\include;..\Comphi\vendor\glm;..\Comphi\vendor\imgui;..\Comphi\src;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -114,7 +114,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>CPHI_WINDOWS_PLATFORM;CPHI_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CPHI_WINDOWS_PLATFORM;NDEBUG;DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Comphi\vendor\spdlog\include;..\Comphi\vendor\glm;..\Comphi\vendor\imgui;..\Comphi\src;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>

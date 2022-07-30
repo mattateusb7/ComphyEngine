@@ -28,7 +28,7 @@ namespace Comphi::Windows {
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
-		IGraphicsContext* m_GraphicsContext;
+		std::unique_ptr<IGraphicsContext> m_GraphicsContext;
 		WindowProperties m_Data;
 	};
 }

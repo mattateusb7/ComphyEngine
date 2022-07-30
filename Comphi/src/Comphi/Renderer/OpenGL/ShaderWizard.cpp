@@ -72,12 +72,11 @@ namespace Comphi::OpenGL {
 
 			GLint infoLogLength;
 			objectPropertyGetterFunc(objectID, GL_INFO_LOG_LENGTH, &infoLogLength);
-			GLchar* buffer = new GLchar[infoLogLength];
+			std::unique_ptr<GLchar[]> buffer = std::make_unique<GLchar[]>(infoLogLength);
 
 			GLsizei bufferSize;
-			getInfoLogFunc(objectID, infoLogLength, &bufferSize, buffer);
+			getInfoLogFunc(objectID, infoLogLength, &bufferSize, buffer.get());
 			COMPHILOG_CORE_ERROR(buffer);
-			delete[] buffer;
 			return false;
 		}
 		return true;

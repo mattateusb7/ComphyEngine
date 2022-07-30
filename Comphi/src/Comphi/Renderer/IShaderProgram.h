@@ -15,7 +15,7 @@ namespace Comphi{
 	class IShaderProgram
 	{
 	public:
-		IShaderProgram(ShaderType shaderType, IFileRef* file) : m_shaderType(shaderType), shaderFile(*file) {};
+		IShaderProgram(ShaderType shaderType, IFileRef& file) : m_shaderType(shaderType), shaderFile(file) {};
 		virtual ~IShaderProgram() = default;
 
 		virtual uint GetType() = 0; 

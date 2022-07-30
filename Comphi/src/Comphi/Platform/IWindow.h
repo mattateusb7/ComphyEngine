@@ -40,7 +40,7 @@ namespace Comphi{
 		virtual void* GetNativeWindow() const = 0;
 
 		//Implement in Platform Specific File
-		static IWindow* Create(const WindowProperties& props = WindowProperties());
+		static Comphi::IWindow* Create(const WindowProperties& props = WindowProperties());
 	};
 
 }

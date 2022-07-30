@@ -6,7 +6,7 @@ namespace Comphi {
 	class IInput
 	{
 	public:
-		~IInput() { delete s_instance; };
+		~IInput() { };
 		inline static bool IsKeyPressed(int keycode) { return s_instance->IsKeyPressedImpl(keycode); };
 		inline static bool IsMouseButtonPressed(int button) { return s_instance->IsMouseButtonPressedImpl(button); };
 		inline static std::pair<int, int> GetMousePos() { return s_instance->GetMousePosImpl(); };
@@ -21,7 +21,7 @@ namespace Comphi {
 	private:
 
 		//Implement in Platform Specific File
-		static IInput* s_instance;
+		static std::unique_ptr<IInput> s_instance;
 	};
 
 }

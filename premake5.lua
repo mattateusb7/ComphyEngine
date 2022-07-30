@@ -90,19 +90,26 @@ project "Comphi"
     filter "configurations:Debug"
         defines 
         {
-            "CPHI_DEBUG", 
             "CPHI_ENABLE_ASSERTS"
         }
 		runtime "Debug"
         symbols "on"
         
     filter "configurations:Release"
-        defines "CPHI_RELEASE"
+        defines 
+        {
+            "NDEBUG", 
+            "RELEASE"
+        }
 		runtime "Release"
         optimize "on"
     
     filter "configurations:Dist"
-        defines "CPHI_DIST"
+        defines 
+        {
+            "NDEBUG", 
+            "DIST"
+        }
 		runtime "Release"
         optimize "on"
 
@@ -145,16 +152,27 @@ project "Sandbox"
         }
 
     filter "configurations:Debug"
-        defines "CPHI_DEBUG"
+        defines 
+        {
+            "CPHI_ENABLE_ASSERTS"
+        }
 		runtime "Debug"
         symbols "on"
         
     filter "configurations:Release"
-        defines "CPHI_RELEASE"
+        defines 
+        {
+            "NDEBUG", 
+            "RELEASE"
+        }
 		runtime "Release"
         optimize "on"
     
     filter "configurations:Dist"
-        defines "CPHI_DIST"
+        defines 
+        {
+            "NDEBUG", 
+            "DIST"
+        }
 		runtime "Release"
         optimize "on"

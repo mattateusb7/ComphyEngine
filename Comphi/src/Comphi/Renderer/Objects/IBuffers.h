@@ -29,7 +29,7 @@ namespace Comphi {
 		class VertexBuffer : public IVertexBuffer
 		{
 		public:
-			VertexBuffer(const GLfloat* vertices, const GLuint& count);
+			VertexBuffer(const GLfloat& vertices, const GLuint& count);
 			uint VAO, VBO;
 
 			virtual void bind() override;
@@ -39,7 +39,7 @@ namespace Comphi {
 		class IndexBuffer : public IIndexBuffer
 		{
 		public:
-			IndexBuffer(const GLuint* indices);
+			IndexBuffer(const GLuint& indices);
 			uint ID;
 
 			virtual void bind() override;

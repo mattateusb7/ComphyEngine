@@ -4,7 +4,7 @@
 
 namespace Comphi::OpenGL{
 
-	ShaderProgram::ShaderProgram(Comphi::ShaderType shaderType, IFileRef* shaderFile) : IShaderProgram(shaderType, shaderFile) {
+	ShaderProgram::ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile) : IShaderProgram(shaderType, shaderFile) {
 		ShaderWizard::CompileShader(*this);
 	}
 

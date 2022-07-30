@@ -43,7 +43,7 @@ namespace Comphi::Windows {
 
 		COMPHILOG_CORE_WARN("GLFW Initialized.");
 
-		//Select API
+		//Select GraphicsAPI
 		//GraphicsAPI::selectOpenGL();
 		GraphicsAPI::selectVulkan();
 
@@ -60,7 +60,7 @@ namespace Comphi::Windows {
 
 		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
 		
-		m_GraphicsContext = GraphicsAPI::create::GraphicsContext(m_Window);
+		m_GraphicsContext.reset(GraphicsAPI::create::GraphicsContext(*m_Window));
 		m_GraphicsContext->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
@@ -112,7 +112,7 @@ namespace Comphi::Windows {
 			});
 
 			//KEY TYPED CALLBACK
-			glfwSetCharCallback(m_Window, [](GLFWwindow*window, uint keycode)
+			glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint keycode)
 			{
 				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 				KeyTypedEvent event(keycode);

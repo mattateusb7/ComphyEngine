@@ -8,7 +8,7 @@ namespace Comphi {
         return new OpenGL::ShaderPipeline();
     }
 
-    IVertexBuffer* GraphicsAPI::create::VertexBuffer(const float* vertices, const uint& count)
+    IVertexBuffer* GraphicsAPI::create::VertexBuffer(const float& vertices, const uint& count)
     {
         switch (activeAPI)
         {
@@ -24,7 +24,7 @@ namespace Comphi {
         return nullptr;
     }
 
-    IIndexBuffer* GraphicsAPI::create::IndexBuffer(const uint* indices)
+    IIndexBuffer* GraphicsAPI::create::IndexBuffer(const uint& indices)
     {
         switch (activeAPI)
         {
@@ -40,7 +40,7 @@ namespace Comphi {
         return nullptr;
     }
 
-    IShaderProgram* GraphicsAPI::create::ShaderProgram(Comphi::ShaderType shaderType, IFileRef* shaderFile)
+    IShaderProgram* GraphicsAPI::create::ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile)
     {
         switch (activeAPI)
         {
@@ -56,7 +56,7 @@ namespace Comphi {
         return nullptr;
     }
 
-    IGraphicsContext* GraphicsAPI::create::GraphicsContext(GLFWwindow* windowHandler)
+    IGraphicsContext* GraphicsAPI::create::GraphicsContext(GLFWwindow& windowHandler)
     {
         switch (activeAPI)
         {
