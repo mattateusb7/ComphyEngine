@@ -15,6 +15,8 @@ namespace Comphi::Vulkan {
 		virtual void SwapBuffers() override;
 		virtual void Draw() override;
 		virtual void ResizeWindow(uint x, uint y) override;
+	
+	protected:
 		bool checkGLFWRequiredInstanceExtensions(const char**& glfwExtensions, uint32_t& glfwExtensionCount);
 		bool checkValidationLayerSupport(const std::vector<const char*>& validationLayers);
 

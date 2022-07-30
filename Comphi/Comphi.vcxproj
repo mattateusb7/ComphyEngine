@@ -148,6 +148,7 @@
     <ClInclude Include="src\Comphi\Core\LayerStack.h" />
     <ClInclude Include="src\Comphi\Core\Log.h" />
     <ClInclude Include="src\Comphi\Events\ApplicationEvent.h" />
+    <ClInclude Include="src\Comphi\Events\ErrorEvent.h" />
     <ClInclude Include="src\Comphi\Events\Event.h" />
     <ClInclude Include="src\Comphi\Events\KeyEvent.h" />
     <ClInclude Include="src\Comphi\Events\MouseEvent.h" />

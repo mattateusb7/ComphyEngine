@@ -47,9 +47,9 @@ namespace Comphi {
 
 	void Application::OnEvent(Event& e)
 	{
-		EventDispatcher Dispatcher(e);
-		Dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
-		Dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(Application::OnWindowResized));
+
+		EventHandler::Throw<WindowCloseEvent>(e, BIND_EVENT_FN(Application::OnWindowClose));
+		EventHandler::Throw<WindowResizedEvent>(e, BIND_EVENT_FN(Application::OnWindowResized));
 
 		//set Layer Events Handling
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {

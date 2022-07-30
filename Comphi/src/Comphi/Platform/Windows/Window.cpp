@@ -32,7 +32,7 @@ namespace Comphi::Windows {
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
-		COMPHILOG_CORE_INFO("Creating Window {0} ({1},{2}) - . . .", props.Title, props.Width, props.Height);
+		COMPHILOG_CORE_WARN("Creating Window {0} ({1},{2}) - . . .", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInitialized) {
 			int success = glfwInit();
@@ -41,11 +41,11 @@ namespace Comphi::Windows {
 			s_GLFWInitialized = true;
 		}
 
-		COMPHILOG_CORE_INFO("GLFW Initialized.");
+		COMPHILOG_CORE_WARN("GLFW Initialized.");
 
 		//Select API
-		GraphicsAPI::selectOpenGL();
-		//GraphicsAPI::selectVulkan();
+		//GraphicsAPI::selectOpenGL();
+		GraphicsAPI::selectVulkan();
 
 		switch (GraphicsAPI::getActiveAPI()) {
 			case GraphicsAPI::OpenGL: {

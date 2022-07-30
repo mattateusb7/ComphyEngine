@@ -7,6 +7,7 @@ namespace Comphi {
 	enum class EventType
 	{
 		None = 0,
+		GenericError,
 		WindowClose, WindowOpen, WindowFocus, WindowLostFocus, WindowMoved, WindowResized,
 		AppTick, AppUpdate, AppRender,
 		KeyPressed, KeyReleased, KeyTyped,
@@ -16,11 +17,13 @@ namespace Comphi {
 	enum EventCategory 
 	{
 		None = 0,
-		EventCategoryApplication =	BIT(0),
-		EventCategoryInput =		BIT(1),
-		EventCategoryKeyboard =		BIT(2),
-		EventCategoryMouse =		BIT(3),
-		EventCategoryMouseButton =	BIT(4)
+		EventCategoryError =		BIT(0),
+		EventCategoryApplication =	BIT(1),
+		EventCategoryInput =		BIT(2),
+		EventCategoryKeyboard =		BIT(3),
+		EventCategoryMouse =		BIT(4),
+		EventCategoryMouseButton =	BIT(5),
+		EventCategoryVulkan =		BIT(6),
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() {return EventType::##type; }\
@@ -44,7 +47,6 @@ namespace Comphi {
 	protected:
 		bool Handled = false;
 	};
-
 	
 	class EventDispatcher {
 		template<typename T> 
@@ -57,7 +59,7 @@ namespace Comphi {
 		bool Dispatch(EventFn<T> func) {
 			if (m_event.GetEventType() == T::GetStaticType()) {
 				//point to event reference with correct type pointer 
-				//then dereference the pointer to get correct(cast) event reference type
+				//then dereference the pointer to (cast) get correct event reference type
 				m_event.Handled = func(*(T*)&m_event);
 				return true;
 			}
@@ -68,14 +70,21 @@ namespace Comphi {
 		Event& m_event;
 	};
 
+	class EventHandler {
+		template<typename T>
+		using EventFn = std::function<bool(T&)>;
+	public:
+		template<typename T>
+		static bool Throw(Event& event, EventFn<T> func ) {
+			std::unique_ptr<EventDispatcher> newEvent = std::make_unique<EventDispatcher>(event);
+			return newEvent->Dispatch(func);
+		}
+	};
+
 	inline std::ostream& operator<<(std::ostream& os, const Event& e) {
 		return os << e.ToString();
 	}
 
 	using EventCallback = std::function<void(Event&)>;
 
-//Add Log types ToString Variants
-	//inline std::ostream& operator<<(std::ostream& os, const Event& e) {
-	//	return os << e.ToString();
-	//}
 }

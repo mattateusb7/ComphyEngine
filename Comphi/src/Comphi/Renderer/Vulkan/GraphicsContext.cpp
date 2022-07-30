@@ -3,6 +3,7 @@
 
 #include "Comphi/Renderer/GraphicsAPI.h"
 #include "Comphi/Platform/Windows/FileRef.h"
+#include "Comphi/Events/Event.h"
 
 namespace Comphi::Vulkan {
 
@@ -36,7 +37,7 @@ namespace Comphi::Vulkan {
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions;
 
-		if (checkGLFWRequiredInstanceExtensions(glfwExtensions, glfwExtensionCount)) {
+		if (GraphicsContext::checkGLFWRequiredInstanceExtensions(glfwExtensions, glfwExtensionCount)) {
 			createInfo.enabledExtensionCount = glfwExtensionCount;
 			createInfo.ppEnabledExtensionNames = glfwExtensions;
 		}
@@ -48,7 +49,7 @@ namespace Comphi::Vulkan {
 			"VK_LAYER_KHRONOS_validation"
 		};
 
-		if (!checkValidationLayerSupport(validationLayers)) {
+		if (!GraphicsContext::checkValidationLayerSupport(validationLayers)) {
 			throw std::runtime_error("validation layers requested, but not available!");
 		}
 
@@ -58,20 +59,29 @@ namespace Comphi::Vulkan {
 
 		//!TODO: VALIDATION LAYERS - Message callback https://vulkan-tutorial.com/en/Drawing_a_triangle/Setup/Validation_layers
 
+		if (&createInfo == nullptr || &instance == nullptr) {
+			COMPHILOG_CORE_ASSERT("Null pointer passed to required parameter!");
+			//EventThrow::Handler<Comphi::EventCategoryError>()
+			// VK_ERROR_INITIALIZATION_FAILED;
+		}
+
 		if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create vkinstance!");
 		}
 
 		
-
-		//glfwMakeContextCurrent(m_WindowHandle);
+		glfwMakeContextCurrent(m_WindowHandle);
 
 		/***DEBUG***/
 
 		/***DEBUG***/
 	}
 
+
+
 	bool GraphicsContext::checkValidationLayerSupport(const std::vector<const char*>& validationLayers) {
+
+		COMPHILOG_CORE_WARN("Requesting Validation Layers:");
 
 		uint32_t layerCount;
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -98,6 +108,8 @@ namespace Comphi::Vulkan {
 	}
 
 	bool GraphicsContext::checkGLFWRequiredInstanceExtensions(const char**& glfwExtensions, uint32_t& glfwExtensionCount) {
+
+		COMPHILOG_CORE_WARN("Requesting GLFW RequiredInstanceExtensions:");
 
 		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 		COMPHILOG_CORE_INFO("GLFW_extensions supported : {0}", glfwExtensionCount);
