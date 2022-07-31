@@ -71,6 +71,10 @@ namespace Comphi::OpenGL {
 		glViewport(0, 0, x, y);
 	}
 
+	void GraphicsContext::CleanUp()
+	{
+	}
+
 	void GraphicsContext::SwapBuffers()
 	{
 		glfwSwapBuffers(m_WindowHandle);

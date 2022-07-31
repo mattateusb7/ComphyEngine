@@ -5,6 +5,8 @@
 #include "Comphi/Platform/Windows/FileRef.h"
 #include "Comphi/Events/Event.h"
 
+#include <optional>
+
 namespace Comphi::Vulkan {
 
 	static VkInstance instance;
@@ -14,21 +16,35 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
 	}
 
-	GraphicsContext::~GraphicsContext()
-	{
-		cleanup();
-	}
-
-//!TODO: VULKANTUTO: https://vulkan-tutorial.com/en/Drawing_a_triangle/Setup/Validation_layers
+//! VULKAN Guide: https://vulkan-tutorial.com/en/Drawing_a_triangle/Setup/Logical_device_and_queues
+//! VULKAN Map	https://github.com/David-DiGioia/vulkan-diagrams
 
 	void GraphicsContext::Init()
 	{
 		createVKInstance();
 #ifndef NDEBUG
 		setupDebugMessenger();
-#endif
-		glfwMakeContextCurrent(m_WindowHandle);
+#endif //!NDEBUG
+		createSurface();
+		pickPhysicalDevice();
+		createLogicalDevice();
+	}
 
+	void GraphicsContext::createSurface() {
+		VkWin32SurfaceCreateInfoKHR createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+		createInfo.hwnd = glfwGetWin32Window(m_WindowHandle);
+		createInfo.hinstance = GetModuleHandle(nullptr);
+
+		if (vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("Failed to create window surface!");
+		}
+
+		if (glfwCreateWindowSurface(instance, m_WindowHandle, nullptr, &surface) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("Failed to create window surface!");
+		}
+
+		COMPHILOG_CORE_INFO("vk_surface window creation sucessful!");
 	}
 
 	void GraphicsContext::createVKInstance()
@@ -46,7 +62,6 @@ namespace Comphi::Vulkan {
 		createInfo.pApplicationInfo = &appInfo;
 
 		auto extensions = getRequiredGLFWExtensions();
-
 		//!TODO: VALIDATION LAYERS
 #ifdef NDEBUG
 		createInfo.enabledLayerCount = 0;
@@ -54,12 +69,12 @@ namespace Comphi::Vulkan {
 #else
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-		const std::vector<const char*> validationLayers = {
+		validationLayers = {
 			"VK_LAYER_KHRONOS_validation"
 		};
-
+		
 		if (!GraphicsContext::checkValidationLayerSupport(validationLayers)) {
-			throw std::runtime_error("validation layers requested, but not available!");
+			COMPHILOG_CORE_FATAL("validation layers requested, but not available!");
 		}
 
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
@@ -69,7 +84,7 @@ namespace Comphi::Vulkan {
         populateDebugMessengerCreateInfo(debugCreateInfo);
         createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
 
-#endif
+#endif //!NDEBUG
 
 		if (extensions.size() > 0) {
 			createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
@@ -77,21 +92,18 @@ namespace Comphi::Vulkan {
 		}
 
 		if (&createInfo == nullptr || &instance == nullptr) {
-			throw std::runtime_error("Null pointer passed to vkCreateInstance!");
-			//COMPHILOG_CORE_ASSERT(instance, "Null pointer passed to vkCreateInstance!");
-			//EventThrow::Handler<Comphi::EventCategoryError>()
-			// VK_ERROR_INITIALIZATION_FAILED;
+			COMPHILOG_CORE_FATAL("Null pointer passed to vkCreateInstance!");
 		}
 		else if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create vkinstance!");
+			COMPHILOG_CORE_FATAL("failed to create vkinstance!");
 		}
-		COMPHILOG_CORE_WARN("vk instance creation sucessful!");
+		COMPHILOG_CORE_INFO("vk instance creation sucessful!");
 	}
 
 #ifndef NDEBUG
 	bool GraphicsContext::checkValidationLayerSupport(const std::vector<const char*>& validationLayers) {
 
-		COMPHILOG_CORE_WARN("Requesting Validation Layers:");
+		COMPHILOG_CORE_TRACE("Requesting Validation Layers:");
 
 		uint32_t layerCount;
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -104,7 +116,7 @@ namespace Comphi::Vulkan {
 
 			for (const auto& layerProperties : availableLayers) {
 				if (strcmp(layerName, layerProperties.layerName) == 0) {
-					COMPHILOG_CORE_INFO(layerName);
+					COMPHILOG_CORE_TRACE(layerName);
 					layerFound = true;
 					break;
 				}
@@ -115,6 +127,7 @@ namespace Comphi::Vulkan {
 			}
 		}
 
+		COMPHILOG_CORE_INFO("Validation Layers found!");
 		return true;
 	}
 
@@ -123,9 +136,9 @@ namespace Comphi::Vulkan {
 		populateDebugMessengerCreateInfo(createInfo);
 
 		if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
-			throw std::runtime_error("failed to set up debug messenger!");
+			COMPHILOG_CORE_FATAL("failed to set up debug messenger!");
 		}
-
+		COMPHILOG_CORE_INFO("DebugMessenger setup sucessful!");
 	}
 
 	void GraphicsContext::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
@@ -144,9 +157,12 @@ namespace Comphi::Vulkan {
 
 		switch (messageSeverity)
 		{
+//#define VERBOSE_DEBUG
+#ifdef VERBOSE_DEBUG
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
 			COMPHILOG_CORE_TRACE("VK_validation layer: {0}", pCallbackData->pMessage);
 			break;
+#endif //!VERBOSE_DEBUG
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
 			COMPHILOG_CORE_INFO("VK_validation layer: {0}", pCallbackData->pMessage);
 			break;
@@ -157,6 +173,7 @@ namespace Comphi::Vulkan {
 			COMPHILOG_CORE_ERROR("VK_validation layer: {0}", pCallbackData->pMessage);
 			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT:
+			COMPHILOG_CORE_FATAL("VK_validation layer: {0}", pCallbackData->pMessage);
 			break;
 		default:
 			break;
@@ -181,22 +198,8 @@ namespace Comphi::Vulkan {
 			func(instance, debugMessenger, pAllocator);
 		}
 	}
-#endif
 
-	void GraphicsContext::cleanup() {
-
-#ifndef NDEBUG
-		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-#endif
-
-		vkDestroyInstance(instance, nullptr);
-
-		glfwDestroyWindow(m_WindowHandle);
-
-		glfwTerminate();
-
-		COMPHILOG_CORE_WARN("Vulkan GraphicsContext CleanUp!");
-	}
+#endif //!NDEBUG
 
 	std::vector<const char*> GraphicsContext::getRequiredGLFWExtensions()
 	{
@@ -213,14 +216,14 @@ namespace Comphi::Vulkan {
 
 	bool GraphicsContext::checkGLFWRequiredInstanceExtensions(const char**& glfwExtensions, uint32_t& glfwExtensionCount) {
 
-		COMPHILOG_CORE_WARN("Requesting GLFW RequiredInstanceExtensions:");
+		COMPHILOG_CORE_TRACE("Requesting GLFW RequiredInstanceExtensions:");
 
 		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-		COMPHILOG_CORE_INFO("GLFW_extensions supported : {0}", glfwExtensionCount);
+		COMPHILOG_CORE_TRACE("GLFW_extensions supported: {0}", glfwExtensionCount);
 
 		uint32_t extensionCount = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-		COMPHILOG_CORE_INFO("Vk_extensions supported : {0}", extensionCount);
+		COMPHILOG_CORE_TRACE("Vk_extensions supported: {0}", extensionCount);
 
 		std::vector<VkExtensionProperties> extensions(extensionCount);
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
@@ -238,7 +241,7 @@ namespace Comphi::Vulkan {
 			auto found = std::find(extensionsRequired.begin(), extensionsRequired.end(), vk_ext);
 
 			if (found != extensionsRequired.end()) {
-				COMPHILOG_CORE_INFO("GLFW REQUIRED EXTENSION FOUND : " + *found);
+				COMPHILOG_CORE_INFO("GLFW REQUIRED EXTENSION FOUND: " + *found);
 				extensionsRequired.erase(found);
 				continue;
 			}
@@ -248,11 +251,159 @@ namespace Comphi::Vulkan {
 
 		if (!extensionsRequired.empty()) {
 			for (std::string& ext : extensionsRequired) {
-				COMPHILOG_CORE_ERROR("GLFW REQUIRED EXTENSION MISSING : " + ext);
+				COMPHILOG_CORE_FATAL("GLFW REQUIRED EXTENSION MISSING: " + ext);
 				return false;
 			}
 		}
 		return true;
+	}
+
+	void GraphicsContext::pickPhysicalDevice() {
+		physicalDevice = VK_NULL_HANDLE;
+
+		COMPHILOG_CORE_TRACE("Queue PhysicalDevices...");
+		uint32_t deviceCount = 0;
+		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+		
+		if (deviceCount == 0) {
+			COMPHILOG_CORE_FATAL("failed to find GPUs with Vulkan support!");
+			return;
+		}
+		COMPHILOG_CORE_INFO("PhysicalDevices found!");
+
+		std::vector<VkPhysicalDevice> devices(deviceCount);
+		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+		for (const auto& device : devices) {
+			if (isDeviceSuitable(device)) {
+				COMPHILOG_CORE_INFO("Suitable Device Found!");
+				physicalDevice = device;
+				break;
+			}
+		}
+
+		if (physicalDevice == VK_NULL_HANDLE) {
+			COMPHILOG_CORE_FATAL("failed to find a suitable GPU!");
+			return;
+		}
+		COMPHILOG_CORE_INFO("PhysicalDevice setup sucessful!");
+	}
+
+	GraphicsContext::QueueFamilyIndices GraphicsContext::findQueueFamilies(VkPhysicalDevice device) {
+		
+		COMPHILOG_CORE_TRACE("Requesting QueueFamilies...");
+		QueueFamilyIndices indices;
+		// Assign index to queue families that could be found
+
+		uint32_t queueFamilyCount = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+		if (queueFamilyCount == 0) {
+			COMPHILOG_CORE_FATAL("failed to queueFamilies for device!");
+			return indices;
+		}
+
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+		int i = 0;
+		for (const auto& queueFamily : queueFamilies) {
+			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+				indices.graphicsFamily = i;
+			}
+			if (indices.isComplete()) {
+				COMPHILOG_CORE_INFO("queueFamily found!");
+				break;
+			}
+			i++;
+		}
+
+		return indices;
+	}
+
+	bool GraphicsContext::isDeviceSuitable(VkPhysicalDevice device) {
+		COMPHILOG_CORE_TRACE("Checking Physical device suitability...");
+		//VkPhysicalDeviceProperties deviceProperties;
+		//VkPhysicalDeviceFeatures deviceFeatures;
+		//vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		//vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+		//
+		//return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+		
+		//for custom / automatic device selection https://vulkan-tutorial.com/en/Drawing_a_triangle/Setup/Physical_devices_and_queue_families
+
+		VkPhysicalDeviceProperties deviceProperties;
+		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+		VkPhysicalDeviceFeatures deviceFeatures;
+		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+		GraphicsContext::QueueFamilyIndices indices = findQueueFamilies(device);
+		
+		//Add Logic
+
+		return indices.isComplete();
+	}
+
+	void GraphicsContext::createLogicalDevice() {
+		if (physicalDevice == VK_NULL_HANDLE) return;
+
+		COMPHILOG_CORE_TRACE("Creating Logical Device...");
+
+		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+
+		VkDeviceQueueCreateInfo queueCreateInfo{};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+		queueCreateInfo.queueCount = 1;
+		float queuePriority = 1.0f;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+
+		VkPhysicalDeviceFeatures deviceFeatures{}; //Default all VK_FALSE
+
+		VkDeviceCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pQueueCreateInfos = &queueCreateInfo;
+		createInfo.queueCreateInfoCount = 1;
+
+		createInfo.pEnabledFeatures = &deviceFeatures;
+
+		createInfo.enabledExtensionCount = 0;
+
+#ifndef NDEBUG 
+		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		createInfo.ppEnabledLayerNames = validationLayers.data();
+#else
+		createInfo.enabledLayerCount = 0;
+#endif //!NDEBUG
+
+		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to create logical device!");
+		}
+		COMPHILOG_CORE_INFO("LogicalDevice creation sucessful!");
+
+		vkGetDeviceQueue(logicalDevice, indices.graphicsFamily.value(), 0, &graphicsQueue);
+
+		COMPHILOG_CORE_INFO("GraphicsQueue request sucessful!");
+	}
+
+	void GraphicsContext::CleanUp()
+	{
+		COMPHILOG_CORE_INFO("vkDestroy Destroy Logical Device:");
+		vkDestroyDevice(logicalDevice, nullptr);
+
+#ifndef NDEBUG
+		COMPHILOG_CORE_INFO("vkDestroy Destroy Debug Utils:");
+		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+#endif //!NDEBUG
+
+		COMPHILOG_CORE_INFO("vkDestroy Surface:");
+		vkDestroySurfaceKHR(instance, surface, nullptr);
+
+		COMPHILOG_CORE_INFO("vkDestroy Instance:");
+		vkDestroyInstance(instance, nullptr);
+
+		COMPHILOG_CORE_INFO("Vulkan GraphicsContext Cleaned Up!");
 	}
 
 	void GraphicsContext::Draw()

@@ -32,7 +32,7 @@ namespace Comphi::Windows {
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
-		COMPHILOG_CORE_WARN("Creating Window {0} ({1},{2}) - . . .", props.Title, props.Width, props.Height);
+		COMPHILOG_CORE_TRACE("Creating Window {0} ({1},{2}) - . . .", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInitialized) {
 			int success = glfwInit();
@@ -41,7 +41,7 @@ namespace Comphi::Windows {
 			s_GLFWInitialized = true;
 		}
 
-		COMPHILOG_CORE_WARN("GLFW Initialized.");
+		COMPHILOG_CORE_INFO("GLFW Initialized.");
 
 		//Select GraphicsAPI
 		//GraphicsAPI::selectOpenGL();
@@ -165,7 +165,10 @@ namespace Comphi::Windows {
 
 	void Window::Shutdown()
 	{
+		COMPHILOG_CORE_WARN("Window Shutdown !");
+		m_GraphicsContext->CleanUp();
 		glfwDestroyWindow(m_Window);
+		glfwTerminate();
 	}
 
 	void Window::OnUpdate()

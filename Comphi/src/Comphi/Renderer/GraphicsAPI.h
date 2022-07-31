@@ -30,11 +30,11 @@ namespace Comphi {
 			activeAPI = RenderingAPI::None; 
 		}
 		static void selectOpenGL() { 
-			COMPHILOG_CORE_WARN("OpenGL rendering API Selected.");
+			COMPHILOG_CORE_INFO("OpenGL rendering API Selected.");
 			activeAPI = RenderingAPI::OpenGL; 
 		}
 		static void selectVulkan() { 
-			COMPHILOG_CORE_WARN("Vulkan rendering API Selected.");
+			COMPHILOG_CORE_INFO("Vulkan rendering API Selected.");
 			activeAPI = RenderingAPI::Vulkan;
 		}
 		
