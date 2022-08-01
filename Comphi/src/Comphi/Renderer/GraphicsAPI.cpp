@@ -18,7 +18,7 @@ namespace Comphi {
             COMPHILOG_CORE_ERROR("Not Implemented!");
             break;
         default:
-            COMPHILOG_CORE_ERROR("No rendering API Selected!");
+            COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
         }
         return nullptr;
@@ -34,7 +34,7 @@ namespace Comphi {
             COMPHILOG_CORE_ERROR("Not Implemented!");
             break;
         default:
-            COMPHILOG_CORE_ERROR("No rendering API Selected!");
+            COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
         }
         return nullptr;
@@ -50,7 +50,7 @@ namespace Comphi {
             COMPHILOG_CORE_ERROR("Not Implemented!");
             break;
         default:
-            COMPHILOG_CORE_ERROR("No rendering API Selected!");
+            COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
         }
         return nullptr;
@@ -65,7 +65,7 @@ namespace Comphi {
         case RenderingAPI::Vulkan:
             return new Vulkan::GraphicsContext(windowHandler);
         default:
-            COMPHILOG_CORE_ERROR("No rendering API Selected!");
+            COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
         }
         return nullptr;

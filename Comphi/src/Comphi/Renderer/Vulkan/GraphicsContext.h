@@ -27,27 +27,62 @@ namespace Comphi::Vulkan {
 
 		struct QueueFamilyIndices {
 			std::optional<uint32_t> graphicsFamily;
+			std::optional<uint32_t> presentFamily;
 
 			bool isComplete() {
-				return graphicsFamily.has_value();
+				return graphicsFamily.has_value() && presentFamily.has_value();
 			}
 		};
 
+		struct SwapChainSupportDetails {
+			VkSurfaceCapabilitiesKHR capabilities;
+			std::vector<VkSurfaceFormatKHR> formats;
+			std::vector<VkPresentModeKHR> presentModes;
+		};
+
+		const std::vector<const char*> deviceExtensions = {
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME
+		};
+
+#ifndef NDEBUG
+		const std::vector<const char*> validationLayers = {
+			"VK_LAYER_KHRONOS_validation"
+		};
+#endif //!NDEBUG
+
+		//VKInstance
 		void createVKInstance();
 		std::vector<const char*> getRequiredGLFWExtensions();
 		bool checkGLFWRequiredInstanceExtensions(const char**& glfwExtensions, uint32_t& glfwExtensionCount);
 		
+		//Surface
 		void createSurface();
 
+		//Physical Device
 		void pickPhysicalDevice();
 		bool isDeviceSuitable(VkPhysicalDevice device);
+		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
+		//Logical Device
 		void createLogicalDevice();
+
+		//indexedQueues
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
+		//SwapChain
+		void createSwapChain();
+		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+		//ImageViews
+		void createImageViews();
+
 #ifndef NDEBUG
-		bool checkValidationLayerSupport(const std::vector<const char*>& validationLayers);
+		//Validation Layers
 		void setupDebugMessenger();
+		bool checkValidationLayerSupport(const std::vector<const char*>& validationLayers);
 		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, 
 			VkDebugUtilsMessageTypeFlagsEXT messageType, 
@@ -61,19 +96,26 @@ namespace Comphi::Vulkan {
 		void DestroyDebugUtilsMessengerEXT(VkInstance instance, 
 			VkDebugUtilsMessengerEXT debugMessenger, 
 			const VkAllocationCallbacks* pAllocator);
-#endif
+#endif //!NDEBUG
 
 	private:
 
 #ifndef NDEBUG
 		VkDebugUtilsMessengerEXT debugMessenger;
-		std::vector<const char*> validationLayers;
-#endif
+#endif //!NDEBUG
 		VkPhysicalDevice physicalDevice;
 		VkDevice logicalDevice;
-		VkQueue graphicsQueue;
 
 		VkSurfaceKHR surface;
+		VkQueue graphicsQueue;
+		VkQueue presentQueue;
+
+		VkSwapchainKHR swapChain;
+		VkFormat swapChainImageFormat;
+		VkExtent2D swapChainExtent;
+		std::vector<VkImage> swapChainImages;
+
+		std::vector<VkImageView> swapChainImageViews;
 		GLFWwindow* m_WindowHandle;
 		
 		std::unique_ptr<IVertexBuffer> vao;
