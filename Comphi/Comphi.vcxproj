@@ -171,6 +171,8 @@
     <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderProgram.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderWizard.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsContext.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\ShaderPipeline.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\ShaderProgram.h" />
     <ClInclude Include="src\Comphi\UI\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\cphipch.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
@@ -606,6 +608,12 @@
     <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderWizard.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsContext.cpp">
       <ObjectFileName>$(IntDir)\GraphicsContext1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\ShaderPipeline.cpp">
+      <ObjectFileName>$(IntDir)\ShaderPipeline1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\ShaderProgram.cpp">
+      <ObjectFileName>$(IntDir)\ShaderProgram1.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="src\Comphi\UI\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Comphi\UI\ImGui\ImGuiLayer.cpp" />

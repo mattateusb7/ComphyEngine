@@ -22,13 +22,16 @@ namespace Comphi::OpenGL {
 	{
 		// Attach the first program to the vertex stage, and the second program
 		// to the geometry and fragment stages
-		glUseProgramStages(m_pipeline, shaderProgram.GetTypeMask(), shaderProgram.shaderID);
+		//dynamic_cast<ShaderProgram*>(&shaderProgram)->GetTypeMask()
+		//std::unique_ptr<ShaderProgram> shp = std::make_unique<ShaderProgram>(shaderProgram);
+		//glUseProgramStages(m_pipeline, shp->GetTypeMask(), shaderProgram.shaderID);
 		return true;
 	}
 
 	bool ShaderPipeline::UnbindProgram(IShaderProgram& shaderProgram)
 	{
-		glUseProgramStages(m_pipeline, shaderProgram.GetTypeMask(), 0);
+		//std::unique_ptr<ShaderProgram> shp = std::make_unique<ShaderProgram>(shaderProgram);
+		//glUseProgramStages(m_pipeline, shp->GetTypeMask(), 0);
 		return true;
 	}
 

@@ -17,7 +17,7 @@ namespace Comphi::OpenGL {
 
 		// Send the vertex shader source code to GL
 		// Note that std::string's .c_str is NULL character terminated.
-		const GLchar* source = (const GLchar*)shaderProgram.shaderFile.getFileContent().c_str();
+		const GLchar* source = (const GLchar*)shaderProgram.shaderFile.getData().c_str();
 		glShaderSource(shader, 1, &source, 0);
 
 		glCompileShader(shader);

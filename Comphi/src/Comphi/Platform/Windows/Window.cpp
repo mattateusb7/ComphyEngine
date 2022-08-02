@@ -53,7 +53,7 @@ namespace Comphi::Windows {
 			}
 			case GraphicsAPI::Vulkan: {
 				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-				glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); //simplify Swapchain stability
+				glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); //simplifies Swapchain stability (for now)
 				break;
 			}
 		};

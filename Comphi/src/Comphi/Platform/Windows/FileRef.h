@@ -1,5 +1,5 @@
 #pragma once
-#include "../IFileRef.h"
+#include "Comphi/Platform/IFileRef.h"
 
 namespace Comphi::Windows{
 	class FileRef : public IFileRef
@@ -8,7 +8,7 @@ namespace Comphi::Windows{
 		FileRef(std::string filePath);
 		~FileRef() = default;
 
-		virtual bool setFileData(const std::string in) override;
+		virtual bool writeFileData(const std::string in) override;
 		virtual const std::string getFilename() override;
 		virtual const std::string getBaseFolder() override;
 

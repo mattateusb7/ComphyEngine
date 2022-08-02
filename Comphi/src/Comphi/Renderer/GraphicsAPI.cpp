@@ -5,7 +5,18 @@ namespace Comphi {
     
     IShaderPipeline* GraphicsAPI::create::ShaderPipeline()
     {
-        return new OpenGL::ShaderPipeline();
+        switch (activeAPI)
+        {
+        case RenderingAPI::OpenGL:
+            return new OpenGL::ShaderPipeline();
+        case RenderingAPI::Vulkan:
+            return new Vulkan::ShaderPipeline();
+            break;
+        default:
+            COMPHILOG_CORE_FATAL("No rendering API Selected!");
+            break;
+        }
+        return nullptr;
     }
 
     IVertexBuffer* GraphicsAPI::create::VertexBuffer(const float& vertices, const uint& count)
@@ -47,7 +58,7 @@ namespace Comphi {
         case RenderingAPI::OpenGL:
             return new OpenGL::ShaderProgram(shaderType,shaderFile);
         case RenderingAPI::Vulkan:
-            COMPHILOG_CORE_ERROR("Not Implemented!");
+            return new Vulkan::ShaderProgram(shaderType, shaderFile);
             break;
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");

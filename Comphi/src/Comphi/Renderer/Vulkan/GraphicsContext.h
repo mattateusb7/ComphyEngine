@@ -1,5 +1,7 @@
 #pragma once
 #include "Comphi/Core/Core.h"
+#include "Comphi/Platform/Windows/FileRef.h"
+#include "Comphi/Events/Event.h"
 #include "Comphi/Renderer/IGraphicsContext.h"
 #include "Comphi/Renderer/GraphicsAPI.h"
 
@@ -79,6 +81,13 @@ namespace Comphi::Vulkan {
 		//ImageViews
 		void createImageViews();
 
+		//Graphics pipeline
+		void createGraphicsPipeline();
+		VkShaderModule createShaderModule(const std::vector<char>& code);
+		
+		//RenderPass
+		void createRenderPass();
+
 #ifndef NDEBUG
 		//Validation Layers
 		void setupDebugMessenger();
@@ -117,8 +126,12 @@ namespace Comphi::Vulkan {
 
 		std::vector<VkImageView> swapChainImageViews;
 		GLFWwindow* m_WindowHandle;
-		
-		std::unique_ptr<IVertexBuffer> vao;
+
+		VkRenderPass renderPass;
+		VkPipelineLayout pipelineLayout;
+		VkPipeline graphicsPipeline;
+
+		//std::unique_ptr<IVertexBuffer> vao;
 		std::unique_ptr<IShaderProgram> vertexShader;
 		std::unique_ptr<IShaderProgram> fragmentShader;
 		std::unique_ptr<IShaderPipeline> shaderPipe;

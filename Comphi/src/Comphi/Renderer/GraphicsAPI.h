@@ -7,6 +7,8 @@
 #include "OpenGL/ShaderProgram.h"
 #include "OpenGL/GraphicsContext.h"
 
+#include "Vulkan/ShaderPipeline.h"
+#include "Vulkan/ShaderProgram.h"
 #include "Vulkan/GraphicsContext.h"
 
 #include "IGraphicsContext.h"

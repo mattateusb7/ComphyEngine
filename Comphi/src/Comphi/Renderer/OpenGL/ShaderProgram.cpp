@@ -14,7 +14,7 @@ namespace Comphi::OpenGL{
 	}
 
 	uint ShaderProgram::GetType()
-{
+	{
 		switch (this->m_shaderType)
 		{
 		case Comphi::ShaderType::VertexShader:

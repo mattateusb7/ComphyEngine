@@ -30,11 +30,11 @@ namespace Comphi::OpenGL {
 
 		check_gl_error_on();
 
-		std::unique_ptr<Windows::FileRef> vert = std::make_unique<Windows::FileRef>("shaders\\vert.glsl");
-		std::unique_ptr<Windows::FileRef> frag = std::make_unique<Windows::FileRef>("shaders\\frag.glsl");
+		Windows::FileRef vert = Windows::FileRef("shaders\\vert.glsl");
+		Windows::FileRef frag = Windows::FileRef("shaders\\frag.glsl");
 
-		vertexShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::VertexShader,*vert));
-		fragmentShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::FragmentShader,*frag));
+		vertexShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::VertexShader,vert));
+		fragmentShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::FragmentShader,frag));
 		
 		float vertices[3 * 3]{
 			-0.5f, -0.5f, 0.0f,

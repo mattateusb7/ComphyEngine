@@ -1,9 +1,8 @@
 #pragma once
-#include <glad\glad.h>
 #include "../IShaderPipeline.h"
 #include "ShaderProgram.h"
 
-namespace Comphi::OpenGL{
+namespace Comphi::Vulkan {
 
 	class ShaderPipeline : public IShaderPipeline
 	{
@@ -15,5 +14,5 @@ namespace Comphi::OpenGL{
 		bool UnbindProgram(IShaderProgram& shaderProgram) override;
 		bool BindPipeline() override;
 	};
-	
+
 }
