@@ -818,7 +818,7 @@ namespace Comphi::Vulkan {
 			COMPHILOG_CORE_FATAL("failed to create shader module!");
 			return shaderModule;
 		}
-		COMPHILOG_CORE_INFO("created shaderModule {0} successfully!", std::string(code.data()));
+		COMPHILOG_CORE_INFO("created shaderModule successfully!");
 
 		return shaderModule;
 	}
@@ -1008,6 +1008,8 @@ namespace Comphi::Vulkan {
 
 	void GraphicsContext::CleanUp()
 	{
+		vkDeviceWaitIdle(logicalDevice);
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores");
 		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
 		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
@@ -1069,7 +1071,9 @@ namespace Comphi::Vulkan {
 		vkResetFences(logicalDevice, 1, &inFlightFence);
 
 		uint32_t imageIndex;
-		vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex); //add error Handling
+		if (vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex) != VK_SUCCESS) {
+			COMPHILOG_CORE_ERROR("failed to acquireNextImage!");
+		}
 
 		vkResetCommandBuffer(commandBuffer, 0);
 		recordCommandBuffer(commandBuffer, imageIndex);
@@ -1108,7 +1112,9 @@ namespace Comphi::Vulkan {
 
 		presentInfo.pResults = nullptr; // Optional error handling
 
-		vkQueuePresentKHR(presentQueue, &presentInfo); //add error Handling
+		if (vkQueuePresentKHR(presentQueue, &presentInfo) != VK_SUCCESS) {
+			COMPHILOG_CORE_ERROR("failed to presentQueue!");
+		}
 	}
 
 	void GraphicsContext::ResizeWindow(uint x, uint y)
