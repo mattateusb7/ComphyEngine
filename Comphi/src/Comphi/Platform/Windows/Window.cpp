@@ -32,7 +32,6 @@ namespace Comphi::Windows {
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
-		COMPHILOG_CORE_TRACE("Creating Window {0} ({1},{2}) - . . .", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInitialized) {
 			int success = glfwInit();
@@ -59,9 +58,6 @@ namespace Comphi::Windows {
 		};
 
 		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
-		
-		m_GraphicsContext.reset(GraphicsAPI::create::GraphicsContext(*m_Window));
-		m_GraphicsContext->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(props.VSync);
@@ -156,6 +152,9 @@ namespace Comphi::Windows {
 		}
 
 		COMPHILOG_CORE_INFO("Creating Window {0} ({1},{2}) - Success!", props.Title, props.Width, props.Height);
+
+		m_GraphicsContext.reset(GraphicsAPI::create::GraphicsContext(*m_Window));
+		m_GraphicsContext->Init();
 	}
 
 	void Window::SetEventCallback(const EventCallback& callback)
@@ -189,10 +188,19 @@ namespace Comphi::Windows {
 
 	void Window::SetVSync(bool enabled)
 	{
-		if (enabled) 
-			glfwSwapInterval(1);
-		else
-			glfwSwapInterval(0);
+		switch (GraphicsAPI::getActiveAPI()) {
+			case GraphicsAPI::RenderingAPI::OpenGL: {
+				if (enabled)
+					glfwSwapInterval(1);
+				else
+					glfwSwapInterval(0);
+				break;
+			}
+			case GraphicsAPI::RenderingAPI::Vulkan: {
+				// - - -
+				break;
+			}
+		}
 
 		m_Data.VSync = enabled;
 	}

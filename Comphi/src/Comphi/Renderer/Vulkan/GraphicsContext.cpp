@@ -18,6 +18,7 @@ namespace Comphi::Vulkan {
 
 //! VULKAN Guide: https://vulkan-tutorial.com/en/Drawing_a_triangle/Setup/Logical_device_and_queues
 //! VULKAN Map	https://github.com/David-DiGioia/vulkan-diagrams
+//! VULKAN SPIR Compile : https://www.khronos.org/spir/
 
 	void GraphicsContext::Init()
 	{
@@ -30,9 +31,15 @@ namespace Comphi::Vulkan {
 		createLogicalDevice();
 		createSwapChain();
 		createImageViews();
-		createGraphicsPipeline();
 		createRenderPass();
+		createGraphicsPipeline();
+		createFramebuffers();
+		createCommandPool();
+		createCommandBuffer();
+		createSyncObjects();
 	}
+
+#pragma region VKInstance
 
 	void GraphicsContext::createSurface() {
 		VkWin32SurfaceCreateInfoKHR createInfo{};
@@ -75,6 +82,7 @@ namespace Comphi::Vulkan {
 		
 		if (!GraphicsContext::checkValidationLayerSupport(validationLayers)) {
 			COMPHILOG_CORE_FATAL("validation layers requested, but not available!");
+			return;
 		}
 
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
@@ -93,9 +101,11 @@ namespace Comphi::Vulkan {
 
 		if (&createInfo == nullptr || &instance == nullptr) {
 			COMPHILOG_CORE_FATAL("Null pointer passed to vkCreateInstance!");
+			return;
 		}
 		else if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create vkinstance!");
+			return;
 		}
 		COMPHILOG_CORE_INFO("vk instance creation successful!");
 	}
@@ -137,6 +147,7 @@ namespace Comphi::Vulkan {
 
 		if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to set up debug messenger!");
+			return;
 		}
 		COMPHILOG_CORE_INFO("DebugMessenger setup successful!");
 	}
@@ -257,6 +268,9 @@ namespace Comphi::Vulkan {
 		}
 		return true;
 	}
+#pragma endregion
+
+#pragma region PhysicalDevice
 
 	void GraphicsContext::pickPhysicalDevice() {
 		physicalDevice = VK_NULL_HANDLE;
@@ -373,6 +387,9 @@ namespace Comphi::Vulkan {
 
 		return requiredExtensions.empty();
 	}
+
+#pragma endregion
+
 #pragma region Logical Device
 	void GraphicsContext::createLogicalDevice() {
 		if (physicalDevice == VK_NULL_HANDLE) return;
@@ -428,6 +445,7 @@ namespace Comphi::Vulkan {
 	}
 
 #pragma endregion
+
 #pragma region SwapChain
 
 	GraphicsContext::SwapChainSupportDetails GraphicsContext::querySwapChainSupport(VkPhysicalDevice device) {
@@ -546,6 +564,7 @@ namespace Comphi::Vulkan {
 
 		if (vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create swap chain!");
+			return;
 		}
 
 		COMPHILOG_CORE_INFO("SwapChain created Successfully!");
@@ -586,6 +605,7 @@ namespace Comphi::Vulkan {
 
 			if (vkCreateImageView(logicalDevice, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
 				COMPHILOG_CORE_FATAL("failed to create image view! {0}", i);
+				return;
 			}
 			COMPHILOG_CORE_INFO("created image view! {0} successfully!", i);
 		}
@@ -748,6 +768,7 @@ namespace Comphi::Vulkan {
 
 		if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create pipeline layout!");
+			return;
 		}
 
 		COMPHILOG_CORE_INFO("created pipelineLayout successfully!");
@@ -776,6 +797,7 @@ namespace Comphi::Vulkan {
 
 		if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create graphics pipeline!");
+			return;
 		}
 		COMPHILOG_CORE_INFO("created graphics pipeline successfully!");
 
@@ -794,6 +816,7 @@ namespace Comphi::Vulkan {
 		VkShaderModule shaderModule;
 		if (vkCreateShaderModule(logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create shader module!");
+			return shaderModule;
 		}
 		COMPHILOG_CORE_INFO("created shaderModule {0} successfully!", std::string(code.data()));
 
@@ -802,7 +825,7 @@ namespace Comphi::Vulkan {
 
 	void GraphicsContext::createRenderPass() {
 		
-		//VkImage Attatchments
+		//VkImage Render Attatchments
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = swapChainImageFormat;
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -833,32 +856,185 @@ namespace Comphi::Vulkan {
 		renderPassInfo.pAttachments = &colorAttachment;
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
+		
+		//RenderPass Dependency
+		VkSubpassDependency dependency{};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		renderPassInfo.dependencyCount = 1;
+		renderPassInfo.pDependencies = &dependency;
 
 		if (vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create render pass!");
+			return;
 		}
 
 		COMPHILOG_CORE_INFO("created RenderPass Successfully!");
+	}
 
+	void GraphicsContext::createFramebuffers() {
+		swapChainFramebuffers.resize(swapChainImageViews.size());
+
+		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+			VkImageView attachments[] = {
+				swapChainImageViews[i]
+			};
+
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = renderPass;
+			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.width = swapChainExtent.width;
+			framebufferInfo.height = swapChainExtent.height;
+			framebufferInfo.layers = 1;
+
+			if (vkCreateFramebuffer(logicalDevice, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+				COMPHILOG_CORE_FATAL("failed to create framebuffer!");
+				return;
+			}
+		}
 	}
 
 #pragma endregion
 
+#pragma region CommandPool
+
+	void GraphicsContext::createCommandPool() {
+		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+
+		VkCommandPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+		if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to create command pool!");
+			return;
+		}
+	}
+
+	void GraphicsContext::createCommandBuffer() {
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = commandPool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = 1;
+
+		if (vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to allocate command buffers!");
+			return;
+		}
+	}
+
+	void GraphicsContext::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
+
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = 0; // Optional
+		beginInfo.pInheritanceInfo = nullptr; // Optional
+
+		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to begin recording command buffer!");
+			return;
+		}
+
+		//graphics pipeline & render attachment(framebuffer/img) selection 
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = renderPass;
+		renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = swapChainExtent;
+
+		VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+		//VIEWPORT/SCISSOR SETUP
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = static_cast<float>(swapChainExtent.width);
+		viewport.height = static_cast<float>(swapChainExtent.height);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+		VkRect2D scissor{};
+		scissor.offset = { 0, 0 };
+		scissor.extent = swapChainExtent;
+		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+		//DRAW COMMAND
+		vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+		//end render pass
+		vkCmdEndRenderPass(commandBuffer);
+
+		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to record command buffer!");
+			return;
+		}
+	}
+
+#pragma endregion
+
+	void GraphicsContext::createSyncObjects() {
+		VkSemaphoreCreateInfo semaphoreInfo{};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		VkFenceCreateInfo fenceInfo{};
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
+			vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS ||
+			vkCreateFence(logicalDevice, &fenceInfo, nullptr, &inFlightFence) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to create semaphores!");
+			return;
+		}
+		COMPHILOG_CORE_INFO("semaphores created Successfully!");
+	}
+
 	void GraphicsContext::CleanUp()
 	{
-		vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
+		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores");
+		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
+		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
+		vkDestroyFence(logicalDevice, inFlightFence, nullptr);
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy commandPool");
+		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+
+		short fbid = 0;
+		for (auto framebuffer : swapChainFramebuffers) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid++);
+			vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
+		}
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsPipeline");
+		vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
 
-		vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
 		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
+		vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
 
-		vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
 		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
+		vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
 
 		int n_img = 0;
 		for (auto imageView : swapChainImageViews) {
-			vkDestroyImageView(logicalDevice, imageView, nullptr);
 			COMPHILOG_CORE_INFO("vkDestroy Destroy ImageView {0}", n_img++);
+			vkDestroyImageView(logicalDevice, imageView, nullptr);
 		}
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Swapchain:");
@@ -883,7 +1059,56 @@ namespace Comphi::Vulkan {
 
 	void GraphicsContext::Draw()
 	{
+		//Wait for the previous frame to finish
+		//Acquire an image from the swap chain
+		//Record a command buffer which draws the scene onto that image
+		//Submit the recorded command buffer
+		//Present the swap chain image
+
+		vkWaitForFences(logicalDevice, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
+		vkResetFences(logicalDevice, 1, &inFlightFence);
+
+		uint32_t imageIndex;
+		vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex); //add error Handling
+
+		vkResetCommandBuffer(commandBuffer, 0);
+		recordCommandBuffer(commandBuffer, imageIndex);
+
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+		VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffer;
+
+		VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
+
+		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFence) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to submit draw command buffer!");
+			return;
+		}
+
+		VkPresentInfoKHR presentInfo{};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = signalSemaphores;
 		
+		VkSwapchainKHR swapChains[] = { swapChain };
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapChains;
+		presentInfo.pImageIndices = &imageIndex;
+
+		presentInfo.pResults = nullptr; // Optional error handling
+
+		vkQueuePresentKHR(presentQueue, &presentInfo); //add error Handling
 	}
 
 	void GraphicsContext::ResizeWindow(uint x, uint y)

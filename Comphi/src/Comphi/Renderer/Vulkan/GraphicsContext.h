@@ -24,6 +24,7 @@ namespace Comphi::Vulkan {
 		virtual void Draw() override;
 		virtual void ResizeWindow(uint x, uint y) override;
 		virtual void CleanUp() override;
+
 	
 	protected:
 
@@ -88,6 +89,15 @@ namespace Comphi::Vulkan {
 		//RenderPass
 		void createRenderPass();
 
+		//Framebuffers
+		void createFramebuffers();
+
+		//command Pool/Buffer
+		void createCommandPool();
+		void createCommandBuffer();
+		void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+		void createSyncObjects();
+
 #ifndef NDEBUG
 		//Validation Layers
 		void setupDebugMessenger();
@@ -130,6 +140,15 @@ namespace Comphi::Vulkan {
 		VkRenderPass renderPass;
 		VkPipelineLayout pipelineLayout;
 		VkPipeline graphicsPipeline;
+
+		std::vector<VkFramebuffer> swapChainFramebuffers;
+
+		VkCommandPool commandPool;
+		VkCommandBuffer commandBuffer;
+
+		VkSemaphore imageAvailableSemaphore;
+		VkSemaphore renderFinishedSemaphore;
+		VkFence inFlightFence;
 
 		//std::unique_ptr<IVertexBuffer> vao;
 		std::unique_ptr<IShaderProgram> vertexShader;
