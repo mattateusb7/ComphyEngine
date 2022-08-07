@@ -19,6 +19,7 @@ namespace Comphi::Vulkan {
 //! VULKAN Guide: https://vulkan-tutorial.com/en/Drawing_a_triangle/Setup/Logical_device_and_queues
 //! VULKAN Map	https://github.com/David-DiGioia/vulkan-diagrams
 //! VULKAN SPIR Compile : https://www.khronos.org/spir/
+//! VULKAN Guide2: https://vkguide.dev/
 
 	void GraphicsContext::Init()
 	{
@@ -744,7 +745,9 @@ namespace Comphi::Vulkan {
 			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
 			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
 			colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+			colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		}
+
 		
 		//bitwise combination
 		VkPipelineColorBlendStateCreateInfo colorBlending{};
@@ -1057,6 +1060,7 @@ namespace Comphi::Vulkan {
 		vkDestroyInstance(instance, nullptr);
 
 		COMPHILOG_CORE_INFO("Vulkan GraphicsContext Cleaned Up!");
+
 	}
 
 	void GraphicsContext::Draw()
@@ -1115,6 +1119,7 @@ namespace Comphi::Vulkan {
 		if (vkQueuePresentKHR(presentQueue, &presentInfo) != VK_SUCCESS) {
 			COMPHILOG_CORE_ERROR("failed to presentQueue!");
 		}
+
 	}
 
 	void GraphicsContext::ResizeWindow(uint x, uint y)
