@@ -12,10 +12,10 @@ public:
 		
 	void OnUIRender() override 
 	{
-		//ImGui::NewFrame(); <<< Broken frame
-		//ImGui::Begin("Test");
-		//ImGui::Text("HelloWorld");
-		//ImGui::End();
+		//ImGui::NewFrame(); //<<< Broken frame
+		ImGui::Begin("Test");
+		ImGui::Text("HelloWorld");
+		ImGui::End();
 	};
 
 	void OnEvent(Comphi::Event& e) override 

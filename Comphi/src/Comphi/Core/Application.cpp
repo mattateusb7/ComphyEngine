@@ -31,15 +31,15 @@ namespace Comphi {
 
 			m_Window->OnBeginUpdate();
 
-			//for (auto layer : m_LayerStack) {
-			//	layer->OnUpdate();
-			//}
+			for (auto layer : m_LayerStack) {
+				layer->OnUpdate();
+			}
 
-			//m_ImGuiLayer->Begin();
-			//for (auto layer : m_LayerStack) {
-			//	layer->OnUIRender();
-			//}
-			//m_ImGuiLayer->End();
+			m_ImGuiLayer->Begin();
+			for (auto layer : m_LayerStack) {
+				layer->OnUIRender();
+			}
+			m_ImGuiLayer->End();
 		
 			m_Window->OnUpdate();
 		};

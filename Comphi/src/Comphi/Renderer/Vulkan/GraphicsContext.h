@@ -15,6 +15,7 @@
 #include <vulkan/vulkan_win32.h>
 
 namespace Comphi::Vulkan {
+
 	class GraphicsContext : public IGraphicsContext
 	{
 	public:
@@ -98,6 +99,9 @@ namespace Comphi::Vulkan {
 		void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 		void createSyncObjects();
 
+		//optional:
+		void createDescriptorPool();
+
 #ifndef NDEBUG
 		//Validation Layers
 		void setupDebugMessenger();
@@ -117,7 +121,8 @@ namespace Comphi::Vulkan {
 			const VkAllocationCallbacks* pAllocator);
 #endif //!NDEBUG
 
-	private:
+	public:
+		VkInstance instance;
 
 #ifndef NDEBUG
 		VkDebugUtilsMessengerEXT debugMessenger;
@@ -145,6 +150,8 @@ namespace Comphi::Vulkan {
 
 		VkCommandPool commandPool;
 		VkCommandBuffer commandBuffer;
+
+		VkDescriptorPool descriptorPool;
 
 		VkSemaphore imageAvailableSemaphore;
 		VkSemaphore renderFinishedSemaphore;

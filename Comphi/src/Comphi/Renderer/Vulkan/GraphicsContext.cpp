@@ -9,8 +9,6 @@
 
 namespace Comphi::Vulkan {
 
-	static VkInstance instance;
-
 	GraphicsContext::GraphicsContext(GLFWwindow& windowHandle) : m_WindowHandle(&windowHandle)
 	{
 		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
@@ -38,6 +36,32 @@ namespace Comphi::Vulkan {
 		createCommandPool();
 		createCommandBuffer();
 		createSyncObjects();
+
+		//wip
+		createDescriptorPool();
+	}
+
+	void GraphicsContext::createDescriptorPool() {
+		
+		std::array<VkDescriptorPoolSize, 2> descriptorPoolSizes{};
+
+		// Uniform buffers : 1 for scene and 1 per object (scene and local matrices)
+		descriptorPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorPoolSizes[0].descriptorCount = 1 + static_cast<uint32_t>(1); //cubes.size
+
+		// Combined image samples : 1 per mesh texture
+		descriptorPoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorPoolSizes[1].descriptorCount = static_cast<uint32_t>(1);
+
+		// Create the global descriptor pool
+		VkDescriptorPoolCreateInfo descriptorPoolCI = {};
+		descriptorPoolCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		descriptorPoolCI.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size());
+		descriptorPoolCI.pPoolSizes = descriptorPoolSizes.data();
+		// Max. number of descriptor sets that can be allocated from this pool (one per object)
+		descriptorPoolCI.maxSets = static_cast<uint32_t>(1);
+
+		vkCreateDescriptorPool(logicalDevice, &descriptorPoolCI, nullptr, &descriptorPool);
 	}
 
 #pragma region VKInstance

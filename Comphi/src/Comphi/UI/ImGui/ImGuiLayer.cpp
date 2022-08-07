@@ -3,6 +3,7 @@
 
 #include "Comphi/Core/Application.h"
 #include "Comphi/Renderer/GraphicsAPI.h"
+#include "Comphi/Platform/Windows/Window.h"
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
@@ -29,6 +30,7 @@ namespace Comphi {
 		
 		
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		//io.DisplaySize
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
@@ -51,12 +53,40 @@ namespace Comphi {
 
 		// Setup Platform/Renderer bindings
 		//auto window = std::static_pointer_cast<GLFWwindow>(Application::Get().GetWindow().GetNativeWindow());
-		auto window = static_cast<GLFWwindow*>((Application::Get().GetWindow().GetNativeWindow()));
+		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+
+		if (GraphicsAPI::getActiveAPI() == GraphicsAPI::Vulkan) {
+			auto graphicsContext = static_cast<Comphi::Vulkan::GraphicsContext*>(Application::Get().GetWindow().GetGraphicsContext());
+			ImGui_ImplVulkan_InitInfo imGui_ImplVulkan_InitInfo;
+			imGui_ImplVulkan_InitInfo.Instance = graphicsContext->instance;
+			imGui_ImplVulkan_InitInfo.PhysicalDevice = graphicsContext->physicalDevice;
+			imGui_ImplVulkan_InitInfo.Device = graphicsContext->logicalDevice;
+			imGui_ImplVulkan_InitInfo.Queue = graphicsContext->presentQueue;
+			imGui_ImplVulkan_InitInfo.DescriptorPool = graphicsContext->descriptorPool;
+			imGui_ImplVulkan_InitInfo.ImageCount = graphicsContext->swapChainImages.size();
+			imGui_ImplVulkan_InitInfo.MinImageCount = 3;
+
+			VkAllocationCallbacks cb = {};
+			imGui_ImplVulkan_InitInfo.Allocator = &cb;
+
+			//imGui_ImplVulkan_InitInfo.
+
+			ImGui_ImplGlfw_InitForVulkan(window, true);
+			ImGui_ImplVulkan_Init(&imGui_ImplVulkan_InitInfo, graphicsContext->renderPass);
+		}
+
+		//imGui_ImplVulkan_InitInfo.Instance = graphicsContext->
+		//IM_ASSERT(info->Instance != VK_NULL_HANDLE);
+		//IM_ASSERT(info->PhysicalDevice != VK_NULL_HANDLE);
+		//IM_ASSERT(info->Device != VK_NULL_HANDLE);
+		//IM_ASSERT(info->Queue != VK_NULL_HANDLE);
+		//IM_ASSERT(info->DescriptorPool != VK_NULL_HANDLE);
+		//IM_ASSERT(info->MinImageCount >= 2);
+		//IM_ASSERT(info->ImageCount >= info->MinImageCount);
 
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
-			ImGui_ImplGlfw_InitForVulkan(window , true);
-			//ImGui_ImplVulkan_Init(NULL,NULL); //!fix
+
 			break;
 		case GraphicsAPI::OpenGL:
 			ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -167,7 +197,7 @@ namespace Comphi {
 
 	void ImGuiLayer::OnUIRender()
 	{
-		//ImGui::ShowDemoWindow(&m_Enabled);
+		ImGui::ShowDemoWindow(&m_Enabled);
 	}
 
 }
