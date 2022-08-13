@@ -44,8 +44,8 @@ namespace Comphi::Windows {
 		COMPHILOG_CORE_WARN("GLFW Initialized.");
 
 		//Select API
-		//GraphicsAPI::selectOpenGL();
-		GraphicsAPI::selectVulkan();
+		GraphicsAPI::selectOpenGL();
+		//GraphicsAPI::selectVulkan();
 
 		switch (GraphicsAPI::getActiveAPI()) {
 			case GraphicsAPI::OpenGL: {

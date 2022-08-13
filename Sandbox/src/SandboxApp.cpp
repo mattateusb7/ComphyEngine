@@ -12,7 +12,7 @@ public:
 		
 	void OnUIRender() override 
 	{
-		//ImGui::NewFrame(); <<< Broken frame
+		ImGui::ShowDemoWindow();
 		//ImGui::Begin("Test");
 		//ImGui::Text("HelloWorld");
 		//ImGui::End();
