@@ -94,7 +94,7 @@ namespace Comphi::Vulkan {
 
 		//command Pool/Buffer
 		void createCommandPool();
-		void createCommandBuffer();
+		void createCommandBuffers();
 		void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 		void createSyncObjects();
 
@@ -144,15 +144,18 @@ namespace Comphi::Vulkan {
 		std::vector<VkFramebuffer> swapChainFramebuffers;
 
 		VkCommandPool commandPool;
-		VkCommandBuffer commandBuffer;
 
-		VkSemaphore imageAvailableSemaphore;
-		VkSemaphore renderFinishedSemaphore;
-		VkFence inFlightFence;
+		const int MAX_FRAMES_IN_FLIGHT = 2; //double-buffering
+		uint32_t currentFrame = 0;
+		std::vector <VkCommandBuffer> commandBuffers;
+		std::vector <VkSemaphore> imageAvailableSemaphores;
+		std::vector <VkSemaphore> renderFinishedSemaphores;
+		std::vector <VkFence> inFlightFences;
+		bool framebufferResized = false;
 
 		//std::unique_ptr<IVertexBuffer> vao;
 		std::unique_ptr<IShaderProgram> vertexShader;
 		std::unique_ptr<IShaderProgram> fragmentShader;
-		std::unique_ptr<IShaderPipeline> shaderPipe;
+		//std::unique_ptr<IShaderPipeline> shaderPipe;
 	};
 }

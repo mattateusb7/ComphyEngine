@@ -36,7 +36,7 @@ namespace Comphi::Vulkan {
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPool();
-		createCommandBuffer();
+		createCommandBuffers();
 		createSyncObjects();
 	}
 
@@ -923,17 +923,21 @@ namespace Comphi::Vulkan {
 		}
 	}
 
-	void GraphicsContext::createCommandBuffer() {
+	void GraphicsContext::createCommandBuffers() {
+		commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = commandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = 1;
+		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();;
 
-		if (vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer) != VK_SUCCESS) {
+		
+		if (vkAllocateCommandBuffers(logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to allocate command buffers!");
 			return;
 		}
+
 	}
 
 	void GraphicsContext::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
@@ -993,6 +997,10 @@ namespace Comphi::Vulkan {
 #pragma endregion
 
 	void GraphicsContext::createSyncObjects() {
+		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
 		VkSemaphoreCreateInfo semaphoreInfo{};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -1000,11 +1008,14 @@ namespace Comphi::Vulkan {
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
-			vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS ||
-			vkCreateFence(logicalDevice, &fenceInfo, nullptr, &inFlightFence) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to create semaphores!");
-			return;
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+				vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+				vkCreateFence(logicalDevice, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+
+				COMPHILOG_CORE_FATAL("failed to create synchronization objects for a frame!");
+				return;
+			}
 		}
 		COMPHILOG_CORE_INFO("semaphores created Successfully!");
 	}
@@ -1033,17 +1044,18 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
 		vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
 
-		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
-		vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
-
-		int n_img = 0;
-		for (auto imageView : swapChainImageViews) {
-			COMPHILOG_CORE_INFO("vkDestroy Destroy ImageView {0}", n_img++);
-			vkDestroyImageView(logicalDevice, imageView, nullptr);
+		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			vkDestroySemaphore(logicalDevice, renderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(logicalDevice, imageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(logicalDevice, inFlightFences[i], nullptr);
 		}
 
-		COMPHILOG_CORE_INFO("vkDestroy Destroy Swapchain:");
-		vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
+		COMPHILOG_CORE_INFO("vkDestroy Destroy commandPool");
+		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
+		vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Logical Device");
 		vkDestroyDevice(logicalDevice, nullptr);
@@ -1071,34 +1083,34 @@ namespace Comphi::Vulkan {
 		//Submit the recorded command buffer
 		//Present the swap chain image
 
-		vkWaitForFences(logicalDevice, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
-		vkResetFences(logicalDevice, 1, &inFlightFence);
+		vkWaitForFences(logicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t imageIndex;
-		if (vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex) != VK_SUCCESS) {
+		VkResult result = vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+		if (result != VK_SUCCESS) {
 			COMPHILOG_CORE_ERROR("failed to acquireNextImage!");
 		}
 
-		vkResetCommandBuffer(commandBuffer, 0);
-		recordCommandBuffer(commandBuffer, imageIndex);
+		vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+		recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-		VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+		VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
 
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
+		submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
 
-		VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+		VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFence) != VK_SUCCESS) {
+		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to submit draw command buffer!");
 			return;
 		}
@@ -1120,6 +1132,7 @@ namespace Comphi::Vulkan {
 			COMPHILOG_CORE_ERROR("failed to presentQueue!");
 		}
 
+		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
 	void GraphicsContext::ResizeWindow(uint x, uint y)
