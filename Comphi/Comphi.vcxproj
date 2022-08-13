@@ -161,16 +161,21 @@
     <ClInclude Include="src\Comphi\Platform\Windows\Window.h" />
     <ClInclude Include="src\Comphi\Renderer\GraphicsAPI.h" />
     <ClInclude Include="src\Comphi\Renderer\IGraphicsContext.h" />
+    <ClInclude Include="src\Comphi\Renderer\IObjects\IIndexBuffer.h" />
+    <ClInclude Include="src\Comphi\Renderer\IObjects\IVertexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\IShaderPipeline.h" />
     <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h" />
     <ClInclude Include="src\Comphi\Renderer\IShaderWizard.h" />
-    <ClInclude Include="src\Comphi\Renderer\Objects\IBuffers.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\GLError.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\GraphicsContext.h" />
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\Objects\IndexBuffer.h" />
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\Objects\VertexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderPipeline.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderProgram.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderWizard.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsContext.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\VertexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\ShaderPipeline.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\ShaderProgram.h" />
     <ClInclude Include="src\Comphi\UI\ImGui\ImGuiLayer.h" />
@@ -600,14 +605,21 @@
     <ClCompile Include="src\Comphi\Platform\Windows\Input.cpp" />
     <ClCompile Include="src\Comphi\Platform\Windows\Window.cpp" />
     <ClCompile Include="src\Comphi\Renderer\GraphicsAPI.cpp" />
-    <ClCompile Include="src\Comphi\Renderer\Objects\IBuffers.cpp" />
     <ClCompile Include="src\Comphi\Renderer\OpenGL\GLError.cpp" />
     <ClCompile Include="src\Comphi\Renderer\OpenGL\GraphicsContext.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\OpenGL\Objects\IndexBuffer.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\OpenGL\Objects\VertexBuffer.cpp" />
     <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderPipeline.cpp" />
     <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderProgram.cpp" />
     <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderWizard.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsContext.cpp">
       <ObjectFileName>$(IntDir)\GraphicsContext1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.cpp">
+      <ObjectFileName>$(IntDir)\IndexBuffer1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\VertexBuffer.cpp">
+      <ObjectFileName>$(IntDir)\VertexBuffer1.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\ShaderPipeline.cpp">
       <ObjectFileName>$(IntDir)\ShaderPipeline1.obj</ObjectFileName>

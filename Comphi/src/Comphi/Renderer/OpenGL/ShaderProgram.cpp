@@ -13,7 +13,7 @@ namespace Comphi::OpenGL{
 		glDeleteProgram(shaderID);
 	}
 
-	uint ShaderProgram::GetType()
+	const uint ShaderProgram::GetType()
 	{
 		switch (this->m_shaderType)
 		{
@@ -30,7 +30,7 @@ namespace Comphi::OpenGL{
 		}
 	}
 
-	uint ShaderProgram::GetTypeMask()
+	const uint ShaderProgram::GetTypeMask()
 	{
 		switch (this->m_shaderType)
 		{

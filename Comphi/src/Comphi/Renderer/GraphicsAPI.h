@@ -1,17 +1,21 @@
 #pragma once
 #include "Comphi/Core/Log.h"
-#include "Objects/IBuffers.h"
 
+#include "OpenGL/Objects/IndexBuffer.h"
+#include "OpenGL/Objects/VertexBuffer.h"
 #include "OpenGL/ShaderPipeline.h"
 #include "OpenGL/ShaderWizard.h"
 #include "OpenGL/ShaderProgram.h"
 #include "OpenGL/GraphicsContext.h"
 
+#include "Vulkan/Objects/IndexBuffer.h"
+#include "Vulkan/Objects/VertexBuffer.h"
 #include "Vulkan/ShaderPipeline.h"
 #include "Vulkan/ShaderProgram.h"
 #include "Vulkan/GraphicsContext.h"
 
 #include "IGraphicsContext.h"
+
 #include <GLFW/glfw3.h>
 
 namespace Comphi {
@@ -47,8 +51,10 @@ namespace Comphi {
 			static IVertexBuffer* VertexBuffer(const float& vertices, const uint& count);
 			static IIndexBuffer* IndexBuffer(const uint& indices);
 			static IShaderPipeline* ShaderPipeline();
-			static IShaderProgram* ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile);
+			static IShaderProgram* ShaderProgram(IGraphicsContext* currentGraphicsContext, Comphi::ShaderType shaderType, IFileRef& shaderFile);
 		};
+
+		//std::shared_ptr<IGraphicsContext> currentGraphicsContext;
 
 		//struct start {
 		//	virtual void test() = 0;

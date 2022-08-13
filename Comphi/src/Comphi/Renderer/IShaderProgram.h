@@ -17,11 +17,8 @@ namespace Comphi{
 	{
 	public:
 		IShaderProgram(ShaderType shaderType, IFileRef& file) : m_shaderType(shaderType), shaderFile(file) {};
-		virtual uint GetType() = 0; 
-		//virtual uint GetTypeMask() = 0; 
-
+		virtual const uint GetType(){ return (uint)m_shaderType; };
 		IFileRef& shaderFile;
-		uint shaderID = -1;
 
 	protected:
 		ShaderType m_shaderType;

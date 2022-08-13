@@ -1,12 +1,13 @@
 #pragma once
 #include "../IShaderWizard.h"
+#include "../OpenGL/ShaderProgram.h"
 #include <glad\glad.h>
 
 namespace Comphi::OpenGL {
 	class ShaderWizard : IShaderWizard
 	{
 	public:
-		static bool CompileShader(IShaderProgram& shaderProgram) {
+		static bool CompileShader(ShaderProgram& shaderProgram) {
 			static ShaderWizard wiz;
 			return wiz.Compile(shaderProgram);
 		};

@@ -88,7 +88,7 @@ namespace Comphi::Vulkan {
 
 		//Graphics pipeline
 		void createGraphicsPipeline();
-		VkShaderModule createShaderModule(const std::vector<char>& code);
+		//VkShaderModule createShaderModule(const std::vector<char>& code);
 		
 		//RenderPass
 		void createRenderPass();
@@ -142,9 +142,10 @@ namespace Comphi::Vulkan {
 		std::vector<VkImageView> swapChainImageViews;
 		GLFWwindow* m_WindowHandle;
 
-		VkRenderPass renderPass;
-		VkPipelineLayout pipelineLayout;
-		VkPipeline graphicsPipeline;
+		std::unique_ptr<ShaderPipeline> shaderPipeline;
+			//VkRenderPass renderPass;
+			//VkPipelineLayout pipelineLayout;
+			//VkPipeline graphicsPipeline;
 
 		std::vector<VkFramebuffer> swapChainFramebuffers;
 
@@ -152,15 +153,13 @@ namespace Comphi::Vulkan {
 
 		const int MAX_FRAMES_IN_FLIGHT = 2; //double-buffering
 		uint32_t currentFrame = 0;
-		std::vector <VkCommandBuffer> commandBuffers;
-		std::vector <VkSemaphore> imageAvailableSemaphores;
-		std::vector <VkSemaphore> renderFinishedSemaphores;
-		std::vector <VkFence> inFlightFences;
+		std::vector<VkCommandBuffer> commandBuffers;
+		std::vector<VkSemaphore> imageAvailableSemaphores;
+		std::vector<VkSemaphore> renderFinishedSemaphores;
+		std::vector<VkFence> inFlightFences;
 		bool framebufferResized = false;
 
-		//std::unique_ptr<IVertexBuffer> vao;
-		std::unique_ptr<IShaderProgram> vertexShader;
-		std::unique_ptr<IShaderProgram> fragmentShader;
-		//std::unique_ptr<IShaderPipeline> shaderPipe;
+		//std::unique_ptr<VertexBuffer> vao;
+		
 	};
 }

@@ -33,8 +33,8 @@ namespace Comphi::OpenGL {
 		Windows::FileRef vert = Windows::FileRef("shaders\\vert.glsl");
 		Windows::FileRef frag = Windows::FileRef("shaders\\frag.glsl");
 
-		vertexShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::VertexShader,vert));
-		fragmentShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::FragmentShader,frag));
+		vertexShader.reset(new ShaderProgram(Comphi::ShaderType::VertexShader,vert));
+		fragmentShader.reset(new ShaderProgram(Comphi::ShaderType::FragmentShader,frag));
 		
 		float vertices[3 * 3]{
 			-0.5f, -0.5f, 0.0f,
@@ -42,8 +42,8 @@ namespace Comphi::OpenGL {
 			0.0f, 0.5f, 0.0f
 		};
 		
-		vao.reset(GraphicsAPI::create::VertexBuffer(*vertices,3));
-		shaderPipe.reset(GraphicsAPI::create::ShaderPipeline());
+		vao.reset(new VertexBuffer(*vertices,3));
+		shaderPipe.reset(new ShaderPipeline());
 
 		/***DEBUG***/
 	}

@@ -9,9 +9,14 @@ namespace Comphi {
         {
         case RenderingAPI::OpenGL:
             return new OpenGL::ShaderPipeline();
-        case RenderingAPI::Vulkan:
-            return new Vulkan::ShaderPipeline();
+        case RenderingAPI::Vulkan: 
+        {
+            Vulkan::ShaderPipeline::GraphicsPipelineSetupData data {};
+            data.viewport = {};
+            data.scissor = {};
+            return new Vulkan::ShaderPipeline(data);
             break;
+        }
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
@@ -26,7 +31,7 @@ namespace Comphi {
         case RenderingAPI::OpenGL:
             return new OpenGL::VertexBuffer(vertices, count);
         case RenderingAPI::Vulkan:
-            COMPHILOG_CORE_ERROR("Not Implemented!");
+            return new Vulkan::VertexBuffer(vertices, count);
             break;
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
@@ -42,7 +47,7 @@ namespace Comphi {
         case RenderingAPI::OpenGL:
             return new OpenGL::IndexBuffer(indices);
         case RenderingAPI::Vulkan:
-            COMPHILOG_CORE_ERROR("Not Implemented!");
+            return new Vulkan::IndexBuffer(indices);
             break;
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
@@ -51,15 +56,18 @@ namespace Comphi {
         return nullptr;
     }
 
-    IShaderProgram* GraphicsAPI::create::ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile)
+    IShaderProgram* GraphicsAPI::create::ShaderProgram(IGraphicsContext* currentGraphicsContext, Comphi::ShaderType shaderType, IFileRef& shaderFile)
     {
         switch (activeAPI)
         {
         case RenderingAPI::OpenGL:
             return new OpenGL::ShaderProgram(shaderType,shaderFile);
         case RenderingAPI::Vulkan:
-            return new Vulkan::ShaderProgram(shaderType, shaderFile);
+        {
+            auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
+            return new Vulkan::ShaderProgram(shaderType, shaderFile, graphicsContext->logicalDevice);
             break;
+        }
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;

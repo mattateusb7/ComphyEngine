@@ -1,6 +1,6 @@
 #pragma once
 #include <glad\glad.h>
-#include "../IShaderProgram.h"
+#include "Comphi/Renderer/IShaderProgram.h"
 
 namespace Comphi::OpenGL {
 
@@ -23,8 +23,10 @@ namespace Comphi::OpenGL {
 	public:
 		ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile);
 		~ShaderProgram();
-		uint GetType() override;
-		uint GetTypeMask();
+		const uint GetType() override;
+		const uint GetTypeMask();
+
+		uint shaderID = -1;
 	};
 
 }

@@ -641,211 +641,38 @@ namespace Comphi::Vulkan {
 		Windows::FileRef vert = Windows::FileRef("shaders\\vert.spv");
 		Windows::FileRef frag = Windows::FileRef("shaders\\frag.spv");
 
-		//vertexShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::VertexShader, vert));
-		//fragmentShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::FragmentShader, frag));
+		auto vertShader = ShaderProgram(ShaderType::VertexShader, vert, logicalDevice);
+		auto fragShader = ShaderProgram(ShaderType::FragmentShader, frag, logicalDevice);
 
-		VkShaderModule vertShaderModule = createShaderModule(vert.getByteData());
-		VkShaderModule fragShaderModule = createShaderModule(frag.getByteData());
+		shaderPipeline->BindProgram(vertShader);
+		shaderPipeline->BindProgram(fragShader);
 
-			//VERTEX
-		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-		vertShaderStageInfo.module = vertShaderModule;
-		vertShaderStageInfo.pName = "main";
-		vertShaderStageInfo.pSpecializationInfo = nullptr;
+		shaderPipeline->InitPipeline();
 
-			//FRAGMENT
-		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		fragShaderStageInfo.module = fragShaderModule;
-		fragShaderStageInfo.pName = "main";
-
-		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
-		//VertexBuffer
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
-
-		//Primitives
-		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-		inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-		//Framebuffer/Viewport(Scissor)
-		std::vector<VkDynamicState> dynamicStates = {
-			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR
-		};
-
-		VkPipelineDynamicStateCreateInfo dynamicState{};
-		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-		dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-		dynamicState.pDynamicStates = dynamicStates.data();
-
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = (float)swapChainExtent.width;
-		viewport.height = (float)swapChainExtent.height;
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = swapChainExtent;
-
-		VkPipelineViewportStateCreateInfo viewportState{};
-		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewportState.viewportCount = 1;
-		viewportState.scissorCount = 1;
-
-		//Immutable ViewPort (requires reconstruction of pipeline)
-			//VkPipelineViewportStateCreateInfo viewportState{};
-			//viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-			//viewportState.viewportCount = 1;
-			//viewportState.pViewports = &viewport;
-			//viewportState.scissorCount = 1;
-			//viewportState.pScissors = &scissor;
-
-		//Rasterizer
-		VkPipelineRasterizationStateCreateInfo rasterizer{};
-		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-		rasterizer.depthClampEnable = VK_FALSE;
-		rasterizer.rasterizerDiscardEnable = VK_FALSE;
-		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-		rasterizer.lineWidth = 1.0f;
-		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-		rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-		rasterizer.depthBiasEnable = VK_FALSE; //For Shadow mapping
-		rasterizer.depthBiasConstantFactor = 0.0f; // Optional
-		rasterizer.depthBiasClamp = 0.0f; // Optional
-		rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
-
-		//Multisampling 
-		VkPipelineMultisampleStateCreateInfo multisampling{};
-		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-		multisampling.sampleShadingEnable = VK_FALSE;
-		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-		multisampling.minSampleShading = 1.0f; // Optional
-		multisampling.pSampleMask = nullptr; // Optional
-		multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
-		multisampling.alphaToOneEnable = VK_FALSE; // Optional
-
-		VkPipelineDepthStencilStateCreateInfo depthStencilState{}; //NotinUse
-
-		//ColorBlending
-		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-		{ //RGB Mixing 
-			/*
-			colorBlendAttachment.blendEnable = VK_FALSE;
-			colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-			colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-			colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
-			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-			colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
-			*/
-		}
-		{ //Alpha Blend: 
-			//finalColor.rgb = newAlpha * newColor + (1 - newAlpha) * oldColor;
-			//finalColor.a = newAlpha.a;
-			colorBlendAttachment.blendEnable = VK_TRUE;
-			colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-			colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-			colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-			colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
-			colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		}
-
-		
-		//bitwise combination
-		VkPipelineColorBlendStateCreateInfo colorBlending{};
-		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-		colorBlending.logicOpEnable = VK_FALSE; //TOGGLE
-		colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
-		colorBlending.attachmentCount = 1;
-		colorBlending.pAttachments = &colorBlendAttachment;
-		colorBlending.blendConstants[0] = 0.0f; // Optional
-		colorBlending.blendConstants[1] = 0.0f; // Optional
-		colorBlending.blendConstants[2] = 0.0f; // Optional
-		colorBlending.blendConstants[3] = 0.0f; // Optional
-
-		//Pipelineslayout
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0; // Optional
-		pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
-		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
-
-		if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to create pipeline layout!");
-			return;
-		}
-
-		COMPHILOG_CORE_INFO("created pipelineLayout successfully!");
-
-		VkGraphicsPipelineCreateInfo pipelineInfo{};
-		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStages;
-		//pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
-
-		pipelineInfo.pVertexInputState = &vertexInputInfo;
-		pipelineInfo.pInputAssemblyState = &inputAssembly;
-		pipelineInfo.pViewportState = &viewportState;
-		pipelineInfo.pRasterizationState = &rasterizer;
-		pipelineInfo.pMultisampleState = &multisampling;
-		pipelineInfo.pDepthStencilState = nullptr; // Optional
-		pipelineInfo.pColorBlendState = &colorBlending;
-		pipelineInfo.pDynamicState = &dynamicState;
-		
-		pipelineInfo.layout = pipelineLayout;
-		pipelineInfo.renderPass = renderPass;
-		pipelineInfo.subpass = 0;
-
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
-		pipelineInfo.basePipelineIndex = -1; // Optional
-
-		if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to create graphics pipeline!");
-			return;
-		}
-		COMPHILOG_CORE_INFO("created graphics pipeline successfully!");
-
-		COMPHILOG_CORE_INFO("Destroyed fragShaderModule!");
-		vkDestroyShaderModule(logicalDevice, fragShaderModule, nullptr);
-		COMPHILOG_CORE_INFO("Destroyed vertShaderModule!");
-		vkDestroyShaderModule(logicalDevice, vertShaderModule, nullptr);
-	}
-
-	VkShaderModule GraphicsContext::createShaderModule(const std::vector<char>& code) {
-		VkShaderModuleCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-		VkShaderModule shaderModule;
-		if (vkCreateShaderModule(logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to create shader module!");
-			return shaderModule;
-		}
-		COMPHILOG_CORE_INFO("created shaderModule successfully!");
-
-		return shaderModule;
+		shaderPipeline->UnbindProgram(vertShader);
+		shaderPipeline->UnbindProgram(fragShader);
 	}
 
 	void GraphicsContext::createRenderPass() {
 		
+		//VkViewport viewport{};
+		//viewport.x = 0.0f;
+		//viewport.y = 0.0f;
+		//viewport.width = (float)swapChainExtent.width;
+		//viewport.height = (float)swapChainExtent.height;
+		//viewport.minDepth = 0.0f;
+		//viewport.maxDepth = 1.0f;
+		//
+		//VkRect2D scissor{};
+		//scissor.offset = { 0, 0 };
+		//scissor.extent = swapChainExtent;
+		// 
+		ShaderPipeline::GraphicsPipelineSetupData graphicsPipelineSetupData{};
+		//graphicsPipelineSetupData.viewport = &viewport;
+		//graphicsPipelineSetupData.scissor = &scissor;
+
+		shaderPipeline = std::make_unique<ShaderPipeline>(graphicsPipelineSetupData);
+
 		//VkImage Render Attatchments
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = swapChainImageFormat;
@@ -891,7 +718,7 @@ namespace Comphi::Vulkan {
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		if (vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+		if (vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &shaderPipeline->renderPass) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create render pass!");
 			return;
 		}
@@ -909,7 +736,7 @@ namespace Comphi::Vulkan {
 
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = renderPass;
+			framebufferInfo.renderPass = shaderPipeline->renderPass;
 			framebufferInfo.attachmentCount = 1;
 			framebufferInfo.pAttachments = attachments;
 			framebufferInfo.width = swapChainExtent.width;
@@ -973,7 +800,7 @@ namespace Comphi::Vulkan {
 		//graphics pipeline & render attachment(framebuffer/img) selection 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = renderPass;
+		renderPassInfo.renderPass = shaderPipeline->renderPass;
 		renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = swapChainExtent;
@@ -983,7 +810,7 @@ namespace Comphi::Vulkan {
 		renderPassInfo.pClearValues = &clearColor;
 
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shaderPipeline->graphicsPipeline);
 
 		//VIEWPORT/SCISSOR SETUP
 		VkViewport viewport{};
@@ -1045,10 +872,10 @@ namespace Comphi::Vulkan {
 		cleanupSwapChain();
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsPipeline");
-		vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
+		vkDestroyPipeline(logicalDevice, shaderPipeline->graphicsPipeline, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
-		vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
+		vkDestroyPipelineLayout(logicalDevice, shaderPipeline->pipelineLayout, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -1061,7 +888,7 @@ namespace Comphi::Vulkan {
 		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
-		vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
+		vkDestroyRenderPass(logicalDevice, shaderPipeline->renderPass, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Logical Device");
 		vkDestroyDevice(logicalDevice, nullptr);

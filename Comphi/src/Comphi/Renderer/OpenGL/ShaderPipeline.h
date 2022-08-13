@@ -9,11 +9,13 @@ namespace Comphi::OpenGL{
 	{
 	public:
 		ShaderPipeline();
-		~ShaderPipeline() override;
-		bool InitPipeline() override;
+		~ShaderPipeline();
+		bool InitPipeline();
 		bool BindProgram(IShaderProgram& shaderProgram) override;
 		bool UnbindProgram(IShaderProgram& shaderProgram) override;
-		bool BindPipeline() override;
+		bool BindPipeline();
+	protected:
+		uint m_pipeline = -1;
 	};
 	
 }

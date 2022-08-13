@@ -5,13 +5,15 @@
 namespace Comphi::OpenGL {
 	bool ShaderWizard::Compile(IShaderProgram& shaderProgram)
 	{
-		if (shaderProgram.shaderID == -1) return false;
+		auto _shaderProgram = static_cast<ShaderProgram*>(&shaderProgram);
+
+		if (_shaderProgram->shaderID == -1) return false;
 
 		//glCreateShaderProgramv ?auto setup?
-		shaderProgram.shaderID = glCreateProgram();
+		_shaderProgram->shaderID = glCreateProgram();
 
 		// Declare that program is separable
-		glProgramParameteri(shaderProgram.shaderID, GL_PROGRAM_SEPARABLE, GL_TRUE);
+		glProgramParameteri(_shaderProgram->shaderID, GL_PROGRAM_SEPARABLE, GL_TRUE);
 
 		GLuint shader = glCreateShader(shaderProgram.GetType());
 
@@ -22,25 +24,25 @@ namespace Comphi::OpenGL {
 
 		glCompileShader(shader);
 		if (!CheckCompileStatus(shader)) {
-			glDetachShader(shaderProgram.shaderID, shader);
+			glDetachShader(_shaderProgram->shaderID, shader);
 			glDeleteShader(shader);
-			shaderProgram.shaderID = -1;
+			_shaderProgram->shaderID = -1;
 			return false;
 		}
 		// Shader compilation is successful.
 
 		// Attach the shader to its respective program
-		glAttachShader(shaderProgram.shaderID, shader);
+		glAttachShader(_shaderProgram->shaderID, shader);
 
-		glLinkProgram(shaderProgram.shaderID);
-		if (!CheckLinkStatus(shaderProgram.shaderID)) {
-			glDetachShader(shaderProgram.shaderID, shader);
+		glLinkProgram(_shaderProgram->shaderID);
+		if (!CheckLinkStatus(_shaderProgram->shaderID)) {
+			glDetachShader(_shaderProgram->shaderID, shader);
 			glDeleteShader(shader);
-			shaderProgram.shaderID = -1;
+			_shaderProgram->shaderID = -1;
 			return false;
 		}
 
-		COMPHILOG_CORE_INFO("Successfully Attached Shader \"" + shaderProgram.shaderFile.getFilename() + "\" to ID: " + std::to_string(shaderProgram.shaderID));
+		COMPHILOG_CORE_INFO("Successfully Attached Shader \"" + shaderProgram.shaderFile.getFilename() + "\" to ID: " + std::to_string(_shaderProgram->shaderID));
 		
 		/*debug Content*/
 		//COMPHILOG_CORE_INFO(shaderProgram.shaderFile.getFileContent());
