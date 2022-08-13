@@ -26,6 +26,7 @@ namespace Comphi {
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResized(WindowResizedEvent& e);
+		bool OnFramebufferResized(FramebufferResizedEvent& e);
 	
 		LayerStack m_LayerStack;
 		std::shared_ptr<IWindow> m_Window;

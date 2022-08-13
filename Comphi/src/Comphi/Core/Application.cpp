@@ -50,6 +50,7 @@ namespace Comphi {
 
 		EventHandler::Throw<WindowCloseEvent>(e, BIND_EVENT_FN(Application::OnWindowClose));
 		EventHandler::Throw<WindowResizedEvent>(e, BIND_EVENT_FN(Application::OnWindowResized));
+		EventHandler::Throw<FramebufferResizedEvent>(e, BIND_EVENT_FN(Application::OnFramebufferResized));
 
 		//set Layer Events Handling
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
@@ -91,6 +92,12 @@ namespace Comphi {
 	bool Application::OnWindowResized(WindowResizedEvent& e)
 	{
 		m_Window->OnWindowResized(e.GetOffsetX(), e.GetOffsetY());
+		return false;
+	}
+
+	bool Application::OnFramebufferResized(FramebufferResizedEvent& e)
+	{
+		m_Window->OnFramebufferResized(e.GetOffsetX(), e.GetOffsetY());
 		return false;
 	}
 

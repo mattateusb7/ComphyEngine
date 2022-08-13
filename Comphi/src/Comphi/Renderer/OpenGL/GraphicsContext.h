@@ -14,6 +14,7 @@ namespace Comphi::OpenGL {
 		virtual void SwapBuffers() override;
 		virtual void Draw() override;
 		virtual void ResizeWindow(uint x, uint y) override;
+		virtual void ResizeFramebuffer(uint x, uint y) override;
 		virtual void CleanUp() override;
 
 	private:

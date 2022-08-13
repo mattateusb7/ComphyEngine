@@ -68,6 +68,11 @@ namespace Comphi::OpenGL {
 
 	void GraphicsContext::ResizeWindow(uint x, uint y)
 	{
+
+	}
+
+	void GraphicsContext::ResizeFramebuffer(uint x, uint y)
+	{
 		glViewport(0, 0, x, y);
 	}
 

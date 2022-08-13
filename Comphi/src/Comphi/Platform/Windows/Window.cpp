@@ -52,7 +52,7 @@ namespace Comphi::Windows {
 			}
 			case GraphicsAPI::Vulkan: {
 				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-				glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); //simplifies Swapchain stability (for now)
+				//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); //block window resize (make into property?)
 				break;
 			}
 		};
@@ -64,6 +64,18 @@ namespace Comphi::Windows {
 
 		//Set GLFW Callbacks
 		{
+			//WINDOW FRAMEBUFFER SIZE CALLBACK
+			glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+
+				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
+				data.Width = width;
+				data.Height = height;
+
+				FramebufferResizedEvent event(width, height);
+				data.EventCallback(event);
+
+			});
+
 			//WINDOW SIZE CALLBACK
 			glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 			{
@@ -184,6 +196,11 @@ namespace Comphi::Windows {
 	void Window::OnWindowResized(uint x, uint y)
 	{
 		m_GraphicsContext->ResizeWindow(x, y);
+	}
+
+	void Window::OnFramebufferResized(uint x, uint y)
+	{
+		m_GraphicsContext->ResizeFramebuffer(x, y);
 	}
 
 	void Window::SetVSync(bool enabled)

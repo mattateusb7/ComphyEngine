@@ -514,6 +514,26 @@ namespace Comphi::Vulkan {
 		}
 	}
 
+	void GraphicsContext::recreateSwapChain() {
+
+		//It is possible to create a new swap chain while drawing commands on an image from the old swap chain are still in-flight. 
+		//You need to pass the previous swap chain to the oldSwapChain field in the VkSwapchainCreateInfoKHR struct and destroy the old swap chain as soon as you've finished using it.
+		int width = 0, height = 0;
+		glfwGetFramebufferSize(m_WindowHandle, &width, &height);
+		while (width == 0 || height == 0) {
+			glfwGetFramebufferSize(m_WindowHandle, &width, &height);
+			glfwWaitEvents();
+		}
+
+		vkDeviceWaitIdle(logicalDevice);
+
+		cleanupSwapChain();
+
+		createSwapChain();
+		createImageViews();
+		createFramebuffers();
+	}
+
 	void GraphicsContext::createSwapChain() {
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
 
@@ -1022,19 +1042,7 @@ namespace Comphi::Vulkan {
 	{
 		vkDeviceWaitIdle(logicalDevice);
 
-		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores");
-		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
-		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
-		vkDestroyFence(logicalDevice, inFlightFence, nullptr);
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy commandPool");
-		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
-
-		short fbid = 0;
-		for (auto framebuffer : swapChainFramebuffers) {
-			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid++);
-			vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
-		}
+		cleanupSwapChain();
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsPipeline");
 		vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
@@ -1070,7 +1078,24 @@ namespace Comphi::Vulkan {
 		vkDestroyInstance(instance, nullptr);
 
 		COMPHILOG_CORE_INFO("Vulkan GraphicsContext Cleaned Up!");
+		
+	}
 
+	void GraphicsContext::cleanupSwapChain() {
+		short fbid = 0;
+		for (auto framebuffer : swapChainFramebuffers) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid++);
+			vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
+		}
+
+		int n_img = 0;
+		for (auto imageView : swapChainImageViews) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy ImageView {0}", n_img++);
+			vkDestroyImageView(logicalDevice, imageView, nullptr);
+		}
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy Swapchain:");
+		vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
 	}
 
 	void GraphicsContext::Draw()
@@ -1088,6 +1113,18 @@ namespace Comphi::Vulkan {
 		if (result != VK_SUCCESS) {
 			COMPHILOG_CORE_ERROR("failed to acquireNextImage!");
 		}
+		else {
+			if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+				recreateSwapChain();
+				return;
+			}
+			else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+				COMPHILOG_CORE_ERROR("failed to acquire swap chain image!");
+			}
+		}
+
+		// Only reset the fence if we are submitting work
+		vkResetFences(logicalDevice, 1, &inFlightFences[currentFrame]);
 
 		vkResetCommandBuffer(commandBuffers[currentFrame], 0);
 		recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
@@ -1126,8 +1163,15 @@ namespace Comphi::Vulkan {
 
 		presentInfo.pResults = nullptr; // Optional error handling
 
-		if (vkQueuePresentKHR(presentQueue, &presentInfo) != VK_SUCCESS) {
-			COMPHILOG_CORE_ERROR("failed to presentQueue!");
+		result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+			framebufferResized = false;
+			recreateSwapChain();
+		}
+		else if (result != VK_SUCCESS) {
+			COMPHILOG_CORE_ERROR("failed to present swap chain image!");
+			return;
 		}
 
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -1136,6 +1180,11 @@ namespace Comphi::Vulkan {
 	void GraphicsContext::ResizeWindow(uint x, uint y)
 	{
 		
+	}
+
+	void GraphicsContext::ResizeFramebuffer(uint x, uint y)
+	{
+		framebufferResized = true;
 	}
 
 	void GraphicsContext::SwapBuffers()

@@ -14,6 +14,7 @@ namespace Comphi::Windows {
 		void OnUpdate() override;
 		void OnBeginUpdate() override;
 		void OnWindowResized(uint x, uint y) override;
+		void OnFramebufferResized(uint x, uint y) override;
 
 		inline uint GetWidth() const override { return m_Data.Width; };
 		inline uint GetHeight() const override { return m_Data.Height; };

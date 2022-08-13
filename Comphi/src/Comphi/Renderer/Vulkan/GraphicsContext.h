@@ -24,6 +24,7 @@ namespace Comphi::Vulkan {
 		virtual void SwapBuffers() override;
 		virtual void Draw() override;
 		virtual void ResizeWindow(uint x, uint y) override;
+		virtual void ResizeFramebuffer(uint x, uint y) override;
 		virtual void CleanUp() override;
 
 	
@@ -79,6 +80,8 @@ namespace Comphi::Vulkan {
 		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+		void recreateSwapChain();
+		void cleanupSwapChain();
 
 		//ImageViews
 		void createImageViews();

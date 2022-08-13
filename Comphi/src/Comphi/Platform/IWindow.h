@@ -26,6 +26,7 @@ namespace Comphi{
 		virtual ~IWindow() {};
 
 		virtual void OnWindowResized(uint x, uint y) = 0;
+		virtual void OnFramebufferResized(uint x, uint y) = 0;
 		virtual void OnBeginUpdate() = 0;
 		virtual void OnUpdate() = 0;
 
