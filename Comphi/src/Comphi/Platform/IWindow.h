@@ -38,6 +38,7 @@ namespace Comphi{
 		virtual bool IsVSync() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
+		virtual void* GetGraphicsContext() const = 0;
 
 		//Implement in Platform Specific File
 		static Comphi::IWindow* Create(const WindowProperties& props = WindowProperties());

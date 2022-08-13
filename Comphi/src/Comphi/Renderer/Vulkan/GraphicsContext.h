@@ -15,6 +15,7 @@
 #include <vulkan/vulkan_win32.h>
 
 namespace Comphi::Vulkan {
+
 	class GraphicsContext : public IGraphicsContext
 	{
 	public:
@@ -117,7 +118,8 @@ namespace Comphi::Vulkan {
 			const VkAllocationCallbacks* pAllocator);
 #endif //!NDEBUG
 
-	private:
+	public:
+		VkInstance instance;
 
 #ifndef NDEBUG
 		VkDebugUtilsMessengerEXT debugMessenger;

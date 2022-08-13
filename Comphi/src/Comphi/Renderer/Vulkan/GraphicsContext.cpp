@@ -9,8 +9,6 @@
 
 namespace Comphi::Vulkan {
 
-	static VkInstance instance;
-
 	GraphicsContext::GraphicsContext(GLFWwindow& windowHandle) : m_WindowHandle(&windowHandle)
 	{
 		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");

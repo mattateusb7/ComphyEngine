@@ -22,7 +22,7 @@ namespace Comphi::Windows {
 		void SetVSync(bool enabled) override;
 		void SetEventCallback(const EventCallback& callback) override;
 		inline void* GetNativeWindow() const override { return m_Window; };
-
+		inline void* GetGraphicsContext() const override { return m_GraphicsContext.get(); }
 	private:
 		virtual void Init(const WindowProperties& props);
 		virtual void Shutdown();
