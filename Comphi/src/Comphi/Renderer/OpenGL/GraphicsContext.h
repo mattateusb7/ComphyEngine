@@ -1,7 +1,14 @@
 #pragma once
-#include "Comphi/Core/Core.h"
 #include "Comphi/Renderer/IGraphicsContext.h"
-#include "Comphi/Renderer/GraphicsAPI.h"
+
+#include "GLError.h"
+#include "Comphi/Renderer/GraphicsAPI.h" //DEBUG!
+
+#include "Objects/IndexBuffer.h"
+#include "Objects/VertexBuffer.h"
+#include "Objects/ShaderPipeline.h"
+#include "Objects/ShaderProgram.h"
+#include "ShaderWizard.h"
 
 #include <GLFW/glfw3.h>
 

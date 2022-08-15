@@ -1,7 +1,6 @@
 #pragma once
 #include "Comphi/Renderer/IGraphicsPipeline.h"
-#include "ShaderProgram.h"
-#include "Objects/VertexBuffer.h"
+#include "GraphicsContext.h"
 
 namespace Comphi::Vulkan {
 

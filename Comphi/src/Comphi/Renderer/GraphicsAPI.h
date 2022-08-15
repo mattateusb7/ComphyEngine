@@ -1,22 +1,12 @@
 #pragma once
-#include "Comphi/Core/Log.h"
+#include "Comphi/Core/Core.h"
+#include "Comphi/Platform/Windows/FileRef.h"
 
-#include "OpenGL/Objects/IndexBuffer.h"
-#include "OpenGL/Objects/VertexBuffer.h"
-#include "OpenGL/ShaderPipeline.h"
-#include "OpenGL/ShaderWizard.h"
-#include "OpenGL/ShaderProgram.h"
+///OpenGL
 #include "OpenGL/GraphicsContext.h"
 
-#include "Vulkan/Objects/IndexBuffer.h"
-#include "Vulkan/Objects/VertexBuffer.h"
-#include "Vulkan/GraphicsPipeline.h"
-#include "Vulkan/ShaderProgram.h"
+///Vulkan
 #include "Vulkan/GraphicsContext.h"
-
-#include "IGraphicsContext.h"
-
-#include <GLFW/glfw3.h>
 
 namespace Comphi {
 	class GraphicsAPI
@@ -48,8 +38,8 @@ namespace Comphi {
 
 		struct create {
 			static IGraphicsContext* GraphicsContext(GLFWwindow& windowHandler);
-			static IVertexBuffer* VertexBuffer(IGraphicsContext* currentGraphicsContext, const std::vector<Vulkan::Vertex>& vertices, const uint& count);
-			static IIndexBuffer* IndexBuffer(const uint& indices);
+			static IVertexBuffer* VertexBuffer(IGraphicsContext* currentGraphicsContext, const VertexArray& vertices);
+			static IIndexBuffer* IndexBuffer(IGraphicsContext* currentGraphicsContext, const IndexArray& indices);
 			static IGraphicsPipeline* GraphicsPipeline();
 			static IShaderProgram* ShaderProgram(IGraphicsContext* currentGraphicsContext, Comphi::ShaderType shaderType, IFileRef& shaderFile);
 		};

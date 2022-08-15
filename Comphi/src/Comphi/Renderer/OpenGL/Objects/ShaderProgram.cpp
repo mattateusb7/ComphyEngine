@@ -1,6 +1,6 @@
 #include "cphipch.h"
 #include "ShaderProgram.h"
-#include "ShaderWizard.h"
+#include "../ShaderWizard.h"
 
 namespace Comphi::OpenGL{
 

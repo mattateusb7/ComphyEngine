@@ -1,23 +1,18 @@
 #pragma once
 #include "Comphi/Renderer/IObjects/IVertexBuffer.h"
-#include "Comphi/Renderer/Vulkan/Objects/MemBuffer.h"
-#include <glm/glm.hpp>
-#include <vulkan/vulkan_core.h>
+#include "../GraphicsHandler.h"
+#include "MemBuffer.h"
 
 namespace Comphi::Vulkan {
-
-	struct Vertex {
-		glm::vec2 pos;
-		glm::vec3 color;
-	};
 
 	class VertexBuffer : public IVertexBuffer
 	{
 	public:
 
-		VertexBuffer(const std::vector<Vertex>& vertices, const MemBuffer::GraphicsHandler& graphicsHandler);
-		uint32_t vertexCount;
+		VertexBuffer(const VertexArray& vertices, GraphicsHandler& graphicsHandler);
+		~VertexBuffer() = default;
 		std::unique_ptr<MemBuffer> buffer;
+		uint32_t vertexCount;
 
 		static VkVertexInputBindingDescription getBindingDescription() {
 			VkVertexInputBindingDescription bindingDescription{};
@@ -43,7 +38,6 @@ namespace Comphi::Vulkan {
 			return attributeDescriptions;
 		}
 
-		virtual void bind(VkCommandBuffer& commandBuffer);
 		virtual void bind() override;
 		virtual void unbind() override;
 	};

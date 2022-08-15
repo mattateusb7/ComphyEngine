@@ -1,6 +1,6 @@
 #pragma once
 #include "../IShaderWizard.h"
-#include "../OpenGL/ShaderProgram.h"
+#include "Objects/ShaderProgram.h"
 #include <glad\glad.h>
 
 namespace Comphi::OpenGL {

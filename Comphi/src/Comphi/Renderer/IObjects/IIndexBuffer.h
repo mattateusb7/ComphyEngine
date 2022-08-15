@@ -1,6 +1,11 @@
 #pragma once
+#include <glm/glm.hpp>
 
 namespace Comphi {
+
+	typedef uint16_t Index;
+	typedef std::vector<Index> IndexArray;
+
 	class IIndexBuffer
 	{
 	public:

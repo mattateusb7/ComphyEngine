@@ -1,12 +1,13 @@
 #include "cphipch.h"
-#include "VertexBuffer.h"
 #include "MemBuffer.h"
 
 namespace Comphi::Vulkan {
 
 
-    MemBuffer::MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, const GraphicsHandler& graphicsHandler) : graphicsHandler(graphicsHandler)
+    MemBuffer::MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, GraphicsHandler& graphicsHandler)
     {
+        this->graphicsHandler = std::make_shared<GraphicsHandler>(graphicsHandler);
+
         bufferSize = size;
 
         VkBufferCreateInfo bufferInfo{};
@@ -15,31 +16,31 @@ namespace Comphi::Vulkan {
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(*graphicsHandler.logicalDevice.get(), &bufferInfo, nullptr, &bufferObj) != VK_SUCCESS) {
+        if (vkCreateBuffer(*this->graphicsHandler->logicalDevice.get(), &bufferInfo, nullptr, &bufferObj) != VK_SUCCESS) {
             COMPHILOG_CORE_ERROR("failed to create buffer!");
             throw std::runtime_error("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(*graphicsHandler.logicalDevice.get(), bufferObj, &memRequirements);
+        vkGetBufferMemoryRequirements(*this->graphicsHandler->logicalDevice.get(), bufferObj, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(*graphicsHandler.logicalDevice.get(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(*this->graphicsHandler->logicalDevice.get(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
             COMPHILOG_CORE_ERROR("failed to allocate vertex buffer memory!");
             throw std::runtime_error("failed to allocate vertex buffer memory!");
         }
 
-        vkBindBufferMemory(*graphicsHandler.logicalDevice.get(), bufferObj, bufferMemory, 0);
+        vkBindBufferMemory(*this->graphicsHandler->logicalDevice.get(), bufferObj, bufferMemory, 0);
     }
 
     uint32_t MemBuffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
 
         VkPhysicalDeviceMemoryProperties memProperties;
-        vkGetPhysicalDeviceMemoryProperties(*graphicsHandler.physicalDevice.get(), &memProperties);
+        vkGetPhysicalDeviceMemoryProperties(*this->graphicsHandler->physicalDevice.get(), &memProperties);
 
         for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
             if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
@@ -54,8 +55,8 @@ namespace Comphi::Vulkan {
     MemBuffer::~MemBuffer()
     {
         COMPHILOG_CORE_INFO("vkDestroy Destroy Buffer");
-        vkDestroyBuffer(*graphicsHandler.logicalDevice.get(), bufferObj, nullptr);
-        vkFreeMemory(*graphicsHandler.logicalDevice.get(),bufferMemory, nullptr);
+        vkDestroyBuffer(*graphicsHandler->logicalDevice.get(), bufferObj, nullptr);
+        vkFreeMemory(*graphicsHandler->logicalDevice.get(),bufferMemory, nullptr);
     }
 
     void MemBuffer::copyBuffer(MemBuffer& srcBuffer, MemBuffer& dstBuffer)
@@ -68,11 +69,11 @@ namespace Comphi::Vulkan {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = *graphicsHandler.transferCommandPool.get();
+        allocInfo.commandPool = *graphicsHandler->transferCommandPool.get();
         allocInfo.commandBufferCount = 1;
 
         VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(*graphicsHandler.logicalDevice.get(), &allocInfo, &commandBuffer);
+        vkAllocateCommandBuffers(*graphicsHandler->logicalDevice.get(), &allocInfo, &commandBuffer);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -93,8 +94,8 @@ namespace Comphi::Vulkan {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
 
-        vkQueueSubmit(*graphicsHandler.transferQueue.get(), 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(*graphicsHandler.transferQueue);
+        vkQueueSubmit(*graphicsHandler->transferQueue.get(), 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(*graphicsHandler->transferQueue);
 
         /*
         We could use a fence and wait with vkWaitForFences,
@@ -103,7 +104,7 @@ namespace Comphi::Vulkan {
         That may give the driver more opportunities to optimize.
         */
 
-        vkFreeCommandBuffers(*graphicsHandler.logicalDevice.get(), *graphicsHandler.transferCommandPool.get(), 1, &commandBuffer);
+        vkFreeCommandBuffers(*graphicsHandler->logicalDevice.get(), *graphicsHandler->transferCommandPool.get(), 1, &commandBuffer);
 
     }
 

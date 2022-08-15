@@ -1,6 +1,6 @@
 #pragma once
 #include <glad\glad.h>
-#include "../IGraphicsPipeline.h"
+#include "Comphi/Renderer/IGraphicsPipeline.h"
 #include "ShaderProgram.h"
 
 namespace Comphi::OpenGL{
@@ -10,7 +10,7 @@ namespace Comphi::OpenGL{
 	public:
 		ShaderPipeline();
 		~ShaderPipeline();
-		bool InitPipeline();
+		bool InitPipeline() override;
 		bool BindProgram(IShaderProgram& shaderProgram) override;
 		bool UnbindProgram(IShaderProgram& shaderProgram) override;
 		bool BindPipeline();

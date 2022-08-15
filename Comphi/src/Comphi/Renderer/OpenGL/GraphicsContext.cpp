@@ -1,9 +1,5 @@
 #include "cphipch.h"
 #include "GraphicsContext.h"
-#include "GLError.h"
-
-#include "Comphi/Renderer/GraphicsAPI.h" //DEBUG!
-#include "Comphi/Platform/Windows/FileRef.h"
 
 namespace Comphi::OpenGL {
 

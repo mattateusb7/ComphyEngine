@@ -3,7 +3,7 @@
 
 namespace Comphi::OpenGL {
 
-    IndexBuffer::IndexBuffer(const GLuint& indices)
+    IndexBuffer::IndexBuffer(const IndexArray& indices)
     {
         //INDEX BUFFER
         glGenBuffers(1, &ID);

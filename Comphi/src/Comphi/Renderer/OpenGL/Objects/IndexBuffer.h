@@ -6,7 +6,7 @@ namespace Comphi::OpenGL {
 	class IndexBuffer : public IIndexBuffer
 	{
 	public:
-		IndexBuffer(const GLuint& indices);
+		IndexBuffer(const IndexArray& indices);
 		uint ID;
 
 		virtual void bind() override;

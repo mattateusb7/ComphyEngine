@@ -11,7 +11,13 @@ namespace Comphi::Vulkan {
 
 	GraphicsContext::GraphicsContext(GLFWwindow& windowHandle) : m_WindowHandle(&windowHandle)
 	{
+		graphicsHandler = std::make_shared<GraphicsHandler>(logicalDevice, physicalDevice, transferCommandPool, transferQueue);
 		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
+	}
+
+	GraphicsHandler* GraphicsContext::getGraphicsHandler()
+	{
+		return graphicsHandler.get();
 	}
 
 //! VULKAN Guide: https://vulkan-tutorial.com/en/Drawing_a_triangle/Setup/Logical_device_and_queues
@@ -785,15 +791,19 @@ namespace Comphi::Vulkan {
 
 	void GraphicsContext::createVertexBuffer()
 	{
-		const std::vector<Vertex> vertices = {
-			{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-			{{-0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}}
+		const VertexArray vertices = {
+			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
 		};
 
+		const IndexArray indices = {
+			0, 1, 2, 2, 3, 0
+		};
 		
-		MemBuffer::GraphicsHandler graphicsHandler(logicalDevice, physicalDevice, transferCommandPool, transferQueue);
-		vertexBuffers.push_back(std::make_unique<VertexBuffer>(vertices, graphicsHandler));
+		vertexBuffers.push_back(std::make_unique<VertexBuffer>(vertices, getGraphicsHandler()));
+		indexBuffers.push_back(std::make_unique<IndexBuffer>(indices, getGraphicsHandler()));
 	}
 
 #pragma region CommandPool
@@ -865,31 +875,36 @@ namespace Comphi::Vulkan {
 		VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
-
-		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->graphicsPipeline);
 		
-		//Bind VertexBuffers 
-		this->vertexBuffers[0]->bind(commandBuffer);
+		//begin render pass
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		{
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->graphicsPipeline);
 
-		//dynamic VIEWPORT/SCISSOR SETUP
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = static_cast<float>(swapChainExtent.width);
-		viewport.height = static_cast<float>(swapChainExtent.height);
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+			//Bind VertexBuffers 
+			VkBuffer vertexBuffers[] = { this->vertexBuffers[0]->buffer->bufferObj };
+			VkDeviceSize offsets[] = { 0 }; //batch render
+			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = swapChainExtent;
-		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+			//dynamic VIEWPORT/SCISSOR SETUP
+			VkViewport viewport{};
+			viewport.x = 0.0f;
+			viewport.y = 0.0f;
+			viewport.width = static_cast<float>(swapChainExtent.width);
+			viewport.height = static_cast<float>(swapChainExtent.height);
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
-		//DRAW COMMAND
-		vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
+			VkRect2D scissor{};
+			scissor.offset = { 0, 0 };
+			scissor.extent = swapChainExtent;
+			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+			//DRAW COMMAND
+			vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
+		}
+	
 		//end render pass
 		vkCmdEndRenderPass(commandBuffer);
 
@@ -936,7 +951,12 @@ namespace Comphi::Vulkan {
 
 		for (size_t i = 0; i < vertexBuffers.size(); i++) {
 			COMPHILOG_CORE_INFO("vkDestroy Destroy {0} vertexBuffer", i);
-			vertexBuffers[i]->buffer->~MemBuffer();
+			vertexBuffers[i]->~VertexBuffer();
+		}
+
+		for (size_t i = 0; i < vertexBuffers.size(); i++) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy {0} indexBuffers", i);
+			indexBuffers[i]->~IndexBuffer();
 		}
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsPipeline");

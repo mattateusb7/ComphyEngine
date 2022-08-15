@@ -24,16 +24,17 @@ namespace Comphi {
         return nullptr;
     }
 
-    IVertexBuffer* GraphicsAPI::create::VertexBuffer(IGraphicsContext* currentGraphicsContext, const std::vector<Vulkan::Vertex>& vertices, const uint& count)
+    IVertexBuffer* GraphicsAPI::create::VertexBuffer(IGraphicsContext* currentGraphicsContext, const VertexArray& vertices)
     {
         switch (activeAPI)
         {
         case RenderingAPI::OpenGL:
             //return new OpenGL::VertexBuffer(vertices.data(), count);
-        case RenderingAPI::Vulkan: {
+        case RenderingAPI::Vulkan: 
+        {
             //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
-            //return new Vulkan::VertexBuffer(vertices);
-            break;
+            //return new Vulkan::VertexBuffer(vertices, graphicsContext->getGraphicsHandler());
+            //break;
         }
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
@@ -42,15 +43,18 @@ namespace Comphi {
         return nullptr;
     }
 
-    IIndexBuffer* GraphicsAPI::create::IndexBuffer(const uint& indices)
+    IIndexBuffer* GraphicsAPI::create::IndexBuffer(IGraphicsContext* currentGraphicsContext, const IndexArray& indices)
     {
         switch (activeAPI)
         {
         case RenderingAPI::OpenGL:
             return new OpenGL::IndexBuffer(indices);
         case RenderingAPI::Vulkan:
-            return new Vulkan::IndexBuffer(indices);
-            break;
+        {
+            //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
+            //return new Vulkan::IndexBuffer(indices, graphicsContext->getGraphicsHandler());
+            //break;
+        }
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
@@ -66,9 +70,9 @@ namespace Comphi {
             return new OpenGL::ShaderProgram(shaderType,shaderFile);
         case RenderingAPI::Vulkan:
         {
-            auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
-            return new Vulkan::ShaderProgram(shaderType, shaderFile, graphicsContext->logicalDevice);
-            break;
+            //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
+            //return new Vulkan::ShaderProgram(shaderType, shaderFile, *graphicsContext->getGraphicsHandler()->logicalDevice.get());
+            //break;
         }
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");

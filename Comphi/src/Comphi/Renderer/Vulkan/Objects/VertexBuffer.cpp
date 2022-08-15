@@ -3,7 +3,7 @@
 
 namespace Comphi::Vulkan {
 
-    VertexBuffer::VertexBuffer(const std::vector<Vertex>& vertices, const MemBuffer::GraphicsHandler& graphicsHandler)
+    VertexBuffer::VertexBuffer(const VertexArray& vertices, GraphicsHandler& graphicsHandler)
     {
         vertexCount = static_cast<uint32_t>(vertices.size());
         VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
@@ -27,13 +27,6 @@ namespace Comphi::Vulkan {
     void VertexBuffer::bind()
     {
 
-    }
-
-    void VertexBuffer::bind(VkCommandBuffer& commandBuffer)
-    {
-        VkBuffer vertexBuffers[] = { buffer->bufferObj };
-        VkDeviceSize offsets[] = { 0 };
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
     }
 
     void VertexBuffer::unbind()

@@ -1,18 +1,22 @@
 #pragma once
+#include "Comphi/Renderer/IGraphicsContext.h"
+
 #include "Comphi/Core/Core.h"
 #include "Comphi/Platform/Windows/FileRef.h"
-#include "Comphi/Events/Event.h"
-#include "Comphi/Renderer/IGraphicsContext.h"
-#include "Comphi/Renderer/GraphicsAPI.h"
 
 #include <GLFW/glfw3.h>
 
-#define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
-
 #include <vulkan/vulkan_win32.h>
+
+
+#include "Objects/MemBuffer.h"
+#include "Objects/VertexBuffer.h"
+#include "Objects/IndexBuffer.h"
+#include "Objects/ShaderProgram.h"
+
+#include "GraphicsHandler.h"
+#include "GraphicsPipeline.h"
 
 namespace Comphi::Vulkan {
 
@@ -27,7 +31,8 @@ namespace Comphi::Vulkan {
 		virtual void ResizeFramebuffer(uint x, uint y) override;
 		virtual void CleanUp() override;
 
-	
+		GraphicsHandler* getGraphicsHandler();
+
 	protected:
 
 		struct QueueFamilyIndices {
@@ -124,8 +129,9 @@ namespace Comphi::Vulkan {
 			VkDebugUtilsMessengerEXT debugMessenger, 
 			const VkAllocationCallbacks* pAllocator);
 #endif //!NDEBUG
-
+		std::shared_ptr<GraphicsHandler> graphicsHandler;
 	public:
+
 		VkInstance instance;
 
 #ifndef NDEBUG
@@ -163,6 +169,7 @@ namespace Comphi::Vulkan {
 		bool framebufferResized = false;
 
 		std::vector<std::unique_ptr<VertexBuffer>> vertexBuffers;
+		std::vector<std::unique_ptr<IndexBuffer>> indexBuffers;
 		
 	};
 }
