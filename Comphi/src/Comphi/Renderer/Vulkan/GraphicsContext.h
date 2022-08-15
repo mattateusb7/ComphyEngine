@@ -33,9 +33,10 @@ namespace Comphi::Vulkan {
 		struct QueueFamilyIndices {
 			std::optional<uint32_t> graphicsFamily;
 			std::optional<uint32_t> presentFamily;
+			std::optional<uint32_t> transferFamily;
 
 			bool isComplete() {
-				return graphicsFamily.has_value() && presentFamily.has_value();
+				return graphicsFamily.has_value() && presentFamily.has_value() && transferFamily.has_value();
 			}
 		};
 
@@ -96,8 +97,11 @@ namespace Comphi::Vulkan {
 		//Framebuffers
 		void createFramebuffers();
 
+		//VertexBuffers
+		void createVertexBuffer();
+
 		//command Pool/Buffer
-		void createCommandPool();
+		void createCommandPools();
 		void createCommandBuffers();
 		void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 		void createSyncObjects();
@@ -133,6 +137,7 @@ namespace Comphi::Vulkan {
 		VkSurfaceKHR surface;
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
+		VkQueue transferQueue;
 
 		VkSwapchainKHR swapChain;
 		VkFormat swapChainImageFormat;
@@ -142,14 +147,12 @@ namespace Comphi::Vulkan {
 		std::vector<VkImageView> swapChainImageViews;
 		GLFWwindow* m_WindowHandle;
 
-		std::unique_ptr<ShaderPipeline> shaderPipeline;
-			//VkRenderPass renderPass;
-			//VkPipelineLayout pipelineLayout;
-			//VkPipeline graphicsPipeline;
+		std::unique_ptr<GraphicsPipeline> graphicsPipeline;
 
 		std::vector<VkFramebuffer> swapChainFramebuffers;
 
 		VkCommandPool commandPool;
+		VkCommandPool transferCommandPool;
 
 		const int MAX_FRAMES_IN_FLIGHT = 2; //double-buffering
 		uint32_t currentFrame = 0;
@@ -159,7 +162,7 @@ namespace Comphi::Vulkan {
 		std::vector<VkFence> inFlightFences;
 		bool framebufferResized = false;
 
-		//std::unique_ptr<VertexBuffer> vao;
+		std::vector<std::unique_ptr<VertexBuffer>> vertexBuffers;
 		
 	};
 }

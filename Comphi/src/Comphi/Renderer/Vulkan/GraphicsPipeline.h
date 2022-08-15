@@ -1,10 +1,11 @@
 #pragma once
-#include "Comphi/Renderer/IShaderPipeline.h"
+#include "Comphi/Renderer/IGraphicsPipeline.h"
 #include "ShaderProgram.h"
+#include "Objects/VertexBuffer.h"
 
 namespace Comphi::Vulkan {
 
-	class ShaderPipeline : public IShaderPipeline
+	class GraphicsPipeline : public IGraphicsPipeline
 	{
 	public:
 
@@ -13,8 +14,8 @@ namespace Comphi::Vulkan {
 			VkRect2D* scissor;
 		}graphicsPipelineSetupData;
 
-		ShaderPipeline(GraphicsPipelineSetupData& graphicsPipelineSetupData);
-		ShaderPipeline() {};
+		GraphicsPipeline(GraphicsPipelineSetupData& graphicsPipelineSetupData);
+		GraphicsPipeline();
 		bool InitPipeline() override;
 		bool BindProgram(IShaderProgram& shaderProgram) override;
 		bool UnbindProgram(IShaderProgram& shaderProgram) override;

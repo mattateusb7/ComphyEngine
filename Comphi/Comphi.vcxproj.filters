@@ -135,7 +135,7 @@
     <ClInclude Include="src\Comphi\Renderer\IObjects\IVertexBuffer.h">
       <Filter>src\Comphi\Renderer\IObjects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\IShaderPipeline.h">
+    <ClInclude Include="src\Comphi\Renderer\IGraphicsPipeline.h">
       <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h">
@@ -174,7 +174,7 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\VertexBuffer.h">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\ShaderPipeline.h">
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.h">
       <Filter>src\Comphi\Renderer\Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\ShaderProgram.h">
@@ -1431,6 +1431,7 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\MemBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Comphi\Core\Application.cpp">
@@ -1487,7 +1488,7 @@
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\VertexBuffer.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\Vulkan\ShaderPipeline.cpp">
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.cpp">
       <Filter>src\Comphi\Renderer\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\ShaderProgram.cpp">
@@ -1502,5 +1503,6 @@
     <ClCompile Include="src\cphipch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\MemBuffer.cpp" />
   </ItemGroup>
 </Project>

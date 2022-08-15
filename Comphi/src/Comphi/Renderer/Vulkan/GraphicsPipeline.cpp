@@ -1,21 +1,26 @@
 #include "cphipch.h"
-#include "ShaderPipeline.h"
+#include "GraphicsPipeline.h"
 
 namespace Comphi::Vulkan {
 
-	ShaderPipeline::ShaderPipeline(GraphicsPipelineSetupData& graphicsPipelineSetupData) {
+	GraphicsPipeline::GraphicsPipeline(GraphicsPipelineSetupData& graphicsPipelineSetupData) {
 		this->graphicsPipelineSetupData = graphicsPipelineSetupData;
 	}
 
-	bool ShaderPipeline::InitPipeline()
+	GraphicsPipeline::GraphicsPipeline() {}
+	
+	bool GraphicsPipeline::InitPipeline()
 	{
-		//VertexBuffer
+		//VertexBufferDescription
+		auto bindingDescription = VertexBuffer::getBindingDescription();
+		auto attributeDescriptions = VertexBuffer::getAttributeDescriptions();
+
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+		vertexInputInfo.vertexBindingDescriptionCount = 1;
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 		//Primitives
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
@@ -159,7 +164,7 @@ namespace Comphi::Vulkan {
 		return true;
 	}
 
-	bool ShaderPipeline::BindProgram(IShaderProgram& shaderProgram)
+	bool GraphicsPipeline::BindProgram(IShaderProgram& shaderProgram)
 	{
 		auto _shaderProgram = static_cast<ShaderProgram*>(&shaderProgram);
 		logicalDevice = std::make_shared<VkDevice>(*_shaderProgram->logicalDevice);
@@ -196,7 +201,7 @@ namespace Comphi::Vulkan {
 		return true;
 	}
 
-	bool ShaderPipeline::UnbindProgram(IShaderProgram& shaderProgram)
+	bool GraphicsPipeline::UnbindProgram(IShaderProgram& shaderProgram)
 	{
 		auto _shaderProgram = static_cast<ShaderProgram*>(&shaderProgram);
 

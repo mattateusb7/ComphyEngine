@@ -1,11 +1,11 @@
 #pragma once
 #include <glad\glad.h>
-#include "../IShaderPipeline.h"
+#include "../IGraphicsPipeline.h"
 #include "ShaderProgram.h"
 
 namespace Comphi::OpenGL{
 
-	class ShaderPipeline : public IShaderPipeline
+	class ShaderPipeline : public IGraphicsPipeline
 	{
 	public:
 		ShaderPipeline();

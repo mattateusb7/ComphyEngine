@@ -2,7 +2,7 @@
 #include "IShaderProgram.h"
 
 namespace Comphi {
-	class IShaderPipeline
+	class IGraphicsPipeline
 	{
 	public:
 		virtual bool InitPipeline() = 0;

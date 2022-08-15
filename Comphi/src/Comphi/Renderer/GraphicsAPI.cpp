@@ -3,7 +3,7 @@
 
 namespace Comphi {
     
-    IShaderPipeline* GraphicsAPI::create::ShaderPipeline()
+    IGraphicsPipeline* GraphicsAPI::create::GraphicsPipeline()
     {
         switch (activeAPI)
         {
@@ -11,10 +11,10 @@ namespace Comphi {
             return new OpenGL::ShaderPipeline();
         case RenderingAPI::Vulkan: 
         {
-            Vulkan::ShaderPipeline::GraphicsPipelineSetupData data {};
+            Vulkan::GraphicsPipeline::GraphicsPipelineSetupData data {};
             data.viewport = {};
             data.scissor = {};
-            return new Vulkan::ShaderPipeline(data);
+            return new Vulkan::GraphicsPipeline(data);
             break;
         }
         default:
@@ -24,15 +24,17 @@ namespace Comphi {
         return nullptr;
     }
 
-    IVertexBuffer* GraphicsAPI::create::VertexBuffer(const float& vertices, const uint& count)
+    IVertexBuffer* GraphicsAPI::create::VertexBuffer(IGraphicsContext* currentGraphicsContext, const std::vector<Vulkan::Vertex>& vertices, const uint& count)
     {
         switch (activeAPI)
         {
         case RenderingAPI::OpenGL:
-            return new OpenGL::VertexBuffer(vertices, count);
-        case RenderingAPI::Vulkan:
-            return new Vulkan::VertexBuffer(vertices, count);
+            //return new OpenGL::VertexBuffer(vertices.data(), count);
+        case RenderingAPI::Vulkan: {
+            //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
+            //return new Vulkan::VertexBuffer(vertices);
             break;
+        }
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;

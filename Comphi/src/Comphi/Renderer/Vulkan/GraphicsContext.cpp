@@ -33,7 +33,8 @@ namespace Comphi::Vulkan {
 		createRenderPass();
 		createGraphicsPipeline();
 		createFramebuffers();
-		createCommandPool();
+		createCommandPools();
+		createVertexBuffer();
 		createCommandBuffers();
 		createSyncObjects();
 	}
@@ -48,10 +49,12 @@ namespace Comphi::Vulkan {
 
 		if (vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("Failed to create window surface!");
+			throw std::runtime_error("Failed to create window surface!");
 		}
 
 		if (glfwCreateWindowSurface(instance, m_WindowHandle, nullptr, &surface) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("Failed to create window surface!");
+			throw std::runtime_error("Failed to create window surface!");
 		}
 
 		COMPHILOG_CORE_INFO("vk_surface window creation successful!");
@@ -81,6 +84,7 @@ namespace Comphi::Vulkan {
 		
 		if (!GraphicsContext::checkValidationLayerSupport(validationLayers)) {
 			COMPHILOG_CORE_FATAL("validation layers requested, but not available!");
+			throw std::runtime_error("validation layers requested, but not available!");
 			return;
 		}
 
@@ -100,10 +104,12 @@ namespace Comphi::Vulkan {
 
 		if (&createInfo == nullptr || &instance == nullptr) {
 			COMPHILOG_CORE_FATAL("Null pointer passed to vkCreateInstance!");
+			throw std::runtime_error("Null pointer passed to vkCreateInstance!");
 			return;
 		}
 		else if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create vkinstance!");
+			throw std::runtime_error("failed to create vkinstance!");
 			return;
 		}
 		COMPHILOG_CORE_INFO("vk instance creation successful!");
@@ -146,6 +152,7 @@ namespace Comphi::Vulkan {
 
 		if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to set up debug messenger!");
+			throw std::runtime_error("failed to set up debug messenger!");
 			return;
 		}
 		COMPHILOG_CORE_INFO("DebugMessenger setup successful!");
@@ -184,6 +191,7 @@ namespace Comphi::Vulkan {
 			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT:
 			COMPHILOG_CORE_FATAL("VK_validation layer: {0}", pCallbackData->pMessage);
+			throw std::runtime_error(pCallbackData->pMessage);
 			break;
 		default:
 			break;
@@ -262,6 +270,7 @@ namespace Comphi::Vulkan {
 		if (!extensionsRequired.empty()) {
 			for (std::string& ext : extensionsRequired) {
 				COMPHILOG_CORE_FATAL("GLFW REQUIRED EXTENSION MISSING: " + ext);
+				throw std::runtime_error("GLFW REQUIRED EXTENSION MISSING");
 				return false;
 			}
 		}
@@ -280,6 +289,7 @@ namespace Comphi::Vulkan {
 		
 		if (deviceCount == 0) {
 			COMPHILOG_CORE_FATAL("failed to find GPUs with Vulkan support!");
+			throw std::runtime_error("failed to find GPUs with Vulkan support!");
 			return;
 		}
 		COMPHILOG_CORE_INFO("PhysicalDevices found!");
@@ -297,6 +307,7 @@ namespace Comphi::Vulkan {
 
 		if (physicalDevice == VK_NULL_HANDLE) {
 			COMPHILOG_CORE_FATAL("failed to find a suitable GPU!");
+			throw std::runtime_error("failed to find a suitable GPU!");
 			return;
 		}
 		COMPHILOG_CORE_INFO("PhysicalDevice setup successful!");
@@ -304,7 +315,7 @@ namespace Comphi::Vulkan {
 
 	GraphicsContext::QueueFamilyIndices GraphicsContext::findQueueFamilies(VkPhysicalDevice device) {
 		
-		COMPHILOG_CORE_TRACE("Requesting QueueFamilies...");
+		//COMPHILOG_CORE_TRACE("Requesting QueueFamilies...");
 		QueueFamilyIndices indices;
 		// Assign index to queue families that could be found
 
@@ -313,6 +324,7 @@ namespace Comphi::Vulkan {
 
 		if (queueFamilyCount == 0) {
 			COMPHILOG_CORE_FATAL("failed to queueFamilies for device!");
+			throw std::runtime_error("failed to queueFamilies for device");
 			return indices;
 		}
 
@@ -328,6 +340,10 @@ namespace Comphi::Vulkan {
 			}
 			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 				indices.graphicsFamily = i;
+			}
+			if ((queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0) { 
+				//VK_QUEUE_TRANSFER_BIT bit, but not the VK_QUEUE_GRAPHICS_BIT
+				indices.transferFamily = i;
 			}
 			if (indices.isComplete()) {
 				COMPHILOG_CORE_INFO("queueFamily found!");
@@ -398,7 +414,7 @@ namespace Comphi::Vulkan {
 		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value(), indices.transferFamily.value() };
 
 		float queuePriority = 1.0f;
 		for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -431,16 +447,18 @@ namespace Comphi::Vulkan {
 
 		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create logical device!");
+			throw std::runtime_error("failed to create logical device");
 		}
 		COMPHILOG_CORE_INFO("Logical Device creation successful!");
 
 		vkGetDeviceQueue(logicalDevice, indices.graphicsFamily.value(), 0, &graphicsQueue);
-
 		COMPHILOG_CORE_INFO("Graphics Queue request successful!");
 
 		vkGetDeviceQueue(logicalDevice, indices.presentFamily.value(), 0, &presentQueue);
-
 		COMPHILOG_CORE_INFO("Present Queue request successful!");
+
+		vkGetDeviceQueue(logicalDevice, indices.transferFamily.value(), 0, &transferQueue);
+		COMPHILOG_CORE_INFO("Transfer Queue request successful!");
 	}
 
 #pragma endregion
@@ -535,6 +553,9 @@ namespace Comphi::Vulkan {
 	}
 
 	void GraphicsContext::createSwapChain() {
+
+		COMPHILOG_CORE_TRACE("Creating Swapchain...");
+
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
 
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -559,9 +580,14 @@ namespace Comphi::Vulkan {
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; //post-processing : may use a value like VK_IMAGE_USAGE_TRANSFER_DST_BIT
 
 		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
-		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.transferFamily.value() }; //indices.presentFamily.value() == graphicsFamily
 
-		if (indices.graphicsFamily != indices.presentFamily) {
+		//uint32_t uniqueQueueCount = 0;
+		//if (indices.graphicsFamily != indices.transferFamily) uniqueQueueCount += 1;
+		//if (indices.graphicsFamily != indices.presentFamily) uniqueQueueCount += 1;
+		//if (indices.presentFamily != indices.transferFamily) uniqueQueueCount += 1;
+
+		if (indices.graphicsFamily != indices.transferFamily) {
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = 2;
 			createInfo.pQueueFamilyIndices = queueFamilyIndices;
@@ -583,6 +609,7 @@ namespace Comphi::Vulkan {
 
 		if (vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create swap chain!");
+			throw std::runtime_error("failed to create swap chain");
 			return;
 		}
 
@@ -624,6 +651,7 @@ namespace Comphi::Vulkan {
 
 			if (vkCreateImageView(logicalDevice, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
 				COMPHILOG_CORE_FATAL("failed to create image view! {0}", i);
+				throw std::runtime_error("failed to create image view!");
 				return;
 			}
 			COMPHILOG_CORE_INFO("created image view! {0} successfully!", i);
@@ -644,17 +672,18 @@ namespace Comphi::Vulkan {
 		auto vertShader = ShaderProgram(ShaderType::VertexShader, vert, logicalDevice);
 		auto fragShader = ShaderProgram(ShaderType::FragmentShader, frag, logicalDevice);
 
-		shaderPipeline->BindProgram(vertShader);
-		shaderPipeline->BindProgram(fragShader);
-
-		shaderPipeline->InitPipeline();
-
-		shaderPipeline->UnbindProgram(vertShader);
-		shaderPipeline->UnbindProgram(fragShader);
+		graphicsPipeline->BindProgram(vertShader);
+		graphicsPipeline->BindProgram(fragShader);
+		
+		graphicsPipeline->InitPipeline();
+		
+		graphicsPipeline->UnbindProgram(vertShader);
+		graphicsPipeline->UnbindProgram(fragShader);
 	}
 
 	void GraphicsContext::createRenderPass() {
 		
+		//static viewport/scissor:
 		//VkViewport viewport{};
 		//viewport.x = 0.0f;
 		//viewport.y = 0.0f;
@@ -667,11 +696,11 @@ namespace Comphi::Vulkan {
 		//scissor.offset = { 0, 0 };
 		//scissor.extent = swapChainExtent;
 		// 
-		ShaderPipeline::GraphicsPipelineSetupData graphicsPipelineSetupData{};
+		GraphicsPipeline::GraphicsPipelineSetupData graphicsPipelineSetupData{};
 		//graphicsPipelineSetupData.viewport = &viewport;
 		//graphicsPipelineSetupData.scissor = &scissor;
 
-		shaderPipeline = std::make_unique<ShaderPipeline>(graphicsPipelineSetupData);
+		graphicsPipeline = std::make_unique<GraphicsPipeline>(graphicsPipelineSetupData);
 
 		//VkImage Render Attatchments
 		VkAttachmentDescription colorAttachment{};
@@ -718,8 +747,9 @@ namespace Comphi::Vulkan {
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		if (vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &shaderPipeline->renderPass) != VK_SUCCESS) {
+		if (vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &graphicsPipeline->renderPass) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create render pass!");
+			throw std::runtime_error("failed to create render pass!");
 			return;
 		}
 
@@ -736,7 +766,7 @@ namespace Comphi::Vulkan {
 
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = shaderPipeline->renderPass;
+			framebufferInfo.renderPass = graphicsPipeline->renderPass;
 			framebufferInfo.attachmentCount = 1;
 			framebufferInfo.pAttachments = attachments;
 			framebufferInfo.width = swapChainExtent.width;
@@ -745,6 +775,7 @@ namespace Comphi::Vulkan {
 
 			if (vkCreateFramebuffer(logicalDevice, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
 				COMPHILOG_CORE_FATAL("failed to create framebuffer!");
+				throw std::runtime_error("failed to create framebuffer!");
 				return;
 			}
 		}
@@ -752,9 +783,22 @@ namespace Comphi::Vulkan {
 
 #pragma endregion
 
+	void GraphicsContext::createVertexBuffer()
+	{
+		const std::vector<Vertex> vertices = {
+			{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+			{{-0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}}
+		};
+
+		
+		MemBuffer::GraphicsHandler graphicsHandler(logicalDevice, physicalDevice, transferCommandPool, transferQueue);
+		vertexBuffers.push_back(std::make_unique<VertexBuffer>(vertices, graphicsHandler));
+	}
+
 #pragma region CommandPool
 
-	void GraphicsContext::createCommandPool() {
+	void GraphicsContext::createCommandPools() {
 		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
 
 		VkCommandPoolCreateInfo poolInfo{};
@@ -764,6 +808,18 @@ namespace Comphi::Vulkan {
 
 		if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create command pool!");
+			throw std::runtime_error("failed to create command pool!");
+			return;
+		}
+
+		VkCommandPoolCreateInfo poolInfoTransfer{};
+		poolInfoTransfer.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfoTransfer.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfoTransfer.queueFamilyIndex = queueFamilyIndices.transferFamily.value();
+
+		if (vkCreateCommandPool(logicalDevice, &poolInfoTransfer, nullptr, &transferCommandPool) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to create transfer command pool!");
+			throw std::runtime_error("failed to create transfer command pool!");
 			return;
 		}
 	}
@@ -775,14 +831,14 @@ namespace Comphi::Vulkan {
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = commandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();;
+		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
 		
 		if (vkAllocateCommandBuffers(logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to allocate command buffers!");
+			throw std::runtime_error("failed to allocate command buffers!");
 			return;
 		}
-
 	}
 
 	void GraphicsContext::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
@@ -794,13 +850,14 @@ namespace Comphi::Vulkan {
 
 		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to begin recording command buffer!");
+			throw std::runtime_error("failed to begin recording command buffer!");
 			return;
 		}
 
 		//graphics pipeline & render attachment(framebuffer/img) selection 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = shaderPipeline->renderPass;
+		renderPassInfo.renderPass = graphicsPipeline->renderPass;
 		renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = swapChainExtent;
@@ -810,9 +867,12 @@ namespace Comphi::Vulkan {
 		renderPassInfo.pClearValues = &clearColor;
 
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shaderPipeline->graphicsPipeline);
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->graphicsPipeline);
+		
+		//Bind VertexBuffers 
+		this->vertexBuffers[0]->bind(commandBuffer);
 
-		//VIEWPORT/SCISSOR SETUP
+		//dynamic VIEWPORT/SCISSOR SETUP
 		VkViewport viewport{};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
@@ -828,15 +888,17 @@ namespace Comphi::Vulkan {
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		//DRAW COMMAND
-		vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+		vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
 
 		//end render pass
 		vkCmdEndRenderPass(commandBuffer);
 
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to record command buffer!");
+			throw std::runtime_error("failed to record command buffer!");
 			return;
 		}
+
 	}
 
 #pragma endregion
@@ -859,6 +921,7 @@ namespace Comphi::Vulkan {
 				vkCreateFence(logicalDevice, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
 
 				COMPHILOG_CORE_FATAL("failed to create synchronization objects for a frame!");
+				throw std::runtime_error("failed to create synchronization objects for a frame!");
 				return;
 			}
 		}
@@ -871,11 +934,16 @@ namespace Comphi::Vulkan {
 
 		cleanupSwapChain();
 
+		for (size_t i = 0; i < vertexBuffers.size(); i++) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy {0} vertexBuffer", i);
+			vertexBuffers[i]->buffer->~MemBuffer();
+		}
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsPipeline");
-		vkDestroyPipeline(logicalDevice, shaderPipeline->graphicsPipeline, nullptr);
+		vkDestroyPipeline(logicalDevice, graphicsPipeline->graphicsPipeline, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
-		vkDestroyPipelineLayout(logicalDevice, shaderPipeline->pipelineLayout, nullptr);
+		vkDestroyPipelineLayout(logicalDevice, graphicsPipeline->pipelineLayout, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -888,7 +956,7 @@ namespace Comphi::Vulkan {
 		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
-		vkDestroyRenderPass(logicalDevice, shaderPipeline->renderPass, nullptr);
+		vkDestroyRenderPass(logicalDevice, graphicsPipeline->renderPass, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Logical Device");
 		vkDestroyDevice(logicalDevice, nullptr);
@@ -939,6 +1007,7 @@ namespace Comphi::Vulkan {
 		VkResult result = vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 		if (result != VK_SUCCESS) {
 			COMPHILOG_CORE_ERROR("failed to acquireNextImage!");
+			//throw std::runtime_error("failed to acquireNextImage!");
 		}
 		else {
 			if (result == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -947,6 +1016,7 @@ namespace Comphi::Vulkan {
 			}
 			else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 				COMPHILOG_CORE_ERROR("failed to acquire swap chain image!");
+				throw std::runtime_error("failed to acquire swap chain image!");
 			}
 		}
 
@@ -974,6 +1044,7 @@ namespace Comphi::Vulkan {
 
 		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to submit draw command buffer!");
+			throw std::runtime_error("failed to submit draw command buffer!");
 			return;
 		}
 
@@ -997,7 +1068,8 @@ namespace Comphi::Vulkan {
 			recreateSwapChain();
 		}
 		else if (result != VK_SUCCESS) {
-			COMPHILOG_CORE_ERROR("failed to present swap chain image!");
+			COMPHILOG_CORE_FATAL("failed to present swap chain image!");
+			throw std::runtime_error("failed to present swap chain image!");
 			return;
 		}
 

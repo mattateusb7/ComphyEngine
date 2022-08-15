@@ -10,7 +10,7 @@
 
 #include "Vulkan/Objects/IndexBuffer.h"
 #include "Vulkan/Objects/VertexBuffer.h"
-#include "Vulkan/ShaderPipeline.h"
+#include "Vulkan/GraphicsPipeline.h"
 #include "Vulkan/ShaderProgram.h"
 #include "Vulkan/GraphicsContext.h"
 
@@ -48,9 +48,9 @@ namespace Comphi {
 
 		struct create {
 			static IGraphicsContext* GraphicsContext(GLFWwindow& windowHandler);
-			static IVertexBuffer* VertexBuffer(const float& vertices, const uint& count);
+			static IVertexBuffer* VertexBuffer(IGraphicsContext* currentGraphicsContext, const std::vector<Vulkan::Vertex>& vertices, const uint& count);
 			static IIndexBuffer* IndexBuffer(const uint& indices);
-			static IShaderPipeline* ShaderPipeline();
+			static IGraphicsPipeline* GraphicsPipeline();
 			static IShaderProgram* ShaderProgram(IGraphicsContext* currentGraphicsContext, Comphi::ShaderType shaderType, IFileRef& shaderFile);
 		};
 
