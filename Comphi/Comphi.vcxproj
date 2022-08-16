@@ -163,9 +163,11 @@
     <ClInclude Include="src\Comphi\Platform\Windows\FileRef.h" />
     <ClInclude Include="src\Comphi\Platform\Windows\Input.h" />
     <ClInclude Include="src\Comphi\Platform\Windows\Window.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Common.h" />
     <ClInclude Include="src\Comphi\Renderer\GraphicsAPI.h" />
     <ClInclude Include="src\Comphi\Renderer\IGraphicsContext.h" />
     <ClInclude Include="src\Comphi\Renderer\IObjects\IIndexBuffer.h" />
+    <ClInclude Include="src\Comphi\Renderer\IObjects\IUniformBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\IObjects\IVertexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\IGraphicsPipeline.h" />
     <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h" />
@@ -181,6 +183,7 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsHandler.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\MemBuffer.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\UniformBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\VertexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ShaderProgram.h" />
@@ -625,6 +628,7 @@
       <ObjectFileName>$(IntDir)\IndexBuffer1.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\MemBuffer.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\UniformBuffer.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\VertexBuffer.cpp">
       <ObjectFileName>$(IntDir)\VertexBuffer1.obj</ObjectFileName>
     </ClCompile>

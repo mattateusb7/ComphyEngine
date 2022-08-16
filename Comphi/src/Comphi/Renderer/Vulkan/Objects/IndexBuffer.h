@@ -4,16 +4,12 @@
 
 namespace Comphi::Vulkan {
 
-	struct GraphicsHandler;
-	class MemBuffer;
-
-	class IndexBuffer : public IIndexBuffer
+	class IndexBuffer : public IIndexBuffer, public MemBuffer
 	{
 	public:
 
 		IndexBuffer(const IndexArray& indices, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
 		~IndexBuffer() = default;
-		std::unique_ptr<MemBuffer> buffer;
 		uint32_t indexCount;
 
 		virtual void bind() override;

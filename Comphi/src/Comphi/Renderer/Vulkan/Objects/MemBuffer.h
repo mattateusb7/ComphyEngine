@@ -10,7 +10,6 @@ namespace Comphi::Vulkan {
 	public:
 
 		MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
-
 		VkBuffer bufferObj;
 		VkDeviceMemory bufferMemory;
 		VkDeviceSize bufferSize;
@@ -22,6 +21,11 @@ namespace Comphi::Vulkan {
 
 		static void copyBuffer(MemBuffer& srcBuffer, MemBuffer& dstBuffer);
 		void copyBufferTo(MemBuffer& dstBuffer);
+	
+	protected :
+		MemBuffer() = default;
+		void InitMemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
+
 	};
 
 }

@@ -1433,6 +1433,9 @@
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\MemBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsHandler.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\UniformBuffer.h" />
+    <ClInclude Include="src\Comphi\Renderer\IObjects\IUniformBuffer.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Common.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Comphi\Core\Application.cpp">
@@ -1505,5 +1508,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\MemBuffer.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\UniformBuffer.cpp" />
   </ItemGroup>
 </Project>

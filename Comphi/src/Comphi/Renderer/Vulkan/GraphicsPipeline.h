@@ -16,13 +16,16 @@ namespace Comphi::Vulkan {
 		}graphicsPipelineSetupData;
 
 		GraphicsPipeline(GraphicsPipelineSetupData& graphicsPipelineSetupData);
-		GraphicsPipeline();
+		~GraphicsPipeline();
 		bool InitPipeline() override;
 		bool BindProgram(IShaderProgram& shaderProgram) override;
 		bool UnbindProgram(IShaderProgram& shaderProgram) override;
 
+		void createDescriptorSetLayout();
+
 		std::shared_ptr<VkDevice> logicalDevice;
 		VkRenderPass renderPass;
+		VkDescriptorSetLayout descriptorSetLayout;
 		VkPipelineLayout pipelineLayout;
 		VkPipeline graphicsPipeline;
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;

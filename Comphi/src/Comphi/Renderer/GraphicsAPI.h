@@ -1,6 +1,4 @@
 #pragma once
-#include "Comphi/Core/Core.h"
-#include "Comphi/Platform/Windows/FileRef.h"
 
 ///OpenGL
 #include "OpenGL/GraphicsContext.h"

@@ -1,17 +1,12 @@
 #pragma once
 #include "Comphi/Renderer/IGraphicsContext.h"
 
-#include "Comphi/Core/Core.h"
-#include "Comphi/Platform/Windows/FileRef.h"
-
-#include <GLFW/glfw3.h>
-
-#include <GLFW/glfw3native.h>
-#include <vulkan/vulkan_win32.h>
+#include "Common.h"
 
 #include "Objects/MemBuffer.h"
 #include "Objects/VertexBuffer.h"
 #include "Objects/IndexBuffer.h"
+#include "Objects/UniformBuffer.h"
 #include "Objects/ShaderProgram.h"
 
 #include "GraphicsHandler.h"
@@ -106,13 +101,15 @@ namespace Comphi::Vulkan {
 		void createFramebuffers();
 
 		//VertexBuffers
-		void createVertexBuffer();
+		void createDrawBuffers();
 
 		//command Pool/Buffer
 		void createCommandPools();
 		void createCommandBuffers();
 		void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 		void createSyncObjects();
+
+		void updateUniformBuffer(uint32_t currentImage);
 
 #ifndef NDEBUG
 		//Validation Layers
@@ -171,8 +168,7 @@ namespace Comphi::Vulkan {
 		std::vector<VkFence> inFlightFences;
 		bool framebufferResized = false;
 
-		std::vector<std::unique_ptr<VertexBuffer>> vertexBuffers;
-		std::vector<std::unique_ptr<IndexBuffer>> indexBuffers;
+		std::vector<std::unique_ptr<MemBuffer>> drawBuffers;
 		
 	};
 }

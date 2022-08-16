@@ -4,16 +4,13 @@
 
 namespace Comphi::Vulkan {
 
-	struct GraphicsHandler;
-	class MemBuffer;
-
-	class VertexBuffer : public IVertexBuffer
+	class VertexBuffer : public IVertexBuffer, public MemBuffer
 	{
 	public:
 
 		VertexBuffer(const VertexArray& vertices, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
 		~VertexBuffer() = default;
-		std::unique_ptr<MemBuffer> buffer;
+
 		uint32_t vertexCount;
 
 		static VkVertexInputBindingDescription getBindingDescription() {

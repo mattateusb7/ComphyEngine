@@ -39,7 +39,7 @@ namespace Comphi::Vulkan {
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPools();
-		createVertexBuffer();
+		createDrawBuffers();
 		createCommandBuffers();
 		createSyncObjects();
 	}
@@ -788,7 +788,7 @@ namespace Comphi::Vulkan {
 
 #pragma endregion
 
-	void GraphicsContext::createVertexBuffer()
+	void GraphicsContext::createDrawBuffers()
 	{
 		const VertexArray vertices = {
 			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
@@ -800,9 +800,22 @@ namespace Comphi::Vulkan {
 		const IndexArray indices = {
 			0, 1, 2, 2, 3, 0
 		};
-		
-		vertexBuffers.push_back(std::make_unique<VertexBuffer>(vertices, getGraphicsHandler()));
-		indexBuffers.push_back(std::make_unique<IndexBuffer>(indices, getGraphicsHandler()));
+
+		/*
+		* Driver developers recommend that you also store multiple buffers, like the vertex and index buffer, into a single VkBuffer
+		* (DrawBuffer or maybe batchDrawBuffer/multipleObjs)
+		* and use offsets in commands like vkCmdBindVertexBuffers.
+		* The advantage is that your data is more cache friendly in that case, because it's closer together.
+		*/
+
+		drawBuffers.push_back(std::make_unique<VertexBuffer>(vertices, getGraphicsHandler()));
+		drawBuffers.push_back(std::make_unique<IndexBuffer>(indices, getGraphicsHandler()));
+
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			UniformBufferObject ubo = {};
+			drawBuffers.push_back(std::make_unique<UniformBuffer>(ubo, getGraphicsHandler()));
+		}
+
 	}
 
 #pragma region CommandPool
@@ -881,9 +894,11 @@ namespace Comphi::Vulkan {
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->graphicsPipeline);
 
 			//Bind VertexBuffers 
-			VkBuffer vertexBuffers[] = { this->vertexBuffers[0]->buffer->bufferObj };
+			VkBuffer vertexBuffers[] = { drawBuffers[0]->bufferObj };
 			VkDeviceSize offsets[] = { 0 }; //batch render
 			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+			vkCmdBindIndexBuffer(commandBuffer, drawBuffers[1]->bufferObj, 0, VK_INDEX_TYPE_UINT16);
 
 			//dynamic VIEWPORT/SCISSOR SETUP
 			VkViewport viewport{};
@@ -901,7 +916,8 @@ namespace Comphi::Vulkan {
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 			//DRAW COMMAND
-			vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
+			vkCmdDrawIndexed(commandBuffer, static_cast<IndexBuffer*>(drawBuffers[1].get())->indexCount, 1, 0, 0, 0);
+			//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
 		}
 	
 		//end render pass
@@ -948,21 +964,12 @@ namespace Comphi::Vulkan {
 
 		cleanupSwapChain();
 
-		for (size_t i = 0; i < vertexBuffers.size(); i++) {
+		for (size_t i = 0; i < drawBuffers.size(); i++) {
 			COMPHILOG_CORE_INFO("vkDestroy Destroy {0} vertexBuffer", i);
-			vertexBuffers[i]->~VertexBuffer();
+			drawBuffers[i]->~MemBuffer();
 		}
-
-		for (size_t i = 0; i < vertexBuffers.size(); i++) {
-			COMPHILOG_CORE_INFO("vkDestroy Destroy {0} indexBuffers", i);
-			indexBuffers[i]->~IndexBuffer();
-		}
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsPipeline");
-		vkDestroyPipeline(logicalDevice, graphicsPipeline->graphicsPipeline, nullptr);
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
-		vkDestroyPipelineLayout(logicalDevice, graphicsPipeline->pipelineLayout, nullptr);
+		
+		graphicsPipeline->~GraphicsPipeline();
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -1012,6 +1019,28 @@ namespace Comphi::Vulkan {
 		vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
 	}
 
+	void GraphicsContext::updateUniformBuffer(uint32_t currentImage) {
+		static auto startTime = std::chrono::high_resolution_clock::now();
+
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+		UniformBufferObject ubo{};
+		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
+
+		ubo.proj[1][1] *= -1;
+
+		void* data;
+
+		vkMapMemory(logicalDevice, drawBuffers[2 + currentImage]->bufferMemory, 0, sizeof(ubo), 0, &data);
+		memcpy(data, &ubo, sizeof(ubo));
+		vkUnmapMemory(logicalDevice, drawBuffers[2 + currentImage]->bufferMemory);
+	}
+
 	void GraphicsContext::Draw()
 	{
 		//Wait for the previous frame to finish
@@ -1044,6 +1073,8 @@ namespace Comphi::Vulkan {
 
 		vkResetCommandBuffer(commandBuffers[currentFrame], 0);
 		recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
+
+		updateUniformBuffer(currentFrame);
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

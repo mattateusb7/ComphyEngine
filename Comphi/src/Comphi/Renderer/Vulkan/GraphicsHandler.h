@@ -1,5 +1,5 @@
 #pragma once
-#include "GraphicsContext.h"
+#include "Common.h"
 
 namespace Comphi::Vulkan {
 
