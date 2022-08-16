@@ -3,7 +3,7 @@
 
 namespace Comphi::Vulkan {
 
-    IndexBuffer::IndexBuffer(const IndexArray& indices, GraphicsHandler& graphicsHandler)
+    IndexBuffer::IndexBuffer(const IndexArray& indices, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
     {
         indexCount = static_cast<uint16_t>(indices.size());
         VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
@@ -13,9 +13,9 @@ namespace Comphi::Vulkan {
             graphicsHandler);
 
         void* data; //copy data to staging buffer
-        vkMapMemory(*graphicsHandler.logicalDevice.get(), stagingBuffer.bufferMemory, 0, bufferSize, 0, &data);
+        vkMapMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory, 0, bufferSize, 0, &data);
             memcpy(data, indices.data(), (size_t)bufferSize);
-        vkUnmapMemory(*graphicsHandler.logicalDevice.get(), stagingBuffer.bufferMemory);
+        vkUnmapMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory);
 
         buffer = std::make_unique<MemBuffer>(bufferSize,
             VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,

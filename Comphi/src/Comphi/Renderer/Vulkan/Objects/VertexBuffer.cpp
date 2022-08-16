@@ -3,7 +3,7 @@
 
 namespace Comphi::Vulkan {
 
-    VertexBuffer::VertexBuffer(const VertexArray& vertices, GraphicsHandler& graphicsHandler)
+    VertexBuffer::VertexBuffer(const VertexArray& vertices, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
     {
         vertexCount = static_cast<uint32_t>(vertices.size());
         VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
@@ -13,9 +13,9 @@ namespace Comphi::Vulkan {
             graphicsHandler);
 
         void* data; //copy data to staging buffer
-        vkMapMemory(*graphicsHandler.logicalDevice.get(), stagingBuffer.bufferMemory, 0, bufferSize, 0, &data);
+        vkMapMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory, 0, bufferSize, 0, &data);
             memcpy(data, vertices.data(), (size_t)bufferSize);
-        vkUnmapMemory(*graphicsHandler.logicalDevice.get(), stagingBuffer.bufferMemory);
+        vkUnmapMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory);
 
         buffer = std::make_unique<MemBuffer>(bufferSize,
             VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 

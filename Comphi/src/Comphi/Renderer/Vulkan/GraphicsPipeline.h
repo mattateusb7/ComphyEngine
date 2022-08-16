@@ -4,6 +4,8 @@
 
 namespace Comphi::Vulkan {
 
+	class ShaderProgram;
+
 	class GraphicsPipeline : public IGraphicsPipeline
 	{
 	public:

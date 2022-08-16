@@ -3,11 +3,13 @@
 
 namespace Comphi::Vulkan {
 
+	struct GraphicsHandler;
+
 	class MemBuffer
 	{
 	public:
 
-		MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, GraphicsHandler& graphicsHandler);
+		MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
 
 		VkBuffer bufferObj;
 		VkDeviceMemory bufferMemory;

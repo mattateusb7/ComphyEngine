@@ -9,7 +9,6 @@
 #include <GLFW/glfw3native.h>
 #include <vulkan/vulkan_win32.h>
 
-
 #include "Objects/MemBuffer.h"
 #include "Objects/VertexBuffer.h"
 #include "Objects/IndexBuffer.h"
@@ -19,6 +18,10 @@
 #include "GraphicsPipeline.h"
 
 namespace Comphi::Vulkan {
+
+	class IndexBuffer;
+	class VertexBuffer;
+	class GraphicsPipeline;
 
 	class GraphicsContext : public IGraphicsContext
 	{
@@ -31,7 +34,7 @@ namespace Comphi::Vulkan {
 		virtual void ResizeFramebuffer(uint x, uint y) override;
 		virtual void CleanUp() override;
 
-		GraphicsHandler* getGraphicsHandler();
+		std::shared_ptr<GraphicsHandler> getGraphicsHandler();
 
 	protected:
 
@@ -129,7 +132,7 @@ namespace Comphi::Vulkan {
 			VkDebugUtilsMessengerEXT debugMessenger, 
 			const VkAllocationCallbacks* pAllocator);
 #endif //!NDEBUG
-		std::shared_ptr<GraphicsHandler> graphicsHandler;
+
 	public:
 
 		VkInstance instance;

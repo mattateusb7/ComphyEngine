@@ -11,13 +11,12 @@ namespace Comphi::Vulkan {
 
 	GraphicsContext::GraphicsContext(GLFWwindow& windowHandle) : m_WindowHandle(&windowHandle)
 	{
-		graphicsHandler = std::make_shared<GraphicsHandler>(logicalDevice, physicalDevice, transferCommandPool, transferQueue);
 		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
 	}
 
-	GraphicsHandler* GraphicsContext::getGraphicsHandler()
+	std::shared_ptr<GraphicsHandler> GraphicsContext::getGraphicsHandler()
 	{
-		return graphicsHandler.get();
+		return std::make_shared<GraphicsHandler>(logicalDevice, physicalDevice, transferCommandPool, transferQueue);
 	}
 
 //! VULKAN Guide: https://vulkan-tutorial.com/en/Drawing_a_triangle/Setup/Logical_device_and_queues

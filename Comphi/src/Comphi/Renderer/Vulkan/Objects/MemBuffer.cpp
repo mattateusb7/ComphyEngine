@@ -4,9 +4,9 @@
 namespace Comphi::Vulkan {
 
 
-    MemBuffer::MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, GraphicsHandler& graphicsHandler)
+    MemBuffer::MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
     {
-        this->graphicsHandler = std::make_shared<GraphicsHandler>(graphicsHandler);
+        this->graphicsHandler = graphicsHandler;
 
         bufferSize = size;
 
