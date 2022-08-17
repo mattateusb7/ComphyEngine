@@ -40,6 +40,8 @@ namespace Comphi::Vulkan {
 		createFramebuffers();
 		createCommandPools();
 		createDrawBuffers();
+		createDescriptorPool();
+		createDescriptorSet();
 		createCommandBuffers();
 		createSyncObjects();
 	}
@@ -791,14 +793,34 @@ namespace Comphi::Vulkan {
 	void GraphicsContext::createDrawBuffers()
 	{
 		const VertexArray vertices = {
-			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+			{{-0.5f, -0.5f,0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{0.5f, -0.5f,0.0f}, {0.0f, 1.0f, 0.0f}},
+			{{0.5f, 0.5f,0.0f}, {0.0f, 0.0f, 1.0f}},
+			{{-0.5f, 0.5f,0.0f}, {1.0f, 1.0f, 1.0f}}
 		};
 
 		const IndexArray indices = {
 			0, 1, 2, 2, 3, 0
+		};
+
+		const VertexArray cubeVx = {
+			{{ 0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 1.0f}},
+			{{-0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 0.0f}},
+			{{-0.5f,-0.5f, 0.5f} , {1.0f, 0.0f, 0.0f}},
+			{{ 0.5f,-0.5f, 0.5f} , {1.0f, 0.0f, 1.0f}},
+			{{ 0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 1.0f}},
+			{{ 0.5f, 0.5f,-0.5f} , {0.0f, 1.0f, 1.0f}},
+			{{-0.5f, 0.5f,-0.5f} , {0.0f, 1.0f, 0.0f}},
+			{{-0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 0.0f}}
+		};
+
+		const IndexArray CubeIx = {
+			0, 1, 2,   2, 3, 0,   // v0-v1-v2, v2-v3-v0 (front)
+			0, 3, 4,   4, 5, 0,   // v0-v3-v4, v4-v5-v0 (right)
+			0, 5, 6,   6, 1, 0,   // v0-v5-v6, v6-v1-v0 (top)
+			1, 6, 7,   7, 2, 1,   // v1-v6-v7, v7-v2-v1 (left)
+			7, 4, 3,   3, 2, 7,   // v7-v4-v3, v3-v2-v7 (bottom)
+			4, 7, 6,   6, 5, 4    // v4-v7-v6, v6-v5-v4 (back)
 		};
 
 		/*
@@ -808,8 +830,8 @@ namespace Comphi::Vulkan {
 		* The advantage is that your data is more cache friendly in that case, because it's closer together.
 		*/
 
-		drawBuffers.push_back(std::make_unique<VertexBuffer>(vertices, getGraphicsHandler()));
-		drawBuffers.push_back(std::make_unique<IndexBuffer>(indices, getGraphicsHandler()));
+		drawBuffers.push_back(std::make_unique<VertexBuffer>(cubeVx, getGraphicsHandler()));
+		drawBuffers.push_back(std::make_unique<IndexBuffer>(CubeIx, getGraphicsHandler()));
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			UniformBufferObject ubo = {};
@@ -893,11 +915,12 @@ namespace Comphi::Vulkan {
 		{
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->graphicsPipeline);
 
-			//Bind VertexBuffers 
+			//Bind VertexBuffers @0
 			VkBuffer vertexBuffers[] = { drawBuffers[0]->bufferObj };
 			VkDeviceSize offsets[] = { 0 }; //batch render
 			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
+			//Bind IndexBuffers @1
 			vkCmdBindIndexBuffer(commandBuffer, drawBuffers[1]->bufferObj, 0, VK_INDEX_TYPE_UINT16);
 
 			//dynamic VIEWPORT/SCISSOR SETUP
@@ -914,6 +937,9 @@ namespace Comphi::Vulkan {
 			scissor.offset = { 0, 0 };
 			scissor.extent = swapChainExtent;
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+			//BindIndex UniformBuffers @2
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
 			//DRAW COMMAND
 			vkCmdDrawIndexed(commandBuffer, static_cast<IndexBuffer*>(drawBuffers[1].get())->indexCount, 1, 0, 0, 0);
@@ -958,6 +984,62 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("semaphores created Successfully!");
 	}
 
+	void GraphicsContext::createDescriptorPool()
+	{
+		VkDescriptorPoolSize poolSize{};
+		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
+
+		VkDescriptorPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = 1;
+		poolInfo.pPoolSizes = &poolSize;
+		poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT;
+
+		if (vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
+			throw std::runtime_error("failed to create descriptor pool!");
+		}
+	}
+
+	void GraphicsContext::createDescriptorSet()
+	{
+		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, graphicsPipeline->descriptorSetLayout);
+		VkDescriptorSetAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = descriptorPool;
+		allocInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
+		allocInfo.pSetLayouts = layouts.data();
+
+		descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+		if (vkAllocateDescriptorSets(logicalDevice, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to allocate descriptor sets!");
+			throw std::runtime_error("failed to allocate descriptor sets!");
+		}
+
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = drawBuffers[2+i]->bufferObj;/*uniform@2*/
+			bufferInfo.offset = 0;
+			bufferInfo.range = sizeof(UniformBufferObject);
+
+			VkWriteDescriptorSet descriptorWrite{};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = descriptorSets[i];
+			descriptorWrite.dstBinding = 0; //binding location uniform
+			descriptorWrite.dstArrayElement = 0;
+
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount = 1;
+
+			descriptorWrite.pBufferInfo = &bufferInfo;
+			descriptorWrite.pImageInfo = nullptr; // Optional
+			descriptorWrite.pTexelBufferView = nullptr; // Optional
+
+			vkUpdateDescriptorSets(logicalDevice, 1, &descriptorWrite, 0, nullptr);
+		}
+	}
+
 	void GraphicsContext::CleanUp()
 	{
 		vkDeviceWaitIdle(logicalDevice);
@@ -968,6 +1050,9 @@ namespace Comphi::Vulkan {
 			COMPHILOG_CORE_INFO("vkDestroy Destroy {0} vertexBuffer", i);
 			drawBuffers[i]->~MemBuffer();
 		}
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
+		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
 		
 		graphicsPipeline->~GraphicsPipeline();
 
@@ -1023,10 +1108,11 @@ namespace Comphi::Vulkan {
 		static auto startTime = std::chrono::high_resolution_clock::now();
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+		float Time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+		//glm::abs(glm::sin(Time))
 
 		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.model = glm::rotate(glm::mat4(1.0f), Time * glm::radians(45.0f), glm::vec3(glm::sin(Time), 0.5f, 1.0f));
 
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 

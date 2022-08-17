@@ -109,6 +109,9 @@ namespace Comphi::Vulkan {
 		void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 		void createSyncObjects();
 
+		void createDescriptorPool();
+		void createDescriptorSet();
+
 		void updateUniformBuffer(uint32_t currentImage);
 
 #ifndef NDEBUG
@@ -169,6 +172,8 @@ namespace Comphi::Vulkan {
 		bool framebufferResized = false;
 
 		std::vector<std::unique_ptr<MemBuffer>> drawBuffers;
+		VkDescriptorPool descriptorPool;
+		std::vector<VkDescriptorSet> descriptorSets;
 		
 	};
 }

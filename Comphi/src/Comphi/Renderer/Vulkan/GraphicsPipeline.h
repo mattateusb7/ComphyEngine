@@ -20,7 +20,6 @@ namespace Comphi::Vulkan {
 		bool InitPipeline() override;
 		bool BindProgram(IShaderProgram& shaderProgram) override;
 		bool UnbindProgram(IShaderProgram& shaderProgram) override;
-
 		void createDescriptorSetLayout();
 
 		std::shared_ptr<VkDevice> logicalDevice;

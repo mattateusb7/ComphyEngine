@@ -9,6 +9,7 @@ namespace Comphi::Vulkan {
 
 	GraphicsPipeline::~GraphicsPipeline()
 	{
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorSetLayout");
 		vkDestroyDescriptorSetLayout(*logicalDevice.get(), descriptorSetLayout, nullptr);
 
@@ -57,7 +58,7 @@ namespace Comphi::Vulkan {
 		//Primitives
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; //VK_PRIMITIVE_TOPOLOGY_LINE_LIST
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 		//Framebuffer/Viewport(Scissor)
@@ -91,8 +92,8 @@ namespace Comphi::Vulkan {
 		rasterizer.rasterizerDiscardEnable = VK_FALSE;
 		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 		rasterizer.lineWidth = 1.0f;
-		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-		rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;//VK_CULL_MODE_NONE;
+		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		rasterizer.depthBiasEnable = VK_FALSE; //For Shadow mapping
 		rasterizer.depthBiasConstantFactor = 0.0f; // Optional
 		rasterizer.depthBiasClamp = 0.0f; // Optional
