@@ -10,3 +10,6 @@
 [submodule "Comphi/vendor/glm"]
 	path = Comphi/vendor/glm
 	url = https://github.com/g-truc/glm
+[submodule "Comphi/vendor/stb"]
+	path = Comphi/vendor/stb
+	url = https://github.com/nothings/stb.git
