@@ -1,5 +1,5 @@
 #pragma once
-#include "IShaderProgram.h"
+#include "../IShaderProgram.h"
 
 namespace Comphi {
 	class IShaderWizard

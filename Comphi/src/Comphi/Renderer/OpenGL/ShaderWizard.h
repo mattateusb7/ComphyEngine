@@ -1,5 +1,5 @@
 #pragma once
-#include "../IShaderWizard.h"
+#include "../OpenGL/IShaderWizard.h"
 #include "Objects/ShaderProgram.h"
 #include <glad\glad.h>
 

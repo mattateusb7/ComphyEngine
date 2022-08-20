@@ -8,9 +8,9 @@ namespace Comphi {
 		IFileRef(std::string filePath) : m_filePath(filePath) {};
 		virtual ~IFileRef() = default;
 
-		const std::string& getFilePath() { return m_filePath; };
-		const std::string& getData() { return m_byte_fileContent.data(); };
-		const std::vector<char>& getByteData() { return m_byte_fileContent; };
+		const std::string getFilePath() { return m_filePath; };
+		const std::string getData() { return m_byte_fileContent.data(); };
+		const std::vector<char> getByteData() { return m_byte_fileContent; };
 		void setFileByteData(const std::vector<char> data) { m_byte_fileContent = data; };
 		void setFileData(const std::string in) { m_byte_fileContent = std::vector<char>(in.begin(), in.end()); };
 		

@@ -1,6 +1,8 @@
 #pragma once
-#include "Core.h"
 #include "Layer.h"
+#include "Comphi/Events/ApplicationEvent.h"
+#include "Comphi/Events/MouseEvent.h"
+#include "Comphi/Events/KeyEvent.h"
 
 namespace Comphi {
 	

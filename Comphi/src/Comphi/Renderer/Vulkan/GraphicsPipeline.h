@@ -1,6 +1,6 @@
 #pragma once
 #include "Comphi/Renderer/IGraphicsPipeline.h"
-#include "GraphicsContext.h"
+#include "Common.h"
 
 namespace Comphi::Vulkan {
 

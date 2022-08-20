@@ -1,6 +1,4 @@
 #pragma once
-#include "cphipch.h"
-#include "Comphi/Core/Core.h"
 
 namespace Comphi {
 

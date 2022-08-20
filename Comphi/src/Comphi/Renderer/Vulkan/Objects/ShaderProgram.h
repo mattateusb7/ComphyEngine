@@ -1,6 +1,6 @@
 #pragma once
 #include "Comphi/Renderer/IShaderProgram.h"
-#include "../GraphicsContext.h"
+#include "../Common.h"
 
 namespace Comphi::Vulkan {
 

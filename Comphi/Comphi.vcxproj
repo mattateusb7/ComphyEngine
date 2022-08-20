@@ -80,7 +80,7 @@
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;C:\VulkanSDK\1.3.216.0\Include;vendor\stb;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -103,7 +103,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -127,7 +127,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -162,13 +162,14 @@
     <ClInclude Include="src\Comphi\Renderer\GraphicsAPI.h" />
     <ClInclude Include="src\Comphi\Renderer\IGraphicsContext.h" />
     <ClInclude Include="src\Comphi\Renderer\IGraphicsPipeline.h" />
+    <ClInclude Include="src\Comphi\Renderer\IObjects\IImage.h" />
     <ClInclude Include="src\Comphi\Renderer\IObjects\IIndexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\IObjects\IUniformBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\IObjects\IVertexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h" />
-    <ClInclude Include="src\Comphi\Renderer\IShaderWizard.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\GLError.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\GraphicsContext.h" />
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\IShaderWizard.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\Objects\IndexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\Objects\ShaderPipeline.h" />
     <ClInclude Include="src\Comphi\Renderer\OpenGL\Objects\ShaderProgram.h" />
@@ -178,6 +179,7 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsContext.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsHandler.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\Image.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\MemBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ShaderProgram.h" />
@@ -622,6 +624,7 @@
       <ObjectFileName>$(IntDir)\GraphicsContext1.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\Image.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.cpp">
       <ObjectFileName>$(IntDir)\IndexBuffer1.obj</ObjectFileName>
     </ClCompile>

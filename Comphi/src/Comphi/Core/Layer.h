@@ -1,5 +1,4 @@
 #pragma once
-#include "Core.h"
 #include "Comphi/Events/Event.h"
 
 namespace Comphi {

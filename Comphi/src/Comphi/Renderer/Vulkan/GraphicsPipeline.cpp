@@ -1,5 +1,6 @@
 #include "cphipch.h"
 #include "GraphicsPipeline.h"
+#include "GraphicsContext.h"
 
 namespace Comphi::Vulkan {
 

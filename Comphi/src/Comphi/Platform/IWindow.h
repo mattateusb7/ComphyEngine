@@ -1,9 +1,7 @@
 #pragma once
-//Events
 #include "Comphi/Events/Event.h"
-#include "Comphi/Events/ApplicationEvent.h"
-#include "Comphi/Events/MouseEvent.h"
-#include "Comphi/Events/KeyEvent.h"
+#include "Comphi/Core/LayerStack.h"
+#include "Comphi/UI/ImGui/ImGuiLayer.h"
 
 namespace Comphi{
 	

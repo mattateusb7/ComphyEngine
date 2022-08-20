@@ -1,25 +1,16 @@
 #pragma once
 #include "Comphi/Renderer/IGraphicsContext.h"
 
-#include "Common.h"
+#include "GraphicsHandler.h"
 
-#include "Objects/MemBuffer.h"
 #include "Objects/VertexBuffer.h"
 #include "Objects/IndexBuffer.h"
 #include "Objects/UniformBuffer.h"
 #include "Objects/ShaderProgram.h"
 
-#include "GraphicsHandler.h"
 #include "GraphicsPipeline.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "../../stb/stb_image.h"
-
 namespace Comphi::Vulkan {
-
-	class IndexBuffer;
-	class VertexBuffer;
-	class GraphicsPipeline;
 
 	class GraphicsContext : public IGraphicsContext
 	{
@@ -67,7 +58,7 @@ namespace Comphi::Vulkan {
 		std::vector<const char*> getRequiredGLFWExtensions();
 		bool checkGLFWRequiredInstanceExtensions(const char**& glfwExtensions, uint32_t& glfwExtensionCount);
 		
-		//Surface
+		//Surface 
 		void createSurface();
 
 		//Physical Device

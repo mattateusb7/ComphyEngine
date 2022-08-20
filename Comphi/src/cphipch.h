@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdio.h>
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -14,7 +15,9 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <glm/glm.hpp>
 
+#include "Comphi/Core/Core.h"
 #include "Comphi/Core/Log.h"
 
 #ifdef CPHI_WINDOWS_PLATFORM 

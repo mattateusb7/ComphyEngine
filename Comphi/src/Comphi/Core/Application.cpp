@@ -1,6 +1,5 @@
 #include "cphipch.h"
 #include "Application.h"
-#include "Comphi/Platform/IInput.h"
 
 namespace Comphi {
 

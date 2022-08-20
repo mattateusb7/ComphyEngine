@@ -1,8 +1,6 @@
 #include "cphipch.h"
 #include "Window.h"
-
-#include "Comphi/Renderer/OpenGL/GraphicsContext.h"
-#include "Comphi/Renderer/Vulkan/GraphicsContext.h"
+#include "Comphi/Renderer/GraphicsAPI.h"
 
 Comphi::IWindow* Comphi::IWindow::Create(const WindowProperties& props)
 {

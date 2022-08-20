@@ -135,6 +135,9 @@
     <ClInclude Include="src\Comphi\Renderer\IGraphicsPipeline.h">
       <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\IObjects\IImage.h">
+      <Filter>src\Comphi\Renderer\IObjects</Filter>
+    </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\IObjects\IIndexBuffer.h">
       <Filter>src\Comphi\Renderer\IObjects</Filter>
     </ClInclude>
@@ -147,13 +150,13 @@
     <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h">
       <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\IShaderWizard.h">
-      <Filter>src\Comphi\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\OpenGL\GLError.h">
       <Filter>src\Comphi\Renderer\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\OpenGL\GraphicsContext.h">
+      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\OpenGL\IShaderWizard.h">
       <Filter>src\Comphi\Renderer\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\OpenGL\Objects\IndexBuffer.h">
@@ -182,6 +185,9 @@
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.h">
       <Filter>src\Comphi\Renderer\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\Image.h">
+      <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.h">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
@@ -1504,6 +1510,9 @@
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.cpp">
       <Filter>src\Comphi\Renderer\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\Image.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>

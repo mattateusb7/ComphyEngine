@@ -1,7 +1,8 @@
 #pragma once
-#include "IShaderProgram.h"
 
 namespace Comphi {
+
+	class IShaderProgram;
 	class IGraphicsPipeline
 	{
 	public:

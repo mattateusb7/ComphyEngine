@@ -10,8 +10,6 @@
 #include "Objects/ShaderProgram.h"
 #include "ShaderWizard.h"
 
-#include <GLFW/glfw3.h>
-
 namespace Comphi::OpenGL {
 	class GraphicsContext : public IGraphicsContext
 	{

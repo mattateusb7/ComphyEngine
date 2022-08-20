@@ -1,6 +1,7 @@
 #include "cphipch.h"
 #include "GraphicsContext.h"
 
+
 namespace Comphi::OpenGL {
 
 	GraphicsContext::GraphicsContext(GLFWwindow& windowHandle)
