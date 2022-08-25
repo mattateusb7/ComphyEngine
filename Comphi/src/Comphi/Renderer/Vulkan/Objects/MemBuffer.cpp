@@ -2,8 +2,7 @@
 #include "MemBuffer.h"
 
 namespace Comphi::Vulkan {
-
-
+    
     MemBuffer::MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
     {
         InitMemBuffer(size, usage, properties, graphicsHandler);
@@ -42,10 +41,10 @@ namespace Comphi::Vulkan {
         vkBindBufferMemory(*this->graphicsHandler->logicalDevice.get(), bufferObj, bufferMemory, 0);
     }
 
-    uint32_t MemBuffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+    uint32_t MemBuffer::findMemoryType(VkPhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
 
         VkPhysicalDeviceMemoryProperties memProperties;
-        vkGetPhysicalDeviceMemoryProperties(*this->graphicsHandler->physicalDevice.get(), &memProperties);
+        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
         for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
             if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
@@ -55,6 +54,11 @@ namespace Comphi::Vulkan {
         COMPHILOG_CORE_ERROR("failed to find suitable memory type!");
         throw std::runtime_error("failed to find suitable memory type!");
 
+    }
+
+    uint32_t MemBuffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+    {
+        return findMemoryType(*graphicsHandler->physicalDevice.get(),typeFilter,properties);
     }
 
     MemBuffer::~MemBuffer()
@@ -69,8 +73,7 @@ namespace Comphi::Vulkan {
         srcBuffer.copyBufferTo(dstBuffer);
     }
 
-    void MemBuffer::copyBufferTo(MemBuffer& dstBuffer)
-    {
+    VkCommandBuffer MemBuffer::beginCommandBuffer(const std::shared_ptr<GraphicsHandler>& graphicsHandler) {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -85,13 +88,12 @@ namespace Comphi::Vulkan {
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
         vkBeginCommandBuffer(commandBuffer, &beginInfo);
+        
+        return commandBuffer;
+    }
 
-        VkBufferCopy copyRegion{};
-        copyRegion.srcOffset = 0; // Optional
-        copyRegion.dstOffset = 0; // Optional
-        copyRegion.size = bufferSize;
-        vkCmdCopyBuffer(commandBuffer, bufferObj, dstBuffer.bufferObj, 1, &copyRegion);
-
+    void MemBuffer::endCommandBuffer(VkCommandBuffer& commandBuffer, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+    {
         vkEndCommandBuffer(commandBuffer);
 
         VkSubmitInfo submitInfo{};
@@ -110,8 +112,19 @@ namespace Comphi::Vulkan {
         */
 
         vkFreeCommandBuffers(*graphicsHandler->logicalDevice.get(), *graphicsHandler->transferCommandPool.get(), 1, &commandBuffer);
-
     }
 
+    void MemBuffer::copyBufferTo(MemBuffer& dstBuffer)
+    {
+        VkCommandBuffer commandBuffer = beginCommandBuffer(graphicsHandler);
 
+        VkBufferCopy copyRegion{};
+        copyRegion.srcOffset = 0; // Optional
+        copyRegion.dstOffset = 0; // Optional
+        copyRegion.size = bufferSize;
+        vkCmdCopyBuffer(commandBuffer, bufferObj, dstBuffer.bufferObj, 1, &copyRegion);
+
+        endCommandBuffer(commandBuffer, graphicsHandler);
+
+    }
 }

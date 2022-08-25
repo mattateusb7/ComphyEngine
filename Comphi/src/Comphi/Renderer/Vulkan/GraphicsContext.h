@@ -6,6 +6,7 @@
 #include "Objects/VertexBuffer.h"
 #include "Objects/IndexBuffer.h"
 #include "Objects/UniformBuffer.h"
+#include "Objects/ImageBufer.h"
 #include "Objects/ShaderProgram.h"
 
 #include "GraphicsPipeline.h"
