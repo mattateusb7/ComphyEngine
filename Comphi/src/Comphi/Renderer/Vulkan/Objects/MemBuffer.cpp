@@ -73,36 +73,68 @@ namespace Comphi::Vulkan {
         srcBuffer.copyBufferTo(dstBuffer);
     }
 
-    VkCommandBuffer MemBuffer::beginCommandBuffer(const std::shared_ptr<GraphicsHandler>& graphicsHandler) {
+    MemBuffer::CommandBuffer MemBuffer::beginCommandBuffer(CommandQueueOperation op, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+    {
+        VkCommandPool commandPool = op == MEM_TransferCommand ?
+            *graphicsHandler->transferQueueFamily.commandPool.get() : *graphicsHandler->graphicsQueueFamily.commandPool.get();
+
+        CommandBuffer commandBuffer = {graphicsHandler, op};
+
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = *graphicsHandler->transferCommandPool.get();
-        allocInfo.commandBufferCount = 1;
+        allocInfo.commandPool = commandPool;
+        allocInfo.commandBufferCount = 1; //how many command buffers to create
 
-        VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(*graphicsHandler->logicalDevice.get(), &allocInfo, &commandBuffer);
+        vkAllocateCommandBuffers(*graphicsHandler->logicalDevice.get(), &allocInfo, &commandBuffer.buffer);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-        vkBeginCommandBuffer(commandBuffer, &beginInfo);
-        
+        vkBeginCommandBuffer(commandBuffer.buffer, &beginInfo);
+
         return commandBuffer;
+
     }
 
-    void MemBuffer::endCommandBuffer(VkCommandBuffer& commandBuffer, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+    void MemBuffer::endCommandBuffer(CommandBuffer& commandBuffer)
     {
-        vkEndCommandBuffer(commandBuffer);
+        VkQueue commandQueue = commandBuffer.op == MEM_TransferCommand ?
+            *commandBuffer.graphicsHandler->transferQueueFamily.queue.get() : *commandBuffer.graphicsHandler->graphicsQueueFamily.queue.get();
+
+        VkCommandPool commandPool = commandBuffer.op == MEM_TransferCommand ?
+            *commandBuffer.graphicsHandler->transferQueueFamily.commandPool.get() : *commandBuffer.graphicsHandler->graphicsQueueFamily.commandPool.get();
+
+        vkEndCommandBuffer(commandBuffer.buffer);
+
+        //VkSemaphoreSubmitInfo signalSemaphoreInfo = {};
+        //signalSemaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+        //
+        //VkSemaphoreSubmitInfo waitSemaphoreInfo = {};
+        //waitSemaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+        //
+        //VkCommandBufferSubmitInfo commandSubmitInfo = {};
+        //commandSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+        //commandSubmitInfo.commandBuffer = commandBuffer.buffer;
+
+        //VkSubmitInfo2 submitInfo{};
+        //submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+        ////submitInfo.signalSemaphoreInfoCount = 1;
+        ////submitInfo.pSignalSemaphoreInfos = &;
+        ////submitInfo.waitSemaphoreInfoCount = 1;
+        ////submitInfo.pWaitSemaphoreInfos = &;
+        //submitInfo.commandBufferInfoCount = 1;
+        //submitInfo.pCommandBufferInfos = &commandSubmitInfo;
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
+        submitInfo.pCommandBuffers = &commandBuffer.buffer;
 
-        vkQueueSubmit(*graphicsHandler->transferQueue.get(), 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(*graphicsHandler->transferQueue);
+        vkQueueSubmit(commandQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        //vkQueueSubmit2(commandQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(commandQueue);
 
         /*
         We could use a fence and wait with vkWaitForFences,
@@ -111,20 +143,20 @@ namespace Comphi::Vulkan {
         That may give the driver more opportunities to optimize.
         */
 
-        vkFreeCommandBuffers(*graphicsHandler->logicalDevice.get(), *graphicsHandler->transferCommandPool.get(), 1, &commandBuffer);
+        vkFreeCommandBuffers(*commandBuffer.graphicsHandler->logicalDevice.get(), commandPool, 1, &commandBuffer.buffer);
     }
 
     void MemBuffer::copyBufferTo(MemBuffer& dstBuffer)
     {
-        VkCommandBuffer commandBuffer = beginCommandBuffer(graphicsHandler);
+        CommandBuffer commandBuffer = beginCommandBuffer(MEM_TransferCommand,graphicsHandler);
 
         VkBufferCopy copyRegion{};
         copyRegion.srcOffset = 0; // Optional
         copyRegion.dstOffset = 0; // Optional
         copyRegion.size = bufferSize;
-        vkCmdCopyBuffer(commandBuffer, bufferObj, dstBuffer.bufferObj, 1, &copyRegion);
+        vkCmdCopyBuffer(commandBuffer.buffer, bufferObj, dstBuffer.bufferObj, 1, &copyRegion);
 
-        endCommandBuffer(commandBuffer, graphicsHandler);
+        endCommandBuffer(commandBuffer);
 
     }
 }

@@ -8,7 +8,9 @@ namespace Comphi::Vulkan {
 	{
 	public:
 		
-		ImageBuffer(std::string filepath, std::shared_ptr<GraphicsHandler>& graphicsHandler,VkFormat format, VkImageTiling tiling,VkImageUsageFlags usage);
+		ImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler,
+			VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL,
+			VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 		~ImageBuffer() = default;
 		
 		VkImage bufferObj; //override bufferType
@@ -20,7 +22,8 @@ namespace Comphi::Vulkan {
 		VkFormat imageFormat;
 		VkImageLayout imageLayout;
 
-		static void copyBufferToImage(MemBuffer& buffer, ImageBuffer& image, std::shared_ptr<GraphicsHandler>& graphicsHandler);
+		static void copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer);
+		void copyBufferToImgBuffer(MemBuffer& srcBuffer);
 		
 	protected :
 		void transitionImageLayout(VkImageLayout newLayout);

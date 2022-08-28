@@ -16,7 +16,9 @@ namespace Comphi::Vulkan {
 
 	std::shared_ptr<GraphicsHandler> GraphicsContext::getGraphicsHandler()
 	{
-		return std::make_shared<GraphicsHandler>(logicalDevice, physicalDevice, transferCommandPool, transferQueue);
+		return std::make_shared<GraphicsHandler>(logicalDevice, physicalDevice, 
+			queueFamilyIndices.transferFamily.value(), transferCommandPool, transferQueue,
+			queueFamilyIndices.graphicsFamily.value(), graphicsCommandPool, graphicsQueue);
 	}
 
 //! VULKAN Guide: https://vulkan-tutorial.com/en/Drawing_a_triangle/Setup/Logical_device_and_queues
@@ -338,6 +340,9 @@ namespace Comphi::Vulkan {
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
+		int graphicsQueueflags = (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_SPARSE_BINDING_BIT);
+		int transferQueueflags = (VK_QUEUE_TRANSFER_BIT | VK_QUEUE_SPARSE_BINDING_BIT);
+
 		int i = 0;
 		for (const auto& queueFamily : queueFamilies) {
 			VkBool32 presentSupport = false;
@@ -345,11 +350,11 @@ namespace Comphi::Vulkan {
 			if (presentSupport) {
 				indices.presentFamily = i;
 			}
-			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			if ((queueFamily.queueFlags & graphicsQueueflags) == graphicsQueueflags /*&& (queueFamily.queueFlags & transferQueueflags) == 0*/) {
 				indices.graphicsFamily = i;
 			}
-			if ((queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0) { 
-				//VK_QUEUE_TRANSFER_BIT bit, but not the VK_QUEUE_GRAPHICS_BIT
+			if ((queueFamily.queueFlags & transferQueueflags) == transferQueueflags && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0) {
+				//VK_QUEUE_TRANSFER_BIT | VK_QUEUE_SPARSE_BINDING_BIT, but not the VK_QUEUE_GRAPHICS_BIT
 				indices.transferFamily = i;
 			}
 			if (indices.isComplete()) {
@@ -381,7 +386,7 @@ namespace Comphi::Vulkan {
 		/*VkPhysicalDeviceFeatures deviceFeatures;					   */
 		/*vkGetPhysicalDeviceFeatures(device, &deviceFeatures);		   */
 
-		GraphicsContext::QueueFamilyIndices indices = findQueueFamilies(device);
+		queueFamilyIndices = findQueueFamilies(device);
 
 		bool extensionsSupported = checkDeviceExtensionSupport(device);
 
@@ -391,7 +396,7 @@ namespace Comphi::Vulkan {
 			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 		}
 
-		return indices.isComplete() && extensionsSupported && swapChainAdequate;
+		return queueFamilyIndices.isComplete() && extensionsSupported && swapChainAdequate;
 	}
 
 	bool GraphicsContext::checkDeviceExtensionSupport(VkPhysicalDevice device) {
@@ -418,10 +423,8 @@ namespace Comphi::Vulkan {
 
 		COMPHILOG_CORE_TRACE("Creating Logical Device...");
 
-		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
-
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value(), indices.transferFamily.value() };
+		std::set<uint32_t> uniqueQueueFamilies = { queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.presentFamily.value(), queueFamilyIndices.transferFamily.value() };
 
 		float queuePriority = 1.0f;
 		for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -458,13 +461,13 @@ namespace Comphi::Vulkan {
 		}
 		COMPHILOG_CORE_INFO("Logical Device creation successful!");
 
-		vkGetDeviceQueue(logicalDevice, indices.graphicsFamily.value(), 0, &graphicsQueue);
+		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &graphicsQueue);
 		COMPHILOG_CORE_INFO("Graphics Queue request successful!");
 
-		vkGetDeviceQueue(logicalDevice, indices.presentFamily.value(), 0, &presentQueue);
+		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.presentFamily.value(), 0, &presentQueue);
 		COMPHILOG_CORE_INFO("Present Queue request successful!");
 
-		vkGetDeviceQueue(logicalDevice, indices.transferFamily.value(), 0, &transferQueue);
+		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.transferFamily.value(), 0, &transferQueue);
 		COMPHILOG_CORE_INFO("Transfer Queue request successful!");
 	}
 
@@ -586,15 +589,14 @@ namespace Comphi::Vulkan {
 		createInfo.imageArrayLayers = 1; //1 unless stereoscopic 3D application.
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; //post-processing : may use a value like VK_IMAGE_USAGE_TRANSFER_DST_BIT
 
-		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
-		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.transferFamily.value() }; //indices.presentFamily.value() == graphicsFamily
+		uint32_t queueFamilyIndices[] = { this->queueFamilyIndices.graphicsFamily.value(), this->queueFamilyIndices.transferFamily.value() }; //indices.presentFamily.value() == graphicsFamily
 
 		//uint32_t uniqueQueueCount = 0;
 		//if (indices.graphicsFamily != indices.transferFamily) uniqueQueueCount += 1;
 		//if (indices.graphicsFamily != indices.presentFamily) uniqueQueueCount += 1;
 		//if (indices.presentFamily != indices.transferFamily) uniqueQueueCount += 1;
 
-		if (indices.graphicsFamily != indices.transferFamily) {
+		if (this->queueFamilyIndices.graphicsFamily != this->queueFamilyIndices.transferFamily) {
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = 2;
 			createInfo.pQueueFamilyIndices = queueFamilyIndices;
@@ -838,19 +840,19 @@ namespace Comphi::Vulkan {
 			drawBuffers.push_back(std::make_unique<UniformBuffer>(ubo, getGraphicsHandler()));
 		}
 
+		drawBuffers.push_back(std::make_unique<ImageBuffer>("textures/texture.jpg",getGraphicsHandler()));
 	}
 
 #pragma region CommandPool
 
 	void GraphicsContext::createCommandPools() {
-		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
 
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-		if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+		if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &graphicsCommandPool) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create command pool!");
 			throw std::runtime_error("failed to create command pool!");
 			return;
@@ -858,7 +860,7 @@ namespace Comphi::Vulkan {
 
 		VkCommandPoolCreateInfo poolInfoTransfer{};
 		poolInfoTransfer.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfoTransfer.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfoTransfer.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; //VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
 		poolInfoTransfer.queueFamilyIndex = queueFamilyIndices.transferFamily.value();
 
 		if (vkCreateCommandPool(logicalDevice, &poolInfoTransfer, nullptr, &transferCommandPool) != VK_SUCCESS) {
@@ -873,7 +875,7 @@ namespace Comphi::Vulkan {
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = commandPool;
+		allocInfo.commandPool = graphicsCommandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
@@ -1063,8 +1065,8 @@ namespace Comphi::Vulkan {
 			vkDestroyFence(logicalDevice, inFlightFences[i], nullptr);
 		}
 
-		COMPHILOG_CORE_INFO("vkDestroy Destroy commandPool");
-		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsCommandPool");
+		vkDestroyCommandPool(logicalDevice, graphicsCommandPool, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
 		vkDestroyRenderPass(logicalDevice, graphicsPipeline->renderPass, nullptr);

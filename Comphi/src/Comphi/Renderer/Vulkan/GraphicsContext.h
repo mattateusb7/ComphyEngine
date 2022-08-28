@@ -37,6 +37,7 @@ namespace Comphi::Vulkan {
 				return graphicsFamily.has_value() && presentFamily.has_value() && transferFamily.has_value();
 			}
 		};
+		GraphicsContext::QueueFamilyIndices queueFamilyIndices;
 
 		struct SwapChainSupportDetails {
 			VkSurfaceCapabilitiesKHR capabilities;
@@ -155,7 +156,7 @@ namespace Comphi::Vulkan {
 
 		std::vector<VkFramebuffer> swapChainFramebuffers;
 
-		VkCommandPool commandPool;
+		VkCommandPool graphicsCommandPool;
 		VkCommandPool transferCommandPool;
 
 		const int MAX_FRAMES_IN_FLIGHT = 2; //double-buffering
