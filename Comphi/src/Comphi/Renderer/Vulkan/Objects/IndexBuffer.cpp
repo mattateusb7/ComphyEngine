@@ -22,6 +22,10 @@ namespace Comphi::Vulkan {
             graphicsHandler);
 
         stagingBuffer.copyBufferTo(*(MemBuffer*)this);
+
+        //cleanup
+        vkDestroyBuffer(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferObj, nullptr);
+        vkFreeMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory, nullptr);
     }
 
     void IndexBuffer::bind()

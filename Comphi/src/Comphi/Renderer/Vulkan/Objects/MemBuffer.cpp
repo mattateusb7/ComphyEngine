@@ -61,9 +61,9 @@ namespace Comphi::Vulkan {
         return findMemoryType(*graphicsHandler->physicalDevice.get(),typeFilter,properties);
     }
 
-    MemBuffer::~MemBuffer()
+    void MemBuffer::cleanUp()
     {
-        COMPHILOG_CORE_INFO("vkDestroy Destroy Buffer");
+        COMPHILOG_CORE_INFO("vkDestroy Destroy MemBuffer");
         vkDestroyBuffer(*graphicsHandler->logicalDevice.get(), bufferObj, nullptr);
         vkFreeMemory(*graphicsHandler->logicalDevice.get(),bufferMemory, nullptr);
     }
@@ -151,8 +151,8 @@ namespace Comphi::Vulkan {
         CommandBuffer commandBuffer = beginCommandBuffer(MEM_TransferCommand,graphicsHandler);
 
         VkBufferCopy copyRegion{};
-        copyRegion.srcOffset = 0; // Optional
-        copyRegion.dstOffset = 0; // Optional
+        //copyRegion.srcOffset = 0; // Optional
+        //copyRegion.dstOffset = 0; // Optional
         copyRegion.size = bufferSize;
         vkCmdCopyBuffer(commandBuffer.buffer, bufferObj, dstBuffer.bufferObj, 1, &copyRegion);
 

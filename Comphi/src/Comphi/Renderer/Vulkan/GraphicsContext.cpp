@@ -1049,8 +1049,7 @@ namespace Comphi::Vulkan {
 		cleanupSwapChain();
 
 		for (size_t i = 0; i < drawBuffers.size(); i++) {
-			COMPHILOG_CORE_INFO("vkDestroy Destroy {0} vertexBuffer", i);
-			drawBuffers[i]->~MemBuffer();
+			drawBuffers[i]->cleanUp();
 		}
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
@@ -1064,6 +1063,9 @@ namespace Comphi::Vulkan {
 			vkDestroySemaphore(logicalDevice, imageAvailableSemaphores[i], nullptr);
 			vkDestroyFence(logicalDevice, inFlightFences[i], nullptr);
 		}
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy transferCommandPool");
+		vkDestroyCommandPool(logicalDevice, transferCommandPool, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsCommandPool");
 		vkDestroyCommandPool(logicalDevice, graphicsCommandPool, nullptr);
@@ -1080,7 +1082,7 @@ namespace Comphi::Vulkan {
 #endif //!NDEBUG
 
 		COMPHILOG_CORE_INFO("vkDestroy Surface");
-		vkDestroySurfaceKHR(instance, surface, nullptr);
+		vkDestroySurfaceKHR(instance, surface, nullptr); // ERR ?
 
 		COMPHILOG_CORE_INFO("vkDestroy Instance");
 		vkDestroyInstance(instance, nullptr);

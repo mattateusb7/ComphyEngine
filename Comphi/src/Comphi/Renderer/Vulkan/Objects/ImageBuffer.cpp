@@ -6,6 +6,14 @@
 
 namespace Comphi::Vulkan {
 	
+
+	void ImageBuffer::cleanUp()
+	{
+		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageBuffer");
+		vkDestroyImage(*graphicsHandler->logicalDevice.get(), bufferObj, nullptr);
+		vkFreeMemory(*graphicsHandler->logicalDevice.get(), bufferMemory, nullptr);
+	}
+
 	ImageBuffer::ImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage)
 	{
 		this->graphicsHandler = graphicsHandler;
@@ -74,6 +82,10 @@ namespace Comphi::Vulkan {
 		transitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		copyBufferToImgBuffer(stagingBuffer);
 		transitionImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+		//cleanup
+		vkDestroyBuffer(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferObj, nullptr);
+		vkFreeMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory, nullptr);
 	}
 
 	void ImageBuffer::copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer)
@@ -117,10 +129,6 @@ namespace Comphi::Vulkan {
 
 	void ImageBuffer::transitionImageLayout(VkImageLayout newLayout)
 	{
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
 		VkImageMemoryBarrier barrier{};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 		barrier.oldLayout = imageLayout;
@@ -155,16 +163,19 @@ namespace Comphi::Vulkan {
 			
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-			imageMemoryBarrier2.srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
-			imageMemoryBarrier2.dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-			
+
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-			imageMemoryBarrier2.srcAccessMask = 0;
-			imageMemoryBarrier2.dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
 
 			barrier.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 			barrier.dstQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
+
+			imageMemoryBarrier2.srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
+			imageMemoryBarrier2.dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+			
+			imageMemoryBarrier2.srcAccessMask = 0;
+			imageMemoryBarrier2.dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+
 			imageMemoryBarrier2.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 			imageMemoryBarrier2.dstQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 		}
@@ -172,17 +183,20 @@ namespace Comphi::Vulkan {
 			queueOperation = MEM_GraphicsCommand;
 
 			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-			imageMemoryBarrier2.srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-			imageMemoryBarrier2.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+			destinationStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;//VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT; ERR !!!
 
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-			imageMemoryBarrier2.srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
-			imageMemoryBarrier2.dstAccessMask = VK_ACCESS_2_SHADER_READ_BIT;
 
 			barrier.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 			barrier.dstQueueFamilyIndex = graphicsHandler->graphicsQueueFamily.index;
+
+			imageMemoryBarrier2.srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+			imageMemoryBarrier2.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+
+			imageMemoryBarrier2.srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+			imageMemoryBarrier2.dstAccessMask = VK_ACCESS_2_SHADER_READ_BIT;
+			
 			imageMemoryBarrier2.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 			imageMemoryBarrier2.dstQueueFamilyIndex = graphicsHandler->graphicsQueueFamily.index;
 		}
