@@ -96,7 +96,7 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_TRACE("Creating ImageViews...");
 		swapChainImageViews.resize(swapChainImages.size());
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			swapChainImageViews[i].createImageView(swapChainImages[i], swapChainImageFormat, graphicsHandler);
+			swapChainImageViews[i].createSwapchainImageView(swapChainImages[i], swapChainImageFormat, graphicsHandler);
 		}
 	}
 

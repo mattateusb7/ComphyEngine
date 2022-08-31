@@ -3,22 +3,29 @@
 
 namespace Comphi::Vulkan {
 
-	ImageView::ImageView(VkImage& imgBuffer, VkFormat imgFormat, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+	ImageView::ImageView(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage) 
+		: ImageBuffer(filepath, graphicsHandler, format, tiling, usage)
 	{
-		createImageView(imgBuffer, imgFormat, graphicsHandler);
+		createImageView(*this,graphicsHandler);
 	}
 
+	void ImageView::createSwapchainImageView(VkImage& imageBufferObj, VkFormat& imageFormat, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+	{
+		this->bufferObj = imageBufferObj;
+		this->imageFormat = imageFormat;
+		createImageView(*this, graphicsHandler);
+	}
 
-	void ImageView::createImageView(VkImage& imgBuffer, VkFormat imgFormat, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+	void ImageView::createImageView(ImageBuffer& imageBuffer, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
 	{
 		this->graphicsHandler = graphicsHandler;
 
 		VkImageViewCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createInfo.image = imgBuffer;
+		createInfo.image = imageBuffer.bufferObj;
 
 		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D; //1D textures, 2D textures, 3D textures and cube maps.
-		createInfo.format = imgFormat;
+		createInfo.format = imageBuffer.imageFormat;
 
 		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY; //defaultChannelMapping
 		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY; //defaultChannelMapping

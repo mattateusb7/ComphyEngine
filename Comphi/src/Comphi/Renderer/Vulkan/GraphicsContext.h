@@ -9,6 +9,7 @@
 #include "Objects/ImageBufer.h"
 #include "Objects/ImageView.h"
 #include "Objects/SwapChain.h"
+#include "Objects/TextureSampler.h"
 #include "Objects/ShaderProgram.h"
 
 #include "GraphicsPipeline.h"
@@ -88,8 +89,7 @@ namespace Comphi::Vulkan {
 		//Framebuffers
 		void createFramebuffers();
 
-		//VertexBuffers
-		void createDrawBuffers();
+		void createDebugBuffers();
 
 		//command Pool/Buffer
 		void createCommandPools();

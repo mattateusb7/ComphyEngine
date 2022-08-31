@@ -1457,6 +1457,7 @@
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\TextureSampler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Comphi\Core\Application.cpp">
@@ -1539,5 +1540,6 @@
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\TextureSampler.cpp" />
   </ItemGroup>
 </Project>

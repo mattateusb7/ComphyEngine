@@ -9,14 +9,13 @@ namespace Comphi::Vulkan {
 
 	void ImageBuffer::cleanUp()
 	{
-		imageView.cleanUp();
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageBuffer");
 		vkDestroyImage(*graphicsHandler->logicalDevice.get(), bufferObj, nullptr);
 		vkFreeMemory(*graphicsHandler->logicalDevice.get(), bufferMemory, nullptr);
 	}
 
-	ImageBuffer::ImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage)
-	{
+	void ImageBuffer::initImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage) {
+		
 		this->graphicsHandler = graphicsHandler;
 
 		int texWidth, texHeight, texChannels;
@@ -71,7 +70,7 @@ namespace Comphi::Vulkan {
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(*graphicsHandler->physicalDevice.get(), 
+		allocInfo.memoryTypeIndex = findMemoryType(*graphicsHandler->physicalDevice.get(),
 			memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 		if (vkAllocateMemory(*graphicsHandler->logicalDevice.get(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
@@ -87,8 +86,11 @@ namespace Comphi::Vulkan {
 		//cleanup
 		vkDestroyBuffer(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferObj, nullptr);
 		vkFreeMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory, nullptr);
+	}
 
-		imageView.createImageView(bufferObj, imageFormat, graphicsHandler);
+	ImageBuffer::ImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage)
+	{
+		initImageBuffer(filepath, graphicsHandler, format, tiling, usage);
 	}
 
 	void ImageBuffer::copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer)

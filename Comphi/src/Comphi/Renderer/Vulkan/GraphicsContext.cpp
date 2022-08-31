@@ -357,7 +357,10 @@ namespace Comphi::Vulkan {
 			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 		}
 
-		return queueFamilyIndices.isComplete() && extensionsSupported && swapChainAdequate;
+		VkPhysicalDeviceFeatures supportedFeatures; //Optimize fetch in device ClassObject
+		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
+		return queueFamilyIndices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 	}
 
 	bool GraphicsContext::checkDeviceExtensionSupport(VkPhysicalDevice device) {
@@ -398,6 +401,7 @@ namespace Comphi::Vulkan {
 		}
 
 		VkPhysicalDeviceFeatures deviceFeatures{}; //Default all VK_FALSE
+		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -777,7 +781,7 @@ namespace Comphi::Vulkan {
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPools();
-		createDrawBuffers();
+		createDebugBuffers();
 		createDescriptorPool();
 		createDescriptorSet();
 		createCommandBuffers();
@@ -786,7 +790,7 @@ namespace Comphi::Vulkan {
 
 #pragma region //DEBUG!
 
-	void GraphicsContext::createDrawBuffers()
+	void GraphicsContext::createDebugBuffers()
 	{
 		const VertexArray vertices = {
 			{{-0.5f, -0.5f,0.0f}, {1.0f, 0.0f, 0.0f}},
@@ -834,7 +838,12 @@ namespace Comphi::Vulkan {
 			drawBuffers.push_back(std::make_unique<UniformBuffer>(ubo, getGraphicsHandler()));
 		}
 
-		drawBuffers.push_back(std::make_unique<ImageBuffer>("textures/texture.jpg", getGraphicsHandler()));
+		drawBuffers.push_back(std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler()));
+		
+		//std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler());
+		TextureSampler sampler(std::make_shared<ImageView>((* (ImageView*)drawBuffers[4].get()) ), getGraphicsHandler()); //Should abstract upcasting of MemBuffers
+		
+		int end = 1;
 	}
 
 	void GraphicsContext::createGraphicsPipeline() {
@@ -1006,6 +1015,8 @@ namespace Comphi::Vulkan {
 		for (size_t i = 0; i < drawBuffers.size(); i++) {
 			drawBuffers[i]->cleanUp();
 		}
+
+		//texturesampler.cleanUp();
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
 		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
