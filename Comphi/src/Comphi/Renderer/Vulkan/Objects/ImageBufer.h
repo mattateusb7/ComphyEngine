@@ -1,5 +1,4 @@
 #pragma once
-#include "../GraphicsHandler.h"
 #include "MemBuffer.h"
 
 namespace Comphi::Vulkan {

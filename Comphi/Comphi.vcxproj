@@ -140,6 +140,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.h" />
     <ClInclude Include="src\Comphi.h" />
     <ClInclude Include="src\Comphi\Core\Application.h" />
     <ClInclude Include="src\Comphi\Core\Core.h" />
@@ -186,6 +187,7 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\VertexBuffer.h" />
     <ClInclude Include="src\Comphi\UI\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\cphipch.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_fixes.hpp" />
@@ -604,6 +606,7 @@
     <ClInclude Include="vendor\stb\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.cpp" />
     <ClCompile Include="src\Comphi\Core\Application.cpp" />
     <ClCompile Include="src\Comphi\Core\Layer.cpp" />
     <ClCompile Include="src\Comphi\Core\LayerStack.cpp" />
@@ -640,6 +643,7 @@
     <ClCompile Include="src\cphipch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">

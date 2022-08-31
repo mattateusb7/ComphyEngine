@@ -7,6 +7,8 @@
 #include "Objects/IndexBuffer.h"
 #include "Objects/UniformBuffer.h"
 #include "Objects/ImageBufer.h"
+#include "Objects/ImageView.h"
+#include "Objects/SwapChain.h"
 #include "Objects/ShaderProgram.h"
 
 #include "GraphicsPipeline.h"
@@ -39,12 +41,6 @@ namespace Comphi::Vulkan {
 		};
 		GraphicsContext::QueueFamilyIndices queueFamilyIndices;
 
-		struct SwapChainSupportDetails {
-			VkSurfaceCapabilitiesKHR capabilities;
-			std::vector<VkSurfaceFormatKHR> formats;
-			std::vector<VkPresentModeKHR> presentModes;
-		};
-
 		const std::vector<const char*> deviceExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
@@ -76,10 +72,6 @@ namespace Comphi::Vulkan {
 
 		//SwapChain
 		void createSwapChain();
-		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 		void recreateSwapChain();
 		void cleanupSwapChain();
 
@@ -140,17 +132,12 @@ namespace Comphi::Vulkan {
 		VkDevice logicalDevice;
 
 		VkSurfaceKHR surface;
+		GLFWwindow* m_WindowHandle;
+		std::unique_ptr<SwapChain> swapchain;
+
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
 		VkQueue transferQueue;
-
-		VkSwapchainKHR swapChain;
-		VkFormat swapChainImageFormat;
-		VkExtent2D swapChainExtent;
-		std::vector<VkImage> swapChainImages;
-
-		std::vector<VkImageView> swapChainImageViews;
-		GLFWwindow* m_WindowHandle;
 
 		std::unique_ptr<GraphicsPipeline> graphicsPipeline;
 

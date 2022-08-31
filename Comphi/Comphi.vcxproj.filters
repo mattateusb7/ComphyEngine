@@ -1455,6 +1455,8 @@
     <ClInclude Include="vendor\stb\stb_image.h">
       <Filter>vendor\stb</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Comphi\Core\Application.cpp">
@@ -1535,5 +1537,7 @@
     <ClCompile Include="src\cphipch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.cpp" />
   </ItemGroup>
 </Project>
