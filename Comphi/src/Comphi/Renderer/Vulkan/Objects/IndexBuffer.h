@@ -4,7 +4,7 @@
 
 namespace Comphi::Vulkan {
 
-	class IndexBuffer : public IIndexBuffer, public MemBuffer
+	class IndexBuffer : public MemBuffer
 	{
 	public:
 
@@ -12,7 +12,5 @@ namespace Comphi::Vulkan {
 		~IndexBuffer() = default;
 		uint32_t indexCount;
 
-		virtual void bind() override;
-		virtual void unbind() override;
 	};
 }

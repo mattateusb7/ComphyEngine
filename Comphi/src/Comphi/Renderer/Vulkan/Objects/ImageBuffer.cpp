@@ -9,6 +9,7 @@ namespace Comphi::Vulkan {
 
 	void ImageBuffer::cleanUp()
 	{
+		imageView.cleanUp();
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageBuffer");
 		vkDestroyImage(*graphicsHandler->logicalDevice.get(), bufferObj, nullptr);
 		vkFreeMemory(*graphicsHandler->logicalDevice.get(), bufferMemory, nullptr);
@@ -86,6 +87,8 @@ namespace Comphi::Vulkan {
 		//cleanup
 		vkDestroyBuffer(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferObj, nullptr);
 		vkFreeMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory, nullptr);
+
+		imageView.createImageView(bufferObj, imageFormat, graphicsHandler);
 	}
 
 	void ImageBuffer::copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer)

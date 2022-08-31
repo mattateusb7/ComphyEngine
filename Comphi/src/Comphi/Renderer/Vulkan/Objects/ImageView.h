@@ -1,6 +1,5 @@
 #pragma once
 #include "../GraphicsHandler.h"
-#include "ImageBufer.h"
 
 namespace Comphi::Vulkan {
 
@@ -8,7 +7,6 @@ namespace Comphi::Vulkan {
 	{
 	public:
 		ImageView(VkImage& imgBuffer, VkFormat imgFormat, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
-		ImageView(ImageBuffer& imgBuffer);
 		ImageView() = default;
 		void createImageView(VkImage& imgBuffer, VkFormat imgFormat, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
 

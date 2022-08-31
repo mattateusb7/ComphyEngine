@@ -8,10 +8,6 @@ namespace Comphi::Vulkan {
 		createImageView(imgBuffer, imgFormat, graphicsHandler);
 	}
 
-	ImageView::ImageView(ImageBuffer& imgBuffer)
-	{
-		createImageView(imgBuffer.bufferObj, imgBuffer.imageFormat, imgBuffer.graphicsHandler);
-	}
 
 	void ImageView::createImageView(VkImage& imgBuffer, VkFormat imgFormat, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
 	{

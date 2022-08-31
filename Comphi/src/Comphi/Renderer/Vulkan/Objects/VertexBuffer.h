@@ -4,7 +4,7 @@
 
 namespace Comphi::Vulkan {
 
-	class VertexBuffer : public IVertexBuffer, public MemBuffer
+	class VertexBuffer : public MemBuffer
 	{
 	public:
 
@@ -37,8 +37,6 @@ namespace Comphi::Vulkan {
 			return attributeDescriptions;
 		}
 
-		virtual void bind() override;
-		virtual void unbind() override;
 	};
 }
 

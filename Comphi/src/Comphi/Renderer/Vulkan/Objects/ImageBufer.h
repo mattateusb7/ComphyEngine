@@ -1,5 +1,6 @@
 #pragma once
 #include "MemBuffer.h"
+#include "ImageView.h"
 
 namespace Comphi::Vulkan {
 
@@ -19,6 +20,8 @@ namespace Comphi::Vulkan {
 		//<< graphicsHandler;
 		VkFormat imageFormat;
 		VkImageLayout imageLayout;
+
+		ImageView imageView;
 
 		static void copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer);
 		void copyBufferToImgBuffer(MemBuffer& srcBuffer);

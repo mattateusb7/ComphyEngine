@@ -28,14 +28,4 @@ namespace Comphi::Vulkan {
         vkFreeMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory, nullptr);
     }
 
-    void VertexBuffer::bind()
-    {
-
-    }
-
-    void VertexBuffer::unbind()
-    {
-        
-    }
-
 }

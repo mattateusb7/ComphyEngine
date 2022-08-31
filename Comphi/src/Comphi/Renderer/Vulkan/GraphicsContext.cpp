@@ -9,46 +9,7 @@
 
 namespace Comphi::Vulkan {
 
-	GraphicsContext::GraphicsContext(GLFWwindow& windowHandle) : m_WindowHandle(&windowHandle)
-	{
-		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
-	}
-
-	std::shared_ptr<GraphicsHandler> GraphicsContext::getGraphicsHandler()
-	{
-		return std::make_shared<GraphicsHandler>(m_WindowHandle,surface,
-			logicalDevice, physicalDevice, 
-			queueFamilyIndices.transferFamily.value(), transferCommandPool, transferQueue,
-			queueFamilyIndices.graphicsFamily.value(), graphicsCommandPool, graphicsQueue);
-	}
-
-//! VULKAN Guide: https://vulkan-tutorial.com/
-//! VULKAN Guide2: https://vkguide.dev/
-//! VULKAN Map	https://github.com/David-DiGioia/vulkan-diagrams
-//! VULKAN SPIR Compile : https://www.khronos.org/spir/
-
-	void GraphicsContext::Init()
-	{
-		createVKInstance();
-#ifndef NDEBUG
-		setupDebugMessenger();
-#endif //!NDEBUG
-		createSurface();
-		pickPhysicalDevice();
-		createLogicalDevice();
-		createSwapChain();
-		createRenderPass();
-		createGraphicsPipeline();
-		createFramebuffers();
-		createCommandPools();
-		createDrawBuffers();
-		createDescriptorPool();
-		createDescriptorSet();
-		createCommandBuffers();
-		createSyncObjects();
-	}
-
-#pragma region VKInstance
+#pragma region VKInstance //TODO: move to GraphicsInstance Class Obj
 
 	void GraphicsContext::createSurface() {
 		VkWin32SurfaceCreateInfoKHR createInfo{};
@@ -90,7 +51,7 @@ namespace Comphi::Vulkan {
 		createInfo.pNext = nullptr;
 #else
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-		
+
 		if (!GraphicsContext::checkValidationLayerSupport(validationLayers)) {
 			COMPHILOG_CORE_FATAL("validation layers requested, but not available!");
 			throw std::runtime_error("validation layers requested, but not available!");
@@ -98,11 +59,11 @@ namespace Comphi::Vulkan {
 		}
 
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
+		createInfo.ppEnabledLayerNames = validationLayers.data();
 
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-        populateDebugMessengerCreateInfo(debugCreateInfo);
-        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+		populateDebugMessengerCreateInfo(debugCreateInfo);
+		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 
 #endif //!NDEBUG
 
@@ -183,7 +144,7 @@ namespace Comphi::Vulkan {
 
 		switch (messageSeverity)
 		{
-//#define VERBOSE_DEBUG
+			//#define VERBOSE_DEBUG
 #ifdef VERBOSE_DEBUG
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
 			COMPHILOG_CORE_TRACE("VK_validation layer: {0}", pCallbackData->pMessage);
@@ -287,7 +248,7 @@ namespace Comphi::Vulkan {
 	}
 #pragma endregion
 
-#pragma region PhysicalDevice
+#pragma region PhysicalDevice //TODO: move to PhysicalDevice Class obj
 
 	void GraphicsContext::pickPhysicalDevice() {
 		physicalDevice = VK_NULL_HANDLE;
@@ -295,7 +256,7 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_TRACE("Queue PhysicalDevices...");
 		uint32_t deviceCount = 0;
 		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-		
+
 		if (deviceCount == 0) {
 			COMPHILOG_CORE_FATAL("failed to find GPUs with Vulkan support!");
 			throw std::runtime_error("failed to find GPUs with Vulkan support!");
@@ -323,7 +284,7 @@ namespace Comphi::Vulkan {
 	}
 
 	GraphicsContext::QueueFamilyIndices GraphicsContext::findQueueFamilies(VkPhysicalDevice device) {
-		
+
 		//COMPHILOG_CORE_TRACE("Requesting QueueFamilies...");
 		QueueFamilyIndices indices;
 		// Assign index to queue families that could be found
@@ -367,39 +328,6 @@ namespace Comphi::Vulkan {
 		return indices;
 	}
 
-	void GraphicsContext::createSwapChain()
-	{
-		swapchain = std::make_unique<SwapChain>(getGraphicsHandler());
-	}
-
-	void GraphicsContext::recreateSwapChain() {
-
-		//It is possible to create a new swap chain while drawing commands on an image from the old swap chain are still in-flight. 
-		//You need to pass the previous swap chain to the oldSwapChain field in the VkSwapchainCreateInfoKHR struct and destroy the old swap chain as soon as you've finished using it.
-		int width = 0, height = 0;
-		glfwGetFramebufferSize(m_WindowHandle, &width, &height);
-		while (width == 0 || height == 0) {
-			glfwGetFramebufferSize(m_WindowHandle, &width, &height);
-			glfwWaitEvents();
-		}
-
-		vkDeviceWaitIdle(logicalDevice);
-
-		cleanupSwapChain();
-		createSwapChain();
-		createFramebuffers();
-	}
-
-	void GraphicsContext::cleanupSwapChain() {
-		short fbid = 0;
-		for (auto framebuffer : swapChainFramebuffers) {
-			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid++);
-			vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
-		}
-
-		swapchain->cleanUp();
-	}
-
 	bool GraphicsContext::isDeviceSuitable(VkPhysicalDevice device) {
 		COMPHILOG_CORE_TRACE("Checking Physical device suitability...");
 		//VkPhysicalDeviceProperties deviceProperties;
@@ -408,11 +336,11 @@ namespace Comphi::Vulkan {
 		//vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 		//
 		//return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
-		
+
 		// - - -
 
 		//for custom / automatic device selection https://vulkan-tutorial.com/en/Drawing_a_triangle/Setup/Physical_devices_and_queue_families
-																	   
+
 		/*VkPhysicalDeviceProperties deviceProperties;				   */
 		/*vkGetPhysicalDeviceProperties(device, &deviceProperties);	   */
 		/*															   */
@@ -425,7 +353,7 @@ namespace Comphi::Vulkan {
 
 		bool swapChainAdequate = false;
 		if (extensionsSupported) {
-			SwapChainSupportDetails swapChainSupport = SwapChain::querySwapChainSupport(device,surface);
+			SwapChainSupportDetails swapChainSupport = SwapChain::querySwapChainSupport(device, surface);
 			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 		}
 
@@ -450,7 +378,7 @@ namespace Comphi::Vulkan {
 
 #pragma endregion
 
-#pragma region Logical Device
+#pragma region Logical Device //TODO: move to LogicalDevice Class obj
 	void GraphicsContext::createLogicalDevice() {
 		if (physicalDevice == VK_NULL_HANDLE) return;
 
@@ -506,28 +434,9 @@ namespace Comphi::Vulkan {
 
 #pragma endregion
 
-#pragma region GraphicsPipeline
-	
-	void GraphicsContext::createGraphicsPipeline() {
-
-		//Shader stages
-		Windows::FileRef vert = Windows::FileRef("shaders\\vert.spv");
-		Windows::FileRef frag = Windows::FileRef("shaders\\frag.spv");
-
-		auto vertShader = ShaderProgram(ShaderType::VertexShader, vert, logicalDevice);
-		auto fragShader = ShaderProgram(ShaderType::FragmentShader, frag, logicalDevice);
-
-		graphicsPipeline->BindProgram(vertShader);
-		graphicsPipeline->BindProgram(fragShader);
-		
-		graphicsPipeline->InitPipeline();
-		
-		graphicsPipeline->UnbindProgram(vertShader);
-		graphicsPipeline->UnbindProgram(fragShader);
-	}
-
+#pragma region RenderPass //TODO: move to RenderBuffer Class obj
 	void GraphicsContext::createRenderPass() {
-		
+
 		//static viewport/scissor:
 		//VkViewport viewport{};
 		//viewport.x = 0.0f;
@@ -557,7 +466,7 @@ namespace Comphi::Vulkan {
 
 		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		
+
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
@@ -578,7 +487,7 @@ namespace Comphi::Vulkan {
 		renderPassInfo.pAttachments = &colorAttachment;
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
-		
+
 		//RenderPass Dependency
 		VkSubpassDependency dependency{};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -600,7 +509,9 @@ namespace Comphi::Vulkan {
 
 		COMPHILOG_CORE_INFO("created RenderPass Successfully!");
 	}
+#pragma endregion
 
+#pragma region Framebuffer //TODO: move to Framebuffer Class obj
 	void GraphicsContext::createFramebuffers() {
 		swapChainFramebuffers.resize(swapchain->swapChainImageViews.size());
 
@@ -627,6 +538,253 @@ namespace Comphi::Vulkan {
 	}
 
 #pragma endregion
+
+#pragma region CommandPool //TODO: Move To CommandPool Class obj
+
+	void GraphicsContext::createCommandPools() {
+
+		VkCommandPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+		if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &graphicsCommandPool) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to create command pool!");
+			throw std::runtime_error("failed to create command pool!");
+			return;
+		}
+
+		VkCommandPoolCreateInfo poolInfoTransfer{};
+		poolInfoTransfer.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfoTransfer.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; //VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
+		poolInfoTransfer.queueFamilyIndex = queueFamilyIndices.transferFamily.value();
+
+		if (vkCreateCommandPool(logicalDevice, &poolInfoTransfer, nullptr, &transferCommandPool) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to create transfer command pool!");
+			throw std::runtime_error("failed to create transfer command pool!");
+			return;
+		}
+	}
+
+	void GraphicsContext::createCommandBuffers() {
+		commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = graphicsCommandPool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+
+
+		if (vkAllocateCommandBuffers(logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to allocate command buffers!");
+			throw std::runtime_error("failed to allocate command buffers!");
+			return;
+		}
+	}
+
+	void GraphicsContext::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
+
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = 0; // Optional
+		beginInfo.pInheritanceInfo = nullptr; // Optional
+
+		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to begin recording command buffer!");
+			throw std::runtime_error("failed to begin recording command buffer!");
+			return;
+		}
+
+		//graphics pipeline & render attachment(framebuffer/img) selection 
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = graphicsPipeline->renderPass;
+		renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = swapchain->swapChainExtent;
+
+		VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		//begin render pass
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		{
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->graphicsPipeline);
+
+			//Bind VertexBuffers @0
+			VkBuffer vertexBuffers[] = { drawBuffers[0]->bufferObj };
+			VkDeviceSize offsets[] = { 0 }; //batch render
+			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+			//Bind IndexBuffers @1
+			vkCmdBindIndexBuffer(commandBuffer, drawBuffers[1]->bufferObj, 0, VK_INDEX_TYPE_UINT16);
+
+			//dynamic VIEWPORT/SCISSOR SETUP
+			VkViewport viewport{};
+			viewport.x = 0.0f;
+			viewport.y = 0.0f;
+			viewport.width = static_cast<float>(swapchain->swapChainExtent.width);
+			viewport.height = static_cast<float>(swapchain->swapChainExtent.height);
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+			VkRect2D scissor{};
+			scissor.offset = { 0, 0 };
+			scissor.extent = swapchain->swapChainExtent;
+			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+			//BindIndex UniformBuffers @2
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+
+			//DRAW COMMAND
+			vkCmdDrawIndexed(commandBuffer, static_cast<IndexBuffer*>(drawBuffers[1].get())->indexCount, 1, 0, 0, 0);
+			//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
+		}
+
+		//end render pass
+		vkCmdEndRenderPass(commandBuffer);
+
+		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to record command buffer!");
+			throw std::runtime_error("failed to record command buffer!");
+			return;
+		}
+
+	}
+
+#pragma endregion
+
+#pragma region SyncObjects //TODO: Move to Sync Class Obj
+
+	void GraphicsContext::createSyncObjects() {
+		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
+		VkSemaphoreCreateInfo semaphoreInfo{};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		VkFenceCreateInfo fenceInfo{};
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+				vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+				vkCreateFence(logicalDevice, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+
+				COMPHILOG_CORE_FATAL("failed to create synchronization objects for a frame!");
+				throw std::runtime_error("failed to create synchronization objects for a frame!");
+				return;
+			}
+		}
+		COMPHILOG_CORE_INFO("semaphores created Successfully!");
+	}
+#pragma endregion
+
+#pragma region DescriptorPool //TODO: Move to DescriptorPool Class Obj
+	void GraphicsContext::createDescriptorPool()
+	{
+		VkDescriptorPoolSize poolSize{};
+		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
+
+		VkDescriptorPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = 1;
+		poolInfo.pPoolSizes = &poolSize;
+		poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT;
+
+		if (vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
+			throw std::runtime_error("failed to create descriptor pool!");
+		}
+	}
+
+	void GraphicsContext::createDescriptorSet()
+	{
+		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, graphicsPipeline->descriptorSetLayout);
+		VkDescriptorSetAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = descriptorPool;
+		allocInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
+		allocInfo.pSetLayouts = layouts.data();
+
+		descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+		if (vkAllocateDescriptorSets(logicalDevice, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to allocate descriptor sets!");
+			throw std::runtime_error("failed to allocate descriptor sets!");
+		}
+
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = drawBuffers[2 + i]->bufferObj;/*uniform@2*/
+			bufferInfo.offset = 0;
+			bufferInfo.range = sizeof(UniformBufferObject);
+
+			VkWriteDescriptorSet descriptorWrite{};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = descriptorSets[i];
+			descriptorWrite.dstBinding = 0; //binding location uniform
+			descriptorWrite.dstArrayElement = 0;
+
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount = 1;
+
+			descriptorWrite.pBufferInfo = &bufferInfo;
+			descriptorWrite.pImageInfo = nullptr; // Optional
+			descriptorWrite.pTexelBufferView = nullptr; // Optional
+
+			vkUpdateDescriptorSets(logicalDevice, 1, &descriptorWrite, 0, nullptr);
+		}
+	}
+#pragma endregion
+
+	GraphicsContext::GraphicsContext(GLFWwindow& windowHandle) : m_WindowHandle(&windowHandle)
+	{
+		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
+	}
+
+	std::shared_ptr<GraphicsHandler> GraphicsContext::getGraphicsHandler()
+	{
+		return std::make_shared<GraphicsHandler>(m_WindowHandle,surface,
+			logicalDevice, physicalDevice, 
+			queueFamilyIndices.transferFamily.value(), transferCommandPool, transferQueue,
+			queueFamilyIndices.graphicsFamily.value(), graphicsCommandPool, graphicsQueue);
+	}
+
+/*INFO
+//! VULKAN Guide: https://vulkan-tutorial.com/
+//! VULKAN Guide2: https://vkguide.dev/
+//! VULKAN Map	https://github.com/David-DiGioia/vulkan-diagrams
+//! VULKAN SPIR Compile : https://www.khronos.org/spir/
+*/
+
+	void GraphicsContext::Init()
+	{
+		createVKInstance();
+#ifndef NDEBUG
+		setupDebugMessenger();
+#endif //!NDEBUG
+		createSurface();
+		pickPhysicalDevice();
+		createLogicalDevice();
+		createSwapChain();
+		createRenderPass();
+		createGraphicsPipeline();
+		createFramebuffers();
+		createCommandPools();
+		createDrawBuffers();
+		createDescriptorPool();
+		createDescriptorSet();
+		createCommandBuffers();
+		createSyncObjects();
+	}
+
+#pragma region //DEBUG!
 
 	void GraphicsContext::createDrawBuffers()
 	{
@@ -676,255 +834,58 @@ namespace Comphi::Vulkan {
 			drawBuffers.push_back(std::make_unique<UniformBuffer>(ubo, getGraphicsHandler()));
 		}
 
-		drawBuffers.push_back(std::make_unique<ImageBuffer>("textures/texture.jpg",getGraphicsHandler()));
+		drawBuffers.push_back(std::make_unique<ImageBuffer>("textures/texture.jpg", getGraphicsHandler()));
 	}
 
-#pragma region CommandPool
+	void GraphicsContext::createGraphicsPipeline() {
 
-	void GraphicsContext::createCommandPools() {
+		//Shader stages
+		Windows::FileRef vert = Windows::FileRef("shaders\\vert.spv");
+		Windows::FileRef frag = Windows::FileRef("shaders\\frag.spv");
 
-		VkCommandPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+		auto vertShader = ShaderProgram(ShaderType::VertexShader, vert, logicalDevice);
+		auto fragShader = ShaderProgram(ShaderType::FragmentShader, frag, logicalDevice);
 
-		if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &graphicsCommandPool) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to create command pool!");
-			throw std::runtime_error("failed to create command pool!");
-			return;
-		}
+		graphicsPipeline->BindProgram(vertShader);
+		graphicsPipeline->BindProgram(fragShader);
 
-		VkCommandPoolCreateInfo poolInfoTransfer{};
-		poolInfoTransfer.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfoTransfer.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; //VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
-		poolInfoTransfer.queueFamilyIndex = queueFamilyIndices.transferFamily.value();
+		graphicsPipeline->InitPipeline();
 
-		if (vkCreateCommandPool(logicalDevice, &poolInfoTransfer, nullptr, &transferCommandPool) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to create transfer command pool!");
-			throw std::runtime_error("failed to create transfer command pool!");
-			return;
-		}
+		graphicsPipeline->UnbindProgram(vertShader);
+		graphicsPipeline->UnbindProgram(fragShader);
 	}
 
-	void GraphicsContext::createCommandBuffers() {
-		commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = graphicsCommandPool;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
-
-		
-		if (vkAllocateCommandBuffers(logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to allocate command buffers!");
-			throw std::runtime_error("failed to allocate command buffers!");
-			return;
-		}
-	}
-
-	void GraphicsContext::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
-
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = 0; // Optional
-		beginInfo.pInheritanceInfo = nullptr; // Optional
-
-		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to begin recording command buffer!");
-			throw std::runtime_error("failed to begin recording command buffer!");
-			return;
-		}
-
-		//graphics pipeline & render attachment(framebuffer/img) selection 
-		VkRenderPassBeginInfo renderPassInfo{};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = graphicsPipeline->renderPass;
-		renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = swapchain->swapChainExtent;
-
-		VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
-		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = &clearColor;
-		
-		//begin render pass
-		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		{
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->graphicsPipeline);
-
-			//Bind VertexBuffers @0
-			VkBuffer vertexBuffers[] = { drawBuffers[0]->bufferObj };
-			VkDeviceSize offsets[] = { 0 }; //batch render
-			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
-			//Bind IndexBuffers @1
-			vkCmdBindIndexBuffer(commandBuffer, drawBuffers[1]->bufferObj, 0, VK_INDEX_TYPE_UINT16);
-
-			//dynamic VIEWPORT/SCISSOR SETUP
-			VkViewport viewport{};
-			viewport.x = 0.0f;
-			viewport.y = 0.0f;
-			viewport.width = static_cast<float>(swapchain->swapChainExtent.width);
-			viewport.height = static_cast<float>(swapchain->swapChainExtent.height);
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-			VkRect2D scissor{};
-			scissor.offset = { 0, 0 };
-			scissor.extent = swapchain->swapChainExtent;
-			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-			//BindIndex UniformBuffers @2
-			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-
-			//DRAW COMMAND
-			vkCmdDrawIndexed(commandBuffer, static_cast<IndexBuffer*>(drawBuffers[1].get())->indexCount, 1, 0, 0, 0);
-			//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
-		}
-	
-		//end render pass
-		vkCmdEndRenderPass(commandBuffer);
-
-		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to record command buffer!");
-			throw std::runtime_error("failed to record command buffer!");
-			return;
-		}
-
-	}
-
-#pragma endregion
-
-	void GraphicsContext::createSyncObjects() {
-		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-
-		VkSemaphoreCreateInfo semaphoreInfo{};
-		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-		VkFenceCreateInfo fenceInfo{};
-		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-				vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-				vkCreateFence(logicalDevice, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
-
-				COMPHILOG_CORE_FATAL("failed to create synchronization objects for a frame!");
-				throw std::runtime_error("failed to create synchronization objects for a frame!");
-				return;
-			}
-		}
-		COMPHILOG_CORE_INFO("semaphores created Successfully!");
-	}
-
-	void GraphicsContext::createDescriptorPool()
+	void GraphicsContext::createSwapChain()
 	{
-		VkDescriptorPoolSize poolSize{};
-		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
-
-		VkDescriptorPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		poolInfo.poolSizeCount = 1;
-		poolInfo.pPoolSizes = &poolSize;
-		poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT;
-
-		if (vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
-			throw std::runtime_error("failed to create descriptor pool!");
-		}
+		swapchain = std::make_unique<SwapChain>(getGraphicsHandler());
 	}
 
-	void GraphicsContext::createDescriptorSet()
-	{
-		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, graphicsPipeline->descriptorSetLayout);
-		VkDescriptorSetAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = descriptorPool;
-		allocInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
-		allocInfo.pSetLayouts = layouts.data();
+	void GraphicsContext::recreateSwapChain() {
 
-		descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-		if (vkAllocateDescriptorSets(logicalDevice, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to allocate descriptor sets!");
-			throw std::runtime_error("failed to allocate descriptor sets!");
+		//It is possible to create a new swap chain while drawing commands on an image from the old swap chain are still in-flight. 
+		//You need to pass the previous swap chain to the oldSwapChain field in the VkSwapchainCreateInfoKHR struct and destroy the old swap chain as soon as you've finished using it.
+		int width = 0, height = 0;
+		glfwGetFramebufferSize(m_WindowHandle, &width, &height);
+		while (width == 0 || height == 0) {
+			glfwGetFramebufferSize(m_WindowHandle, &width, &height);
+			glfwWaitEvents();
 		}
 
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = drawBuffers[2+i]->bufferObj;/*uniform@2*/
-			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(UniformBufferObject);
-
-			VkWriteDescriptorSet descriptorWrite{};
-			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrite.dstSet = descriptorSets[i];
-			descriptorWrite.dstBinding = 0; //binding location uniform
-			descriptorWrite.dstArrayElement = 0;
-
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrite.descriptorCount = 1;
-
-			descriptorWrite.pBufferInfo = &bufferInfo;
-			descriptorWrite.pImageInfo = nullptr; // Optional
-			descriptorWrite.pTexelBufferView = nullptr; // Optional
-
-			vkUpdateDescriptorSets(logicalDevice, 1, &descriptorWrite, 0, nullptr);
-		}
-	}
-
-	void GraphicsContext::CleanUp()
-	{
 		vkDeviceWaitIdle(logicalDevice);
 
 		cleanupSwapChain();
+		createSwapChain();
+		createFramebuffers();
+	}
 
-		for (size_t i = 0; i < drawBuffers.size(); i++) {
-			drawBuffers[i]->cleanUp();
+	void GraphicsContext::cleanupSwapChain() {
+		short fbid = 0;
+		for (auto framebuffer : swapChainFramebuffers) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid++);
+			vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
 		}
 
-		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
-		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
-		
-		graphicsPipeline->~GraphicsPipeline();
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			vkDestroySemaphore(logicalDevice, renderFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(logicalDevice, imageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(logicalDevice, inFlightFences[i], nullptr);
-		}
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy transferCommandPool");
-		vkDestroyCommandPool(logicalDevice, transferCommandPool, nullptr);
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsCommandPool");
-		vkDestroyCommandPool(logicalDevice, graphicsCommandPool, nullptr);
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
-		vkDestroyRenderPass(logicalDevice, graphicsPipeline->renderPass, nullptr);
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy Logical Device");
-		vkDestroyDevice(logicalDevice, nullptr);
-
-#ifndef NDEBUG
-		COMPHILOG_CORE_INFO("vkDestroy Destroy Debug Utils");
-		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-#endif //!NDEBUG
-
-		COMPHILOG_CORE_INFO("vkDestroy Surface");
-		vkDestroySurfaceKHR(instance, surface, nullptr); // ERR ?
-
-		COMPHILOG_CORE_INFO("vkDestroy Instance");
-		vkDestroyInstance(instance, nullptr);
-
-		COMPHILOG_CORE_INFO("Vulkan GraphicsContext Cleaned Up!");
-		
+		swapchain->cleanUp();
 	}
 
 	void GraphicsContext::updateUniformBuffer(uint32_t currentImage) {
@@ -949,6 +910,7 @@ namespace Comphi::Vulkan {
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(logicalDevice, drawBuffers[2 + currentImage]->bufferMemory);
 	}
+#pragma endregion
 
 	void GraphicsContext::Draw()
 	{
@@ -1033,6 +995,55 @@ namespace Comphi::Vulkan {
 		}
 
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+	}
+
+	void GraphicsContext::CleanUp()
+	{
+		vkDeviceWaitIdle(logicalDevice);
+
+		cleanupSwapChain();
+
+		for (size_t i = 0; i < drawBuffers.size(); i++) {
+			drawBuffers[i]->cleanUp();
+		}
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
+		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
+
+		graphicsPipeline->~GraphicsPipeline();
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			vkDestroySemaphore(logicalDevice, renderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(logicalDevice, imageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(logicalDevice, inFlightFences[i], nullptr);
+		}
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy transferCommandPool");
+		vkDestroyCommandPool(logicalDevice, transferCommandPool, nullptr);
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsCommandPool");
+		vkDestroyCommandPool(logicalDevice, graphicsCommandPool, nullptr);
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
+		vkDestroyRenderPass(logicalDevice, graphicsPipeline->renderPass, nullptr);
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy Logical Device");
+		vkDestroyDevice(logicalDevice, nullptr);
+
+#ifndef NDEBUG
+		COMPHILOG_CORE_INFO("vkDestroy Destroy Debug Utils");
+		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+#endif //!NDEBUG
+
+		COMPHILOG_CORE_INFO("vkDestroy Surface");
+		vkDestroySurfaceKHR(instance, surface, nullptr); // ERR ?
+
+		COMPHILOG_CORE_INFO("vkDestroy Instance");
+		vkDestroyInstance(instance, nullptr);
+
+		COMPHILOG_CORE_INFO("Vulkan GraphicsContext Cleaned Up!");
+
 	}
 
 	void GraphicsContext::ResizeWindow(uint x, uint y)
