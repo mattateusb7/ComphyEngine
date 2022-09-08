@@ -3,10 +3,10 @@
 
 namespace Comphi::Vulkan {
 
-	TextureSampler::TextureSampler(const std::shared_ptr<ImageView>& textureImageView, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+	TextureSampler::TextureSampler(const ImageView& textureImageView, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
 	{
 		this->graphicsHandler = graphicsHandler;
-		this->textureImageView = textureImageView;
+		this->textureImageView = std::make_shared<ImageView>(textureImageView);
 
 		VkSamplerCreateInfo samplerInfo{};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

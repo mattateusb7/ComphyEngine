@@ -6,7 +6,7 @@ namespace Comphi::Vulkan {
 	class TextureSampler
 	{
 	public:
-		TextureSampler(const std::shared_ptr<ImageView>& textureImageView, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
+		TextureSampler(const ImageView& textureImageView, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
 		~TextureSampler();
 
 		VkImageView getVkImageView() { return textureImageView.get()->imageViewObj; };

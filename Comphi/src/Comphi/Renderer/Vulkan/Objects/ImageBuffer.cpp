@@ -41,6 +41,7 @@ namespace Comphi::Vulkan {
 		height = static_cast<uint32_t>(texHeight);
 		imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		imageFormat = format;
+
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -70,8 +71,7 @@ namespace Comphi::Vulkan {
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(*graphicsHandler->physicalDevice.get(),
-			memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		allocInfo.memoryTypeIndex = findMemoryType(*graphicsHandler->physicalDevice.get(), memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 		if (vkAllocateMemory(*graphicsHandler->logicalDevice.get(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate image memory!");
@@ -151,17 +151,17 @@ namespace Comphi::Vulkan {
 		VkPipelineStageFlags destinationStage;
 
 		//https://vulkan.lunarg.com/doc/view/1.2.189.0/mac/1.2-extensions/vkspec.html#synchronization-memory-barriers
-		VkImageMemoryBarrier2 imageMemoryBarrier2 = {};
-		imageMemoryBarrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
-		imageMemoryBarrier2.oldLayout = imageLayout;
-		imageMemoryBarrier2.newLayout = newLayout;
-
-		imageMemoryBarrier2.image = bufferObj;
-		imageMemoryBarrier2.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		imageMemoryBarrier2.subresourceRange.baseMipLevel = 0;
-		imageMemoryBarrier2.subresourceRange.levelCount = 1;
-		imageMemoryBarrier2.subresourceRange.baseArrayLayer = 0;
-		imageMemoryBarrier2.subresourceRange.layerCount = 1;
+		//VkImageMemoryBarrier2 imageMemoryBarrier2 = {};
+		//imageMemoryBarrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
+		//imageMemoryBarrier2.oldLayout = imageLayout;
+		//imageMemoryBarrier2.newLayout = newLayout;
+		//
+		//imageMemoryBarrier2.image = bufferObj;
+		//imageMemoryBarrier2.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		//imageMemoryBarrier2.subresourceRange.baseMipLevel = 0;
+		//imageMemoryBarrier2.subresourceRange.levelCount = 1;
+		//imageMemoryBarrier2.subresourceRange.baseArrayLayer = 0;
+		//imageMemoryBarrier2.subresourceRange.layerCount = 1;
 
 		if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
 			queueOperation = MEM_TransferCommand;
@@ -175,20 +175,20 @@ namespace Comphi::Vulkan {
 			barrier.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 			barrier.dstQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 
-			imageMemoryBarrier2.srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
-			imageMemoryBarrier2.dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-			
-			imageMemoryBarrier2.srcAccessMask = 0;
-			imageMemoryBarrier2.dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
-
-			imageMemoryBarrier2.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
-			imageMemoryBarrier2.dstQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
+			//imageMemoryBarrier2.srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
+			//imageMemoryBarrier2.dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+			//
+			//imageMemoryBarrier2.srcAccessMask = 0;
+			//imageMemoryBarrier2.dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+			//
+			//imageMemoryBarrier2.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
+			//imageMemoryBarrier2.dstQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
 			queueOperation = MEM_GraphicsCommand;
 
 			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-			destinationStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;//VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT; ERR !!!
+			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -196,14 +196,14 @@ namespace Comphi::Vulkan {
 			barrier.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 			barrier.dstQueueFamilyIndex = graphicsHandler->graphicsQueueFamily.index;
 
-			imageMemoryBarrier2.srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-			imageMemoryBarrier2.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
-
-			imageMemoryBarrier2.srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
-			imageMemoryBarrier2.dstAccessMask = VK_ACCESS_2_SHADER_READ_BIT;
-			
-			imageMemoryBarrier2.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
-			imageMemoryBarrier2.dstQueueFamilyIndex = graphicsHandler->graphicsQueueFamily.index;
+			//imageMemoryBarrier2.srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+			//imageMemoryBarrier2.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+			//
+			//imageMemoryBarrier2.srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+			//imageMemoryBarrier2.dstAccessMask = VK_ACCESS_2_SHADER_READ_BIT;
+			//
+			//imageMemoryBarrier2.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
+			//imageMemoryBarrier2.dstQueueFamilyIndex = graphicsHandler->graphicsQueueFamily.index;
 		}
 		else {
 			throw std::invalid_argument("unsupported layout transition!");

@@ -38,8 +38,8 @@ namespace Comphi::Vulkan {
 			this->transferQueueFamily.queue = std::make_shared<VkQueue>(transferQueue);
 
 			this->graphicsQueueFamily.index = graphicsQueueFamilyIndex;
-			this->graphicsQueueFamily.commandPool = std::make_shared<VkCommandPool>(transferCommandPool);
-			this->graphicsQueueFamily.queue = std::make_shared<VkQueue>(transferQueue);
+			this->graphicsQueueFamily.commandPool = std::make_shared<VkCommandPool>(graphicsCommandPool);
+			this->graphicsQueueFamily.queue = std::make_shared<VkQueue>(graphicsQueue);
 		}
 	};
 

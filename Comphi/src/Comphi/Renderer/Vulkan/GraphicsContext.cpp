@@ -854,7 +854,7 @@ namespace Comphi::Vulkan {
 		drawBuffers.push_back(std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler())); //5
 		
 		//std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler());
-		textureSampler = std::make_unique<TextureSampler>(std::make_shared<ImageView>(*(static_cast<ImageView*>(drawBuffers[4].get())), getGraphicsHandler())); //Should abstract upcasting of MemBuffers
+		textureSampler = std::make_unique<TextureSampler>(*static_cast<ImageView*>(drawBuffers[4].get()), getGraphicsHandler()); //Should abstract upcasting of MemBuffers
 		
 		int end = 1;
 	}
