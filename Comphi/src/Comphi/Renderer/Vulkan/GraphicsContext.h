@@ -76,9 +76,6 @@ namespace Comphi::Vulkan {
 		void recreateSwapChain();
 		void cleanupSwapChain();
 
-		//ImageViews
-		void createImageViews();
-
 		//Graphics pipeline
 		void createGraphicsPipeline();
 		//VkShaderModule createShaderModule(const std::vector<char>& code);
@@ -155,6 +152,7 @@ namespace Comphi::Vulkan {
 		bool framebufferResized = false;
 
 		std::vector<std::unique_ptr<MemBuffer>> drawBuffers;
+		std::unique_ptr<TextureSampler> textureSampler;
 		VkDescriptorPool descriptorPool;
 		std::vector<VkDescriptorSet> descriptorSets;
 		

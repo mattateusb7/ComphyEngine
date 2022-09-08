@@ -577,7 +577,7 @@ namespace Comphi::Vulkan {
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = graphicsCommandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+		allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
 
 		if (vkAllocateCommandBuffers(logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
@@ -692,15 +692,17 @@ namespace Comphi::Vulkan {
 #pragma region DescriptorPool //TODO: Move to DescriptorPool Class Obj
 	void GraphicsContext::createDescriptorPool()
 	{
-		VkDescriptorPoolSize poolSize{};
-		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
+		std::array<VkDescriptorPoolSize, 2> poolSizes{};
+		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		poolInfo.poolSizeCount = 1;
-		poolInfo.pPoolSizes = &poolSize;
-		poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT;
+		poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+		poolInfo.pPoolSizes = poolSizes.data();
+		poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 		if (vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
@@ -724,25 +726,36 @@ namespace Comphi::Vulkan {
 		}
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+
 			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = drawBuffers[2 + i]->bufferObj;/*uniform@2*/
+			bufferInfo.buffer = drawBuffers[2 + i]->bufferObj;/*uniform@2*/;
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
 
-			VkWriteDescriptorSet descriptorWrite{};
-			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrite.dstSet = descriptorSets[i];
-			descriptorWrite.dstBinding = 0; //binding location uniform
-			descriptorWrite.dstArrayElement = 0;
+			VkDescriptorImageInfo imageInfo{};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = textureSampler.get()->getVkImageView();
+			imageInfo.sampler = textureSampler.get()->getVkSampler();
 
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrite.descriptorCount = 1;
+			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
-			descriptorWrite.pBufferInfo = &bufferInfo;
-			descriptorWrite.pImageInfo = nullptr; // Optional
-			descriptorWrite.pTexelBufferView = nullptr; // Optional
+			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[0].dstSet = descriptorSets[i];
+			descriptorWrites[0].dstBinding = 0;
+			descriptorWrites[0].dstArrayElement = 0;
+			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[0].descriptorCount = 1;
+			descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-			vkUpdateDescriptorSets(logicalDevice, 1, &descriptorWrite, 0, nullptr);
+			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet = descriptorSets[i];
+			descriptorWrites[1].dstBinding = 1;
+			descriptorWrites[1].dstArrayElement = 0;
+			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrites[1].descriptorCount = 1;
+			descriptorWrites[1].pImageInfo = &imageInfo;
+
+			vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
 	}
 #pragma endregion
@@ -793,10 +806,10 @@ namespace Comphi::Vulkan {
 	void GraphicsContext::createDebugBuffers()
 	{
 		const VertexArray vertices = {
-			{{-0.5f, -0.5f,0.0f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, -0.5f,0.0f}, {0.0f, 1.0f, 0.0f}},
-			{{0.5f, 0.5f,0.0f}, {0.0f, 0.0f, 1.0f}},
-			{{-0.5f, 0.5f,0.0f}, {1.0f, 1.0f, 1.0f}}
+			{{-0.5f,-0.5f, 0.0f} , {1.0f, 0.0f, 0.0f}},
+			{{ 0.5f,-0.5f, 0.0f} , {0.0f, 1.0f, 0.0f}},
+			{{ 0.5f, 0.5f, 0.0f} , {0.0f, 0.0f, 1.0f}},
+			{{-0.5f, 0.5f, 0.0f} , {1.0f, 1.0f, 1.0f}}
 		};
 
 		const IndexArray indices = {
@@ -804,14 +817,14 @@ namespace Comphi::Vulkan {
 		};
 
 		const VertexArray cubeVx = {
-			{{ 0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 1.0f}},
-			{{-0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 0.0f}},
-			{{-0.5f,-0.5f, 0.5f} , {1.0f, 0.0f, 0.0f}},
-			{{ 0.5f,-0.5f, 0.5f} , {1.0f, 0.0f, 1.0f}},
-			{{ 0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 1.0f}},
-			{{ 0.5f, 0.5f,-0.5f} , {0.0f, 1.0f, 1.0f}},
-			{{-0.5f, 0.5f,-0.5f} , {0.0f, 1.0f, 0.0f}},
-			{{-0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 0.0f}}
+			{{ 0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 1.0f} , {1.0f, 0.0f}},
+			{{-0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 0.0f} , {0.0f, 0.0f}},
+			{{-0.5f,-0.5f, 0.5f} , {1.0f, 0.0f, 0.0f} , {0.0f, 1.0f}},
+			{{ 0.5f,-0.5f, 0.5f} , {1.0f, 0.0f, 1.0f} , {1.0f, 1.0f}},
+			{{ 0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 1.0f} , {1.0f, 0.0f}},
+			{{ 0.5f, 0.5f,-0.5f} , {0.0f, 1.0f, 1.0f} , {0.0f, 0.0f}},
+			{{-0.5f, 0.5f,-0.5f} , {0.0f, 1.0f, 0.0f} , {0.0f, 1.0f}},
+			{{-0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 0.0f} , {1.0f, 1.0f}}
 		};
 
 		const IndexArray CubeIx = {
@@ -830,18 +843,18 @@ namespace Comphi::Vulkan {
 		* The advantage is that your data is more cache friendly in that case, because it's closer together.
 		*/
 
-		drawBuffers.push_back(std::make_unique<VertexBuffer>(cubeVx, getGraphicsHandler()));
-		drawBuffers.push_back(std::make_unique<IndexBuffer>(CubeIx, getGraphicsHandler()));
+		drawBuffers.push_back(std::make_unique<VertexBuffer>(cubeVx, getGraphicsHandler())); //0
+		drawBuffers.push_back(std::make_unique<IndexBuffer>(CubeIx, getGraphicsHandler())); //1
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			UniformBufferObject ubo = {};
-			drawBuffers.push_back(std::make_unique<UniformBuffer>(ubo, getGraphicsHandler()));
+			drawBuffers.push_back(std::make_unique<UniformBuffer>(ubo, getGraphicsHandler())); //2-4
 		}
 
-		drawBuffers.push_back(std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler()));
+		drawBuffers.push_back(std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler())); //5
 		
 		//std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler());
-		TextureSampler sampler(std::make_shared<ImageView>((* (ImageView*)drawBuffers[4].get()) ), getGraphicsHandler()); //Should abstract upcasting of MemBuffers
+		textureSampler = std::make_unique<TextureSampler>(std::make_shared<ImageView>(*(static_cast<ImageView*>(drawBuffers[4].get())), getGraphicsHandler())); //Should abstract upcasting of MemBuffers
 		
 		int end = 1;
 	}

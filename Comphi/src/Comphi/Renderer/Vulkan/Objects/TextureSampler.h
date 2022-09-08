@@ -9,13 +9,14 @@ namespace Comphi::Vulkan {
 		TextureSampler(const std::shared_ptr<ImageView>& textureImageView, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
 		~TextureSampler();
 
-		VkSampler textureSampler;
-		std::shared_ptr<ImageView> textureImageView;
-		std::shared_ptr<GraphicsHandler> graphicsHandler;
+		VkImageView getVkImageView() { return textureImageView.get()->imageViewObj; };
+		VkSampler getVkSampler() { return textureSampler; }
 		void cleanUp();
 
 	protected:
-
+		VkSampler textureSampler;
+		std::shared_ptr<ImageView> textureImageView;
+		std::shared_ptr<GraphicsHandler> graphicsHandler;
 	};
 
 }
