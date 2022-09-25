@@ -1,8 +1,5 @@
 #pragma once 
-#include "Core.h"
-#include "LayerStack.h"
-#include "../Platform/IWindow.h"
-#include "../UI/ImGui/ImGuiLayer.h"
+#include "Comphi/Platform/IWindow.h"
 
 namespace Comphi {
 
@@ -15,10 +12,10 @@ namespace Comphi {
 		void Run();
 
 		void OnEvent(Event& e);
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* overlay);		
-		void PopLayer(Layer* layer);
-		void PopOverlay(Layer* overlay);
+		void PushLayer(Layer& layer);
+		void PushOverlay(Layer& overlay);		
+		void PopLayer(Layer& layer);
+		void PopOverlay(Layer& overlay);
 	
 		inline IWindow& GetWindow() { return *m_Window; };
 
@@ -26,13 +23,14 @@ namespace Comphi {
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResized(WindowResizedEvent& e);
+		bool OnFramebufferResized(FramebufferResizedEvent& e);
 	
 		LayerStack m_LayerStack;
-		std::unique_ptr<IWindow> m_Window;
-		ImGuiLayer* m_ImGuiLayer;
+		std::shared_ptr<IWindow> m_Window;
+		std::shared_ptr<ImGuiLayer> m_ImGuiLayer;
 		bool m_running = true;
 	private:
-		static Application* s_instance;
+		static std::unique_ptr<Application> s_instance;
 	};
 
 	// To be defined by Client

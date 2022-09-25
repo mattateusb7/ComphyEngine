@@ -8,5 +8,7 @@ namespace Comphi {
 		virtual void SwapBuffers() = 0;
 		virtual void Draw() = 0;
 		virtual void ResizeWindow(uint x, uint y) = 0;
+		virtual void ResizeFramebuffer(uint x, uint y) = 0;
+		virtual void CleanUp() = 0;
 	};
 }

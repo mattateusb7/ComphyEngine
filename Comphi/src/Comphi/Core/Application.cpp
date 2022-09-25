@@ -1,24 +1,23 @@
 #include "cphipch.h"
 #include "Application.h"
-#include "Comphi/Platform/IInput.h"
 
 namespace Comphi {
 
-	Application* Application::s_instance = nullptr;
+	std::unique_ptr<Application> Application::s_instance;
 
 	Application::Application()
 	{
 		//init Singleton
 		COMPHILOG_CORE_ASSERT(!s_instance, "Application Already Exists!");
-		s_instance = this;
+		s_instance.reset(this);
 
 		//INIT WINDOW & EventCallback
-		m_Window = std::unique_ptr<IWindow>(IWindow::Create());
+		m_Window.reset(IWindow::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
 		//INIT IMGUI
-		m_ImGuiLayer = new ImGuiLayer();
-		PushOverlay(m_ImGuiLayer);
+		m_ImGuiLayer = std::make_shared<ImGuiLayer>();
+		PushOverlay(*m_ImGuiLayer);
 	}
 
 	Application::~Application()
@@ -31,14 +30,14 @@ namespace Comphi {
 
 			m_Window->OnBeginUpdate();
 
-			for (Layer* layer : m_LayerStack) {
-				layer->OnUpdate();
-			}
+			//for (auto layer : m_LayerStack) {
+			//	layer->OnUpdate();
+			//}
 
 			//m_ImGuiLayer->Begin();
-				for (Layer* layer : m_LayerStack) {
-					layer->OnUIRender();
-				}
+			//for (auto layer : m_LayerStack) {
+			//	layer->OnUIRender();
+			//}
 			//m_ImGuiLayer->End();
 		
 			m_Window->OnUpdate();
@@ -50,6 +49,7 @@ namespace Comphi {
 
 		EventHandler::Throw<WindowCloseEvent>(e, BIND_EVENT_FN(Application::OnWindowClose));
 		EventHandler::Throw<WindowResizedEvent>(e, BIND_EVENT_FN(Application::OnWindowResized));
+		EventHandler::Throw<FramebufferResizedEvent>(e, BIND_EVENT_FN(Application::OnFramebufferResized));
 
 		//set Layer Events Handling
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
@@ -58,28 +58,28 @@ namespace Comphi {
 		}
 	}
 
-	void Application::PushLayer(Layer* layer)
+	void Application::PushLayer(Layer& layer)
 	{
-		m_LayerStack.PushLayer(layer);
-		layer->OnAttach();
+		m_LayerStack.PushLayer(&layer);
+		layer.OnAttach();
 	}
 
-	void Application::PushOverlay(Layer* overlay)
+	void Application::PushOverlay(Layer& overlay)
 	{
-		m_LayerStack.PushOverlay(overlay);
-		overlay->OnAttach();
+		m_LayerStack.PushOverlay(&overlay);
+		overlay.OnAttach();
 	}
 
-	void Application::PopLayer(Layer* layer)
+	void Application::PopLayer(Layer& layer)
 	{
-		m_LayerStack.PopLayer(layer);
-		layer->OnDetach();
+		m_LayerStack.PopLayer(&layer);
+		layer.OnDetach();
 	}
 
-	void Application::PopOverlay(Layer* overlay)
+	void Application::PopOverlay(Layer& overlay)
 	{
-		m_LayerStack.PopOverlay(overlay);
-		overlay->OnDetach();
+		m_LayerStack.PopOverlay(&overlay);
+		overlay.OnDetach();
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e)
@@ -91,6 +91,12 @@ namespace Comphi {
 	bool Application::OnWindowResized(WindowResizedEvent& e)
 	{
 		m_Window->OnWindowResized(e.GetOffsetX(), e.GetOffsetY());
+		return false;
+	}
+
+	bool Application::OnFramebufferResized(FramebufferResizedEvent& e)
+	{
+		m_Window->OnFramebufferResized(e.GetOffsetX(), e.GetOffsetY());
 		return false;
 	}
 

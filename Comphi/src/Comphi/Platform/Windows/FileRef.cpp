@@ -29,9 +29,9 @@ namespace Comphi::Windows {
 		return path_str;
 	}
 
-	bool FileRef::setFileData(const std::string in)
+	bool FileRef::writeFileData(const std::string in)
 	{
-		setFileContent(in);
+		setFileData(in);
 
 		//Add AT_pos in the future
 		std::ofstream ofs;
@@ -41,14 +41,14 @@ namespace Comphi::Windows {
 			COMPHILOG_CORE_INFO("Creating File: \"" + getFilename() + "\"");
 		}
 
-		ofs << getFileContent();
+		ofs << getData();
 		ofs.close();
 		return true;
 	}
 
 	const bool FileRef::load()
 	{
-		std::ifstream ifs(getFilePath().c_str(), std::ios::ate); //set to end
+		std::ifstream ifs(getFilePath().c_str(), std::ios::ate | std::ios::binary); //set to end
 		if (!ifs.good()) {
 			COMPHILOG_CORE_ERROR("Failed To Read: \"" + getFilePath() + "\"");
 			ifs.close();
@@ -60,7 +60,7 @@ namespace Comphi::Windows {
 		std::vector<char> bytes(fileSize);
 		ifs.read(bytes.data(), fileSize); //read
 
-		setFileContent(std::string(bytes.data(), fileSize));
+		setFileByteData(bytes);
 
 		COMPHILOG_CORE_INFO("Successfuly Read: \"" + getFilename() + "\"");
 		return true;

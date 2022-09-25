@@ -50,15 +50,16 @@ namespace Comphi {
 		}
 
 		// Setup Platform/Renderer bindings
-		Application& app = Application::Get();
+		//auto window = std::static_pointer_cast<GLFWwindow>(Application::Get().GetWindow().GetNativeWindow());
+		auto window = static_cast<GLFWwindow*>((Application::Get().GetWindow().GetNativeWindow()));
 
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
-			ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)app.GetWindow().GetNativeWindow(), true);
-			//ImGui_ImplVulkan_Init(NULL); //!COMFIX
+			ImGui_ImplGlfw_InitForVulkan(window , true);
+			//ImGui_ImplVulkan_Init(NULL,NULL); //!fix
 			break;
 		case GraphicsAPI::OpenGL:
-			ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)app.GetWindow().GetNativeWindow(), true);
+			ImGui_ImplGlfw_InitForOpenGL(window, true);
 			ImGui_ImplOpenGL3_Init("#version 410");
 			break;
 		default:

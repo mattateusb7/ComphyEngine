@@ -1,9 +1,7 @@
 #pragma once
-//Events
 #include "Comphi/Events/Event.h"
-#include "Comphi/Events/ApplicationEvent.h"
-#include "Comphi/Events/MouseEvent.h"
-#include "Comphi/Events/KeyEvent.h"
+#include "Comphi/Core/LayerStack.h"
+#include "Comphi/UI/ImGui/ImGuiLayer.h"
 
 namespace Comphi{
 	
@@ -26,6 +24,7 @@ namespace Comphi{
 		virtual ~IWindow() {};
 
 		virtual void OnWindowResized(uint x, uint y) = 0;
+		virtual void OnFramebufferResized(uint x, uint y) = 0;
 		virtual void OnBeginUpdate() = 0;
 		virtual void OnUpdate() = 0;
 
@@ -38,9 +37,10 @@ namespace Comphi{
 		virtual bool IsVSync() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
+		virtual void* GetGraphicsContext() const = 0;
 
 		//Implement in Platform Specific File
-		static IWindow* Create(const WindowProperties& props = WindowProperties());
+		static Comphi::IWindow* Create(const WindowProperties& props = WindowProperties());
 	};
 
 }

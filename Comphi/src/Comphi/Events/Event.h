@@ -1,6 +1,4 @@
 #pragma once
-#include "cphipch.h"
-#include "Comphi/Core/Core.h"
 
 namespace Comphi {
 
@@ -8,6 +6,7 @@ namespace Comphi {
 	{
 		None = 0,
 		GenericError,
+		FramebufferResized,
 		WindowClose, WindowOpen, WindowFocus, WindowLostFocus, WindowMoved, WindowResized,
 		AppTick, AppUpdate, AppRender,
 		KeyPressed, KeyReleased, KeyTyped,

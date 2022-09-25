@@ -18,8 +18,9 @@ IncludeDir = {};
 --Libs
 IncludeDir["spdlog"] = "Comphi/vendor/spdlog/include";
 IncludeDir["glm"] = "Comphi/vendor/glm";
-IncludeDir["vulkan"] = "C:/VulkanSDK/1.3.216.0/Include"; -- Make it more dynamic?
-IncludeDir["vulkanLib"] = "C:/VulkanSDK/1.3.216.0/Lib"; -- Make it more dynamic?
+IncludeDir["stb"] = "Comphi/vendor/stb";
+IncludeDir["vulkan"] = "C:/VulkanSDK/1.3.224.1/Include"; -- Make it more dynamic?
+IncludeDir["vulkanLib"] = "C:/VulkanSDK/1.3.224.1/Lib"; -- Make it more dynamic?
 --Projs
 IncludeDir["GLFW"] = "Comphi/vendor/GLFW/include";
 IncludeDir["Glad"] = "Comphi/vendor/Glad/include";
@@ -52,7 +53,8 @@ project "Comphi"
         "%{prj.name}/src/**.h",
         "%{prj.name}/src/**.cpp",
         "%{prj.name}/vendor/glm/glm/**.hpp",
-        "%{prj.name}/vendor/glm/glm/**.inl"
+        "%{prj.name}/vendor/glm/glm/**.inl",
+        "%{prj.name}/vendor/stb/stb_image.h"
     }
 
     includedirs
@@ -62,6 +64,7 @@ project "Comphi"
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.glm}",
         "%{IncludeDir.vulkan}",
+        "%{IncludeDir.stb}",
         --Projs
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
@@ -90,19 +93,26 @@ project "Comphi"
     filter "configurations:Debug"
         defines 
         {
-            "CPHI_DEBUG", 
             "CPHI_ENABLE_ASSERTS"
         }
 		runtime "Debug"
         symbols "on"
         
     filter "configurations:Release"
-        defines "CPHI_RELEASE"
+        defines 
+        {
+            "NDEBUG", 
+            "RELEASE"
+        }
 		runtime "Release"
         optimize "on"
     
     filter "configurations:Dist"
-        defines "CPHI_DIST"
+        defines 
+        {
+            "NDEBUG", 
+            "DIST"
+        }
 		runtime "Release"
         optimize "on"
 
@@ -145,16 +155,27 @@ project "Sandbox"
         }
 
     filter "configurations:Debug"
-        defines "CPHI_DEBUG"
+        defines 
+        {
+            "CPHI_ENABLE_ASSERTS"
+        }
 		runtime "Debug"
         symbols "on"
         
     filter "configurations:Release"
-        defines "CPHI_RELEASE"
+        defines 
+        {
+            "NDEBUG", 
+            "RELEASE"
+        }
 		runtime "Release"
         optimize "on"
     
     filter "configurations:Dist"
-        defines "CPHI_DIST"
+        defines 
+        {
+            "NDEBUG", 
+            "DIST"
+        }
 		runtime "Release"
         optimize "on"

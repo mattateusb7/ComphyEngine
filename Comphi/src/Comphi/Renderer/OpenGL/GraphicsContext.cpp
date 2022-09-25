@@ -1,14 +1,12 @@
 #include "cphipch.h"
 #include "GraphicsContext.h"
-#include "GLError.h"
 
-#include "Comphi/Renderer/GraphicsAPI.h" //DEBUG!
-#include "Comphi/Platform/Windows/FileRef.h"
 
 namespace Comphi::OpenGL {
 
-	GraphicsContext::GraphicsContext(GLFWwindow* windowHandle) : m_WindowHandle(windowHandle)
+	GraphicsContext::GraphicsContext(GLFWwindow& windowHandle)
 	{
+		m_WindowHandle = &windowHandle;
 		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
 	}
 
@@ -29,11 +27,11 @@ namespace Comphi::OpenGL {
 
 		check_gl_error_on();
 
-		Windows::FileRef* vert = new Windows::FileRef("shaders\\vert.glsl");
-		Windows::FileRef* frag = new Windows::FileRef("shaders\\frag.glsl");
+		Windows::FileRef vert = Windows::FileRef("shaders\\vert.glsl");
+		Windows::FileRef frag = Windows::FileRef("shaders\\frag.glsl");
 
-		vertexShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::VertexShader,vert));
-		fragmentShader.reset(GraphicsAPI::create::ShaderProgram(Comphi::ShaderType::FragmentShader,frag));
+		vertexShader.reset(new ShaderProgram(Comphi::ShaderType::VertexShader,vert));
+		fragmentShader.reset(new ShaderProgram(Comphi::ShaderType::FragmentShader,frag));
 		
 		float vertices[3 * 3]{
 			-0.5f, -0.5f, 0.0f,
@@ -41,8 +39,8 @@ namespace Comphi::OpenGL {
 			0.0f, 0.5f, 0.0f
 		};
 		
-		vao.reset(GraphicsAPI::create::VertexBuffer(vertices,3));
-		shaderPipe.reset(GraphicsAPI::create::ShaderPipeline());
+		vao.reset(new VertexBuffer(*vertices,3));
+		shaderPipe.reset(new ShaderPipeline());
 
 		/***DEBUG***/
 	}
@@ -67,7 +65,16 @@ namespace Comphi::OpenGL {
 
 	void GraphicsContext::ResizeWindow(uint x, uint y)
 	{
+
+	}
+
+	void GraphicsContext::ResizeFramebuffer(uint x, uint y)
+	{
 		glViewport(0, 0, x, y);
+	}
+
+	void GraphicsContext::CleanUp()
+	{
 	}
 
 	void GraphicsContext::SwapBuffers()

@@ -1,8 +1,6 @@
 #include "cphipch.h"
 #include "Window.h"
-
-#include "Comphi/Renderer/OpenGL/GraphicsContext.h"
-#include "Comphi/Renderer/Vulkan/GraphicsContext.h"
+#include "Comphi/Renderer/GraphicsAPI.h"
 
 Comphi::IWindow* Comphi::IWindow::Create(const WindowProperties& props)
 {
@@ -32,7 +30,6 @@ namespace Comphi::Windows {
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
-		COMPHILOG_CORE_WARN("Creating Window {0} ({1},{2}) - . . .", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInitialized) {
 			int success = glfwInit();
@@ -41,9 +38,9 @@ namespace Comphi::Windows {
 			s_GLFWInitialized = true;
 		}
 
-		COMPHILOG_CORE_WARN("GLFW Initialized.");
+		COMPHILOG_CORE_INFO("GLFW Initialized.");
 
-		//Select API
+		//Select GraphicsAPI
 		//GraphicsAPI::selectOpenGL();
 		GraphicsAPI::selectVulkan();
 
@@ -53,21 +50,30 @@ namespace Comphi::Windows {
 			}
 			case GraphicsAPI::Vulkan: {
 				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-				glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+				//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); //block window resize (make into property?)
 				break;
 			}
 		};
 
 		m_Window = glfwCreateWindow(props.Width, props.Height, props.Title.c_str(), nullptr, nullptr);
-		
-		m_GraphicsContext = GraphicsAPI::create::GraphicsContext(m_Window);
-		m_GraphicsContext->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(props.VSync);
 
 		//Set GLFW Callbacks
 		{
+			//WINDOW FRAMEBUFFER SIZE CALLBACK
+			glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+
+				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
+				data.Width = width;
+				data.Height = height;
+
+				FramebufferResizedEvent event(width, height);
+				data.EventCallback(event);
+
+			});
+
 			//WINDOW SIZE CALLBACK
 			glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 			{
@@ -112,7 +118,7 @@ namespace Comphi::Windows {
 			});
 
 			//KEY TYPED CALLBACK
-			glfwSetCharCallback(m_Window, [](GLFWwindow*window, uint keycode)
+			glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint keycode)
 			{
 				WindowProperties& data = *(WindowProperties*)glfwGetWindowUserPointer(window);
 				KeyTypedEvent event(keycode);
@@ -156,6 +162,9 @@ namespace Comphi::Windows {
 		}
 
 		COMPHILOG_CORE_INFO("Creating Window {0} ({1},{2}) - Success!", props.Title, props.Width, props.Height);
+
+		m_GraphicsContext.reset(GraphicsAPI::create::GraphicsContext(*m_Window));
+		m_GraphicsContext->Init();
 	}
 
 	void Window::SetEventCallback(const EventCallback& callback)
@@ -165,7 +174,10 @@ namespace Comphi::Windows {
 
 	void Window::Shutdown()
 	{
+		COMPHILOG_CORE_WARN("Window Shutdown !");
+		m_GraphicsContext->CleanUp();
 		glfwDestroyWindow(m_Window);
+		glfwTerminate();
 	}
 
 	void Window::OnUpdate()
@@ -184,12 +196,26 @@ namespace Comphi::Windows {
 		m_GraphicsContext->ResizeWindow(x, y);
 	}
 
+	void Window::OnFramebufferResized(uint x, uint y)
+	{
+		m_GraphicsContext->ResizeFramebuffer(x, y);
+	}
+
 	void Window::SetVSync(bool enabled)
 	{
-		if (enabled) 
-			glfwSwapInterval(1);
-		else
-			glfwSwapInterval(0);
+		switch (GraphicsAPI::getActiveAPI()) {
+			case GraphicsAPI::RenderingAPI::OpenGL: {
+				if (enabled)
+					glfwSwapInterval(1);
+				else
+					glfwSwapInterval(0);
+				break;
+			}
+			case GraphicsAPI::RenderingAPI::Vulkan: {
+				// - - -
+				break;
+			}
+		}
 
 		m_Data.VSync = enabled;
 	}

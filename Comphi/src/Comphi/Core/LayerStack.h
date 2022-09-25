@@ -1,6 +1,8 @@
 #pragma once
-#include "Core.h"
 #include "Layer.h"
+#include "Comphi/Events/ApplicationEvent.h"
+#include "Comphi/Events/MouseEvent.h"
+#include "Comphi/Events/KeyEvent.h"
 
 namespace Comphi {
 	
@@ -12,10 +14,10 @@ namespace Comphi {
 		LayerStack();
 		~LayerStack();
 
-		void PushLayer(Layer* layer);
-		void PopLayer(Layer* layer);
+		void PushLayer	(Layer* layer);
+		void PopLayer	(Layer* layer);
 		void PushOverlay(Layer* overlay);
-		void PopOverlay(Layer* overlay);
+		void PopOverlay	(Layer* overlay);
 
 		const inline Layers::iterator begin() { return m_Layers.begin(); }
 		const inline Layers::iterator end() { return m_Layers.end(); }

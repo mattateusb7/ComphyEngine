@@ -5,24 +5,19 @@ namespace Comphi{
 
 	enum class ShaderType
 	{
-		VertexShader = 0,
-		//TessellationShader = 1,
-		GeometryShader = 2,
-		FragmentShader = 3,
-		ComputeShader = 4,
+		VertexShader,
+		TessellationShader,
+		GeometryShader,
+		FragmentShader,
+		ComputeShader,
 	};
 
 	class IShaderProgram
 	{
 	public:
-		IShaderProgram(ShaderType shaderType, IFileRef* file) : m_shaderType(shaderType), shaderFile(*file) {};
-		virtual ~IShaderProgram() = default;
-
-		virtual uint GetType() = 0; 
-		virtual uint GetTypeMask() = 0; 
-
+		IShaderProgram(ShaderType shaderType, IFileRef& file) : m_shaderType(shaderType), shaderFile(file) {};
+		virtual const uint GetType(){ return (uint)m_shaderType; };
 		IFileRef& shaderFile;
-		uint shaderID;
 
 	protected:
 		ShaderType m_shaderType;

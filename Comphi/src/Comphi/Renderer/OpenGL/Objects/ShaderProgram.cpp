@@ -1,10 +1,10 @@
 #include "cphipch.h"
 #include "ShaderProgram.h"
-#include "ShaderWizard.h"
+#include "../ShaderWizard.h"
 
 namespace Comphi::OpenGL{
 
-	ShaderProgram::ShaderProgram(Comphi::ShaderType shaderType, IFileRef* shaderFile) : IShaderProgram(shaderType, shaderFile) {
+	ShaderProgram::ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile) : IShaderProgram(shaderType, shaderFile) {
 		ShaderWizard::CompileShader(*this);
 	}
 
@@ -13,8 +13,8 @@ namespace Comphi::OpenGL{
 		glDeleteProgram(shaderID);
 	}
 
-	uint ShaderProgram::GetType()
-{
+	const uint ShaderProgram::GetType()
+	{
 		switch (this->m_shaderType)
 		{
 		case Comphi::ShaderType::VertexShader:
@@ -30,7 +30,7 @@ namespace Comphi::OpenGL{
 		}
 	}
 
-	uint ShaderProgram::GetTypeMask()
+	const uint ShaderProgram::GetTypeMask()
 	{
 		switch (this->m_shaderType)
 		{

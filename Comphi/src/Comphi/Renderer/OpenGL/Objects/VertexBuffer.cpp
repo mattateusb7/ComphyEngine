@@ -1,13 +1,9 @@
 #include "cphipch.h"
-#include "IBuffers.h"
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// OPENGL //////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
+#include "VertexBuffer.h"
 
 namespace Comphi::OpenGL {
 
-    VertexBuffer::VertexBuffer(const GLfloat* vertices, const GLuint& count)
+    VertexBuffer::VertexBuffer(const GLfloat& vertices, const GLuint& count)
     {
         GLsizei elemsPerVertex = 3;
         GLsizei length = (elemsPerVertex * count);
@@ -21,7 +17,7 @@ namespace Comphi::OpenGL {
         /**VERTEX BUFFER OBJ**/
         glCreateBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, VAOsize, vertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, VAOsize, &vertices, GL_STATIC_DRAW);
 
         /**VERTEX BUFFER OBJECT**/
         glCreateVertexArrays(1, &VAO);
@@ -48,31 +44,14 @@ namespace Comphi::OpenGL {
     }
 
     void VertexBuffer::bind()
-	{   
-		glBindVertexArray(VAO);
-	}
+    {
+        glBindVertexArray(VAO);
+    }
 
-	void VertexBuffer::unbind()
-	{
+    void VertexBuffer::unbind()
+    {
         glBindVertexArray(0);
-	}
-
-    IndexBuffer::IndexBuffer(const GLuint* indices)
-    {
-        //INDEX BUFFER
-        glGenBuffers(1, &ID);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     }
 
-    void IndexBuffer::bind()
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-    }
 
-    void IndexBuffer::unbind()
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    }
 }

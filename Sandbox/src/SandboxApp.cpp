@@ -12,7 +12,7 @@ public:
 		
 	void OnUIRender() override 
 	{
-		//ImGui::NewFrame(); <<< Broken frame
+		ImGui::ShowDemoWindow();
 		//ImGui::Begin("Test");
 		//ImGui::Text("HelloWorld");
 		//ImGui::End();
@@ -27,7 +27,7 @@ class Sandbox : public Comphi::Application
 {
 public:
 	Sandbox() {
-		PushLayer(new TestLayer());
+		PushLayer(*new TestLayer());
 	}
 	~Sandbox(){}
 private:

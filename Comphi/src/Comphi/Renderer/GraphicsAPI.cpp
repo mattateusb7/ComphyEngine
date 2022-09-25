@@ -3,60 +3,85 @@
 
 namespace Comphi {
     
-    IShaderPipeline* GraphicsAPI::create::ShaderPipeline()
-    {
-        return new OpenGL::ShaderPipeline();
-    }
-
-    IVertexBuffer* GraphicsAPI::create::VertexBuffer(const float* vertices, const uint& count)
+    IGraphicsPipeline* GraphicsAPI::create::GraphicsPipeline()
     {
         switch (activeAPI)
         {
         case RenderingAPI::OpenGL:
-            return new OpenGL::VertexBuffer(vertices, count);
-        case RenderingAPI::Vulkan:
-            COMPHILOG_CORE_ERROR("Not Implemented!");
+            return new OpenGL::ShaderPipeline();
+        case RenderingAPI::Vulkan: 
+        {
+            Vulkan::GraphicsPipeline::GraphicsPipelineSetupData data {};
+            data.viewport = {};
+            data.scissor = {};
+            return new Vulkan::GraphicsPipeline(data);
             break;
+        }
         default:
-            COMPHILOG_CORE_ERROR("No rendering API Selected!");
+            COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
         }
         return nullptr;
     }
 
-    IIndexBuffer* GraphicsAPI::create::IndexBuffer(const uint* indices)
+    IVertexBuffer* GraphicsAPI::create::VertexBuffer(IGraphicsContext* currentGraphicsContext, const VertexArray& vertices)
+    {
+        switch (activeAPI)
+        {
+        case RenderingAPI::OpenGL:
+            //return new OpenGL::VertexBuffer(vertices.data(), count);
+        case RenderingAPI::Vulkan: 
+        {
+            //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
+            //return new Vulkan::VertexBuffer(vertices, graphicsContext->getGraphicsHandler());
+            //break;
+        }
+        default:
+            COMPHILOG_CORE_FATAL("No rendering API Selected!");
+            break;
+        }
+        return nullptr;
+    }
+
+    IIndexBuffer* GraphicsAPI::create::IndexBuffer(IGraphicsContext* currentGraphicsContext, const IndexArray& indices)
     {
         switch (activeAPI)
         {
         case RenderingAPI::OpenGL:
             return new OpenGL::IndexBuffer(indices);
         case RenderingAPI::Vulkan:
-            COMPHILOG_CORE_ERROR("Not Implemented!");
-            break;
+        {
+            //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
+            //return new Vulkan::IndexBuffer(indices, graphicsContext->getGraphicsHandler());
+            //break;
+        }
         default:
-            COMPHILOG_CORE_ERROR("No rendering API Selected!");
+            COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
         }
         return nullptr;
     }
 
-    IShaderProgram* GraphicsAPI::create::ShaderProgram(Comphi::ShaderType shaderType, IFileRef* shaderFile)
+    IShaderProgram* GraphicsAPI::create::ShaderProgram(IGraphicsContext* currentGraphicsContext, Comphi::ShaderType shaderType, IFileRef& shaderFile)
     {
         switch (activeAPI)
         {
         case RenderingAPI::OpenGL:
             return new OpenGL::ShaderProgram(shaderType,shaderFile);
         case RenderingAPI::Vulkan:
-            COMPHILOG_CORE_ERROR("Not Implemented!");
-            break;
+        {
+            //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
+            //return new Vulkan::ShaderProgram(shaderType, shaderFile, *graphicsContext->getGraphicsHandler()->logicalDevice.get());
+            //break;
+        }
         default:
-            COMPHILOG_CORE_ERROR("No rendering API Selected!");
+            COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
         }
         return nullptr;
     }
 
-    IGraphicsContext* GraphicsAPI::create::GraphicsContext(GLFWwindow* windowHandler)
+    IGraphicsContext* GraphicsAPI::create::GraphicsContext(GLFWwindow& windowHandler)
     {
         switch (activeAPI)
         {
@@ -65,7 +90,7 @@ namespace Comphi {
         case RenderingAPI::Vulkan:
             return new Vulkan::GraphicsContext(windowHandler);
         default:
-            COMPHILOG_CORE_ERROR("No rendering API Selected!");
+            COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
         }
         return nullptr;

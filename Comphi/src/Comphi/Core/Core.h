@@ -22,9 +22,12 @@
 #endif
 
 //Let GLFW include Vulkan
+#define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
+#define GLFW_EXPOSE_NATIVE_WIN32
 
-#define GLM_FORCE_RADIANS
+//#define GLM_FORCE_RADIANS
+//#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #define BIT(x) (1 << x)

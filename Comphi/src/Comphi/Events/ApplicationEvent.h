@@ -1,5 +1,4 @@
 #pragma once
-#include "Event.h"
 
 namespace Comphi {
 
@@ -101,6 +100,28 @@ namespace Comphi {
 		}
 
 		EVENT_CLASS_TYPE(WindowResized);
+		EVENT_CLASS_CATEGORY(EventCategoryApplication);
+
+	private:
+		uint m_offsetX, m_offsetY;
+	};
+
+	class FramebufferResizedEvent : public Event
+	{
+	public:
+		FramebufferResizedEvent(uint offsetX, uint offsetY)
+			: m_offsetX(offsetX), m_offsetY(offsetY) {}
+
+		inline uint GetOffsetX() { return m_offsetX; };
+		inline uint GetOffsetY() { return m_offsetY; };
+
+		std::string ToString() const override {
+			std::stringstream ss;
+			ss << "FramebufferResizedEvent: " << m_offsetX << ", " << m_offsetY;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(FramebufferResized);
 		EVENT_CLASS_CATEGORY(EventCategoryApplication);
 
 	private:

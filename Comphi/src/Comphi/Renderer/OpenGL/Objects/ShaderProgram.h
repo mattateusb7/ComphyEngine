@@ -21,10 +21,12 @@ namespace Comphi::OpenGL {
 	class ShaderProgram : public IShaderProgram
 	{
 	public:
-		ShaderProgram(Comphi::ShaderType shaderType, IFileRef* shaderFile);
+		ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile);
 		~ShaderProgram();
-		uint GetType() override;
-		uint GetTypeMask() override;
+		const uint GetType() override;
+		const uint GetTypeMask();
+
+		uint shaderID = -1;
 	};
 
 }
