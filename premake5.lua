@@ -19,8 +19,8 @@ IncludeDir = {};
 IncludeDir["spdlog"] = "Comphi/vendor/spdlog/include";
 IncludeDir["glm"] = "Comphi/vendor/glm";
 IncludeDir["stb"] = "Comphi/vendor/stb";
-IncludeDir["vulkan"] = "C:/VulkanSDK/1.3.216.0/Include"; -- Make it more dynamic?
-IncludeDir["vulkanLib"] = "C:/VulkanSDK/1.3.216.0/Lib"; -- Make it more dynamic?
+IncludeDir["vulkan"] = "C:/VulkanSDK/1.3.224.1/Include"; -- Make it more dynamic?
+IncludeDir["vulkanLib"] = "C:/VulkanSDK/1.3.224.1/Lib"; -- Make it more dynamic?
 --Projs
 IncludeDir["GLFW"] = "Comphi/vendor/GLFW/include";
 IncludeDir["Glad"] = "Comphi/vendor/Glad/include";
