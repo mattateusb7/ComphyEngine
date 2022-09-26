@@ -13,19 +13,21 @@ namespace Comphi::Vulkan {
 		VkImage bufferObj; //override bufferType
 		//<< bufferMemory;
 		//<< bufferSize;
-		uint32_t width;
-		uint32_t height;
+		VkExtent2D imageExtent;
 		//<< graphicsHandler;
 		VkFormat imageFormat;
 		VkImageLayout imageLayout;
 
 		static void copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer);
 		void copyBufferToImgBuffer(MemBuffer& srcBuffer);
+		bool hasStencilComponent();
 		virtual void cleanUp() override;
 
-		void initImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
-
 	protected :
+		void initTextureImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
+		void initImageBuffer(VkFormat format, VkImageTiling tiling, const VkImageUsageFlags& usage);
+		void initDepthImageBuffer(ImageBuffer& swapChainImageBuffer, VkFormat format);
+		
 		ImageBuffer() = default;
 		void transitionImageLayout(VkImageLayout newLayout);
 	};

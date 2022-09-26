@@ -3,36 +3,47 @@
 
 namespace Comphi::Vulkan {
 
-	ImageView::ImageView(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage) 
+	ImageView::ImageView(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageAspectFlags aspectFlags, VkImageTiling tiling, VkImageUsageFlags usage)
 		: ImageBuffer(filepath, graphicsHandler, format, tiling, usage)
 	{
-		createImageView(*this,graphicsHandler);
+		this->graphicsHandler = graphicsHandler;
+		this->aspectFlags = aspectFlags;
+		initImageView();
 	}
 
-	void ImageView::createSwapchainImageView(VkImage& imageBufferObj, VkFormat& imageFormat, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
-	{
-		this->bufferObj = imageBufferObj;
-		this->imageFormat = imageFormat;
-		createImageView(*this, graphicsHandler);
-	}
-
-	void ImageView::createImageView(ImageBuffer& imageBuffer, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+	void ImageView::initSwapchainImageView(VkImage& imageBufferObj, VkFormat& imageFormat, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
 	{
 		this->graphicsHandler = graphicsHandler;
+		this->bufferObj = imageBufferObj;
+		this->imageFormat = imageFormat;
+		this->aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+		initImageView();
+	}
+
+	void ImageView::initDepthImageView(ImageBuffer& swapChainImageBuffer)
+	{
+		this->graphicsHandler = swapChainImageBuffer.graphicsHandler;
+		initDepthImageBuffer(swapChainImageBuffer, findDepthFormat());
+		this->aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
+		initImageView();
+	}
+
+	void ImageView::initImageView()
+	{
 
 		VkImageViewCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createInfo.image = imageBuffer.bufferObj;
+		createInfo.image = bufferObj;
 
 		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D; //1D textures, 2D textures, 3D textures and cube maps.
-		createInfo.format = imageBuffer.imageFormat;
+		createInfo.format = imageFormat;
 
 		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY; //defaultChannelMapping
 		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY; //defaultChannelMapping
 		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY; //defaultChannelMapping
 		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY; //defaultChannelMapping
 
-		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.aspectMask = aspectFlags;
 		createInfo.subresourceRange.baseMipLevel = 0;
 		createInfo.subresourceRange.levelCount = 1;
 		createInfo.subresourceRange.baseArrayLayer = 0;
@@ -48,6 +59,30 @@ namespace Comphi::Vulkan {
 			return;
 		}
 		COMPHILOG_CORE_INFO("created image view! successfully!");
+	}
+
+	VkFormat ImageView::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
+		for (VkFormat format : candidates) {
+			VkFormatProperties props;
+			vkGetPhysicalDeviceFormatProperties(*graphicsHandler->physicalDevice.get(), format, &props);
+
+			if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+				return format;
+			}
+			else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+				return format;
+			}
+		}
+
+		throw std::runtime_error("failed to find supported format!");
+	}
+
+	VkFormat ImageView::findDepthFormat() {
+		return findSupportedFormat(
+			{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+			VK_IMAGE_TILING_OPTIMAL,
+			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+		);
 	}
 
 	void ImageView::cleanUp()

@@ -14,7 +14,18 @@ namespace Comphi::Vulkan {
 		vkFreeMemory(*graphicsHandler->logicalDevice.get(), bufferMemory, nullptr);
 	}
 
-	void ImageBuffer::initImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage) {
+	ImageBuffer::ImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage)
+	{
+		initTextureImageBuffer(filepath, graphicsHandler, format, tiling, usage);
+	}
+
+	void ImageBuffer::initDepthImageBuffer(ImageBuffer& swapChainImageBuffer, VkFormat format) {
+		imageExtent = swapChainImageBuffer.imageExtent;
+		initImageBuffer(format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+		transitionImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	}
+
+	void ImageBuffer::initTextureImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage) {
 		
 		this->graphicsHandler = graphicsHandler;
 
@@ -37,16 +48,30 @@ namespace Comphi::Vulkan {
 
 		stbi_image_free(pixels);
 
-		width = static_cast<uint32_t>(texWidth);
-		height = static_cast<uint32_t>(texHeight);
+		imageExtent.width = static_cast<uint32_t>(texWidth);
+		imageExtent.height = static_cast<uint32_t>(texHeight);
+		initImageBuffer(format, tiling, usage);
+
+		transitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		copyBufferToImgBuffer(stagingBuffer);
+		transitionImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+		//cleanup
+		vkDestroyBuffer(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferObj, nullptr);
+		vkFreeMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory, nullptr);
+
+	}
+
+	void ImageBuffer::initImageBuffer(VkFormat format, VkImageTiling tiling, const VkImageUsageFlags& usage)
+	{
 		imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		imageFormat = format;
 
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = width;
-		imageInfo.extent.height = height;
+		imageInfo.extent.width = imageExtent.width;
+		imageInfo.extent.height = imageExtent.height;
 		imageInfo.extent.depth = 1;
 		imageInfo.mipLevels = 1;
 		imageInfo.arrayLayers = 1;
@@ -55,9 +80,9 @@ namespace Comphi::Vulkan {
 		imageInfo.initialLayout = imageLayout;
 		imageInfo.usage = usage;
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;//VK_SHARING_MODE_CONCURRENT;
-		//uint32_t QueueFamilyIndices[] = { graphicsHandler->transferQueueFamily.index, graphicsHandler->graphicsQueueFamily.index };
-		//imageInfo.queueFamilyIndexCount = 2;
-		//imageInfo.pQueueFamilyIndices = QueueFamilyIndices;
+														  //uint32_t QueueFamilyIndices[] = { graphicsHandler->transferQueueFamily.index, graphicsHandler->graphicsQueueFamily.index };
+														  //imageInfo.queueFamilyIndexCount = 2;
+														  //imageInfo.pQueueFamilyIndices = QueueFamilyIndices;
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.flags = 0; // Optional
 
@@ -79,18 +104,6 @@ namespace Comphi::Vulkan {
 
 		vkBindImageMemory(*graphicsHandler->logicalDevice.get(), bufferObj, bufferMemory, 0);
 
-		transitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		copyBufferToImgBuffer(stagingBuffer);
-		transitionImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-		//cleanup
-		vkDestroyBuffer(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferObj, nullptr);
-		vkFreeMemory(*graphicsHandler->logicalDevice.get(), stagingBuffer.bufferMemory, nullptr);
-	}
-
-	ImageBuffer::ImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage)
-	{
-		initImageBuffer(filepath, graphicsHandler, format, tiling, usage);
 	}
 
 	void ImageBuffer::copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer)
@@ -110,8 +123,8 @@ namespace Comphi::Vulkan {
 		//which part of the image we want to copy the pixels.
 		region.imageOffset = { 0, 0, 0 };
 		region.imageExtent = {
-			dstImagebuffer.width,
-			dstImagebuffer.height,
+			dstImagebuffer.imageExtent.width,
+			dstImagebuffer.imageExtent.height,
 			1
 		};
 
@@ -132,6 +145,10 @@ namespace Comphi::Vulkan {
 		copyBufferToImgBuffer(srcBuffer,*this);
 	}
 
+	bool ImageBuffer::hasStencilComponent() {
+		return imageFormat == VK_FORMAT_D32_SFLOAT_S8_UINT || imageFormat == VK_FORMAT_D24_UNORM_S8_UINT;
+	}
+
 	void ImageBuffer::transitionImageLayout(VkImageLayout newLayout)
 	{
 		VkImageMemoryBarrier barrier{};
@@ -140,7 +157,17 @@ namespace Comphi::Vulkan {
 		barrier.newLayout = newLayout;
 		
 		barrier.image = bufferObj;
-		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
+			if (hasStencilComponent()) {
+				barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+			}
+		}
+		else {
+			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		}
+
 		barrier.subresourceRange.baseMipLevel = 0;
 		barrier.subresourceRange.levelCount = 1;
 		barrier.subresourceRange.baseArrayLayer = 0;
@@ -149,19 +176,6 @@ namespace Comphi::Vulkan {
 		CommandQueueOperation queueOperation;
 		VkPipelineStageFlags sourceStage;
 		VkPipelineStageFlags destinationStage;
-
-		//https://vulkan.lunarg.com/doc/view/1.2.189.0/mac/1.2-extensions/vkspec.html#synchronization-memory-barriers
-		//VkImageMemoryBarrier2 imageMemoryBarrier2 = {};
-		//imageMemoryBarrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
-		//imageMemoryBarrier2.oldLayout = imageLayout;
-		//imageMemoryBarrier2.newLayout = newLayout;
-		//
-		//imageMemoryBarrier2.image = bufferObj;
-		//imageMemoryBarrier2.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		//imageMemoryBarrier2.subresourceRange.baseMipLevel = 0;
-		//imageMemoryBarrier2.subresourceRange.levelCount = 1;
-		//imageMemoryBarrier2.subresourceRange.baseArrayLayer = 0;
-		//imageMemoryBarrier2.subresourceRange.layerCount = 1;
 
 		if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
 			queueOperation = MEM_TransferCommand;
@@ -175,14 +189,6 @@ namespace Comphi::Vulkan {
 			barrier.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 			barrier.dstQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 
-			//imageMemoryBarrier2.srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
-			//imageMemoryBarrier2.dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-			//
-			//imageMemoryBarrier2.srcAccessMask = 0;
-			//imageMemoryBarrier2.dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
-			//
-			//imageMemoryBarrier2.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
-			//imageMemoryBarrier2.dstQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
 			queueOperation = MEM_GraphicsCommand;
@@ -196,14 +202,18 @@ namespace Comphi::Vulkan {
 			barrier.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
 			barrier.dstQueueFamilyIndex = graphicsHandler->graphicsQueueFamily.index;
 
-			//imageMemoryBarrier2.srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-			//imageMemoryBarrier2.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
-			//
-			//imageMemoryBarrier2.srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
-			//imageMemoryBarrier2.dstAccessMask = VK_ACCESS_2_SHADER_READ_BIT;
-			//
-			//imageMemoryBarrier2.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
-			//imageMemoryBarrier2.dstQueueFamilyIndex = graphicsHandler->graphicsQueueFamily.index;
+		}
+		else if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+			queueOperation = MEM_GraphicsCommand;
+
+			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+			barrier.srcQueueFamilyIndex = graphicsHandler->transferQueueFamily.index;
+			barrier.dstQueueFamilyIndex = graphicsHandler->graphicsQueueFamily.index;
 		}
 		else {
 			throw std::invalid_argument("unsupported layout transition!");
@@ -211,13 +221,6 @@ namespace Comphi::Vulkan {
 
 		CommandBuffer commandBuffer = beginCommandBuffer(queueOperation, graphicsHandler);
 
-		//VkDependencyInfoKHR dependencyInfo = {};
-		//dependencyInfo.sType = imageMemoryBarrier2.sType;
-		//dependencyInfo.imageMemoryBarrierCount = 1;
-		//dependencyInfo.pImageMemoryBarriers = &imageMemoryBarrier2;
-		//
-		//vkCmdPipelineBarrier2(commandBuffer.buffer, &dependencyInfo);
-		
 		//https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
 		//https://vulkan-tutorial.com/en/Texture_mapping/Images
 

@@ -108,32 +108,12 @@ namespace Comphi::Vulkan {
 
         vkEndCommandBuffer(commandBuffer.buffer);
 
-        //VkSemaphoreSubmitInfo signalSemaphoreInfo = {};
-        //signalSemaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-        //
-        //VkSemaphoreSubmitInfo waitSemaphoreInfo = {};
-        //waitSemaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
-        //
-        //VkCommandBufferSubmitInfo commandSubmitInfo = {};
-        //commandSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
-        //commandSubmitInfo.commandBuffer = commandBuffer.buffer;
-
-        //VkSubmitInfo2 submitInfo{};
-        //submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
-        ////submitInfo.signalSemaphoreInfoCount = 1;
-        ////submitInfo.pSignalSemaphoreInfos = &;
-        ////submitInfo.waitSemaphoreInfoCount = 1;
-        ////submitInfo.pWaitSemaphoreInfos = &;
-        //submitInfo.commandBufferInfoCount = 1;
-        //submitInfo.pCommandBufferInfos = &commandSubmitInfo;
-
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer.buffer;
 
         vkQueueSubmit(commandQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        //vkQueueSubmit2(commandQueue, 1, &submitInfo, VK_NULL_HANDLE);
         vkQueueWaitIdle(commandQueue);
 
         /*

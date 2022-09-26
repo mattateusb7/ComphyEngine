@@ -26,6 +26,7 @@ namespace Comphi::Vulkan {
 		VkExtent2D swapChainExtent;
 		std::vector<VkImage> swapChainImages;
 		std::vector<ImageView> swapChainImageViews;
+		ImageView swapChainDepthView;
 
 		std::shared_ptr<GraphicsHandler> graphicsHandler;
 

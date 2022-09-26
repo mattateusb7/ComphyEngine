@@ -96,8 +96,11 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_TRACE("Creating ImageViews...");
 		swapChainImageViews.resize(swapChainImages.size());
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			swapChainImageViews[i].createSwapchainImageView(swapChainImages[i], swapChainImageFormat, graphicsHandler);
+			swapChainImageViews[i].initSwapchainImageView(swapChainImages[i], swapChainImageFormat, graphicsHandler);
+			swapChainImageViews[i].imageExtent = swapChainExtent;
 		}
+		swapChainDepthView = ImageView();
+		swapChainDepthView.initDepthImageView(swapChainImageViews[0]);
 	}
 
 	SwapChainSupportDetails SwapChain::querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface) {

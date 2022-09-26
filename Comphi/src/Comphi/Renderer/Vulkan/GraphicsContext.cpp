@@ -461,6 +461,7 @@ namespace Comphi::Vulkan {
 		graphicsPipeline = std::make_unique<GraphicsPipeline>(graphicsPipelineSetupData);
 
 		//VkImage Render Attatchments
+		//ColorAttachment
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = swapchain->swapChainImageFormat;
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -474,21 +475,38 @@ namespace Comphi::Vulkan {
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
+		//DepthAttachment
+		VkAttachmentDescription depthAttachment{};
+		depthAttachment.format = swapchain->swapChainDepthView.imageFormat;
+		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 		//SubPasses
 		VkAttachmentReference colorAttachmentRef{};
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+		VkAttachmentReference depthAttachmentRef{};
+		depthAttachmentRef.attachment = 1;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 		VkSubpassDescription subpass{};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 		//RenderPass
+		std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = 1;
-		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		renderPassInfo.pAttachments = attachments.data();
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
 
@@ -497,10 +515,10 @@ namespace Comphi::Vulkan {
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependency.dstSubpass = 0;
 
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
@@ -520,15 +538,16 @@ namespace Comphi::Vulkan {
 		swapChainFramebuffers.resize(swapchain->swapChainImageViews.size());
 
 		for (size_t i = 0; i < swapchain->swapChainImageViews.size(); i++) {
-			VkImageView attachments[] = {
-				swapchain->swapChainImageViews[i].imageViewObj
+			std::array<VkImageView, 2> attachments = {
+				swapchain->swapChainImageViews[i].imageViewObj,
+				swapchain->swapChainDepthView.imageViewObj
 			};
 
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 			framebufferInfo.renderPass = graphicsPipeline->renderPass;
-			framebufferInfo.attachmentCount = 1;
-			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+			framebufferInfo.pAttachments = attachments.data();
 			framebufferInfo.width = swapchain->swapChainExtent.width;
 			framebufferInfo.height = swapchain->swapChainExtent.height;
 			framebufferInfo.layers = 1;
@@ -608,9 +627,12 @@ namespace Comphi::Vulkan {
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = swapchain->swapChainExtent;
 
-		VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
-		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = &clearColor;
+		std::array<VkClearValue, 2> clearValues{}; //same order as attachments
+		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
 		//begin render pass
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -789,12 +811,12 @@ namespace Comphi::Vulkan {
 		createSurface();
 		pickPhysicalDevice();
 		createLogicalDevice();
+		createCommandPools();
 		createSwapChain();
 		createRenderPass();
 		createGraphicsPipeline();
 		createFramebuffers();
-		createCommandPools();
-		createDebugBuffers();
+			createDebugBuffers();
 		createDescriptorPool();
 		createDescriptorSet();
 		createCommandBuffers();
@@ -805,15 +827,21 @@ namespace Comphi::Vulkan {
 
 	void GraphicsContext::createDebugBuffers()
 	{
-		const VertexArray vertices = {
-			{{-0.5f,-0.5f, 0.0f} , {1.0f, 0.0f, 0.0f}},
-			{{ 0.5f,-0.5f, 0.0f} , {0.0f, 1.0f, 0.0f}},
-			{{ 0.5f, 0.5f, 0.0f} , {0.0f, 0.0f, 1.0f}},
-			{{-0.5f, 0.5f, 0.0f} , {1.0f, 1.0f, 1.0f}}
+		const std::vector<Vertex> vertices = {
+			{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+			{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+			{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+
+			{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+			{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+			{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+			{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 		};
 
-		const IndexArray indices = {
-			0, 1, 2, 2, 3, 0
+		const std::vector<uint16_t> indices = {
+			0, 1, 2, 2, 3, 0,
+			4, 5, 6, 6, 7, 4
 		};
 
 		const VertexArray cubeVx = {
@@ -843,19 +871,20 @@ namespace Comphi::Vulkan {
 		* The advantage is that your data is more cache friendly in that case, because it's closer together.
 		*/
 
-		drawBuffers.push_back(std::make_unique<VertexBuffer>(cubeVx, getGraphicsHandler())); //0
-		drawBuffers.push_back(std::make_unique<IndexBuffer>(CubeIx, getGraphicsHandler())); //1
+		drawBuffers.push_back(std::make_unique<VertexBuffer>(vertices, getGraphicsHandler())); //0
+		drawBuffers.push_back(std::make_unique<IndexBuffer>(indices, getGraphicsHandler())); //1
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			UniformBufferObject ubo = {};
 			drawBuffers.push_back(std::make_unique<UniformBuffer>(ubo, getGraphicsHandler())); //2-4
 		}
 
+		//THIS IS NOT COMPHI
+
+		//Texture
 		drawBuffers.push_back(std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler())); //5
-		
-		//std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler());
 		textureSampler = std::make_unique<TextureSampler>(*static_cast<ImageView*>(drawBuffers[4].get()), getGraphicsHandler()); //Should abstract upcasting of MemBuffers
-		
+
 		int end = 1;
 	}
 
