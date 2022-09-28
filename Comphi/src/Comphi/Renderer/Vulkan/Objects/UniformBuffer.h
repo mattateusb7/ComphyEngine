@@ -8,7 +8,7 @@ namespace Comphi::Vulkan {
 	{
 	public:
 
-		UniformBuffer(const UniformBufferObject& ubo, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
+		UniformBuffer(const UniformBufferObject& ubo);
 		~UniformBuffer() = default;
 
 		virtual void bind() override;

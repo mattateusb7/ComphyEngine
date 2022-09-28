@@ -3,17 +3,50 @@
 
 namespace Comphi::Vulkan {
 
-	ImageView::ImageView(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageAspectFlags aspectFlags, VkImageTiling tiling, VkImageUsageFlags usage)
-		: ImageBuffer(filepath, graphicsHandler, format, tiling, usage)
+	ImageView::ImageView(std::string filepath, ImgSpecification spec)
+		: ImageBuffer(filepath, spec)
 	{
-		this->graphicsHandler = graphicsHandler;
-		this->aspectFlags = aspectFlags;
+		this->aspectFlags = spec.aspectFlags;
 		initImageView();
+		initTextureSampler();
 	}
 
-	void ImageView::initSwapchainImageView(VkImage& imageBufferObj, VkFormat& imageFormat, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+	VkSampler ImageView::initTextureSampler()
 	{
-		this->graphicsHandler = graphicsHandler;
+		VkSamplerCreateInfo samplerInfo{};
+		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerInfo.magFilter = VK_FILTER_LINEAR;
+		samplerInfo.minFilter = VK_FILTER_LINEAR;
+
+		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+
+		VkPhysicalDeviceProperties properties{};
+		vkGetPhysicalDeviceProperties(*GraphicsHandler::get()->physicalDevice.get(), &properties);
+
+		samplerInfo.anisotropyEnable = VK_TRUE;
+		samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+
+		samplerInfo.unnormalizedCoordinates = VK_FALSE;//[0..1]UVW
+
+		samplerInfo.compareEnable = VK_FALSE;
+		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+
+		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerInfo.mipLodBias = 0.0f;
+		samplerInfo.minLod = 0.0f;
+		samplerInfo.maxLod = 0.0f;
+
+		if (vkCreateSampler(*GraphicsHandler::get()->logicalDevice.get(), &samplerInfo, nullptr, &textureSamplerObj) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create texture sampler!");
+		}
+		COMPHILOG_CORE_INFO("Created TextureSampler successfully!");
+	}
+
+	void ImageView::initSwapchainImageView(VkImage& imageBufferObj, VkFormat& imageFormat)
+	{
 		this->bufferObj = imageBufferObj;
 		this->imageFormat = imageFormat;
 		this->aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -22,7 +55,6 @@ namespace Comphi::Vulkan {
 
 	void ImageView::initDepthImageView(ImageBuffer& swapChainImageBuffer)
 	{
-		this->graphicsHandler = swapChainImageBuffer.graphicsHandler;
 		initDepthImageBuffer(swapChainImageBuffer, findDepthFormat());
 		this->aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
 		initImageView();
@@ -53,7 +85,7 @@ namespace Comphi::Vulkan {
 		//You could then create multiple image views for each image 
 		//representing the views for the left and right eyes by accessing different layers.
 
-		if (vkCreateImageView(*graphicsHandler->logicalDevice.get(), &createInfo, nullptr, &imageViewObj) != VK_SUCCESS) {
+		if (vkCreateImageView(*GraphicsHandler::get()->logicalDevice.get(), &createInfo, nullptr, &imageViewObj) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create image view!");
 			throw std::runtime_error("failed to create image view!");
 			return;
@@ -64,7 +96,7 @@ namespace Comphi::Vulkan {
 	VkFormat ImageView::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
 		for (VkFormat format : candidates) {
 			VkFormatProperties props;
-			vkGetPhysicalDeviceFormatProperties(*graphicsHandler->physicalDevice.get(), format, &props);
+			vkGetPhysicalDeviceFormatProperties(*GraphicsHandler::get()->physicalDevice.get(), format, &props);
 
 			if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
 				return format;
@@ -88,7 +120,11 @@ namespace Comphi::Vulkan {
 	void ImageView::cleanUp()
 	{
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageView");
-		vkDestroyImageView(*graphicsHandler->logicalDevice.get(), imageViewObj, nullptr);
+		vkDestroyImageView(*GraphicsHandler::get()->logicalDevice.get(), imageViewObj, nullptr);
+		
+		COMPHILOG_CORE_INFO("vkDestroy Destroy textureSampler");
+		vkDestroySampler(*GraphicsHandler::get()->logicalDevice.get(), textureSamplerObj, nullptr);
+
 	}
 
 }

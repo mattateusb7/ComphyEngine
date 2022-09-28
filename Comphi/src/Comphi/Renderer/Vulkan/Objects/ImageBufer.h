@@ -6,15 +6,18 @@ namespace Comphi::Vulkan {
 	class ImageBuffer : public MemBuffer
 	{
 	public:
-		ImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler,
-			VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL,
-			VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+		struct ImgSpecification {
+			VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+			VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+			VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+			VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+		};
+		ImageBuffer(std::string filepath, ImgSpecification spec);
 		
 		VkImage bufferObj; //override bufferType
 		//<< bufferMemory;
 		//<< bufferSize;
 		VkExtent2D imageExtent;
-		//<< graphicsHandler;
 		VkFormat imageFormat;
 		VkImageLayout imageLayout;
 
@@ -24,8 +27,8 @@ namespace Comphi::Vulkan {
 		virtual void cleanUp() override;
 
 	protected :
-		void initTextureImageBuffer(std::string filepath, const std::shared_ptr<GraphicsHandler>& graphicsHandler, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
-		void initImageBuffer(VkFormat format, VkImageTiling tiling, const VkImageUsageFlags& usage);
+		void initTextureImageBuffer(std::string filepath, ImgSpecification spec);
+		void initImageBuffer(ImgSpecification spec);
 		void initDepthImageBuffer(ImageBuffer& swapChainImageBuffer, VkFormat format);
 		
 		ImageBuffer() = default;

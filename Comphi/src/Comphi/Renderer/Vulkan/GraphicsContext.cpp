@@ -640,12 +640,12 @@ namespace Comphi::Vulkan {
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->graphicsPipeline);
 
 			//Bind VertexBuffers @0
-			VkBuffer vertexBuffers[] = { drawBuffers[0]->bufferObj };
+			VkBuffer vertexBuffers[] = { obj1.vertices->bufferObj };
 			VkDeviceSize offsets[] = { 0 }; //batch render
 			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
 			//Bind IndexBuffers @1
-			vkCmdBindIndexBuffer(commandBuffer, drawBuffers[1]->bufferObj, 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(commandBuffer, obj1.indices->bufferObj, 0, VK_INDEX_TYPE_UINT32);
 
 			//dynamic VIEWPORT/SCISSOR SETUP
 			VkViewport viewport{};
@@ -666,8 +666,11 @@ namespace Comphi::Vulkan {
 			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
 			//DRAW COMMAND
-			vkCmdDrawIndexed(commandBuffer, static_cast<IndexBuffer*>(drawBuffers[1].get())->indexCount, 1, 0, 0, 0);
+			vkCmdDrawIndexed(commandBuffer,obj1.indices->indexCount, 1, 0, 0, 0);
 			//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
+			
+			//ontem li uma frase that resonated with me : "it is better to fuck up than to live your entire life and have nothing happen at all."
+			//made me think of how often I've felt paralyzed by fears of failure and how  I allow myself to "fail" 
 		}
 
 		//end render pass
@@ -747,17 +750,21 @@ namespace Comphi::Vulkan {
 			throw std::runtime_error("failed to allocate descriptor sets!");
 		}
 
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) { //move To MeshObject
 
+			//Next DrawCall Uniform DESCRIPTORS
+			
+			//OBJECT VERTEX
 			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = drawBuffers[2 + i]->bufferObj;/*uniform@2*/;
+			bufferInfo.buffer = obj1.ubos[i].get()->bufferObj;
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
-
-			VkDescriptorImageInfo imageInfo{};
+			
+			//OBJECT TEXTURES
+			VkDescriptorImageInfo imageInfo{}; 
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = textureSampler.get()->getVkImageView();
-			imageInfo.sampler = textureSampler.get()->getVkSampler();
+			imageInfo.imageView = obj1.texture.get()->imageViewObj;
+			imageInfo.sampler = obj1.texture.get()->textureSamplerObj;
 
 			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -787,14 +794,6 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
 	}
 
-	std::shared_ptr<GraphicsHandler> GraphicsContext::getGraphicsHandler()
-	{
-		return std::make_shared<GraphicsHandler>(m_WindowHandle,surface,
-			logicalDevice, physicalDevice, 
-			queueFamilyIndices.transferFamily.value(), transferCommandPool, transferQueue,
-			queueFamilyIndices.graphicsFamily.value(), graphicsCommandPool, graphicsQueue);
-	}
-
 /*INFO
 //! VULKAN Guide: https://vulkan-tutorial.com/
 //! VULKAN Guide2: https://vkguide.dev/
@@ -812,6 +811,11 @@ namespace Comphi::Vulkan {
 		pickPhysicalDevice();
 		createLogicalDevice();
 		createCommandPools();
+
+		GraphicsHandler::setGraphicsHandler(m_WindowHandle, surface, logicalDevice, physicalDevice, 
+			queueFamilyIndices.transferFamily.value(), transferCommandPool, transferQueue, 
+			queueFamilyIndices.graphicsFamily.value(), graphicsCommandPool, graphicsQueue);
+
 		createSwapChain();
 		createRenderPass();
 		createGraphicsPipeline();
@@ -827,7 +831,7 @@ namespace Comphi::Vulkan {
 
 	void GraphicsContext::createDebugBuffers()
 	{
-		const std::vector<Vertex> vertices = {
+		const VertexArray vertices = {
 			{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
 			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
 			{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
@@ -839,12 +843,12 @@ namespace Comphi::Vulkan {
 			{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 		};
 
-		const std::vector<uint16_t> indices = {
+		const IndexArray indices = {
 			0, 1, 2, 2, 3, 0,
 			4, 5, 6, 6, 7, 4
 		};
 
-		const VertexArray cubeVx = {
+		VertexArray cubeVx = {
 			{{ 0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 1.0f} , {1.0f, 0.0f}},
 			{{-0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 0.0f} , {0.0f, 0.0f}},
 			{{-0.5f,-0.5f, 0.5f} , {1.0f, 0.0f, 0.0f} , {0.0f, 1.0f}},
@@ -855,7 +859,7 @@ namespace Comphi::Vulkan {
 			{{-0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 0.0f} , {1.0f, 1.0f}}
 		};
 
-		const IndexArray CubeIx = {
+		IndexArray CubeIx = {
 			0, 1, 2,   2, 3, 0,   // v0-v1-v2, v2-v3-v0 (front)
 			0, 3, 4,   4, 5, 0,   // v0-v3-v4, v4-v5-v0 (right)
 			0, 5, 6,   6, 1, 0,   // v0-v5-v6, v6-v1-v0 (top)
@@ -871,19 +875,10 @@ namespace Comphi::Vulkan {
 		* The advantage is that your data is more cache friendly in that case, because it's closer together.
 		*/
 
-		drawBuffers.push_back(std::make_unique<VertexBuffer>(vertices, getGraphicsHandler())); //0
-		drawBuffers.push_back(std::make_unique<IndexBuffer>(indices, getGraphicsHandler())); //1
-
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			UniformBufferObject ubo = {};
-			drawBuffers.push_back(std::make_unique<UniformBuffer>(ubo, getGraphicsHandler())); //2-4
-		}
-
-		//THIS IS NOT COMPHI
-
-		//Texture
-		drawBuffers.push_back(std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler())); //5
-		textureSampler = std::make_unique<TextureSampler>(*static_cast<ImageView*>(drawBuffers[4].get()), getGraphicsHandler()); //Should abstract upcasting of MemBuffers
+		//obj1.initialize("models/viking_room.obj", "textures/viking_room.png");
+		//obj1.initialize("models/BLEPOSPACE.obj", "textures/texture.jpg");
+		obj1.initialize("models/sponza.obj", "textures/texture.jpg");
+		//obj1.initialize(cubeVx, CubeIx, "textures/texture_2.jpg");
 
 		int end = 1;
 	}
@@ -908,7 +903,7 @@ namespace Comphi::Vulkan {
 
 	void GraphicsContext::createSwapChain()
 	{
-		swapchain = std::make_unique<SwapChain>(getGraphicsHandler());
+		swapchain = std::make_unique<SwapChain>();
 	}
 
 	void GraphicsContext::recreateSwapChain() {
@@ -947,7 +942,7 @@ namespace Comphi::Vulkan {
 		//glm::abs(glm::sin(Time))
 
 		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), Time * glm::radians(45.0f), glm::vec3(glm::sin(Time), 0.5f, 1.0f));
+		ubo.model = glm::rotate(glm::mat4(1.0f), /*glm::sin(Time)*/ Time * glm::radians(45.0f), glm::vec3(0, 0, 1.0)); /*glm::vec3(glm::sin(Time)0.0f, 0.5f, 1.0f*/
 
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
@@ -957,9 +952,9 @@ namespace Comphi::Vulkan {
 
 		void* data;
 
-		vkMapMemory(logicalDevice, drawBuffers[2 + currentImage]->bufferMemory, 0, sizeof(ubo), 0, &data);
+		vkMapMemory(logicalDevice, obj1.ubos[currentImage]->bufferMemory, 0, sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(logicalDevice, drawBuffers[2 + currentImage]->bufferMemory);
+		vkUnmapMemory(logicalDevice, obj1.ubos[currentImage]->bufferMemory);
 	}
 #pragma endregion
 
@@ -1054,11 +1049,9 @@ namespace Comphi::Vulkan {
 
 		cleanupSwapChain();
 
-		for (size_t i = 0; i < drawBuffers.size(); i++) {
-			drawBuffers[i]->cleanUp();
-		}
-
-		//texturesampler.cleanUp();
+		//for (size_t i = 0; i < drawBuffers.size(); i++) {
+		//	obj1->cleanUp();
+		//}
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
 		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);

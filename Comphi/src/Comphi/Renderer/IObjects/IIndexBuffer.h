@@ -2,7 +2,7 @@
 
 namespace Comphi {
 
-	typedef uint16_t Index;
+	typedef uint32_t Index;
 	typedef std::vector<Index> IndexArray;
 
 	class IIndexBuffer

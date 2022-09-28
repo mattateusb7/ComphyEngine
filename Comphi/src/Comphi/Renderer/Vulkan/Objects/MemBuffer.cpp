@@ -3,15 +3,13 @@
 
 namespace Comphi::Vulkan {
     
-    MemBuffer::MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+    MemBuffer::MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
     {
-        InitMemBuffer(size, usage, properties, graphicsHandler);
+        InitMemBuffer(size, usage, properties);
     }
 
-    void MemBuffer::InitMemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+    void MemBuffer::InitMemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
     {
-        this->graphicsHandler = graphicsHandler;
-
         bufferSize = size;
 
         VkBufferCreateInfo bufferInfo{};
@@ -20,25 +18,25 @@ namespace Comphi::Vulkan {
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(*this->graphicsHandler->logicalDevice.get(), &bufferInfo, nullptr, &bufferObj) != VK_SUCCESS) {
+        if (vkCreateBuffer(*GraphicsHandler::get()->logicalDevice.get(), &bufferInfo, nullptr, &bufferObj) != VK_SUCCESS) {
             COMPHILOG_CORE_ERROR("failed to create buffer!");
             throw std::runtime_error("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(*this->graphicsHandler->logicalDevice.get(), bufferObj, &memRequirements);
+        vkGetBufferMemoryRequirements(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(*this->graphicsHandler->logicalDevice.get(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(*GraphicsHandler::get()->logicalDevice.get(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
             COMPHILOG_CORE_ERROR("failed to allocate vertex buffer memory!");
             throw std::runtime_error("failed to allocate vertex buffer memory!");
         }
 
-        vkBindBufferMemory(*this->graphicsHandler->logicalDevice.get(), bufferObj, bufferMemory, 0);
+        vkBindBufferMemory(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, bufferMemory, 0);
     }
 
     uint32_t MemBuffer::findMemoryType(VkPhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
@@ -58,14 +56,14 @@ namespace Comphi::Vulkan {
 
     uint32_t MemBuffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
-        return findMemoryType(*graphicsHandler->physicalDevice.get(),typeFilter,properties);
+        return findMemoryType(*GraphicsHandler::get()->physicalDevice.get(),typeFilter,properties);
     }
 
     void MemBuffer::cleanUp()
     {
         COMPHILOG_CORE_INFO("vkDestroy Destroy MemBuffer");
-        vkDestroyBuffer(*graphicsHandler->logicalDevice.get(), bufferObj, nullptr);
-        vkFreeMemory(*graphicsHandler->logicalDevice.get(),bufferMemory, nullptr);
+        vkDestroyBuffer(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, nullptr);
+        vkFreeMemory(*GraphicsHandler::get()->logicalDevice.get(),bufferMemory, nullptr);
     }
 
     void MemBuffer::copyBuffer(MemBuffer& srcBuffer, MemBuffer& dstBuffer)
@@ -73,12 +71,12 @@ namespace Comphi::Vulkan {
         srcBuffer.copyBufferTo(dstBuffer);
     }
 
-    MemBuffer::CommandBuffer MemBuffer::beginCommandBuffer(CommandQueueOperation op, const std::shared_ptr<GraphicsHandler>& graphicsHandler)
+    MemBuffer::CommandBuffer MemBuffer::beginCommandBuffer(CommandQueueOperation op)
     {
         VkCommandPool commandPool = op == MEM_TransferCommand ?
-            *graphicsHandler->transferQueueFamily.commandPool.get() : *graphicsHandler->graphicsQueueFamily.commandPool.get();
+            *GraphicsHandler::get()->transferQueueFamily.commandPool.get() : *GraphicsHandler::get()->graphicsQueueFamily.commandPool.get();
 
-        CommandBuffer commandBuffer = {graphicsHandler, op};
+        CommandBuffer commandBuffer = {op};
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -86,7 +84,7 @@ namespace Comphi::Vulkan {
         allocInfo.commandPool = commandPool;
         allocInfo.commandBufferCount = 1; //how many command buffers to create
 
-        vkAllocateCommandBuffers(*graphicsHandler->logicalDevice.get(), &allocInfo, &commandBuffer.buffer);
+        vkAllocateCommandBuffers(*GraphicsHandler::get()->logicalDevice.get(), &allocInfo, &commandBuffer.buffer);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -101,10 +99,10 @@ namespace Comphi::Vulkan {
     void MemBuffer::endCommandBuffer(CommandBuffer& commandBuffer)
     {
         VkQueue commandQueue = commandBuffer.op == MEM_TransferCommand ?
-            *commandBuffer.graphicsHandler->transferQueueFamily.queue.get() : *commandBuffer.graphicsHandler->graphicsQueueFamily.queue.get();
+            *GraphicsHandler::get()->transferQueueFamily.queue.get() : *GraphicsHandler::get()->graphicsQueueFamily.queue.get();
 
         VkCommandPool commandPool = commandBuffer.op == MEM_TransferCommand ?
-            *commandBuffer.graphicsHandler->transferQueueFamily.commandPool.get() : *commandBuffer.graphicsHandler->graphicsQueueFamily.commandPool.get();
+            *GraphicsHandler::get()->transferQueueFamily.commandPool.get() : *GraphicsHandler::get()->graphicsQueueFamily.commandPool.get();
 
         vkEndCommandBuffer(commandBuffer.buffer);
 
@@ -123,12 +121,12 @@ namespace Comphi::Vulkan {
         That may give the driver more opportunities to optimize.
         */
 
-        vkFreeCommandBuffers(*commandBuffer.graphicsHandler->logicalDevice.get(), commandPool, 1, &commandBuffer.buffer);
+        vkFreeCommandBuffers(*GraphicsHandler::get()->logicalDevice.get(), commandPool, 1, &commandBuffer.buffer);
     }
 
     void MemBuffer::copyBufferTo(MemBuffer& dstBuffer)
     {
-        CommandBuffer commandBuffer = beginCommandBuffer(MEM_TransferCommand,graphicsHandler);
+        CommandBuffer commandBuffer = beginCommandBuffer(MEM_TransferCommand);
 
         VkBufferCopy copyRegion{};
         //copyRegion.srcOffset = 0; // Optional

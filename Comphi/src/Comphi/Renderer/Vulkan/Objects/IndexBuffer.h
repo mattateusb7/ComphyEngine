@@ -8,7 +8,7 @@ namespace Comphi::Vulkan {
 	{
 	public:
 
-		IndexBuffer(const IndexArray& indices, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
+		IndexBuffer(const IndexArray& indices);
 		~IndexBuffer() = default;
 		uint32_t indexCount;
 
