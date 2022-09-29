@@ -4,6 +4,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+#include <unordered_map>
+
 namespace Comphi {
 
 	MeshObject::MeshObject(std::string objFile, std::string textureFile)
@@ -48,11 +50,11 @@ namespace Comphi {
 		VertexArray vArray;
 		IndexArray iArray;
 		//Init Mesh Array Objects
+		std::unordered_map<Vertex, uint32_t> uniqueVertices{}; //vertex,index
+
 		for (const auto& shape : shapes) {
 			for (const auto& index : shape.mesh.indices) {
 				Vertex vertex{};
-
-				iArray.push_back(iArray.size());
 
 				vertex.pos = {
 					attrib.vertices[3 * index.vertex_index + 0],
@@ -60,20 +62,20 @@ namespace Comphi {
 					attrib.vertices[3 * index.vertex_index + 2]
 				};
 
-				//vertex.texCoord = {
-				//	attrib.texcoords[2 * index.texcoord_index + 0],
-				//	attrib.texcoords[2 * index.texcoord_index + 1]
-				//};
-
-				vertex.texCoord = { //vulkan Flipped TexCoords
+				vertex.texCoord = {
 					attrib.texcoords[2 * index.texcoord_index + 0],
-					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+					1.0f - attrib.texcoords[2 * index.texcoord_index + 1] //vulkan Flipped TexCoords
 				};
 
 				vertex.color = { 1.0f, 1.0f, 1.0f };
 
-				vArray.push_back(vertex);
+				//Hash Vertex
+				if (uniqueVertices.count(vertex) == 0) {
+					uniqueVertices[vertex] = static_cast<uint32_t>(vArray.size());
+					vArray.push_back(vertex);
+				}
 
+				iArray.push_back(uniqueVertices[vertex]);
 			}
 		}
 
