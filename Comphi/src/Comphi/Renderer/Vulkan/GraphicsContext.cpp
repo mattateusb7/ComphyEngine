@@ -349,13 +349,12 @@ namespace Comphi::Vulkan {
 	{
 		vkDeviceWaitIdle(graphicsInstance->logicalDevice);
 
-
 		graphicsPipeline->~GraphicsPipeline();
 		syncObjects->~SyncObjects();
 		commandPool->~CommandPool();
 		swapchain->~SwapChain();
 		graphicsInstance->~GraphicsInstance();
-
+		GraphicsHandler::get()->DeleteStatic();
 	}
 
 	void GraphicsContext::ResizeWindow(uint x, uint y)

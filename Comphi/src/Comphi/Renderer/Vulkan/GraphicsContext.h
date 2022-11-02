@@ -55,7 +55,6 @@ namespace Comphi::Vulkan {
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages; //aligned with renderpass & descriptorpool
 		std::vector<ShaderProgram*>shaderPrograms;
 		MeshObject obj1;
-
-		
 	};
+
 }

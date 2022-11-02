@@ -80,5 +80,8 @@ namespace Comphi::Vulkan {
 	public:
 		GraphicsHandler() = default;
 		static GraphicsHandler* get();
+		bool isInUse = true;
+		void DeleteStatic();
+		~GraphicsHandler();
 	};
 }
