@@ -4,6 +4,12 @@
 namespace Comphi::Vulkan {
 
 #pragma region SyncObjects
+
+	SyncObjects::SyncObjects(int MAX_FRAMES_IN_FLIGHT)
+	{
+		createSyncObjects(MAX_FRAMES_IN_FLIGHT);
+	}
+
 	void SyncObjects::createSyncObjects(int MAX_FRAMES_IN_FLIGHT) {
 		last_MAX_FRAMES_IN_FLIGHT = MAX_FRAMES_IN_FLIGHT;
 		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -29,6 +35,7 @@ namespace Comphi::Vulkan {
 		}
 		COMPHILOG_CORE_INFO("semaphores created Successfully!");
 	}
+
 	SyncObjects::~SyncObjects()
 	{
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");

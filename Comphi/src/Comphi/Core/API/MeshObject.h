@@ -23,7 +23,7 @@ namespace Comphi { //(Comphi namepsace objects should use platform & renderer in
 		Windows::FileRef textureFile;					//TODO : move to ShaderObj
 		std::shared_ptr<Vulkan::ImageView> texture;		//TODO : move to ShaderObj
 
-		std::vector<std::shared_ptr<Vulkan::UniformBuffer>> ubos; //TODO :Move to TransformObj and figure out why array ?
+		std::vector<std::shared_ptr<Vulkan::UniformBuffer>> ubos; //TODO :Move to TransformObj and Figure out where to initialize & update
 
 		void initUBO(int MAX_FRAMES_IN_FLIGHT);
 

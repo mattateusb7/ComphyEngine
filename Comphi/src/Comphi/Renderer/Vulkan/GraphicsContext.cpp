@@ -26,9 +26,7 @@ namespace Comphi::Vulkan {
 		//TODO : Set Graphics Handler
 		
 		graphicsInstance = std::make_unique<GraphicsInstance>();
-
 		commandPool = std::make_unique<CommandPool>();
-
 		swapchain = std::make_unique<SwapChain>();
 		commandPool->createCommandBuffers(swapchain->MAX_FRAMES_IN_FLIGHT);
 
@@ -43,10 +41,6 @@ namespace Comphi::Vulkan {
 
 		BindProgram(vertShader);
 		BindProgram(fragShader);
-		UnbindProgram(vertShader);
-		UnbindProgram(fragShader);
-
-		// ------------------------------------------------------------
 
 		// ------------------------------------------------------------
 		//					TEST OBJECTS PIPELINE 
@@ -101,11 +95,14 @@ namespace Comphi::Vulkan {
 
 		int end = 1;
 		// ------------------------------------------------------------
-
+		obj1.initUBO(swapchain->MAX_FRAMES_IN_FLIGHT);
 		swapchain->renderPass->descriptorPool->updateDescriptorSet(obj1, swapchain->MAX_FRAMES_IN_FLIGHT);
 		graphicsPipeline = std::make_unique<GraphicsPipeline>(*swapchain->renderPass.get(), shaderStages);
 
-		syncObjects->createSyncObjects(swapchain->MAX_FRAMES_IN_FLIGHT);
+		UnbindProgram(vertShader);
+		UnbindProgram(fragShader);
+
+		syncObjects = std::make_unique<SyncObjects>(swapchain->MAX_FRAMES_IN_FLIGHT);
 	}
 
 #pragma region //DEBUG!
@@ -352,7 +349,6 @@ namespace Comphi::Vulkan {
 	{
 		vkDeviceWaitIdle(graphicsInstance->logicalDevice);
 
-		swapchain->cleanUp();
 
 		graphicsPipeline->~GraphicsPipeline();
 		syncObjects->~SyncObjects();

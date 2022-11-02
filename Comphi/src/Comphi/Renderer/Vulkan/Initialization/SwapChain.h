@@ -28,7 +28,7 @@ namespace Comphi::Vulkan {
 		std::unique_ptr<RenderPass> renderPass;
 
 		void incrementSwapChainFrame();
-		const int MAX_FRAMES_IN_FLIGHT = 3; //triple-buffering
+		const int MAX_FRAMES_IN_FLIGHT = 3; //triple-buffering //TODO: Send this to GraphicsHandler ("current_MAX_FRAMES_IN_FLIGHT");
 		uint32_t currentFrame = 0;
 
 		~SwapChain();

@@ -7,6 +7,7 @@ namespace Comphi::Vulkan {
 	{
 		createSwapChain();
 		renderPass = std::make_unique<RenderPass>(swapChainImageFormat, swapChainDepthView.imageFormat, MAX_FRAMES_IN_FLIGHT);
+		createFramebuffers();
 	}
 
 	void SwapChain::createSwapChain() {
@@ -227,6 +228,7 @@ namespace Comphi::Vulkan {
 
 	SwapChain::~SwapChain()
 	{
+		cleanUp();
 		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
 		vkDestroyRenderPass(*GraphicsHandler::get()->logicalDevice, renderPass->renderPassObj, nullptr);
 	}

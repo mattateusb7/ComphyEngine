@@ -171,7 +171,6 @@ namespace Comphi::Vulkan {
 
 	GraphicsPipeline::~GraphicsPipeline()
 	{
-
 		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
 		vkDestroyPipelineLayout(*GraphicsHandler::get()->logicalDevice, pipelineLayout, nullptr);
 

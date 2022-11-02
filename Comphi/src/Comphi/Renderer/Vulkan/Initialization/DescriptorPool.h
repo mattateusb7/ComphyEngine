@@ -15,7 +15,7 @@ namespace Comphi::Vulkan {
 		VkDescriptorSetLayout descriptorSetLayout;
 		std::vector<VkDescriptorSet> descriptorSets;
 
-		void updateDescriptorSet(MeshObject obj, int MAX_FRAMES_IN_FLIGHT);
+		void updateDescriptorSet(MeshObject& obj, int MAX_FRAMES_IN_FLIGHT);
 	protected:
 		void createDescriptorPool(int MAX_FRAMES_IN_FLIGHT);
 		void createDescriptorSetLayout();

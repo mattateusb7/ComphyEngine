@@ -61,7 +61,7 @@ namespace Comphi::Vulkan {
 		}
 	}                                                                                                                                                                                                                      
 
-	void DescriptorPool::updateDescriptorSet(MeshObject obj, int MAX_FRAMES_IN_FLIGHT)
+	void DescriptorPool::updateDescriptorSet(MeshObject& obj, int MAX_FRAMES_IN_FLIGHT)
 	{
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo{};
@@ -76,7 +76,6 @@ namespace Comphi::Vulkan {
 			throw std::runtime_error("failed to allocate descriptor sets!");
 		}
 
-		obj.initUBO(MAX_FRAMES_IN_FLIGHT); //TODO : HMMM....
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) { //move To MeshObject
 
 			//Next DrawCall Uniform DESCRIPTORS
