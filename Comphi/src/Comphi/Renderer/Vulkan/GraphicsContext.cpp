@@ -461,6 +461,7 @@ namespace Comphi::Vulkan {
 		graphicsPipeline = std::make_unique<GraphicsPipeline>(graphicsPipelineSetupData);
 
 		//VkImage Render Attatchments
+		//ColorAttachment
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = swapchain->swapChainImageFormat;
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -474,21 +475,38 @@ namespace Comphi::Vulkan {
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
+		//DepthAttachment
+		VkAttachmentDescription depthAttachment{};
+		depthAttachment.format = swapchain->swapChainDepthView.imageFormat;
+		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 		//SubPasses
 		VkAttachmentReference colorAttachmentRef{};
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+		VkAttachmentReference depthAttachmentRef{};
+		depthAttachmentRef.attachment = 1;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 		VkSubpassDescription subpass{};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 		//RenderPass
+		std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = 1;
-		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		renderPassInfo.pAttachments = attachments.data();
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
 
@@ -497,10 +515,10 @@ namespace Comphi::Vulkan {
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependency.dstSubpass = 0;
 
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
@@ -520,15 +538,16 @@ namespace Comphi::Vulkan {
 		swapChainFramebuffers.resize(swapchain->swapChainImageViews.size());
 
 		for (size_t i = 0; i < swapchain->swapChainImageViews.size(); i++) {
-			VkImageView attachments[] = {
-				swapchain->swapChainImageViews[i].imageViewObj
+			std::array<VkImageView, 2> attachments = {
+				swapchain->swapChainImageViews[i].imageViewObj,
+				swapchain->swapChainDepthView.imageViewObj
 			};
 
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 			framebufferInfo.renderPass = graphicsPipeline->renderPass;
-			framebufferInfo.attachmentCount = 1;
-			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+			framebufferInfo.pAttachments = attachments.data();
 			framebufferInfo.width = swapchain->swapChainExtent.width;
 			framebufferInfo.height = swapchain->swapChainExtent.height;
 			framebufferInfo.layers = 1;
@@ -608,9 +627,12 @@ namespace Comphi::Vulkan {
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = swapchain->swapChainExtent;
 
-		VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
-		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = &clearColor;
+		std::array<VkClearValue, 2> clearValues{}; //same order as attachments
+		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
 		//begin render pass
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -618,12 +640,12 @@ namespace Comphi::Vulkan {
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->graphicsPipeline);
 
 			//Bind VertexBuffers @0
-			VkBuffer vertexBuffers[] = { drawBuffers[0]->bufferObj };
+			VkBuffer vertexBuffers[] = { obj1.vertices->bufferObj };
 			VkDeviceSize offsets[] = { 0 }; //batch render
 			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
 			//Bind IndexBuffers @1
-			vkCmdBindIndexBuffer(commandBuffer, drawBuffers[1]->bufferObj, 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(commandBuffer, obj1.indices->bufferObj, 0, VK_INDEX_TYPE_UINT32);
 
 			//dynamic VIEWPORT/SCISSOR SETUP
 			VkViewport viewport{};
@@ -644,8 +666,11 @@ namespace Comphi::Vulkan {
 			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
 			//DRAW COMMAND
-			vkCmdDrawIndexed(commandBuffer, static_cast<IndexBuffer*>(drawBuffers[1].get())->indexCount, 1, 0, 0, 0);
+			vkCmdDrawIndexed(commandBuffer,obj1.indices->indexCount, 1, 0, 0, 0);
 			//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
+			
+			//ontem li uma frase that resonated with me : "it is better to fuck up than to live your entire life and have nothing happen at all."
+			//made me think of how often I've felt paralyzed by fears of failure and how  I allow myself to "fail" 
 		}
 
 		//end render pass
@@ -725,17 +750,21 @@ namespace Comphi::Vulkan {
 			throw std::runtime_error("failed to allocate descriptor sets!");
 		}
 
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) { //move To MeshObject
 
+			//Next DrawCall Uniform DESCRIPTORS
+			
+			//OBJECT VERTEX
 			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = drawBuffers[2 + i]->bufferObj;/*uniform@2*/;
+			bufferInfo.buffer = obj1.ubos[i].get()->bufferObj;
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
-
-			VkDescriptorImageInfo imageInfo{};
+			
+			//OBJECT TEXTURES
+			VkDescriptorImageInfo imageInfo{}; 
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = textureSampler.get()->getVkImageView();
-			imageInfo.sampler = textureSampler.get()->getVkSampler();
+			imageInfo.imageView = obj1.texture.get()->imageViewObj;
+			imageInfo.sampler = obj1.texture.get()->textureSamplerObj;
 
 			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -765,14 +794,6 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
 	}
 
-	std::shared_ptr<GraphicsHandler> GraphicsContext::getGraphicsHandler()
-	{
-		return std::make_shared<GraphicsHandler>(m_WindowHandle,surface,
-			logicalDevice, physicalDevice, 
-			queueFamilyIndices.transferFamily.value(), transferCommandPool, transferQueue,
-			queueFamilyIndices.graphicsFamily.value(), graphicsCommandPool, graphicsQueue);
-	}
-
 /*INFO
 //! VULKAN Guide: https://vulkan-tutorial.com/
 //! VULKAN Guide2: https://vkguide.dev/
@@ -789,12 +810,17 @@ namespace Comphi::Vulkan {
 		createSurface();
 		pickPhysicalDevice();
 		createLogicalDevice();
+		createCommandPools();
+
+		GraphicsHandler::setGraphicsHandler(m_WindowHandle, surface, logicalDevice, physicalDevice, 
+			queueFamilyIndices.transferFamily.value(), transferCommandPool, transferQueue, 
+			queueFamilyIndices.graphicsFamily.value(), graphicsCommandPool, graphicsQueue);
+
 		createSwapChain();
 		createRenderPass();
 		createGraphicsPipeline();
 		createFramebuffers();
-		createCommandPools();
-		createDebugBuffers();
+			createDebugBuffers();
 		createDescriptorPool();
 		createDescriptorSet();
 		createCommandBuffers();
@@ -806,17 +832,23 @@ namespace Comphi::Vulkan {
 	void GraphicsContext::createDebugBuffers()
 	{
 		const VertexArray vertices = {
-			{{-0.5f,-0.5f, 0.0f} , {1.0f, 0.0f, 0.0f}},
-			{{ 0.5f,-0.5f, 0.0f} , {0.0f, 1.0f, 0.0f}},
-			{{ 0.5f, 0.5f, 0.0f} , {0.0f, 0.0f, 1.0f}},
-			{{-0.5f, 0.5f, 0.0f} , {1.0f, 1.0f, 1.0f}}
+			{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+			{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+			{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+
+			{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+			{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+			{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+			{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 		};
 
 		const IndexArray indices = {
-			0, 1, 2, 2, 3, 0
+			0, 1, 2, 2, 3, 0,
+			4, 5, 6, 6, 7, 4
 		};
 
-		const VertexArray cubeVx = {
+		VertexArray cubeVx = {
 			{{ 0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 1.0f} , {1.0f, 0.0f}},
 			{{-0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 0.0f} , {0.0f, 0.0f}},
 			{{-0.5f,-0.5f, 0.5f} , {1.0f, 0.0f, 0.0f} , {0.0f, 1.0f}},
@@ -827,7 +859,7 @@ namespace Comphi::Vulkan {
 			{{-0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 0.0f} , {1.0f, 1.0f}}
 		};
 
-		const IndexArray CubeIx = {
+		IndexArray CubeIx = {
 			0, 1, 2,   2, 3, 0,   // v0-v1-v2, v2-v3-v0 (front)
 			0, 3, 4,   4, 5, 0,   // v0-v3-v4, v4-v5-v0 (right)
 			0, 5, 6,   6, 1, 0,   // v0-v5-v6, v6-v1-v0 (top)
@@ -843,19 +875,11 @@ namespace Comphi::Vulkan {
 		* The advantage is that your data is more cache friendly in that case, because it's closer together.
 		*/
 
-		drawBuffers.push_back(std::make_unique<VertexBuffer>(cubeVx, getGraphicsHandler())); //0
-		drawBuffers.push_back(std::make_unique<IndexBuffer>(CubeIx, getGraphicsHandler())); //1
+		//obj1.initialize("models/viking_room.obj", "textures/viking_room.png");
+		//obj1.initialize("models/BLEPOSPACE.obj", "textures/texture.jpg");
+		obj1.initialize("models/sponza.obj", "textures/texture.jpg");
+		//obj1.initialize(cubeVx, CubeIx, "textures/texture_2.jpg");
 
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			UniformBufferObject ubo = {};
-			drawBuffers.push_back(std::make_unique<UniformBuffer>(ubo, getGraphicsHandler())); //2-4
-		}
-
-		drawBuffers.push_back(std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler())); //5
-		
-		//std::make_unique<ImageView>("textures/texture.jpg", getGraphicsHandler());
-		textureSampler = std::make_unique<TextureSampler>(*static_cast<ImageView*>(drawBuffers[4].get()), getGraphicsHandler()); //Should abstract upcasting of MemBuffers
-		
 		int end = 1;
 	}
 
@@ -879,7 +903,7 @@ namespace Comphi::Vulkan {
 
 	void GraphicsContext::createSwapChain()
 	{
-		swapchain = std::make_unique<SwapChain>(getGraphicsHandler());
+		swapchain = std::make_unique<SwapChain>();
 	}
 
 	void GraphicsContext::recreateSwapChain() {
@@ -918,7 +942,7 @@ namespace Comphi::Vulkan {
 		//glm::abs(glm::sin(Time))
 
 		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), Time * glm::radians(45.0f), glm::vec3(glm::sin(Time), 0.5f, 1.0f));
+		ubo.model = glm::rotate(glm::mat4(1.0f), /*glm::sin(Time)*/ Time * glm::radians(45.0f), glm::vec3(0, 0, 1.0)); /*glm::vec3(glm::sin(Time)0.0f, 0.5f, 1.0f*/
 
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
@@ -928,9 +952,9 @@ namespace Comphi::Vulkan {
 
 		void* data;
 
-		vkMapMemory(logicalDevice, drawBuffers[2 + currentImage]->bufferMemory, 0, sizeof(ubo), 0, &data);
+		vkMapMemory(logicalDevice, obj1.ubos[currentImage]->bufferMemory, 0, sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(logicalDevice, drawBuffers[2 + currentImage]->bufferMemory);
+		vkUnmapMemory(logicalDevice, obj1.ubos[currentImage]->bufferMemory);
 	}
 #pragma endregion
 
@@ -1025,11 +1049,9 @@ namespace Comphi::Vulkan {
 
 		cleanupSwapChain();
 
-		for (size_t i = 0; i < drawBuffers.size(); i++) {
-			drawBuffers[i]->cleanUp();
-		}
-
-		//texturesampler.cleanUp();
+		//for (size_t i = 0; i < drawBuffers.size(); i++) {
+		//	obj1->cleanUp();
+		//}
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
 		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);

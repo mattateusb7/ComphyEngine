@@ -12,8 +12,8 @@ namespace Comphi::Vulkan {
 	class SwapChain
 	{
 	public:
-		void createSwapChain(const std::shared_ptr<GraphicsHandler>& graphicsHandler);
-		SwapChain(const std::shared_ptr<GraphicsHandler>& graphicsHandler);
+		void createSwapChain();
+		SwapChain();
 		void cleanUp();
 
 		static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
@@ -26,8 +26,7 @@ namespace Comphi::Vulkan {
 		VkExtent2D swapChainExtent;
 		std::vector<VkImage> swapChainImages;
 		std::vector<ImageView> swapChainImageViews;
-
-		std::shared_ptr<GraphicsHandler> graphicsHandler;
+		ImageView swapChainDepthView;
 
 	protected:
 		void createImageViews();

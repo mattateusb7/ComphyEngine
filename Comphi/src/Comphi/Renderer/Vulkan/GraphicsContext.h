@@ -9,10 +9,11 @@
 #include "Objects/ImageBufer.h"
 #include "Objects/ImageView.h"
 #include "Objects/SwapChain.h"
-#include "Objects/TextureSampler.h"
 #include "Objects/ShaderProgram.h"
 
 #include "GraphicsPipeline.h"
+
+#include "Comphi/Core/API/MeshObject.h"
 
 namespace Comphi::Vulkan {
 
@@ -26,8 +27,6 @@ namespace Comphi::Vulkan {
 		virtual void ResizeWindow(uint x, uint y) override;
 		virtual void ResizeFramebuffer(uint x, uint y) override;
 		virtual void CleanUp() override;
-
-		std::shared_ptr<GraphicsHandler> getGraphicsHandler();
 
 	protected:
 
@@ -125,23 +124,24 @@ namespace Comphi::Vulkan {
 #ifndef NDEBUG
 		VkDebugUtilsMessengerEXT debugMessenger;
 #endif //!NDEBUG
+
+		//Move statics to Graphics handler?
 		VkPhysicalDevice physicalDevice;
 		VkDevice logicalDevice;
 
 		VkSurfaceKHR surface;
 		GLFWwindow* m_WindowHandle;
-		std::unique_ptr<SwapChain> swapchain;
 
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
 		VkQueue transferQueue;
 
-		std::unique_ptr<GraphicsPipeline> graphicsPipeline;
-
-		std::vector<VkFramebuffer> swapChainFramebuffers;
-
 		VkCommandPool graphicsCommandPool;
 		VkCommandPool transferCommandPool;
+
+		std::unique_ptr<GraphicsPipeline> graphicsPipeline;
+		std::unique_ptr<SwapChain> swapchain;
+		std::vector<VkFramebuffer> swapChainFramebuffers;
 
 		const int MAX_FRAMES_IN_FLIGHT = 2; //double-buffering
 		uint32_t currentFrame = 0;
@@ -151,8 +151,7 @@ namespace Comphi::Vulkan {
 		std::vector<VkFence> inFlightFences;
 		bool framebufferResized = false;
 
-		std::vector<std::unique_ptr<MemBuffer>> drawBuffers;
-		std::unique_ptr<TextureSampler> textureSampler;
+		MeshObject obj1;
 		VkDescriptorPool descriptorPool;
 		std::vector<VkDescriptorSet> descriptorSets;
 		

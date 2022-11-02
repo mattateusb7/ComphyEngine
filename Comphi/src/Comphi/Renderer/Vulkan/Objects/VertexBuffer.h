@@ -8,7 +8,7 @@ namespace Comphi::Vulkan {
 	{
 	public:
 
-		VertexBuffer(const VertexArray& vertices, const std::shared_ptr<GraphicsHandler>& graphicsHandler);
+		VertexBuffer(const VertexArray& vertices);
 		~VertexBuffer() = default;
 
 		uint32_t vertexCount;

@@ -13,3 +13,6 @@
 [submodule "Comphi/vendor/stb"]
 	path = Comphi/vendor/stb
 	url = https://github.com/nothings/stb.git
+[submodule "Comphi/vendor/tinyobjloader"]
+	path = Comphi/vendor/tinyobjloader
+	url = https://github.com/tinyobjloader/tinyobjloader.git

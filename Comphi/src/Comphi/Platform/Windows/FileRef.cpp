@@ -7,6 +7,11 @@ namespace Comphi::Windows {
 	{
 		load();
 	}
+	void FileRef::reload(std::string filePath)
+	{
+		this->m_filePath = filePath;
+		load();
+	}
 
 	const std::string FileRef::getFilename() {
 
@@ -29,7 +34,7 @@ namespace Comphi::Windows {
 		return path_str;
 	}
 
-	bool FileRef::writeFileData(const std::string in)
+	bool FileRef::writeToFile(const std::string in)
 	{
 		setFileData(in);
 

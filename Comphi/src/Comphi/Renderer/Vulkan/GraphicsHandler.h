@@ -58,7 +58,7 @@ namespace Comphi::Vulkan {
 	};
 
 	class GraphicsHandler : public DeviceHandler, public QueueHandler , public WindowHandler {
-	public:
+	protected :
 		GraphicsHandler(
 			GLFWwindow* windowHandle,
 			const VkSurfaceKHR& surface,
@@ -70,13 +70,29 @@ namespace Comphi::Vulkan {
 			const uint32_t graphicsQueueFamilyIndex,
 			const VkCommandPool& graphicsCommandPool,
 			const VkQueue& graphicsQueue
-			) : 
-			WindowHandler(windowHandle, surface), 
-			DeviceHandler(logicalDevice, physicalDevice), 
+		) :
+			WindowHandler(windowHandle, surface),
+			DeviceHandler(logicalDevice, physicalDevice),
 			QueueHandler(
 				transferQueueFamilyIndex, transferCommandPool, transferQueue,
 				graphicsQueueFamilyIndex, graphicsCommandPool, graphicsQueue
-				)
+			)
 		{}
+	public:
+		GraphicsHandler();
+		static void setGraphicsHandler(
+			GLFWwindow* windowHandle,
+			const VkSurfaceKHR& surface,
+			const VkDevice& logicalDevice,
+			const VkPhysicalDevice& physicalDevice,
+			const uint32_t transferQueueFamilyIndex,
+			const VkCommandPool& transferCommandPool,
+			const VkQueue& transferQueue,
+			const uint32_t graphicsQueueFamilyIndex,
+			const VkCommandPool& graphicsCommandPool,
+			const VkQueue& graphicsQueue
+		);
+		
+		static GraphicsHandler* get();
 	};
 }

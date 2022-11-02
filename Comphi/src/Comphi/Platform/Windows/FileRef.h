@@ -6,9 +6,11 @@ namespace Comphi::Windows{
 	{
 	public:
 		FileRef(std::string filePath);
+		FileRef() = default;
 		~FileRef() = default;
+		virtual void reload(std::string filePath) override;
 
-		virtual bool writeFileData(const std::string in) override;
+		virtual bool writeToFile(const std::string in) override;
 		virtual const std::string getFilename() override;
 		virtual const std::string getBaseFolder() override;
 
