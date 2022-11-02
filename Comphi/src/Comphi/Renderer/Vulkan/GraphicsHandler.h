@@ -5,9 +5,10 @@ namespace Comphi::Vulkan {
 
 	class DeviceHandler {
 	public:
+		DeviceHandler() = default;
 		std::shared_ptr<VkDevice> logicalDevice;
 		std::shared_ptr<VkPhysicalDevice> physicalDevice;
-		DeviceHandler(
+		void setDeviceHandler(
 			const VkDevice& logicalDevice,
 			const VkPhysicalDevice& physicalDevice
 		) {
@@ -18,36 +19,42 @@ namespace Comphi::Vulkan {
 
 	class QueueHandler {
 	public:
+		QueueHandler() = default;
 		struct CommandQueueFamily {
-			uint32_t index;
+			std::shared_ptr<uint32_t> index;
 			std::shared_ptr<VkCommandPool> commandPool;
 			std::shared_ptr<VkQueue> queue;
 		};
 		CommandQueueFamily transferQueueFamily;
 		CommandQueueFamily graphicsQueueFamily;
-		QueueHandler(
-			const uint32_t transferQueueFamilyIndex,
-			const VkCommandPool& transferCommandPool,
+		void setCommandQueues(
+			const uint32_t& transferQueueFamilyIndex,
 			const VkQueue& transferQueue,
-			const uint32_t graphicsQueueFamilyIndex,
-			const VkCommandPool& graphicsCommandPool,
+			const uint32_t& graphicsQueueFamilyIndex,
 			const VkQueue& graphicsQueue
 		) {
-			this->transferQueueFamily.index = transferQueueFamilyIndex;
-			this->transferQueueFamily.commandPool = std::make_shared<VkCommandPool>(transferCommandPool);
+			this->transferQueueFamily.index = std::make_shared<uint32_t>(transferQueueFamilyIndex);
 			this->transferQueueFamily.queue = std::make_shared<VkQueue>(transferQueue);
 
-			this->graphicsQueueFamily.index = graphicsQueueFamilyIndex;
-			this->graphicsQueueFamily.commandPool = std::make_shared<VkCommandPool>(graphicsCommandPool);
+			this->graphicsQueueFamily.index = std::make_shared<uint32_t>(graphicsQueueFamilyIndex);
 			this->graphicsQueueFamily.queue = std::make_shared<VkQueue>(graphicsQueue);
+		}
+
+		void setCommandPools(
+			const VkCommandPool& transferCommandPool,
+			const VkCommandPool& graphicsCommandPool
+		) {
+			this->transferQueueFamily.commandPool = std::make_shared<VkCommandPool>(transferCommandPool);
+			this->graphicsQueueFamily.commandPool = std::make_shared<VkCommandPool>(graphicsCommandPool);
 		}
 	};
 
 	class WindowHandler {
 	public:
+		WindowHandler() = default;
 		std::shared_ptr<VkSurfaceKHR> surface;
 		GLFWwindow* windowHandle;
-		WindowHandler(
+		void setWindowHandler(
 			GLFWwindow* windowHandle,
 			const VkSurfaceKHR& surface
 		) {
@@ -57,42 +64,21 @@ namespace Comphi::Vulkan {
 
 	};
 
+	//update By Context ? (isnt this class suposed to be static and generic for the whole program ? )
+	//class ContextHandler {
+	//public:
+	//	ContextHandler() = default;
+	//	std::shared_ptr<int> MAX_FRAMES_IN_FLIGHT;
+	//	ContextHandler(
+	//		int& MAX_FRAMES_IN_FLIGHT
+	//	) {
+	//		this->MAX_FRAMES_IN_FLIGHT = std::make_shared<int>(MAX_FRAMES_IN_FLIGHT);
+	//	}
+	//};
+
 	class GraphicsHandler : public DeviceHandler, public QueueHandler , public WindowHandler {
-	protected :
-		GraphicsHandler(
-			GLFWwindow* windowHandle,
-			const VkSurfaceKHR& surface,
-			const VkDevice& logicalDevice,
-			const VkPhysicalDevice& physicalDevice,
-			const uint32_t transferQueueFamilyIndex,
-			const VkCommandPool& transferCommandPool,
-			const VkQueue& transferQueue,
-			const uint32_t graphicsQueueFamilyIndex,
-			const VkCommandPool& graphicsCommandPool,
-			const VkQueue& graphicsQueue
-		) :
-			WindowHandler(windowHandle, surface),
-			DeviceHandler(logicalDevice, physicalDevice),
-			QueueHandler(
-				transferQueueFamilyIndex, transferCommandPool, transferQueue,
-				graphicsQueueFamilyIndex, graphicsCommandPool, graphicsQueue
-			)
-		{}
 	public:
-		GraphicsHandler();
-		static void setGraphicsHandler(
-			GLFWwindow* windowHandle,
-			const VkSurfaceKHR& surface,
-			const VkDevice& logicalDevice,
-			const VkPhysicalDevice& physicalDevice,
-			const uint32_t transferQueueFamilyIndex,
-			const VkCommandPool& transferCommandPool,
-			const VkQueue& transferQueue,
-			const uint32_t graphicsQueueFamilyIndex,
-			const VkCommandPool& graphicsCommandPool,
-			const VkQueue& graphicsQueue
-		);
-		
+		GraphicsHandler() = default;
 		static GraphicsHandler* get();
 	};
 }

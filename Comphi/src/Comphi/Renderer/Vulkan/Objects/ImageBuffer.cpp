@@ -187,8 +187,8 @@ namespace Comphi::Vulkan {
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
-			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.srcQueueFamilyIndex = *GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.dstQueueFamilyIndex = *GraphicsHandler::get()->transferQueueFamily.index;
 
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
@@ -200,8 +200,8 @@ namespace Comphi::Vulkan {
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
-			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
+			barrier.srcQueueFamilyIndex = *GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.dstQueueFamilyIndex = *GraphicsHandler::get()->graphicsQueueFamily.index;
 
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
@@ -213,8 +213,8 @@ namespace Comphi::Vulkan {
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
-			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
+			barrier.srcQueueFamilyIndex = *GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.dstQueueFamilyIndex = *GraphicsHandler::get()->graphicsQueueFamily.index;
 		}
 		else {
 			throw std::invalid_argument("unsupported layout transition!");

@@ -37,10 +37,12 @@ namespace Comphi {
 
 		struct create {
 			static IGraphicsContext* GraphicsContext(GLFWwindow& windowHandler);
+			/* TODO : Design comfy Interfaces
 			static IVertexBuffer* VertexBuffer(IGraphicsContext* currentGraphicsContext, const VertexArray& vertices);
 			static IIndexBuffer* IndexBuffer(IGraphicsContext* currentGraphicsContext, const IndexArray& indices);
 			static IGraphicsPipeline* GraphicsPipeline();
 			static IShaderProgram* ShaderProgram(IGraphicsContext* currentGraphicsContext, Comphi::ShaderType shaderType, IFileRef& shaderFile);
+			*/
 		};
 
 		//std::shared_ptr<IGraphicsContext> currentGraphicsContext;

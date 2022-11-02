@@ -23,8 +23,7 @@ namespace Comphi::OpenGL {
 		virtual void CleanUp() override;
 
 	private:
-		GLFWwindow* m_WindowHandle;
-		
+		GLFWwindow* windowHandle;
 		std::unique_ptr<VertexBuffer> vao;
 		std::unique_ptr<ShaderProgram> vertexShader;
 		std::unique_ptr<ShaderProgram> fragmentShader;

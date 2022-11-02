@@ -10,6 +10,9 @@
     <Filter Include="src\Comphi\Core">
       <UniqueIdentifier>{7415F5DE-E0A0-62A3-E9B1-E59755BCBEA3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Comphi\Core\API">
+      <UniqueIdentifier>{5D94C5D5-C9F5-A2E3-5263-E995BEC3D9A2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Comphi\Events">
       <UniqueIdentifier>{0054B275-6C6A-B00B-B5E1-3B2D21378193}</UniqueIdentifier>
     </Filter>
@@ -67,10 +70,16 @@
     <Filter Include="vendor\stb">
       <UniqueIdentifier>{8BD3C5A8-778B-07F6-E092-E051CC69A2E6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vendor\tinyobjloader">
+      <UniqueIdentifier>{386CC32A-24FB-4CF4-CD19-61EFB9875D9A}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Comphi.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Core\API\MeshObject.h">
+      <Filter>src\Comphi\Core\API</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Core\Application.h">
       <Filter>src\Comphi\Core</Filter>
@@ -186,6 +195,9 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageBufer.h">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.h">
+      <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
+    </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.h">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
@@ -193,6 +205,9 @@
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ShaderProgram.h">
+      <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.h">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\UniformBuffer.h">
@@ -1455,11 +1470,14 @@
     <ClInclude Include="vendor\stb\stb_image.h">
       <Filter>vendor\stb</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.h" />
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.h" />
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\TextureSampler.h" />
+    <ClInclude Include="vendor\tinyobjloader\tiny_obj_loader.h">
+      <Filter>vendor\tinyobjloader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Comphi\Core\API\MeshObject.cpp">
+      <Filter>src\Comphi\Core\API</Filter>
+    </ClCompile>
     <ClCompile Include="src\Comphi\Core\Application.cpp">
       <Filter>src\Comphi\Core</Filter>
     </ClCompile>
@@ -1508,10 +1526,16 @@
     <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsContext.cpp">
       <Filter>src\Comphi\Renderer\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsHandler.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan</Filter>
+    </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.cpp">
       <Filter>src\Comphi\Renderer\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageBuffer.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.cpp">
@@ -1521,6 +1545,9 @@
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ShaderProgram.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\UniformBuffer.cpp">
@@ -1538,8 +1565,5 @@
     <ClCompile Include="src\cphipch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.cpp" />
-    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.cpp" />
-    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\TextureSampler.cpp" />
   </ItemGroup>
 </Project>

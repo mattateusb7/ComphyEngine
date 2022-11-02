@@ -24,7 +24,7 @@ namespace Comphi {
 		this->indices = std::make_shared<Vulkan::IndexBuffer>(indices);
 		if(!textureFile.empty())
 			initTextureSampler(textureFile);
-		initUBO();
+		//initUBO();
 	}
 
 	void MeshObject::initialize(std::string objFile, std::string textureFile)
@@ -32,7 +32,7 @@ namespace Comphi {
 		ParseObjFile(objFile);
 		if (!textureFile.empty())
 			initTextureSampler(textureFile);
-		initUBO();
+		//initUBO();
 	}
 
 	void MeshObject::ParseObjFile(std::string objFile) {
@@ -92,11 +92,11 @@ namespace Comphi {
 		texture = std::make_unique<Vulkan::ImageView>(textureFile);
 	}
 
-	void MeshObject::initUBO()
+	void MeshObject::initUBO(int MAX_FRAMES_IN_FLIGHT)
 	{
 		ubos.clear();
 		//Init UBOs
-		for (size_t i = 0; i < 2; i++) { //2 << MAX_FRAES_IN_FLIGHT
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			UniformBufferObject ubo = {};
 			ubos.push_back(std::make_shared<Vulkan::UniformBuffer>(ubo));
 		}

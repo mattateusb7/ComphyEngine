@@ -3,7 +3,7 @@
 
 namespace Comphi {
     
-    IGraphicsPipeline* GraphicsAPI::create::GraphicsPipeline()
+    /*IGraphicsPipeline* GraphicsAPI::create::GraphicsPipeline()
     {
         switch (activeAPI)
         {
@@ -11,10 +11,10 @@ namespace Comphi {
             return new OpenGL::ShaderPipeline();
         case RenderingAPI::Vulkan: 
         {
-            Vulkan::GraphicsPipeline::GraphicsPipelineSetupData data {};
-            data.viewport = {};
-            data.scissor = {};
-            return new Vulkan::GraphicsPipeline(data);
+            //Vulkan::GraphicsPipeline::GraphicsPipelineSetupData data {};
+            //data.viewport = {};
+            //data.scissor = {};
+            //return new Vulkan::GraphicsPipeline();
             break;
         }
         default:
@@ -34,7 +34,7 @@ namespace Comphi {
         {
             //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
             //return new Vulkan::VertexBuffer(vertices, graphicsContext->getGraphicsHandler());
-            //break;
+            break;
         }
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
@@ -53,7 +53,7 @@ namespace Comphi {
         {
             //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
             //return new Vulkan::IndexBuffer(indices, graphicsContext->getGraphicsHandler());
-            //break;
+            break;
         }
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
@@ -72,7 +72,7 @@ namespace Comphi {
         {
             //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
             //return new Vulkan::ShaderProgram(shaderType, shaderFile, *graphicsContext->getGraphicsHandler()->logicalDevice.get());
-            //break;
+            break;
         }
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
@@ -80,6 +80,7 @@ namespace Comphi {
         }
         return nullptr;
     }
+    */
 
     IGraphicsContext* GraphicsAPI::create::GraphicsContext(GLFWwindow& windowHandler)
     {

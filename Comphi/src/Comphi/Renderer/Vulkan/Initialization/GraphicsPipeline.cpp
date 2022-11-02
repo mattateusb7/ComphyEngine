@@ -1,57 +1,10 @@
 #include "cphipch.h"
 #include "GraphicsPipeline.h"
-#include "GraphicsContext.h"
+
+#include "../Objects/VertexBuffer.h"
 
 namespace Comphi::Vulkan {
-
-	GraphicsPipeline::GraphicsPipeline(GraphicsPipelineSetupData& graphicsPipelineSetupData) {
-		this->graphicsPipelineSetupData = graphicsPipelineSetupData;
-	}
-
-	GraphicsPipeline::~GraphicsPipeline()
-	{
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorSetLayout");
-		vkDestroyDescriptorSetLayout(*logicalDevice.get(), descriptorSetLayout, nullptr);
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
-		vkDestroyPipelineLayout(*logicalDevice.get(), pipelineLayout, nullptr);
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsPipeline");
-		vkDestroyPipeline(*logicalDevice.get(), graphicsPipeline, nullptr);
-
-	}
-
-	void GraphicsPipeline::createDescriptorSetLayout()
-	{
-		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-		samplerLayoutBinding.binding = 1;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-		VkDescriptorSetLayoutBinding uboLayoutBinding{};
-		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uboLayoutBinding.descriptorCount = 1;
-		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		uboLayoutBinding.pImmutableSamplers = nullptr; // Optional : relevant for image sampling
-
-		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-		VkDescriptorSetLayoutCreateInfo layoutInfo{};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-		layoutInfo.pBindings = bindings.data();
-
-		if (vkCreateDescriptorSetLayout(*logicalDevice.get(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to create descriptor set layout!");
-			throw std::runtime_error("failed to create descriptor set layout!");
-		}
-
-	}
-	
-	bool GraphicsPipeline::InitPipeline()
+	GraphicsPipeline::GraphicsPipeline(RenderPass& renderPass, std::vector<VkPipelineShaderStageCreateInfo> shaderStages)
 	{
 		//VertexBufferDescription
 		auto bindingDescription = VertexBuffer::getBindingDescription();
@@ -159,17 +112,15 @@ namespace Comphi::Vulkan {
 		colorBlending.blendConstants[2] = 0.0f; // Optional
 		colorBlending.blendConstants[3] = 0.0f; // Optional
 
-		createDescriptorSetLayout();
-
 		//Pipelineslayout
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = 1;
-		pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+		pipelineLayoutInfo.pSetLayouts = &renderPass.descriptorPool->descriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-		if (vkCreatePipelineLayout(*logicalDevice.get(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+		if (vkCreatePipelineLayout(*GraphicsHandler::get()->logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create pipeline layout!");
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
@@ -205,70 +156,28 @@ namespace Comphi::Vulkan {
 		pipelineInfo.pDynamicState = &dynamicState;
 
 		pipelineInfo.layout = pipelineLayout;
-		pipelineInfo.renderPass = renderPass;
+		pipelineInfo.renderPass = renderPass.renderPassObj;
 		pipelineInfo.subpass = 0;
 
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 		pipelineInfo.basePipelineIndex = -1; // Optional
 
-		if (vkCreateGraphicsPipelines(*logicalDevice.get(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+		if (vkCreateGraphicsPipelines(*GraphicsHandler::get()->logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipelineObj) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create graphics pipeline!");
 			throw std::runtime_error("failed to create graphics layout!");
 		}
 		COMPHILOG_CORE_INFO("created graphics pipeline successfully!");
-
-		return true;
 	}
 
-	bool GraphicsPipeline::BindProgram(IShaderProgram& shaderProgram)
+	GraphicsPipeline::~GraphicsPipeline()
 	{
-		auto _shaderProgram = static_cast<ShaderProgram*>(&shaderProgram);
-		logicalDevice = std::make_shared<VkDevice>(*_shaderProgram->logicalDevice);
 
-		switch (shaderProgram.GetType())
-		{
-		case (uint)Comphi::ShaderType::VertexShader: {
-			//VERTEX
-			VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-			vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-			vertShaderStageInfo.module = _shaderProgram->shaderModule;
-			vertShaderStageInfo.pName = "main";
-			vertShaderStageInfo.pSpecializationInfo = nullptr;
-			shaderStages.push_back(vertShaderStageInfo);
-			break;
-		}
-		case (uint)Comphi::ShaderType::FragmentShader: {
-			//FRAGMENT
-			VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-			fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-			fragShaderStageInfo.module = _shaderProgram->shaderModule;
-			fragShaderStageInfo.pName = "main";
-			shaderStages.push_back(fragShaderStageInfo);
-			break;
-		}
-		default:
-			break;
-		}
+		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
+		vkDestroyPipelineLayout(*GraphicsHandler::get()->logicalDevice, pipelineLayout, nullptr);
 
-		shaderPrograms.push_back(_shaderProgram);
+		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsPipeline");
+		vkDestroyPipeline(*GraphicsHandler::get()->logicalDevice, pipelineObj, nullptr);
 
-		return true;
-	}
-
-	bool GraphicsPipeline::UnbindProgram(IShaderProgram& shaderProgram)
-	{
-		auto _shaderProgram = static_cast<ShaderProgram*>(&shaderProgram);
-
-		auto it_shaderProgram = std::find(shaderPrograms.begin(), shaderPrograms.end(), _shaderProgram);
-		if (it_shaderProgram != shaderPrograms.end()) {
-			COMPHILOG_CORE_INFO("Destroyed ShaderModule!");
-			vkDestroyShaderModule(*logicalDevice.get(), (*it_shaderProgram)->shaderModule, nullptr);
-			shaderPrograms.erase(it_shaderProgram);
-			return true;
-		}
-		return false;
 	}
 
 }

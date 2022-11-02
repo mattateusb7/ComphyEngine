@@ -43,6 +43,8 @@ namespace Comphi::Vulkan {
 			throw std::runtime_error("failed to create texture sampler!");
 		}
 		COMPHILOG_CORE_INFO("Created TextureSampler successfully!");
+		
+		return textureSamplerObj;
 	}
 
 	void ImageView::initSwapchainImageView(VkImage& imageBufferObj, VkFormat& imageFormat)
@@ -81,6 +83,7 @@ namespace Comphi::Vulkan {
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount = 1;
 
+		//TODO:
 		//If you were working on a stereographic 3D application, then you would create a swap chain with multiple layers. 
 		//You could then create multiple image views for each image 
 		//representing the views for the left and right eyes by accessing different layers.

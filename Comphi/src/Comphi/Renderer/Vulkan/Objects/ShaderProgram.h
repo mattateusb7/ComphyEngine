@@ -1,6 +1,7 @@
 #pragma once
 #include "Comphi/Renderer/IShaderProgram.h"
 #include "../Common.h"
+#include "Comphi/Platform/Windows/FileRef.h"
 
 namespace Comphi::Vulkan {
 

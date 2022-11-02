@@ -6,13 +6,13 @@ namespace Comphi::OpenGL {
 
 	GraphicsContext::GraphicsContext(GLFWwindow& windowHandle)
 	{
-		m_WindowHandle = &windowHandle;
-		COMPHILOG_CORE_ASSERT(m_WindowHandle, "Window Handle is NULL!");
+		this->windowHandle = &windowHandle;
+		//COMPHILOG_CORE_ASSERT(windowHandle, "Window Handle is NULL!");
 	}
 
 	void GraphicsContext::Init()
 	{
-		glfwMakeContextCurrent(m_WindowHandle);
+		glfwMakeContextCurrent(windowHandle);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		COMPHILOG_CORE_ASSERT(status, "Could not initialize Glad!");
 
@@ -79,6 +79,6 @@ namespace Comphi::OpenGL {
 
 	void GraphicsContext::SwapBuffers()
 	{
-		glfwSwapBuffers(m_WindowHandle);
+		glfwSwapBuffers(windowHandle);
 	}
 }

@@ -3,20 +3,10 @@
 
 namespace Comphi::Vulkan {
 
-	void SwapChain::cleanUp()
-	{
-		int n_img = 0;
-		for (auto imageView : swapChainImageViews) {
-			imageView.cleanUp();
-		}
-
-		COMPHILOG_CORE_INFO("vkDestroy Destroy Swapchain:");
-		vkDestroySwapchainKHR(*GraphicsHandler::get()->logicalDevice.get(), swapChainObj, nullptr);
-	}
-
 	SwapChain::SwapChain()
 	{
 		createSwapChain();
+		renderPass = std::make_unique<RenderPass>(swapChainImageFormat, swapChainDepthView.imageFormat, MAX_FRAMES_IN_FLIGHT);
 	}
 
 	void SwapChain::createSwapChain() {
@@ -45,14 +35,14 @@ namespace Comphi::Vulkan {
 		createInfo.imageArrayLayers = 1; //1 unless stereoscopic 3D application.
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; //post-processing : may use a value like VK_IMAGE_USAGE_TRANSFER_DST_BIT
 
-		uint32_t queueFamilyIndices[] = { GraphicsHandler::get()->graphicsQueueFamily.index, GraphicsHandler::get()->transferQueueFamily.index }; //indices.presentFamily.value() == graphicsFamily
+		uint32_t queueFamilyIndices[] = { *GraphicsHandler::get()->graphicsQueueFamily.index, *GraphicsHandler::get()->transferQueueFamily.index }; //indices.presentFamily.value() == graphicsFamily
 
 		//uint32_t uniqueQueueCount = 0;
 		//if (indices.graphicsFamily != indices.transferFamily) uniqueQueueCount += 1;
 		//if (indices.graphicsFamily != indices.presentFamily) uniqueQueueCount += 1;
 		//if (indices.presentFamily != indices.transferFamily) uniqueQueueCount += 1;
 
-		if (GraphicsHandler::get()->graphicsQueueFamily.index != GraphicsHandler::get()->transferQueueFamily.index) {
+		if (*GraphicsHandler::get()->graphicsQueueFamily.index != *GraphicsHandler::get()->transferQueueFamily.index) {
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = 2;
 			createInfo.pQueueFamilyIndices = queueFamilyIndices;
@@ -100,6 +90,41 @@ namespace Comphi::Vulkan {
 		swapChainDepthView = ImageView();
 		swapChainDepthView.initDepthImageView(swapChainImageViews[0]);
 	}
+
+	void SwapChain::recreateSwapChain() {
+
+		//It is possible to create a new swap chain while drawing commands on an image from the old swap chain are still in-flight. 
+		//You need to pass the previous swap chain to the oldSwapChain field in the VkSwapchainCreateInfoKHR struct and destroy the old swap chain as soon as you've finished using it.
+		int width = 0, height = 0;
+		glfwGetFramebufferSize(GraphicsHandler::get()->windowHandle, &width, &height);
+		while (width == 0 || height == 0) {
+			glfwGetFramebufferSize(GraphicsHandler::get()->windowHandle, &width, &height);
+			glfwWaitEvents();
+		}
+
+		vkDeviceWaitIdle(*GraphicsHandler::get()->logicalDevice);
+
+		cleanUp();
+		createSwapChain();
+		createFramebuffers();
+	}
+
+	void SwapChain::cleanUp() {
+		short fbid = 0;
+		for (auto framebuffer : swapChainFramebuffers) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid++);
+			vkDestroyFramebuffer(*GraphicsHandler::get()->logicalDevice, framebuffer, nullptr);
+		}
+
+		int n_img = 0;
+		for (auto imageView : swapChainImageViews) {
+			imageView.cleanUp();
+		}
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy Swapchain:");
+		vkDestroySwapchainKHR(*GraphicsHandler::get()->logicalDevice.get(), swapChainObj, nullptr);
+	}
+
 
 	SwapChainSupportDetails SwapChain::querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface) {
 		SwapChainSupportDetails details;
@@ -167,4 +192,44 @@ namespace Comphi::Vulkan {
 			return actualExtent;
 		}
 	}
+
+#pragma region Framebuffer
+	void SwapChain::createFramebuffers() {
+		swapChainFramebuffers.resize(swapChainImageViews.size());
+
+		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+			std::array<VkImageView, 2> attachments = {
+				swapChainImageViews[i].imageViewObj,
+				swapChainDepthView.imageViewObj
+			};
+
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = &(*renderPass->renderPassObj);
+			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+			framebufferInfo.pAttachments = attachments.data();
+			framebufferInfo.width = swapChainExtent.width;
+			framebufferInfo.height = swapChainExtent.height;
+			framebufferInfo.layers = 1;
+
+			if (vkCreateFramebuffer(*GraphicsHandler::get()->logicalDevice, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+				COMPHILOG_CORE_FATAL("failed to create framebuffer!");
+				throw std::runtime_error("failed to create framebuffer!");
+				return;
+			}
+		}
+	}
+
+	void SwapChain::incrementSwapChainFrame()
+	{
+		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+	}
+
+	SwapChain::~SwapChain()
+	{
+		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
+		vkDestroyRenderPass(*GraphicsHandler::get()->logicalDevice, renderPass->renderPassObj, nullptr);
+	}
+
+#pragma endregion
 }
