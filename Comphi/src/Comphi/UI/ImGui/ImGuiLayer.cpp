@@ -6,7 +6,6 @@
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
-#include <backends/imgui_impl_opengl3.h>
 
 namespace Comphi {
 
@@ -58,10 +57,6 @@ namespace Comphi {
 			ImGui_ImplGlfw_InitForVulkan(window , true);
 			//ImGui_ImplVulkan_Init(NULL,NULL); //!fix
 			break;
-		case GraphicsAPI::OpenGL:
-			ImGui_ImplGlfw_InitForOpenGL(window, true);
-			ImGui_ImplOpenGL3_Init("#version 410");
-			break;
 		default:
 			COMPHILOG_CORE_ERROR("No rendering API Selected.");
 			break;
@@ -97,9 +92,6 @@ namespace Comphi {
 		case GraphicsAPI::Vulkan:
 			ImGui_ImplVulkan_Shutdown();
 			break;
-		case GraphicsAPI::OpenGL:
-			ImGui_ImplOpenGL3_Shutdown();
-			break;
 		default:
 			COMPHILOG_CORE_ERROR("No rendering API Selected.");
 			break;
@@ -116,9 +108,6 @@ namespace Comphi {
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
 			ImGui_ImplVulkan_NewFrame();
-			break;
-		case GraphicsAPI::OpenGL:
-			ImGui_ImplOpenGL3_NewFrame();
 			break;
 		default:
 			COMPHILOG_CORE_ERROR("No rendering API Selected.");
@@ -144,9 +133,6 @@ namespace Comphi {
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
 			ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),NULL); //TODO: Fix imGUI for vulkan
-			break;
-		case GraphicsAPI::OpenGL:
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 			break;
 		default:
 			COMPHILOG_CORE_ERROR("No rendering API Selected.");
