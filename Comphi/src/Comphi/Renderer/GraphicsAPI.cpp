@@ -7,8 +7,6 @@ namespace Comphi {
     {
         switch (activeAPI)
         {
-        case RenderingAPI::OpenGL:
-            return new OpenGL::ShaderPipeline();
         case RenderingAPI::Vulkan: 
         {
             //Vulkan::GraphicsPipeline::GraphicsPipelineSetupData data {};
@@ -28,8 +26,6 @@ namespace Comphi {
     {
         switch (activeAPI)
         {
-        case RenderingAPI::OpenGL:
-            //return new OpenGL::VertexBuffer(vertices.data(), count);
         case RenderingAPI::Vulkan: 
         {
             //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
@@ -47,8 +43,6 @@ namespace Comphi {
     {
         switch (activeAPI)
         {
-        case RenderingAPI::OpenGL:
-            return new OpenGL::IndexBuffer(indices);
         case RenderingAPI::Vulkan:
         {
             //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
@@ -66,8 +60,6 @@ namespace Comphi {
     {
         switch (activeAPI)
         {
-        case RenderingAPI::OpenGL:
-            return new OpenGL::ShaderProgram(shaderType,shaderFile);
         case RenderingAPI::Vulkan:
         {
             //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
@@ -86,8 +78,6 @@ namespace Comphi {
     {
         switch (activeAPI)
         {
-        case RenderingAPI::OpenGL:
-            return new OpenGL::GraphicsContext(windowHandler);
         case RenderingAPI::Vulkan:
             return new Vulkan::GraphicsContext(windowHandler);
         default:

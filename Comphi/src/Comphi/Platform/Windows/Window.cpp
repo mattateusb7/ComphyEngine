@@ -41,13 +41,9 @@ namespace Comphi::Windows {
 		COMPHILOG_CORE_INFO("GLFW Initialized.");
 
 		//Select GraphicsAPI
-		//GraphicsAPI::selectOpenGL();
 		GraphicsAPI::selectVulkan();
 
 		switch (GraphicsAPI::getActiveAPI()) {
-			case GraphicsAPI::OpenGL: {
-				break;
-			}
 			case GraphicsAPI::Vulkan: {
 				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 				//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); //block window resize (make into property?)
@@ -204,15 +200,8 @@ namespace Comphi::Windows {
 	void Window::SetVSync(bool enabled)
 	{
 		switch (GraphicsAPI::getActiveAPI()) {
-			case GraphicsAPI::RenderingAPI::OpenGL: {
-				if (enabled)
-					glfwSwapInterval(1);
-				else
-					glfwSwapInterval(0);
-				break;
-			}
 			case GraphicsAPI::RenderingAPI::Vulkan: {
-				// - - -
+				// TODO: togle VSYNC
 				break;
 			}
 		}

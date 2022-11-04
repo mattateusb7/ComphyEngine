@@ -1,9 +1,6 @@
 #pragma once
 #include <GLFW/glfw3.h>
 
-///OpenGL
-#include "OpenGL/GraphicsContext.h"
-
 ///Vulkan
 #include "Vulkan/GraphicsContext.h"
 
@@ -13,7 +10,6 @@ namespace Comphi {
 	public:
 		enum RenderingAPI {
 			None,
-			OpenGL,
 			Vulkan
 		};
 	private:
@@ -23,10 +19,6 @@ namespace Comphi {
 		static void selectNone() {
 			COMPHILOG_CORE_ERROR("No rendering API Selected.");
 			activeAPI = RenderingAPI::None; 
-		}
-		static void selectOpenGL() { 
-			COMPHILOG_CORE_INFO("OpenGL rendering API Selected.");
-			activeAPI = RenderingAPI::OpenGL; 
 		}
 		static void selectVulkan() { 
 			COMPHILOG_CORE_INFO("Vulkan rendering API Selected.");
