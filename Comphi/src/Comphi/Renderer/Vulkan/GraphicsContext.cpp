@@ -23,8 +23,6 @@ namespace Comphi::Vulkan {
 
 	void GraphicsContext::Init()
 	{
-		//TODO : Set Graphics Handler
-		
 		graphicsInstance = std::make_unique<GraphicsInstance>();
 		commandPool = std::make_unique<CommandPool>();
 		swapchain = std::make_unique<SwapChain>();
@@ -164,6 +162,7 @@ namespace Comphi::Vulkan {
 		beginInfo.flags = 0; // Optional
 		beginInfo.pInheritanceInfo = nullptr; // Optional
 
+		//StartRecordingCommandBuffer
 		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to begin recording command buffer!");
 			throw std::runtime_error("failed to begin recording command buffer!");
@@ -185,9 +184,10 @@ namespace Comphi::Vulkan {
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
-		//begin render pass
-		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		{
+		
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE); 
+		{//begin render pass
+
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->pipelineObj);
 
 			//Bind VertexBuffers @0
@@ -220,14 +220,11 @@ namespace Comphi::Vulkan {
 			vkCmdDrawIndexed(commandBuffer, obj1.indices->indexCount, 1, 0, 0, 0);
 			//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
 
-			//"it is better to fuck up than to live your entire life and have nothing happen at all."
-			//made me think of how often I've felt paralyzed by fears of failure and how I don't allow myself to "fail" 
-			//Go fuck yourself
-		}
-
-		//end render pass
+		}//end render pass
+		
 		vkCmdEndRenderPass(commandBuffer);
 
+		//EndRecordingCommandBuffer
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to record command buffer!");
 			throw std::runtime_error("failed to record command buffer!");
@@ -290,6 +287,8 @@ namespace Comphi::Vulkan {
 		// Only reset the fence if we are submitting work
 		vkResetFences(graphicsInstance->logicalDevice, 1, &syncObjects->inFlightFences[swapchain->currentFrame]);
 
+		//vkResetCommandPool(graphicsInstance->logicalDevice, commandPool->graphicsCommandPool,0); 
+		//if you are making multiple command buffers from one pool, resetting the pool will be quicker.
 		vkResetCommandBuffer(commandPool->commandBuffers[swapchain->currentFrame], 0);
 		recordCommandBuffer(commandPool->commandBuffers[swapchain->currentFrame], imageIndex);
 
@@ -349,10 +348,10 @@ namespace Comphi::Vulkan {
 	{
 		vkDeviceWaitIdle(graphicsInstance->logicalDevice);
 
+		swapchain->~SwapChain();
+		commandPool->~CommandPool();
 		graphicsPipeline->~GraphicsPipeline();
 		syncObjects->~SyncObjects();
-		commandPool->~CommandPool();
-		swapchain->~SwapChain();
 		graphicsInstance->~GraphicsInstance();
 		GraphicsHandler::get()->DeleteStatic();
 	}

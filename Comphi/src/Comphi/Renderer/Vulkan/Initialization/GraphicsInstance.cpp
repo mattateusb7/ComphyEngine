@@ -27,6 +27,10 @@ namespace Comphi::Vulkan {
 
 	GraphicsInstance::~GraphicsInstance()
 	{
+
+		COMPHILOG_CORE_INFO("vkDestroy Surface");
+		vkDestroySurfaceKHR(instance, surface, nullptr);
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Logical Device");
 		vkDestroyDevice(logicalDevice, nullptr);
 
@@ -34,9 +38,6 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Debug Utils");
 		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 #endif //!NDEBUG
-
-		COMPHILOG_CORE_INFO("vkDestroy Surface");
-		vkDestroySurfaceKHR(instance, surface, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Instance");
 		vkDestroyInstance(instance, nullptr);

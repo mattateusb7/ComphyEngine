@@ -33,7 +33,7 @@ namespace Comphi {
 			//for (auto layer : m_LayerStack) {
 			//	layer->OnUpdate();
 			//}
-
+			//
 			//m_ImGuiLayer->Begin();
 			//for (auto layer : m_LayerStack) {
 			//	layer->OnUIRender();
@@ -61,13 +61,13 @@ namespace Comphi {
 	void Application::PushLayer(Layer& layer)
 	{
 		m_LayerStack.PushLayer(&layer);
-		layer.OnAttach();
+		//layer.OnAttach();
 	}
 
 	void Application::PushOverlay(Layer& overlay)
 	{
 		m_LayerStack.PushOverlay(&overlay);
-		overlay.OnAttach();
+		//overlay.OnAttach();
 	}
 
 	void Application::PopLayer(Layer& layer)

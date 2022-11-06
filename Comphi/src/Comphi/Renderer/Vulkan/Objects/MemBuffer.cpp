@@ -71,62 +71,10 @@ namespace Comphi::Vulkan {
         srcBuffer.copyBufferTo(dstBuffer);
     }
 
-    MemBuffer::CommandBuffer MemBuffer::beginCommandBuffer(CommandQueueOperation op)
-    {
-        VkCommandPool commandPool = op == MEM_TransferCommand ?
-            *GraphicsHandler::get()->transferQueueFamily.commandPool.get() : *GraphicsHandler::get()->graphicsQueueFamily.commandPool.get();
-
-        CommandBuffer commandBuffer = {op};
-
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = commandPool;
-        allocInfo.commandBufferCount = 1; //how many command buffers to create
-
-        vkAllocateCommandBuffers(*GraphicsHandler::get()->logicalDevice.get(), &allocInfo, &commandBuffer.buffer);
-
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        vkBeginCommandBuffer(commandBuffer.buffer, &beginInfo);
-
-        return commandBuffer;
-
-    }
-
-    void MemBuffer::endCommandBuffer(CommandBuffer& commandBuffer)
-    {
-        VkQueue commandQueue = commandBuffer.op == MEM_TransferCommand ?
-            *GraphicsHandler::get()->transferQueueFamily.queue.get() : *GraphicsHandler::get()->graphicsQueueFamily.queue.get();
-
-        VkCommandPool commandPool = commandBuffer.op == MEM_TransferCommand ?
-            *GraphicsHandler::get()->transferQueueFamily.commandPool.get() : *GraphicsHandler::get()->graphicsQueueFamily.commandPool.get();
-
-        vkEndCommandBuffer(commandBuffer.buffer);
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer.buffer;
-
-        vkQueueSubmit(commandQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(commandQueue);
-
-        /*
-        We could use a fence and wait with vkWaitForFences,
-        or simply wait for the transfer queue to become idle with vkQueueWaitIdle.
-        A fence would allow you to schedule multiple transfers simultaneously and wait for all of them complete, instead of executing one at a time.
-        That may give the driver more opportunities to optimize.
-        */
-
-        vkFreeCommandBuffers(*GraphicsHandler::get()->logicalDevice.get(), commandPool, 1, &commandBuffer.buffer);
-    }
 
     void MemBuffer::copyBufferTo(MemBuffer& dstBuffer)
     {
-        CommandBuffer commandBuffer = beginCommandBuffer(MEM_TransferCommand);
+        CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(TransferCommand);
 
         VkBufferCopy copyRegion{};
         //copyRegion.srcOffset = 0; // Optional
@@ -134,7 +82,7 @@ namespace Comphi::Vulkan {
         copyRegion.size = bufferSize;
         vkCmdCopyBuffer(commandBuffer.buffer, bufferObj, dstBuffer.bufferObj, 1, &copyRegion);
 
-        endCommandBuffer(commandBuffer);
+        GraphicsHandler::endCommandBuffer(commandBuffer);
 
     }
 }

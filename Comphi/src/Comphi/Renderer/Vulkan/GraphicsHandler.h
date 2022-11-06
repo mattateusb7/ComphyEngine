@@ -76,10 +76,21 @@ namespace Comphi::Vulkan {
 	//	}
 	//};
 
+	enum CommandQueueOperation { TransferCommand, GraphicsCommand };
+
+	struct CommandBuffer {
+		CommandQueueOperation op = TransferCommand;
+		VkCommandBuffer buffer;
+	};
+
 	class GraphicsHandler : public DeviceHandler, public QueueHandler , public WindowHandler {
 	public:
 		GraphicsHandler() = default;
 		static GraphicsHandler* get();
+
+		static CommandBuffer beginCommandBuffer(CommandQueueOperation op);
+		static void endCommandBuffer(CommandBuffer& commandBuffer);
+
 		bool isInUse = true;
 		void DeleteStatic();
 		~GraphicsHandler();

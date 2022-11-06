@@ -167,7 +167,8 @@ namespace Comphi::Vulkan {
 				return availablePresentMode;
 			}
 		}
-
+		//https://vkguide.dev/docs/chapter-1/vulkan_init_flow/#swapchain
+		//Strong VSync (locked to Screen refresh rate)
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 

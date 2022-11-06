@@ -54,6 +54,7 @@ namespace Comphi::Vulkan {
 			throw std::runtime_error("failed to allocate command buffers!");
 			return;
 		}
+		COMPHILOG_CORE_INFO("Allocated {0} GraphicsCommandBuffers from graphicsCommandPool", MAX_FRAMES_IN_FLIGHT);
 	}
 
 	CommandPool::~CommandPool()

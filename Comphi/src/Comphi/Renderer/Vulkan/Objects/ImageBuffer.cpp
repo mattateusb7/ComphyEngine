@@ -109,7 +109,7 @@ namespace Comphi::Vulkan {
 
 	void ImageBuffer::copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer)
 	{
-		CommandBuffer commandBuffer = beginCommandBuffer(MEM_TransferCommand);
+		CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(TransferCommand);
 
 		VkBufferImageCopy region{}; // how the pixels are laid out in memory. For example, you could have some padding bytes between rows of the image
 		region.bufferOffset = 0;
@@ -138,7 +138,7 @@ namespace Comphi::Vulkan {
 			&region
 		);
 
-		endCommandBuffer(commandBuffer);
+		GraphicsHandler::endCommandBuffer(commandBuffer);
 	}
 
 	void ImageBuffer::copyBufferToImgBuffer(MemBuffer& srcBuffer)
@@ -179,7 +179,7 @@ namespace Comphi::Vulkan {
 		VkPipelineStageFlags destinationStage;
 
 		if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-			queueOperation = MEM_TransferCommand;
+			queueOperation = TransferCommand;
 			
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -192,7 +192,7 @@ namespace Comphi::Vulkan {
 
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-			queueOperation = MEM_GraphicsCommand;
+			queueOperation = GraphicsCommand;
 
 			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
@@ -205,7 +205,7 @@ namespace Comphi::Vulkan {
 
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-			queueOperation = MEM_GraphicsCommand;
+			queueOperation = GraphicsCommand;
 
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
@@ -220,7 +220,7 @@ namespace Comphi::Vulkan {
 			throw std::invalid_argument("unsupported layout transition!");
 		}
 
-		CommandBuffer commandBuffer = beginCommandBuffer(queueOperation);
+		CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(queueOperation);
 
 		//https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
 		//https://vulkan-tutorial.com/en/Texture_mapping/Images
@@ -234,7 +234,7 @@ namespace Comphi::Vulkan {
 			1, &barrier
 		);
 
-		endCommandBuffer(commandBuffer);
+		GraphicsHandler::endCommandBuffer(commandBuffer);
 
 		imageLayout = newLayout;
 

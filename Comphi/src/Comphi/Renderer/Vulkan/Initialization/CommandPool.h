@@ -3,6 +3,8 @@
 
 
 namespace Comphi::Vulkan {
+
+	//Allocator for CommandBuffers
 	class CommandPool
 	{
 	protected:
