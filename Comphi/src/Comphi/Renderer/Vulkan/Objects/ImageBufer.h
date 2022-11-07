@@ -12,7 +12,7 @@ namespace Comphi::Vulkan {
 			VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
 			VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 		};
-		ImageBuffer(std::string filepath, ImgSpecification spec);
+		ImageBuffer(std::string& filepath, ImgSpecification spec);//TODO: Add rawData Initialization construct
 		
 		VkImage bufferObj; //override bufferType
 		//<< bufferMemory;
@@ -27,7 +27,7 @@ namespace Comphi::Vulkan {
 		virtual void cleanUp() override;
 
 	protected :
-		void initTextureImageBuffer(std::string filepath, ImgSpecification spec);
+		void initTextureImageBuffer(std::string& filepath, ImgSpecification spec);
 		void initImageBuffer(ImgSpecification spec);
 		void initDepthImageBuffer(ImageBuffer& swapChainImageBuffer, VkFormat format);
 		

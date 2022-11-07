@@ -3,22 +3,19 @@
 
 #include "GraphicsHandler.h"
 
-#include "Objects/VertexBuffer.h"
-#include "Objects/IndexBuffer.h"
-#include "Objects/UniformBuffer.h"
-#include "Objects/ImageBufer.h"
-#include "Objects/ImageView.h"
-#include "Objects/ShaderProgram.h"
+//#include "Objects/VertexBuffer.h"
+//#include "Objects/IndexBuffer.h"
+//#include "Objects/UniformBuffer.h"
+//#include "Objects/ImageBufer.h"
+//#include "Objects/ImageView.h"
+//#include "Objects/ShaderProgram.h"
 
 #include "Initialization/GraphicsInstance.h"
-#include "Initialization/GraphicsPipeline.h"
-#include "Initialization/RenderPass.h"
 #include "Initialization/SwapChain.h"
-#include "Initialization/DescriptorPool.h"
 #include "Initialization/CommandPool.h"
 #include "Initialization/SyncObjects.h"
 
-#include "Comphi/Core/API/MeshObject.h" //TODO: TEMP
+#include "Comphi/Core/API/MeshObject.h" //TODO: TEMP debug
 
 namespace Comphi::Vulkan {
 
@@ -34,9 +31,7 @@ namespace Comphi::Vulkan {
 		virtual void CleanUp() override;
 
 	protected:
-
 		bool framebufferResized = false;
-		void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 		void updateUniformBuffer(uint32_t currentImage);
 
 	public:
@@ -44,17 +39,16 @@ namespace Comphi::Vulkan {
 		std::unique_ptr<GraphicsInstance> graphicsInstance;
 		std::unique_ptr<SwapChain> swapchain;
 		std::unique_ptr<CommandPool> commandPool;
-		std::unique_ptr<GraphicsPipeline> graphicsPipeline;
 		std::unique_ptr<SyncObjects> syncObjects;
 
-		// TODO : Shader Program/pipeline
-		//Sahders //needs rework 
-		//(dynamic binding on the fly compatible with renderpass & descriptorpool ?)
-		bool BindProgram(IShaderProgram& shaderProgram);
-		bool UnbindProgram(IShaderProgram& shaderProgram);
-		std::vector<VkPipelineShaderStageCreateInfo> shaderStages; //aligned with renderpass & descriptorpool
-		std::vector<ShaderProgram*>shaderPrograms;
-		MeshObject obj1;
+		//TODO: remove DEBUG objs
+		std::shared_ptr<MeshObject> meshObj1;
+		std::shared_ptr<Texture> texture1;
+		std::shared_ptr<Material> Albedo1;
+		ShaderProgram* vertShader;
+		ShaderProgram* fragShader;
+		Windows::FileRef vert;
+		Windows::FileRef frag;
 	};
 
 }

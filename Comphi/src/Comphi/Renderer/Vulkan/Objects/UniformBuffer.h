@@ -4,14 +4,11 @@
 
 namespace Comphi::Vulkan {
 
-	class UniformBuffer : public IUniformBuffer, public MemBuffer
+	class UniformBuffer : public MemBuffer
 	{
 	public:
-
+		UniformBuffer() = default;
 		UniformBuffer(const UniformBufferObject& ubo);
 		~UniformBuffer() = default;
-
-		virtual void bind() override;
-		virtual void unbind() override;
 	};
 }

@@ -3,34 +3,39 @@
 #include "Comphi/Platform/Windows/FileRef.h"
 #include "Comphi/Renderer/Vulkan/Objects/VertexBuffer.h"
 #include "Comphi/Renderer/Vulkan/Objects/IndexBuffer.h"
-#include "Comphi/Renderer/Vulkan/Objects/ImageView.h" 
-#include "Comphi/Renderer/Vulkan/Objects/UniformBuffer.h"
+#include "Comphi/Core/API/Material.h"
 
-namespace Comphi { //(Comphi namepsace objects should use platform & renderer independent interfaces)
+namespace Comphi { //TODO: Comphi namepsace objects should use platform & renderer independent interfaces
 	class MeshObject 
 	{
 	public:
 		MeshObject() = default;
-		MeshObject(std::string objFile, std::string textureFile = "");
-		MeshObject(VertexArray& vertices, IndexArray& indices, std::string textureFile = "");
-		void initialize(std::string objFile, std::string textureFile);
-		void initialize(VertexArray& vertices, IndexArray& indices, std::string textureFile);
 
+		//TODO: move material out of MeshObject Contructor to GameObject (that holds both mesh & textures 
+		//although each mesh can only render one material at the time... so batched rendering would require us to group all meshes with the same material in a single buffer
+		// so its probably not that bad to keep materials inside meshes.
+
+		MeshObject(std::string objFile, Material& material); //TODO: swap objFile with Fileref
+		void initialize(std::string objFile, Material& material);
+		MeshObject(VertexArray& vertices, IndexArray& indices, Material& material);
+		void initialize(VertexArray& vertices, IndexArray& indices, Material& material);
 		Windows::FileRef objFile;
+		/*
+		* Driver developers recommend that you also store multiple buffers, like the vertex and index buffer, into a single VkBuffer
+		* (DrawBuffer or maybe batchDrawBuffer/multipleObjs)
+		* and use offsets in commands like vkCmdBindVertexBuffers.
+		* The advantage is that your data is more cache friendly in that case, because it's closer together.
+		*/
+
 		std::shared_ptr<Vulkan::VertexBuffer> vertices;
 		std::shared_ptr<Vulkan::IndexBuffer> indices;
-		
-		Windows::FileRef textureFile;					//TODO : move to ShaderObj
-		std::shared_ptr<Vulkan::ImageView> texture;		//TODO : move to ShaderObj
+		std::shared_ptr<Material> material; //TODO: Add multiple Material-Attributes in GameObject
 
-		std::vector<std::shared_ptr<Vulkan::UniformBuffer>> ubos; //TODO :Move to TransformObj and Figure out where to initialize & update
-
-		void initUBO(int MAX_FRAMES_IN_FLIGHT);
+		void InitializeUBO(); //TODO: initialize before set submission of Material
+		std::vector<Vulkan::UniformBuffer> MVP_UBOs; //TODO : MVP matrix uniform -> Move to TransformObj
 
 	protected:
-		
 		void ParseObjFile(std::string objFile);
-		void initTextureSampler(std::string textureFile);
 	};
 }
 

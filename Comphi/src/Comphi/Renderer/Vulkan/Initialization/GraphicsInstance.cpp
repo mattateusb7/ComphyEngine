@@ -10,7 +10,9 @@ namespace Comphi::Vulkan {
 	GraphicsInstance::GraphicsInstance()
 	{
 		createVKInstance();
+#ifndef NDEBUG
 		setupDebugMessenger();
+#endif //!NDEBUG
 		createSurface();
 		pickPhysicalDevice();
 		createLogicalDevices();

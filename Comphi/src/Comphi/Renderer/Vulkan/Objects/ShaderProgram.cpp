@@ -3,8 +3,8 @@
 
 namespace Comphi::Vulkan {
 
-	ShaderProgram::ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile, const VkDevice& logicalDevice) : IShaderProgram(shaderType, shaderFile) {
-		shaderModule = recreateShaderModule(logicalDevice);
+	ShaderProgram::ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile) : IShaderProgram(shaderType, shaderFile) {
+		shaderModule = recreateShaderModule();
 	}
 
 	VkShaderModule ShaderProgram::createShaderModule(const std::vector<char>& code) {
@@ -14,7 +14,7 @@ namespace Comphi::Vulkan {
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
 		VkShaderModule shaderModule;
-		if (vkCreateShaderModule(*logicalDevice.get(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+		if (vkCreateShaderModule(*GraphicsHandler::get()->logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create shader module!");
 			return shaderModule;
 		}
@@ -23,11 +23,15 @@ namespace Comphi::Vulkan {
 		return shaderModule;
 	}
 
-	VkShaderModule ShaderProgram::recreateShaderModule(const VkDevice& logicalDevice)
+	VkShaderModule ShaderProgram::recreateShaderModule()
 	{
-		this->logicalDevice = std::make_shared<VkDevice>(logicalDevice);
 		shaderModule = createShaderModule(shaderFile.getByteData());
 		return shaderModule;
+	}
+
+	ShaderProgram::~ShaderProgram() {
+		vkDestroyShaderModule(*GraphicsHandler::get()->logicalDevice, shaderModule, 0);
+		COMPHILOG_CORE_INFO("shaderModule Destroyed!");
 	}
 	
 

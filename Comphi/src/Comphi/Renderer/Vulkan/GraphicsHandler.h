@@ -64,17 +64,22 @@ namespace Comphi::Vulkan {
 
 	};
 
-	//update By Context ? (isnt this class suposed to be static and generic for the whole program ? )
-	//class ContextHandler {
-	//public:
-	//	ContextHandler() = default;
-	//	std::shared_ptr<int> MAX_FRAMES_IN_FLIGHT;
-	//	ContextHandler(
-	//		int& MAX_FRAMES_IN_FLIGHT
-	//	) {
-	//		this->MAX_FRAMES_IN_FLIGHT = std::make_shared<int>(MAX_FRAMES_IN_FLIGHT);
-	//	}
-	//};
+	class SwapchainHandler {
+	public:
+		SwapchainHandler() = default;
+		std::shared_ptr<int> MAX_FRAMES_IN_FLIGHT;
+		std::shared_ptr<VkRenderPass> renderPass;
+		void setSwapchainHandler(
+			int& MAX_FRAMES_IN_FLIGHT
+		) {
+			this->MAX_FRAMES_IN_FLIGHT = std::make_shared<int>(MAX_FRAMES_IN_FLIGHT);
+		}
+		void setRenderPass(
+			VkRenderPass& renderPass
+		) {
+			this->renderPass = std::make_shared<VkRenderPass>(renderPass);
+		}
+	};
 
 	enum CommandQueueOperation { TransferCommand, GraphicsCommand };
 
@@ -83,7 +88,8 @@ namespace Comphi::Vulkan {
 		VkCommandBuffer buffer;
 	};
 
-	class GraphicsHandler : public DeviceHandler, public QueueHandler , public WindowHandler {
+	//TODO: evaluate if possible to make instanced per Vulkan GraphicsContext ?
+	class GraphicsHandler : public DeviceHandler, public QueueHandler , public WindowHandler, public SwapchainHandler {
 	public:
 		GraphicsHandler() = default;
 		static GraphicsHandler* get();

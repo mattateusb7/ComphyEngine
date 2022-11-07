@@ -5,8 +5,9 @@ namespace Comphi::Vulkan {
 
 	SwapChain::SwapChain()
 	{
+		GraphicsHandler::get()->setSwapchainHandler(MAX_FRAMES_IN_FLIGHT);
 		createSwapChain();
-		renderPass = std::make_unique<RenderPass>(swapChainImageFormat, swapChainDepthView.imageFormat, MAX_FRAMES_IN_FLIGHT);
+		createRenderPass();
 		createFramebuffers();
 	}
 
@@ -196,6 +197,7 @@ namespace Comphi::Vulkan {
 	}
 
 #pragma region Framebuffer
+
 	void SwapChain::createFramebuffers() {
 		swapChainFramebuffers.resize(swapChainImageViews.size());
 
@@ -207,7 +209,7 @@ namespace Comphi::Vulkan {
 
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = &(*renderPass->renderPassObj);
+			framebufferInfo.renderPass = renderPassObj;
 			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 			framebufferInfo.pAttachments = attachments.data();
 			framebufferInfo.width = swapChainExtent.width;
@@ -219,7 +221,84 @@ namespace Comphi::Vulkan {
 				throw std::runtime_error("failed to create framebuffer!");
 				return;
 			}
+			COMPHILOG_CORE_INFO("created framebuffer of imageView {0}!",i);
 		}
+	}
+
+	void SwapChain::createRenderPass()
+	{
+		//VkImage Render Attatchments
+		//ColorAttachment
+		VkAttachmentDescription colorAttachment{};
+		colorAttachment.format = swapChainImageFormat;
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+
+		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		//DepthAttachment
+		VkAttachmentDescription depthAttachment{};
+		depthAttachment.format = swapChainDepthView.imageFormat;
+		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		//SubPasses
+		VkAttachmentReference colorAttachmentRef{};
+		colorAttachmentRef.attachment = 0;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentReference depthAttachmentRef{};
+		depthAttachmentRef.attachment = 1;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDescription subpass{};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
+		//RenderPass
+		std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+		VkRenderPassCreateInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		renderPassInfo.pAttachments = attachments.data();
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pSubpasses = &subpass;
+
+		//RenderPass Dependency
+		VkSubpassDependency dependency{};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+		renderPassInfo.dependencyCount = 1;
+		renderPassInfo.pDependencies = &dependency;
+
+		if (vkCreateRenderPass(*GraphicsHandler::get()->logicalDevice, &renderPassInfo, nullptr, &renderPassObj) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to create render pass!");
+			throw std::runtime_error("failed to create render pass!");
+			return;
+		}
+
+		COMPHILOG_CORE_INFO("created RenderPass Successfully!");
+		GraphicsHandler::get()->setRenderPass(renderPassObj);
+
 	}
 
 	void SwapChain::incrementSwapChainFrame()
@@ -227,11 +306,89 @@ namespace Comphi::Vulkan {
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
+	void SwapChain::recordCommandBuffer(VkCommandBuffer commandBuffer, MeshObject& meshObj, uint32_t imageIndex) {
+
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = 0; // Optional
+		beginInfo.pInheritanceInfo = nullptr; // Optional
+
+		//StartRecordingCommandBuffer
+		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to begin recording command buffer!");
+			throw std::runtime_error("failed to begin recording command buffer!");
+			return;
+		}
+
+		//graphics pipeline & render attachment(framebuffer/img) selection 
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = renderPassObj;
+		renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = swapChainExtent;
+
+		std::array<VkClearValue, 2> clearValues{}; //same order as attachments
+		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
+
+
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		{//begin render pass
+
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, meshObj.material->graphicsPipeline->pipelineObj);
+
+			//Bind VertexBuffers @0
+			VkBuffer vertexBuffers[] = { meshObj.vertices->bufferObj };
+			VkDeviceSize offsets[] = { 0 }; //batch render
+			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+			//Bind IndexBuffers @1
+			vkCmdBindIndexBuffer(commandBuffer, meshObj.indices->bufferObj, 0, VK_INDEX_TYPE_UINT32);
+
+			//dynamic VIEWPORT/SCISSOR SETUP
+			VkViewport viewport{};
+			viewport.x = 0.0f;
+			viewport.y = 0.0f;
+			viewport.width = static_cast<float>(swapChainExtent.width);
+			viewport.height = static_cast<float>(swapChainExtent.height);
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+			VkRect2D scissor{};
+			scissor.offset = { 0, 0 };
+			scissor.extent = swapChainExtent;
+			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+			//BindIndex UniformBuffers 
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, meshObj.material->graphicsPipeline->pipelineLayout, 0, 1, &meshObj.material->graphicsPipeline->descriptorPool->descriptorSets[currentFrame], 0, nullptr);
+
+			//DRAW COMMAND
+			vkCmdDrawIndexed(commandBuffer, meshObj.indices->indexCount, 1, 0, 0, 0);
+			//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
+
+		}//end render pass
+
+		vkCmdEndRenderPass(commandBuffer);
+
+		//EndRecordingCommandBuffer
+		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to record command buffer!");
+			throw std::runtime_error("failed to record command buffer!");
+			return;
+		}
+
+	}
+
 	SwapChain::~SwapChain()
 	{
 		cleanUp();
 		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
-		vkDestroyRenderPass(*GraphicsHandler::get()->logicalDevice, renderPass->renderPassObj, nullptr);
+		vkDestroyRenderPass(*GraphicsHandler::get()->logicalDevice, renderPassObj, nullptr);
 	}
 
 #pragma endregion

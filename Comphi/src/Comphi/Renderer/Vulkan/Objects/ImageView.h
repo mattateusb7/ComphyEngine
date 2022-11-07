@@ -36,6 +36,8 @@ namespace Comphi::Vulkan {
 		
 	};
 
+	typedef ImageView Texture;
+
 }
 
 

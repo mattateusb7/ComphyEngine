@@ -31,14 +31,22 @@ namespace Comphi::Vulkan {
 		// ------------------------------------------------------------
 		//					GRAPHICS PIPELINE 
 		//TODO : Shader stages -> Move outside of Graphics context
-		Windows::FileRef vert = Windows::FileRef("shaders\\vert.spv");
-		Windows::FileRef frag = Windows::FileRef("shaders\\frag.spv");
 
-		auto vertShader = ShaderProgram(ShaderType::VertexShader, vert, *GraphicsHandler::get()->logicalDevice);
-		auto fragShader = ShaderProgram(ShaderType::FragmentShader, frag, *GraphicsHandler::get()->logicalDevice);
+		Material::InitializationData shaderPipelineInitData;
+		texture1 = std::make_shared<Texture>("textures/viking_room.png");
+		std::vector<Texture*> textures = { texture1.get()};
+		shaderPipelineInitData.textures = textures;
 
-		BindProgram(vertShader);
-		BindProgram(fragShader);
+		vert = Windows::FileRef("shaders\\vert.spv");
+		frag = Windows::FileRef("shaders\\frag.spv");
+		vertShader = new ShaderProgram(ShaderType::VertexShader, vert);
+		fragShader = new ShaderProgram(ShaderType::FragmentShader, frag);
+
+		std::vector<IShaderProgram*> shaders = { &*vertShader , &*fragShader };
+		shaderPipelineInitData.shaders = shaders;
+
+		Albedo1 = std::make_shared<Material>(shaderPipelineInitData);
+
 
 		// ------------------------------------------------------------
 		//					TEST OBJECTS PIPELINE 
@@ -79,159 +87,15 @@ namespace Comphi::Vulkan {
 			4, 7, 6,   6, 5, 4    // v4-v7-v6, v6-v5-v4 (back)
 		};
 
-		/*
-		* Driver developers recommend that you also store multiple buffers, like the vertex and index buffer, into a single VkBuffer
-		* (DrawBuffer or maybe batchDrawBuffer/multipleObjs)
-		* and use offsets in commands like vkCmdBindVertexBuffers.
-		* The advantage is that your data is more cache friendly in that case, because it's closer together.
-		*/
 
-		obj1.initialize("models/viking_room.obj", "textures/viking_room.png");
-		//obj1.initialize("models/BLEPOSPACE.obj", "textures/texture.jpg");
-		//obj1.initialize("models/sponza.obj", "textures/texture.jpg");
-		//obj1.initialize(cubeVx, CubeIx, "textures/texture_2.jpg");
+		meshObj1 = std::make_shared<MeshObject>("models/viking_room.obj", *Albedo1.get());
 
-		int end = 1;
 		// ------------------------------------------------------------
-		obj1.initUBO(swapchain->MAX_FRAMES_IN_FLIGHT);
-		swapchain->renderPass->descriptorPool->updateDescriptorSet(obj1, swapchain->MAX_FRAMES_IN_FLIGHT);
-		graphicsPipeline = std::make_unique<GraphicsPipeline>(*swapchain->renderPass.get(), shaderStages);
-
-		UnbindProgram(vertShader);
-		UnbindProgram(fragShader);
-
+	
 		syncObjects = std::make_unique<SyncObjects>(swapchain->MAX_FRAMES_IN_FLIGHT);
 	}
 
 #pragma region //DEBUG!
-
-	bool GraphicsContext::BindProgram(IShaderProgram& shaderProgram)
-	{
-		auto _shaderProgram = static_cast<ShaderProgram*>(&shaderProgram); //Interfaces Need Rework
-
-		switch (shaderProgram.GetType())
-		{
-		case (uint)Comphi::ShaderType::VertexShader: {
-			//VERTEX
-			VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-			vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-			vertShaderStageInfo.module = _shaderProgram->shaderModule;
-			vertShaderStageInfo.pName = "main";
-			vertShaderStageInfo.pSpecializationInfo = nullptr;
-			shaderStages.push_back(vertShaderStageInfo);
-			break;
-		}
-		case (uint)Comphi::ShaderType::FragmentShader: {
-			//FRAGMENT
-			VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-			fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-			fragShaderStageInfo.module = _shaderProgram->shaderModule;
-			fragShaderStageInfo.pName = "main";
-			shaderStages.push_back(fragShaderStageInfo);
-			break;
-		}
-		default:
-			break;
-		}
-
-		shaderPrograms.push_back(_shaderProgram);
-
-		return true;
-	}
-
-	bool GraphicsContext::UnbindProgram(IShaderProgram& shaderProgram)
-	{
-		auto _shaderProgram = static_cast<ShaderProgram*>(&shaderProgram);
-
-		auto it_shaderProgram = std::find(shaderPrograms.begin(), shaderPrograms.end(), _shaderProgram);
-		if (it_shaderProgram != shaderPrograms.end()) {
-			COMPHILOG_CORE_INFO("Destroyed ShaderModule!");
-			vkDestroyShaderModule(*GraphicsHandler::get()->logicalDevice, (*it_shaderProgram)->shaderModule, nullptr);
-			shaderPrograms.erase(it_shaderProgram);
-			return true;
-		}
-		return false;
-	}
-
-	void GraphicsContext::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
-
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = 0; // Optional
-		beginInfo.pInheritanceInfo = nullptr; // Optional
-
-		//StartRecordingCommandBuffer
-		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to begin recording command buffer!");
-			throw std::runtime_error("failed to begin recording command buffer!");
-			return;
-		}
-
-		//graphics pipeline & render attachment(framebuffer/img) selection 
-		VkRenderPassBeginInfo renderPassInfo{};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = swapchain->renderPass->renderPassObj;
-		renderPassInfo.framebuffer = swapchain->swapChainFramebuffers[imageIndex];
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = swapchain->swapChainExtent;
-
-		std::array<VkClearValue, 2> clearValues{}; //same order as attachments
-		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		clearValues[1].depthStencil = { 1.0f, 0 };
-
-		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-		renderPassInfo.pClearValues = clearValues.data();
-
-		
-		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE); 
-		{//begin render pass
-
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->pipelineObj);
-
-			//Bind VertexBuffers @0
-			VkBuffer vertexBuffers[] = { obj1.vertices->bufferObj };
-			VkDeviceSize offsets[] = { 0 }; //batch render
-			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
-			//Bind IndexBuffers @1
-			vkCmdBindIndexBuffer(commandBuffer, obj1.indices->bufferObj, 0, VK_INDEX_TYPE_UINT32);
-
-			//dynamic VIEWPORT/SCISSOR SETUP
-			VkViewport viewport{};
-			viewport.x = 0.0f;
-			viewport.y = 0.0f;
-			viewport.width = static_cast<float>(swapchain->swapChainExtent.width);
-			viewport.height = static_cast<float>(swapchain->swapChainExtent.height);
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-			VkRect2D scissor{};
-			scissor.offset = { 0, 0 };
-			scissor.extent = swapchain->swapChainExtent;
-			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-			//BindIndex UniformBuffers @2
-			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline->pipelineLayout, 0, 1, &swapchain->renderPass->descriptorPool->descriptorSets[swapchain->currentFrame], 0, nullptr);
-
-			//DRAW COMMAND
-			vkCmdDrawIndexed(commandBuffer, obj1.indices->indexCount, 1, 0, 0, 0);
-			//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
-
-		}//end render pass
-		
-		vkCmdEndRenderPass(commandBuffer);
-
-		//EndRecordingCommandBuffer
-		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to record command buffer!");
-			throw std::runtime_error("failed to record command buffer!");
-			return;
-		}
-
-	}
 
 	void GraphicsContext::updateUniformBuffer(uint32_t currentImage) {
 		static auto startTime = std::chrono::high_resolution_clock::now();
@@ -251,9 +115,9 @@ namespace Comphi::Vulkan {
 
 		void* data;
 
-		vkMapMemory(graphicsInstance->logicalDevice, obj1.ubos[currentImage]->bufferMemory, 0, sizeof(ubo), 0, &data);
+		vkMapMemory(graphicsInstance->logicalDevice, meshObj1->MVP_UBOs[currentImage].bufferMemory, 0, sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(graphicsInstance->logicalDevice, obj1.ubos[currentImage]->bufferMemory);
+		vkUnmapMemory(graphicsInstance->logicalDevice, meshObj1->MVP_UBOs[currentImage].bufferMemory);
 	}
 #pragma endregion
 
@@ -290,7 +154,9 @@ namespace Comphi::Vulkan {
 		//vkResetCommandPool(graphicsInstance->logicalDevice, commandPool->graphicsCommandPool,0); 
 		//if you are making multiple command buffers from one pool, resetting the pool will be quicker.
 		vkResetCommandBuffer(commandPool->commandBuffers[swapchain->currentFrame], 0);
-		recordCommandBuffer(commandPool->commandBuffers[swapchain->currentFrame], imageIndex);
+
+		//SEND render COMMANDS TO GPU
+		swapchain->recordCommandBuffer(commandPool->commandBuffers[swapchain->currentFrame], *meshObj1.get(), imageIndex);
 
 		updateUniformBuffer(swapchain->currentFrame);
 
@@ -350,7 +216,7 @@ namespace Comphi::Vulkan {
 
 		swapchain->~SwapChain();
 		commandPool->~CommandPool();
-		graphicsPipeline->~GraphicsPipeline();
+		//graphicsPipeline->~GraphicsPipeline();
 		syncObjects->~SyncObjects();
 		graphicsInstance->~GraphicsInstance();
 		GraphicsHandler::get()->DeleteStatic();

@@ -8,31 +8,29 @@
 
 namespace Comphi {
 
-	MeshObject::MeshObject(std::string objFile, std::string textureFile)
+	MeshObject::MeshObject(std::string objFile, Material& material)
 	{
-		initialize(objFile, textureFile);
+		initialize(objFile, material);
 	}
 
-	MeshObject::MeshObject(VertexArray& vertices, IndexArray& indices, std::string textureFile)
+	void MeshObject::initialize(std::string objFile, Material& material)
 	{
-		initialize(vertices, indices, textureFile);
+		ParseObjFile(objFile);
+		this->material = std::make_shared<Material>(material);
+		InitializeUBO();
 	}
 
-	void MeshObject::initialize(VertexArray& vertices, IndexArray& indices, std::string textureFile)
+	MeshObject::MeshObject(VertexArray& vertices, IndexArray& indices, Material& material)
+	{
+		initialize(vertices, indices, material);
+	}
+
+	void MeshObject::initialize(VertexArray& vertices, IndexArray& indices, Material& material)
 	{
 		this->vertices = std::make_shared<Vulkan::VertexBuffer>(vertices);
 		this->indices = std::make_shared<Vulkan::IndexBuffer>(indices);
-		if(!textureFile.empty())
-			initTextureSampler(textureFile);
-		//initUBO();
-	}
-
-	void MeshObject::initialize(std::string objFile, std::string textureFile)
-	{
-		ParseObjFile(objFile);
-		if (!textureFile.empty())
-			initTextureSampler(textureFile);
-		//initUBO();
+		this->material = std::make_shared<Material>(material);
+		InitializeUBO();
 	}
 
 	void MeshObject::ParseObjFile(std::string objFile) {
@@ -84,24 +82,19 @@ namespace Comphi {
 		indices = std::make_shared<Vulkan::IndexBuffer>(iArray);
 	}
 
-	void MeshObject::initTextureSampler(std::string textureFile)
+	void MeshObject::InitializeUBO()
 	{
-		this->textureFile.reload(textureFile);
-
-		//Init Texture 
-		texture = std::make_unique<Vulkan::ImageView>(textureFile);
-	}
-
-	void MeshObject::initUBO(int MAX_FRAMES_IN_FLIGHT)
-	{
-		ubos.clear();
-		//Init UBOs
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		int MAX_FRAMES_IN_FLIGHT = *Vulkan::GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
+		MVP_UBOs.resize(MAX_FRAMES_IN_FLIGHT);
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			//initialize
 			UniformBufferObject ubo = {};
-			ubos.push_back(std::make_shared<Vulkan::UniformBuffer>(ubo));
+			MVP_UBOs[i] = UniformBufferObject(ubo);
 		}
+		material->graphicsPipeline->descriptorPool->bindDescriptorSet(material->shaderTextures, MVP_UBOs);
+		
 	}
-
 
 
 }

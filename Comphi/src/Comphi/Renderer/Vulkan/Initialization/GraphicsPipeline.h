@@ -1,10 +1,8 @@
 #pragma once
-#include "../GraphicsHandler.h"
-#include "RenderPass.h"
+#include "../Objects/ShaderProgram.h"
+#include "DescriptorPool.h"
 
 namespace Comphi::Vulkan {
-
-	class ShaderProgram;
 
 	class GraphicsPipeline
 	{
@@ -15,9 +13,12 @@ namespace Comphi::Vulkan {
 		//	VkRect2D* scissor;
 		//}graphicsPipelineSetupData;
 
-		GraphicsPipeline(RenderPass& renderPass, std::vector<VkPipelineShaderStageCreateInfo> shaderStages);
+		GraphicsPipeline(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages);
+
 		VkPipelineLayout pipelineLayout;
 		VkPipeline pipelineObj;
+		std::unique_ptr<DescriptorPool> descriptorPool;
+
 		~GraphicsPipeline();
 	};
 

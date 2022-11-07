@@ -4,8 +4,11 @@
 #include "../Objects/VertexBuffer.h"
 
 namespace Comphi::Vulkan {
-	GraphicsPipeline::GraphicsPipeline(RenderPass& renderPass, std::vector<VkPipelineShaderStageCreateInfo> shaderStages)
+	GraphicsPipeline::GraphicsPipeline(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages)
 	{
+
+		descriptorPool = std::make_unique<DescriptorPool>();
+
 		//VertexBufferDescription
 		auto bindingDescription = VertexBuffer::getBindingDescription();
 		auto attributeDescriptions = VertexBuffer::getAttributeDescriptions();
@@ -116,7 +119,7 @@ namespace Comphi::Vulkan {
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = 1;
-		pipelineLayoutInfo.pSetLayouts = &renderPass.descriptorPool->descriptorSetLayout;
+		pipelineLayoutInfo.pSetLayouts = &descriptorPool->descriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -156,7 +159,7 @@ namespace Comphi::Vulkan {
 		pipelineInfo.pDynamicState = &dynamicState;
 
 		pipelineInfo.layout = pipelineLayout;
-		pipelineInfo.renderPass = renderPass.renderPassObj;
+		pipelineInfo.renderPass = *GraphicsHandler::get()->renderPass;
 		pipelineInfo.subpass = 0;
 
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
@@ -171,6 +174,8 @@ namespace Comphi::Vulkan {
 
 	GraphicsPipeline::~GraphicsPipeline()
 	{
+		descriptorPool->~DescriptorPool();
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
 		vkDestroyPipelineLayout(*GraphicsHandler::get()->logicalDevice, pipelineLayout, nullptr);
 

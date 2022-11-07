@@ -14,7 +14,7 @@ namespace Comphi::Vulkan {
 		vkFreeMemory(*GraphicsHandler::get()->logicalDevice.get(), bufferMemory, nullptr);
 	}
 
-	ImageBuffer::ImageBuffer(std::string filepath, ImgSpecification spec)
+	ImageBuffer::ImageBuffer(std::string& filepath, ImgSpecification spec)
 	{
 		initTextureImageBuffer(filepath, spec);
 	}
@@ -29,7 +29,7 @@ namespace Comphi::Vulkan {
 		transitionImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 	}
 
-	void ImageBuffer::initTextureImageBuffer(std::string filepath, ImgSpecification spec) {
+	void ImageBuffer::initTextureImageBuffer(std::string& filepath, ImgSpecification spec) {
 		
 		int texWidth, texHeight, texChannels;
 		stbi_uc* pixels = stbi_load(filepath.data(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);

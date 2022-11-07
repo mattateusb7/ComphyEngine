@@ -1,6 +1,6 @@
 #pragma once
 #include "../Objects/ImageView.h"
-#include "RenderPass.h"
+#include <Comphi/Core/API/MeshObject.h>
 
 namespace Comphi::Vulkan {
 
@@ -25,14 +25,18 @@ namespace Comphi::Vulkan {
 		std::vector<ImageView> swapChainImageViews;
 		ImageView swapChainDepthView;
 		std::vector<VkFramebuffer> swapChainFramebuffers;
-		std::unique_ptr<RenderPass> renderPass;
+		//std::unique_ptr<RenderPass> renderPass;
+		VkRenderPass renderPassObj;
 
 		void incrementSwapChainFrame();
-		const int MAX_FRAMES_IN_FLIGHT = 3; //triple-buffering //TODO: Send this to GraphicsHandler ("current_MAX_FRAMES_IN_FLIGHT");
+		int MAX_FRAMES_IN_FLIGHT = 3; //triple-buffering
 		uint32_t currentFrame = 0;
+
+		void recordCommandBuffer(VkCommandBuffer commandBuffer, MeshObject& meshObj, uint32_t imageIndex);
 
 		~SwapChain();
 	protected:
+		void createRenderPass();
 		void createFramebuffers();
 		void createSwapChain();
 		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);

@@ -1,24 +1,25 @@
 #pragma once
 #include "../GraphicsHandler.h"
-#include <Comphi/Core/API/MeshObject.h>
+#include "Comphi/Renderer/Vulkan/Objects/ImageView.h"
+#include <Comphi/Renderer/Vulkan/Objects/UniformBuffer.h>
 
 namespace Comphi::Vulkan {
 
-	//RenderPass Descriptor
+	//shader Descriptor set immeddiatly before renderpass
 	class DescriptorPool
 	{
 	protected:
 
 	public:
-		DescriptorPool(int MAX_FRAMES_IN_FLIGHT);
-		VkDescriptorPool descriptorPoolObj;
+		DescriptorPool();
+		VkDescriptorPool descriptorPoolObj; //TODO: In the future share multiple sets with least ammount of pools (static?) 
 		VkDescriptorSetLayout descriptorSetLayout;
 		std::vector<VkDescriptorSet> descriptorSets;
-
-		void updateDescriptorSet(MeshObject& obj, int MAX_FRAMES_IN_FLIGHT);
+		void bindDescriptorSet(std::vector<Vulkan::Texture*>textures, std::vector<UniformBuffer> MVP_ubos);
+		~DescriptorPool();
 	protected:
-		void createDescriptorPool(int MAX_FRAMES_IN_FLIGHT);
-		void createDescriptorSetLayout();
+		void createDescriptorPool();
+		void createDescriptorSetLayout(); //TODO: Layout TBD by shaderPipeline
 
 	};
 }

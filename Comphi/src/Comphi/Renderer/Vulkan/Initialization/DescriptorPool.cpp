@@ -1,15 +1,14 @@
 #include "cphipch.h"
 #include "DescriptorPool.h"
-#include <Comphi/Renderer/IObjects/IUniformBuffer.h>
 
 namespace Comphi::Vulkan {
 
 #pragma region DescriptorPool
 
-	DescriptorPool::DescriptorPool(int MAX_FRAMES_IN_FLIGHT)
+	DescriptorPool::DescriptorPool()
 	{
 		createDescriptorSetLayout();
-		createDescriptorPool(MAX_FRAMES_IN_FLIGHT);
+		createDescriptorPool();
 	}
 
 	void DescriptorPool::createDescriptorSetLayout()
@@ -41,8 +40,18 @@ namespace Comphi::Vulkan {
 
 	}
 
-	void DescriptorPool::createDescriptorPool(int MAX_FRAMES_IN_FLIGHT)
+	DescriptorPool::~DescriptorPool()
 	{
+		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorSetLayout");
+		vkDestroyDescriptorSetLayout(*Vulkan::GraphicsHandler::get()->logicalDevice, descriptorSetLayout, nullptr);
+
+		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
+		vkDestroyDescriptorPool(*Vulkan::GraphicsHandler::get()->logicalDevice, descriptorPoolObj, nullptr);
+	}
+
+	void DescriptorPool::createDescriptorPool()
+	{
+		int MAX_FRAMES_IN_FLIGHT = *GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
 		std::array<VkDescriptorPoolSize, 2> poolSizes{};
 		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
@@ -61,8 +70,9 @@ namespace Comphi::Vulkan {
 		}
 	}                                                                                                                                                                                                                      
 
-	void DescriptorPool::updateDescriptorSet(MeshObject& obj, int MAX_FRAMES_IN_FLIGHT)
+	void DescriptorPool::bindDescriptorSet(std::vector<Vulkan::Texture*> textures, std::vector<UniformBuffer> MVP_ubos)
 	{
+		int MAX_FRAMES_IN_FLIGHT = *GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -82,20 +92,15 @@ namespace Comphi::Vulkan {
 
 			//OBJECT VERTEX
 			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = obj.ubos[i].get()->bufferObj;
-			
-			//TODO:
-			//Try to understand how scene objects & uniformBuffers fit here...
-			//maybe single uniform buffer for multiple object instantiaion ?
-			
+			bufferInfo.buffer = MVP_ubos[i].bufferObj;
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
 
 			//OBJECT TEXTURES
 			VkDescriptorImageInfo imageInfo{};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = obj.texture.get()->imageViewObj;
-			imageInfo.sampler = obj.texture.get()->textureSamplerObj;
+			imageInfo.imageView = textures[0]->imageViewObj;
+			imageInfo.sampler = textures[0]->textureSamplerObj;
 
 			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
