@@ -6,7 +6,7 @@
 namespace Comphi::Vulkan {
 	GraphicsPipeline::GraphicsPipeline(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages)
 	{
-
+		//TODO : Reference from outside (GraphicsContext ?)
 		descriptorPool = std::make_unique<DescriptorPool>();
 
 		//VertexBufferDescription

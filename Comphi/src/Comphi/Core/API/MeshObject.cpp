@@ -8,12 +8,12 @@
 
 namespace Comphi {
 
-	MeshObject::MeshObject(std::string objFile, Material& material)
+	MeshObject::MeshObject(IFileRef& objFile, Material& material)
 	{
 		initialize(objFile, material);
 	}
 
-	void MeshObject::initialize(std::string objFile, Material& material)
+	void MeshObject::initialize(IFileRef& objFile, Material& material)
 	{
 		ParseObjFile(objFile);
 		this->material = std::make_shared<Material>(material);
@@ -33,15 +33,15 @@ namespace Comphi {
 		InitializeUBO();
 	}
 
-	void MeshObject::ParseObjFile(std::string objFile) {
-		this->objFile.reload(objFile);
+	void MeshObject::ParseObjFile(IFileRef& objFile) {
+		this->objFile = &objFile;
 
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
 		std::string warn, err;
 
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, objFile.c_str())) {
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, objFile.getFilename().data())) {
 			throw std::runtime_error(warn + err);
 		}
 

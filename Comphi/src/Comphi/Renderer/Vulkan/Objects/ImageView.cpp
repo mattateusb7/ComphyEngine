@@ -3,7 +3,7 @@
 
 namespace Comphi::Vulkan {
 
-	ImageView::ImageView(std::string filepath, ImgSpecification spec) //change FilePath to Windows::FileRef
+	ImageView::ImageView(std::string& filepath, ImgSpecification spec) //change FilePath to Windows::FileRef
 		: ImageBuffer(filepath, spec)
 	{
 		this->aspectFlags = spec.aspectFlags;

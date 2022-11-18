@@ -179,7 +179,6 @@ namespace Comphi::Windows {
 	void Window::OnUpdate()
 	{
 		glfwPollEvents();
-		m_GraphicsContext->SwapBuffers();
 	}
 
 	void Window::OnBeginUpdate()

@@ -24,7 +24,6 @@ namespace Comphi::Vulkan {
 	public:
 		GraphicsContext(GLFWwindow& windowHandle);
 		virtual void Init() override;
-		virtual void SwapBuffers() override;
 		virtual void Draw() override;
 		virtual void ResizeWindow(uint x, uint y) override;
 		virtual void ResizeFramebuffer(uint x, uint y) override;
@@ -32,8 +31,8 @@ namespace Comphi::Vulkan {
 
 	protected:
 		bool framebufferResized = false;
+		//Debug ?
 		void updateUniformBuffer(uint32_t currentImage);
-
 	public:
 
 		std::unique_ptr<GraphicsInstance> graphicsInstance;

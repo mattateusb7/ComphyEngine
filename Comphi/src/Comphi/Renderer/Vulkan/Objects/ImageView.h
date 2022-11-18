@@ -8,7 +8,7 @@ namespace Comphi::Vulkan {
 	public:
 		//default constructer auto alocates ImageBuffer
 		ImageView() = default;
-		ImageView(std::string filepath, ImgSpecification specification = ImgSpecification());
+		ImageView(std::string& filepath, ImgSpecification specification = ImgSpecification());
 		VkSampler initTextureSampler();
 
 		//from ImageBuffer: 

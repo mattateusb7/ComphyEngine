@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Comphi/Platform/Windows/FileRef.h"
+#include "Comphi/Platform/IFileRef.h"
 #include "Comphi/Renderer/Vulkan/Objects/VertexBuffer.h"
 #include "Comphi/Renderer/Vulkan/Objects/IndexBuffer.h"
 #include "Comphi/Core/API/Material.h"
 
-namespace Comphi { //TODO: Comphi namepsace objects should use platform & renderer independent interfaces
+namespace Comphi { //TODO: Comphi namepsace objects should use platform & renderer independent interfaces (API)
 	class MeshObject 
 	{
 	public:
@@ -13,13 +13,13 @@ namespace Comphi { //TODO: Comphi namepsace objects should use platform & render
 
 		//TODO: move material out of MeshObject Contructor to GameObject (that holds both mesh & textures 
 		//although each mesh can only render one material at the time... so batched rendering would require us to group all meshes with the same material in a single buffer
-		// so its probably not that bad to keep materials inside meshes.
+		// so its probably not that bad to keep material Refs inside meshes.
 
-		MeshObject(std::string objFile, Material& material); //TODO: swap objFile with Fileref
-		void initialize(std::string objFile, Material& material);
+		MeshObject(IFileRef& objFile, Material& material);
+		void initialize(IFileRef& objFile, Material& material);
 		MeshObject(VertexArray& vertices, IndexArray& indices, Material& material);
 		void initialize(VertexArray& vertices, IndexArray& indices, Material& material);
-		Windows::FileRef objFile;
+		IFileRef* objFile;
 		/*
 		* Driver developers recommend that you also store multiple buffers, like the vertex and index buffer, into a single VkBuffer
 		* (DrawBuffer or maybe batchDrawBuffer/multipleObjs)
@@ -32,10 +32,13 @@ namespace Comphi { //TODO: Comphi namepsace objects should use platform & render
 		std::shared_ptr<Material> material; //TODO: Add multiple Material-Attributes in GameObject
 
 		void InitializeUBO(); //TODO: initialize before set submission of Material
+		//TODO : Move to TransformObj 
+		//Figure out where to initialize & update 
+		//Make UniformBuffer Interface (API)
 		std::vector<Vulkan::UniformBuffer> MVP_UBOs; //TODO : MVP matrix uniform -> Move to TransformObj
 
 	protected:
-		void ParseObjFile(std::string objFile);
+		void ParseObjFile(IFileRef& objFile);
 	};
 }
 

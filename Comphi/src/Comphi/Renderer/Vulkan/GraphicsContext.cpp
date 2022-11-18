@@ -32,10 +32,12 @@ namespace Comphi::Vulkan {
 		//					GRAPHICS PIPELINE 
 		//TODO : Shader stages -> Move outside of Graphics context
 
-		Material::InitializationData shaderPipelineInitData;
-		texture1 = std::make_shared<Texture>("textures/viking_room.png");
+		Material::InitializationData shaderPipelineCreationData;
+		std::string Texfile = "textures/viking_room.png";
+		texture1 = std::make_shared<Texture>(Texfile);
+
 		std::vector<Texture*> textures = { texture1.get()};
-		shaderPipelineInitData.textures = textures;
+		shaderPipelineCreationData.textures = textures;
 
 		vert = Windows::FileRef("shaders\\vert.spv");
 		frag = Windows::FileRef("shaders\\frag.spv");
@@ -43,9 +45,9 @@ namespace Comphi::Vulkan {
 		fragShader = new ShaderProgram(ShaderType::FragmentShader, frag);
 
 		std::vector<IShaderProgram*> shaders = { &*vertShader , &*fragShader };
-		shaderPipelineInitData.shaders = shaders;
+		shaderPipelineCreationData.shaders = shaders;
 
-		Albedo1 = std::make_shared<Material>(shaderPipelineInitData);
+		Albedo1 = std::make_shared<Material>(shaderPipelineCreationData);
 
 
 		// ------------------------------------------------------------
@@ -88,7 +90,7 @@ namespace Comphi::Vulkan {
 		};
 
 
-		meshObj1 = std::make_shared<MeshObject>("models/viking_room.obj", *Albedo1.get());
+		meshObj1 = std::make_shared<MeshObject>(cubeVx, CubeIx, *Albedo1.get());
 
 		// ------------------------------------------------------------
 	
@@ -230,10 +232,5 @@ namespace Comphi::Vulkan {
 	void GraphicsContext::ResizeFramebuffer(uint x, uint y)
 	{
 		framebufferResized = true;
-	}
-
-	void GraphicsContext::SwapBuffers()
-	{
-		//glfwSwapBuffers(windowHandle);
 	}
 }

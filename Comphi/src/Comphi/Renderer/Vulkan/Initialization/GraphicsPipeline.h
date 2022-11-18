@@ -17,7 +17,11 @@ namespace Comphi::Vulkan {
 
 		VkPipelineLayout pipelineLayout;
 		VkPipeline pipelineObj;
+
+		//TODO: This should be referenced from outside 
 		std::unique_ptr<DescriptorPool> descriptorPool;
+
+		//VkDescriptorSet;
 
 		~GraphicsPipeline();
 	};
