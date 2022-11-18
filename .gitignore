@@ -11,3 +11,5 @@ bin-int/
 .sln
 .vscode/
 vendor/premake/premake5.exe
+*.filters
+*.vcxproj
