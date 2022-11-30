@@ -26,8 +26,7 @@ namespace Comphi::Vulkan {
 
     CommandBuffer GraphicsHandler::beginCommandBuffer(CommandQueueOperation op)
     {
-        VkCommandPool commandPool = op == TransferCommand ?
-            *GraphicsHandler::get()->transferQueueFamily.commandPool.get() : *GraphicsHandler::get()->graphicsQueueFamily.commandPool.get();
+        VkCommandPool commandPool = getCommandPool(op);
 
         CommandBuffer commandBuffer = { op };
 
@@ -51,11 +50,8 @@ namespace Comphi::Vulkan {
 
     void GraphicsHandler::endCommandBuffer(CommandBuffer& commandBuffer)
     {
-        VkQueue commandQueue = commandBuffer.op == TransferCommand ?
-            *GraphicsHandler::get()->transferQueueFamily.queue.get() : *GraphicsHandler::get()->graphicsQueueFamily.queue.get();
-
-        VkCommandPool commandPool = commandBuffer.op == TransferCommand ?
-            *GraphicsHandler::get()->transferQueueFamily.commandPool.get() : *GraphicsHandler::get()->graphicsQueueFamily.commandPool.get();
+        VkQueue commandQueue = getCommandQueue(commandBuffer.op);
+        VkCommandPool commandPool = getCommandPool(commandBuffer.op);
 
         vkEndCommandBuffer(commandBuffer.buffer);
 
@@ -76,4 +72,35 @@ namespace Comphi::Vulkan {
 
         vkFreeCommandBuffers(*GraphicsHandler::get()->logicalDevice.get(), commandPool, 1, &commandBuffer.buffer);
     }
+
+#pragma region Protected
+
+    VkCommandPool GraphicsHandler::getCommandPool(CommandQueueOperation& op) {
+        switch (op)
+        {
+        case TransferCommand:
+            return *GraphicsHandler::get()->transferQueueFamily.commandPool.get();
+            break;
+        case GraphicsCommand:
+        default:
+            return *GraphicsHandler::get()->graphicsQueueFamily.commandPool.get();
+            break;
+        }
+
+    }
+
+    VkQueue GraphicsHandler::getCommandQueue(CommandQueueOperation& op) {
+        switch (op)
+        {
+        case TransferCommand:
+            return *GraphicsHandler::get()->transferQueueFamily.queue.get();
+            break;
+        case GraphicsCommand:
+        default:
+            return *GraphicsHandler::get()->graphicsQueueFamily.queue.get();
+            break;
+        }
+    }
+#pragma endregion
+
 }

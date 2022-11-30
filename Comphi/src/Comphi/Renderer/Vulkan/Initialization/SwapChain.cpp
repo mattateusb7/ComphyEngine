@@ -339,7 +339,7 @@ namespace Comphi::Vulkan {
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		{//begin render pass
 
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, meshObj.material->graphicsPipeline->pipelineObj);
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, meshObj.material->graphicsPipeline.pipelineObj);
 
 			//Bind VertexBuffers @0
 			VkBuffer vertexBuffers[] = { meshObj.vertices->bufferObj };
@@ -365,7 +365,7 @@ namespace Comphi::Vulkan {
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 			//BindIndex UniformBuffers 
-			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, meshObj.material->graphicsPipeline->pipelineLayout, 0, 1, &meshObj.material->graphicsPipeline->descriptorPool->descriptorSets[currentFrame], 0, nullptr);
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, meshObj.material->graphicsPipeline.pipelineLayout, 0, 1, &meshObj.material->graphicsPipeline.descriptorSets[currentFrame], 0, nullptr);
 
 			//DRAW COMMAND
 			vkCmdDrawIndexed(commandBuffer, meshObj.indices->indexCount, 1, 0, 0, 0);

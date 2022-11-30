@@ -8,7 +8,7 @@
 
 namespace Comphi {
 
-	MeshObject::MeshObject(IFileRef& objFile, Material& material)
+	MeshObject::MeshObject(IFileRef& objFile, Material& material) //TODO: Add default Material
 	{
 		initialize(objFile, material);
 	}
@@ -17,7 +17,7 @@ namespace Comphi {
 	{
 		ParseObjFile(objFile);
 		this->material = std::make_shared<Material>(material);
-		InitializeUBO();
+		sendDataLayoutToDesciptorPool();
 	}
 
 	MeshObject::MeshObject(VertexArray& vertices, IndexArray& indices, Material& material)
@@ -25,12 +25,12 @@ namespace Comphi {
 		initialize(vertices, indices, material);
 	}
 
-	void MeshObject::initialize(VertexArray& vertices, IndexArray& indices, Material& material)
+	void MeshObject::initialize(VertexArray& vertices, IndexArray& indices, Material& material) 
 	{
 		this->vertices = std::make_shared<Vulkan::VertexBuffer>(vertices);
 		this->indices = std::make_shared<Vulkan::IndexBuffer>(indices);
 		this->material = std::make_shared<Material>(material);
-		InitializeUBO();
+		sendDataLayoutToDesciptorPool();
 	}
 
 	void MeshObject::ParseObjFile(IFileRef& objFile) {
@@ -41,7 +41,7 @@ namespace Comphi {
 		std::vector<tinyobj::material_t> materials;
 		std::string warn, err;
 
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, objFile.getFilename().data())) {
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, objFile.getFilePath().data())) {
 			throw std::runtime_error(warn + err);
 		}
 
@@ -82,7 +82,7 @@ namespace Comphi {
 		indices = std::make_shared<Vulkan::IndexBuffer>(iArray);
 	}
 
-	void MeshObject::InitializeUBO()
+	void MeshObject::sendDataLayoutToDesciptorPool()
 	{
 		int MAX_FRAMES_IN_FLIGHT = *Vulkan::GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
 		MVP_UBOs.resize(MAX_FRAMES_IN_FLIGHT);
@@ -92,7 +92,9 @@ namespace Comphi {
 			UniformBufferObject ubo = {};
 			MVP_UBOs[i] = UniformBufferObject(ubo);
 		}
-		material->graphicsPipeline->descriptorPool->bindDescriptorSet(material->shaderTextures, MVP_UBOs);
+
+		//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts compatible with Descriptor Pool
+		material->graphicsPipeline.sendDescriptorSet(material->shaderTextures, MVP_UBOs); 
 		
 	}
 

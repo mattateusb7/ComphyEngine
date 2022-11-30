@@ -36,7 +36,9 @@ namespace Comphi::Vulkan {
 		
 	};
 
-	typedef ImageView Texture;
+	typedef ImageView Texture; //TODO: temp ?
+	#define TextureInstance std::shared_ptr<Texture>
+	#define MakeTextureInstance std::make_shared<Texture>
 
 }
 

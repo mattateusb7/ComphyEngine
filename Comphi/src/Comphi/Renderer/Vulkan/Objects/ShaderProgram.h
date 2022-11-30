@@ -21,4 +21,7 @@ namespace Comphi::Vulkan {
 		VkShaderModule createShaderModule(const std::vector<char>& code);
 	};
 
+#define ShaderProgramInstance std::shared_ptr<ShaderProgram>
+#define MakeShaderProgramInstance std::make_shared<ShaderProgram>
+
 }

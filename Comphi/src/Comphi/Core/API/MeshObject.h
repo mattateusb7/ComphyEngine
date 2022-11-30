@@ -6,7 +6,7 @@
 #include "Comphi/Core/API/Material.h"
 
 namespace Comphi { //TODO: Comphi namepsace objects should use platform & renderer independent interfaces (API)
-	class MeshObject 
+	class MeshObject //Add to GameObject (if not Empty)
 	{
 	public:
 		MeshObject() = default;
@@ -29,9 +29,9 @@ namespace Comphi { //TODO: Comphi namepsace objects should use platform & render
 
 		std::shared_ptr<Vulkan::VertexBuffer> vertices;
 		std::shared_ptr<Vulkan::IndexBuffer> indices;
-		std::shared_ptr<Material> material; //TODO: Add multiple Material-Attributes in GameObject
+		std::shared_ptr<Material> material; //TODO: Add Material-Attributes for vertexGroups
 
-		void InitializeUBO(); //TODO: initialize before set submission of Material
+		void sendDataLayoutToDesciptorPool();
 		//TODO : Move to TransformObj 
 		//Figure out where to initialize & update 
 		//Make UniformBuffer Interface (API)
@@ -40,5 +40,8 @@ namespace Comphi { //TODO: Comphi namepsace objects should use platform & render
 	protected:
 		void ParseObjFile(IFileRef& objFile);
 	};
+
+	#define MeshInstance std::shared_ptr<MeshObject>
+	#define MakeMeshInstance std::make_shared<MeshObject>
 }
 

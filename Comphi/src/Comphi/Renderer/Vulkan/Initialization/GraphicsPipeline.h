@@ -13,17 +13,22 @@ namespace Comphi::Vulkan {
 		//	VkRect2D* scissor;
 		//}graphicsPipelineSetupData;
 
-		GraphicsPipeline(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages);
+		GraphicsPipeline() = default;
+		void initialize(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages, DescriptorPool& descriptorPool);
 
 		VkPipelineLayout pipelineLayout;
 		VkPipeline pipelineObj;
+		std::vector<VkDescriptorSet> descriptorSets;
 
-		//TODO: This should be referenced from outside 
-		std::unique_ptr<DescriptorPool> descriptorPool;
-
-		//VkDescriptorSet;
+		//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts
+		void sendDescriptorSet(std::vector<Vulkan::Texture*>textures, std::vector<UniformBuffer> MVP_ubos);
 
 		~GraphicsPipeline();
+	
+	protected:
+		DescriptorPool* updatePool;
+		void createDescriptorSetLayout();
+		VkDescriptorSetLayout descriptorSetLayout;
 	};
 
 }

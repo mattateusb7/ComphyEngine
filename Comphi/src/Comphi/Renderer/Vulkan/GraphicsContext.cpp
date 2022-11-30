@@ -30,24 +30,29 @@ namespace Comphi::Vulkan {
 
 		// ------------------------------------------------------------
 		//					GRAPHICS PIPELINE 
-		//TODO : Shader stages -> Move outside of Graphics context
+		//TODO : Shader/Texture/Material initialization stage -> Move outside of Graphics context
 
-		Material::InitializationData shaderPipelineCreationData;
-		std::string Texfile = "textures/viking_room.png";
-		texture1 = std::make_shared<Texture>(Texfile);
+		descriptorPool = MakeDescriptorPoolInstance(); //TODO: Single Layout for now
+
+		Material::MaterialProperties materialProperties;
+		materialProperties.descriptorPool = descriptorPool.get();
+
+		std::string Texfile = "textures/lain.jpg";
+		texture1 = MakeTextureInstance(Texfile);
 
 		std::vector<Texture*> textures = { texture1.get()};
-		shaderPipelineCreationData.textures = textures;
+		materialProperties.textures = textures;
 
 		vert = Windows::FileRef("shaders\\vert.spv");
 		frag = Windows::FileRef("shaders\\frag.spv");
-		vertShader = new ShaderProgram(ShaderType::VertexShader, vert);
-		fragShader = new ShaderProgram(ShaderType::FragmentShader, frag);
+		vertShader = MakeShaderProgramInstance(ShaderType::VertexShader, vert);
+		fragShader = MakeShaderProgramInstance(ShaderType::FragmentShader, frag);
 
 		std::vector<IShaderProgram*> shaders = { &*vertShader , &*fragShader };
-		shaderPipelineCreationData.shaders = shaders;
+		materialProperties.shaders = shaders;
 
-		Albedo1 = std::make_shared<Material>(shaderPipelineCreationData);
+		//shared Material Instance
+		Albedo1 = MakeMaterialInstance(materialProperties);
 
 
 		// ------------------------------------------------------------
@@ -89,8 +94,8 @@ namespace Comphi::Vulkan {
 			4, 7, 6,   6, 5, 4    // v4-v7-v6, v6-v5-v4 (back)
 		};
 
-
-		meshObj1 = std::make_shared<MeshObject>(cubeVx, CubeIx, *Albedo1.get());
+		modelMesh = Windows::FileRef("models/blepospace.obj");
+		meshObj1 = MakeMeshInstance(modelMesh, *Albedo1.get());
 
 		// ------------------------------------------------------------
 	
@@ -155,10 +160,10 @@ namespace Comphi::Vulkan {
 
 		//vkResetCommandPool(graphicsInstance->logicalDevice, commandPool->graphicsCommandPool,0); 
 		//if you are making multiple command buffers from one pool, resetting the pool will be quicker.
-		vkResetCommandBuffer(commandPool->commandBuffers[swapchain->currentFrame], 0);
+		vkResetCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], 0);
 
 		//SEND render COMMANDS TO GPU
-		swapchain->recordCommandBuffer(commandPool->commandBuffers[swapchain->currentFrame], *meshObj1.get(), imageIndex);
+		swapchain->recordCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], *meshObj1.get(), imageIndex);
 
 		updateUniformBuffer(swapchain->currentFrame);
 
@@ -172,7 +177,7 @@ namespace Comphi::Vulkan {
 		submitInfo.pWaitDstStageMask = waitStages;
 
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandPool->commandBuffers[swapchain->currentFrame];
+		submitInfo.pCommandBuffers = &commandPool->graphicsCommandBuffers[swapchain->currentFrame];
 
 		VkSemaphore signalSemaphores[] = { syncObjects->renderFinishedSemaphores[swapchain->currentFrame] };
 		submitInfo.signalSemaphoreCount = 1;

@@ -32,6 +32,9 @@
 #define BIT(x) (1 << x)
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
+//vk Macros
+#define vkCheckError(x) if(x != VK_SUCCESS)
+
 namespace Comphi {
 	typedef uint32_t uint;
 	typedef uint64_t uint64;

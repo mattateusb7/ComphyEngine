@@ -3,8 +3,6 @@
 
 namespace Comphi::Vulkan {
 
-#pragma region CommandPool
-
 	CommandPool::CommandPool()
 	{
 		createCommandPools();
@@ -19,7 +17,7 @@ namespace Comphi::Vulkan {
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		poolInfo.queueFamilyIndex = *GraphicsHandler::get()->graphicsQueueFamily.index;
 
-		if (vkCreateCommandPool(*GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &graphicsCommandPool) != VK_SUCCESS) {
+		vkCheckError(vkCreateCommandPool(*GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &graphicsCommandPool)) {
 			COMPHILOG_CORE_FATAL("failed to create command pool!");
 			throw std::runtime_error("failed to create command pool!");
 			return;
@@ -30,7 +28,7 @@ namespace Comphi::Vulkan {
 		poolInfoTransfer.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; //VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
 		poolInfoTransfer.queueFamilyIndex = *GraphicsHandler::get()->transferQueueFamily.index;
 
-		if (vkCreateCommandPool(*GraphicsHandler::get()->logicalDevice, &poolInfoTransfer, nullptr, &transferCommandPool) != VK_SUCCESS) {
+		vkCheckError(vkCreateCommandPool(*GraphicsHandler::get()->logicalDevice, &poolInfoTransfer, nullptr, &transferCommandPool)) {
 			COMPHILOG_CORE_FATAL("failed to create transfer command pool!");
 			throw std::runtime_error("failed to create transfer command pool!");
 			return;
@@ -40,21 +38,36 @@ namespace Comphi::Vulkan {
 
 	void CommandPool::createCommandBuffers(int MAX_FRAMES_IN_FLIGHT) {
 
-		commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		graphicsCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		transferCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = graphicsCommandPool;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+		VkCommandBufferAllocateInfo allocInfo_graphics{};
+		allocInfo_graphics.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo_graphics.commandPool = graphicsCommandPool;
+		allocInfo_graphics.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo_graphics.commandBufferCount = static_cast<uint32_t>(graphicsCommandBuffers.size());
 
 
-		if (vkAllocateCommandBuffers(*GraphicsHandler::get()->logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+		vkCheckError(vkAllocateCommandBuffers(*GraphicsHandler::get()->logicalDevice, &allocInfo_graphics, graphicsCommandBuffers.data())) {
 			COMPHILOG_CORE_FATAL("failed to allocate command buffers!");
 			throw std::runtime_error("failed to allocate command buffers!");
 			return;
 		}
 		COMPHILOG_CORE_INFO("Allocated {0} GraphicsCommandBuffers from graphicsCommandPool", MAX_FRAMES_IN_FLIGHT);
+
+		VkCommandBufferAllocateInfo allocInfo_transfer{};
+		allocInfo_transfer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo_transfer.commandPool = transferCommandPool;
+		allocInfo_transfer.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo_transfer.commandBufferCount = static_cast<uint32_t>(transferCommandBuffers.size());
+
+
+		vkCheckError(vkAllocateCommandBuffers(*GraphicsHandler::get()->logicalDevice, &allocInfo_transfer, transferCommandBuffers.data())) {
+			COMPHILOG_CORE_FATAL("failed to allocate command buffers!");
+			throw std::runtime_error("failed to allocate command buffers!");
+			return;
+		}
+		COMPHILOG_CORE_INFO("Allocated {0} TransferCommandBuffers from graphicsCommandPool", MAX_FRAMES_IN_FLIGHT);
 	}
 
 	CommandPool::~CommandPool()
@@ -65,7 +78,5 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsCommandPool");
 		vkDestroyCommandPool(*GraphicsHandler::get()->logicalDevice, graphicsCommandPool, nullptr);
 	}
-
-#pragma endregion
 
 }

@@ -12,7 +12,8 @@ namespace Comphi::Vulkan {
 	public:
 		CommandPool();
 		void createCommandBuffers(int MAX_FRAMES_IN_FLIGHT);
-		std::vector<VkCommandBuffer> commandBuffers;
+		std::vector<VkCommandBuffer> graphicsCommandBuffers;
+		std::vector<VkCommandBuffer> transferCommandBuffers;
 
 		VkCommandPool graphicsCommandPool;
 		VkCommandPool transferCommandPool;

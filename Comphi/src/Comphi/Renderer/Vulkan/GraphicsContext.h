@@ -41,13 +41,15 @@ namespace Comphi::Vulkan {
 		std::unique_ptr<SyncObjects> syncObjects;
 
 		//TODO: remove DEBUG objs
-		std::shared_ptr<MeshObject> meshObj1;
-		std::shared_ptr<Texture> texture1;
-		std::shared_ptr<Material> Albedo1;
-		ShaderProgram* vertShader;
-		ShaderProgram* fragShader;
+		DescriptorPoolInstance descriptorPool;
+		MeshInstance meshObj1;
+		TextureInstance texture1;
+		MaterialInstance Albedo1;
+		ShaderProgramInstance vertShader;
+		ShaderProgramInstance fragShader;
 		Windows::FileRef vert;
 		Windows::FileRef frag;
+		Windows::FileRef modelMesh;
 	};
 
 }

@@ -96,9 +96,14 @@ namespace Comphi::Vulkan {
 
 		static CommandBuffer beginCommandBuffer(CommandQueueOperation op);
 		static void endCommandBuffer(CommandBuffer& commandBuffer);
-
+	
 		bool isInUse = true;
 		void DeleteStatic();
 		~GraphicsHandler();
+
+	protected:
+		static VkCommandPool getCommandPool(CommandQueueOperation& op);
+		static VkQueue getCommandQueue(CommandQueueOperation& op);
+
 	};
 }

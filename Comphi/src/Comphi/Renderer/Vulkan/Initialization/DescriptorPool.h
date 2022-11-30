@@ -12,14 +12,9 @@ namespace Comphi::Vulkan {
 
 	public:
 		DescriptorPool();
-		VkDescriptorPool descriptorPoolObj; //TODO: In the future share multiple sets with least ammount of pools (static?) 
-		VkDescriptorSetLayout descriptorSetLayout;
-		std::vector<VkDescriptorSet> descriptorSets;
-		void bindDescriptorSet(std::vector<Vulkan::Texture*>textures, std::vector<UniformBuffer> MVP_ubos);
+		VkDescriptorPool descriptorPoolObj;
 		~DescriptorPool();
-	protected:
-		void createDescriptorPool();
-		void createDescriptorSetLayout(); //TODO: Layout TBD by shaderPipeline
-
 	};
+	#define DescriptorPoolInstance std::shared_ptr<DescriptorPool>
+	#define MakeDescriptorPoolInstance std::make_shared<DescriptorPool>
 }

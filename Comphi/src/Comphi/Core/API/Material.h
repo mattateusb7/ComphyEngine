@@ -6,16 +6,20 @@ namespace Comphi {
 	class Material //TODO: public IMaterial API / make virtual implementations for different Materials ? or generic for all
 	{
 	public:
-		struct InitializationData //TODO : may Move all shaders to graphics Pipeline?
+		struct MaterialProperties
 		{
 			std::vector<IShaderProgram*> shaders;
 			std::vector<Vulkan::Texture*> textures;
+			Vulkan::DescriptorPool* descriptorPool;
 		};
-		Material(InitializationData properties);
+		Material(MaterialProperties properties);
 
+		//linked MaterialProperties:
 		std::vector<Vulkan::Texture*>shaderTextures;
 		std::vector<Vulkan::ShaderProgram*>shaderPrograms;
-		std::shared_ptr<Vulkan::GraphicsPipeline> graphicsPipeline;
+		
+		//Each Material owns one Shader/Graphics Pipeline
+		Vulkan::GraphicsPipeline graphicsPipeline;
 
 		~Material();
 	protected:
@@ -24,5 +28,7 @@ namespace Comphi {
 		bool UnbindProgram(IShaderProgram& shaderProgram);
 
 	};
+	#define MaterialInstance std::shared_ptr<Material>
+	#define MakeMaterialInstance std::make_shared<Material>
 }
 

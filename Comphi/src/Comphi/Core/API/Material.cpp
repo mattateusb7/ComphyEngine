@@ -3,22 +3,19 @@
 
 namespace Comphi {
 
-	Material::Material(InitializationData properties)
+	Material::Material(MaterialProperties properties)
 	{
+		shaderTextures = properties.textures;
+
 		for (int i = 0; i < properties.shaders.size(); i++) {
 			BindProgram(*properties.shaders[i]);
 		}
-		
-		for (int i = 0; i < properties.textures.size(); i++) {
-			shaderTextures.push_back(properties.textures[i]);
-		}
 
-		graphicsPipeline = std::make_shared<Vulkan::GraphicsPipeline>(shaderStages);
+		graphicsPipeline.initialize(shaderStages, *properties.descriptorPool);
 
 		for (int i = 0; i < properties.shaders.size(); i++) {
 			UnbindProgram(*properties.shaders[i]);
 		}
-
 	}
 
 	bool Material::BindProgram(IShaderProgram& shaderProgram)
@@ -73,7 +70,7 @@ namespace Comphi {
 
 	Material::~Material()
 	{
-		graphicsPipeline->~GraphicsPipeline();
+		graphicsPipeline.~GraphicsPipeline();
 	}
 	
 }
