@@ -69,15 +69,16 @@ namespace Comphi::Vulkan {
 		SwapchainHandler() = default;
 		std::shared_ptr<int> MAX_FRAMES_IN_FLIGHT;
 		std::shared_ptr<VkRenderPass> renderPass;
+		std::shared_ptr<VkExtent2D> swapChainExtent;
 		void setSwapchainHandler(
-			int& MAX_FRAMES_IN_FLIGHT
+			int& MAX_FRAMES_IN_FLIGHT,
+			VkRenderPass& renderPass,
+			VkExtent2D& swapChainExtent
+
 		) {
 			this->MAX_FRAMES_IN_FLIGHT = std::make_shared<int>(MAX_FRAMES_IN_FLIGHT);
-		}
-		void setRenderPass(
-			VkRenderPass& renderPass
-		) {
 			this->renderPass = std::make_shared<VkRenderPass>(renderPass);
+			this->swapChainExtent = std::make_shared<VkExtent2D>(swapChainExtent);
 		}
 	};
 

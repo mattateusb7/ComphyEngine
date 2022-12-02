@@ -34,10 +34,10 @@ namespace Comphi::Vulkan {
 
 		descriptorPool = MakeDescriptorPoolInstance(); //TODO: Single Layout for now
 
-		Material::MaterialProperties materialProperties;
+		MaterialProperties materialProperties;
 		materialProperties.descriptorPool = descriptorPool.get();
 
-		std::string Texfile = "textures/lain.jpg";
+		std::string Texfile = "textures/viking_room.png";
 		texture1 = MakeTextureInstance(Texfile);
 
 		std::vector<Texture*> textures = { texture1.get()};
@@ -94,8 +94,12 @@ namespace Comphi::Vulkan {
 			4, 7, 6,   6, 5, 4    // v4-v7-v6, v6-v5-v4 (back)
 		};
 
-		modelMesh = Windows::FileRef("models/blepospace.obj");
+		modelMesh = Windows::FileRef("models/viking_room.obj");
 		meshObj1 = MakeMeshInstance(modelMesh, *Albedo1.get());
+		gameObj1 = MakeGameObjectInstance(meshObj1);
+
+		camObj1 = MakeCameraInstance();
+		camObj1->transform.position = glm::vec3(0.0f, 4.0f, 0.0f);
 
 		// ------------------------------------------------------------
 	
@@ -104,27 +108,28 @@ namespace Comphi::Vulkan {
 
 #pragma region //DEBUG!
 
-	void GraphicsContext::updateUniformBuffer(uint32_t currentImage) {
+	void GraphicsContext::updateUniformBuffers(uint32_t currentImage) {
+
+		//TODO: Move this vvv to a TIME Class
 		static auto startTime = std::chrono::high_resolution_clock::now();
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float Time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-		//glm::abs(glm::sin(Time))
+		// ^^^
 
+		gameObj1->transform.position = glm::vec3(0, 0, glm::sin(Time));
+		gameObj1->transform.setEulerAngles(glm::vec3(0.0f, 0.0f, 45.0f) * Time);
+		
+		camObj1->transform.lookAt(gameObj1->transform.position);
+
+		//Update MVP_UBOs per GameObject
 		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), /*glm::sin(Time)*/ Time * glm::radians(45.0f), glm::vec3(0, 0, 1.0)); /*glm::vec3(glm::sin(Time)0.0f, 0.5f, 1.0f*/
+		ubo.model = gameObj1->transform.getModelMatrix();
+		ubo.view = camObj1->getViewMatrix();
+		ubo.proj = camObj1->getProjectionMatrix();
 
-		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		gameObj1->updateMVP(ubo,currentImage);
 
-		ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->swapChainExtent.width / (float)swapchain->swapChainExtent.height, 0.1f, 10.0f);
-
-		ubo.proj[1][1] *= -1;
-
-		void* data;
-
-		vkMapMemory(graphicsInstance->logicalDevice, meshObj1->MVP_UBOs[currentImage].bufferMemory, 0, sizeof(ubo), 0, &data);
-		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(graphicsInstance->logicalDevice, meshObj1->MVP_UBOs[currentImage].bufferMemory);
 	}
 #pragma endregion
 
@@ -165,7 +170,7 @@ namespace Comphi::Vulkan {
 		//SEND render COMMANDS TO GPU
 		swapchain->recordCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], *meshObj1.get(), imageIndex);
 
-		updateUniformBuffer(swapchain->currentFrame);
+		updateUniformBuffers(swapchain->currentFrame);
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

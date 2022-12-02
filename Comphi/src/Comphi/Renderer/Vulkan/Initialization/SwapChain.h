@@ -25,7 +25,6 @@ namespace Comphi::Vulkan {
 		std::vector<ImageView> swapChainImageViews;
 		ImageView swapChainDepthView;
 		std::vector<VkFramebuffer> swapChainFramebuffers;
-		//std::unique_ptr<RenderPass> renderPass;
 		VkRenderPass renderPassObj;
 
 		void incrementSwapChainFrame();

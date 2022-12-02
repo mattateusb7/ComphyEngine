@@ -31,12 +31,6 @@ namespace Comphi { //TODO: Comphi namepsace objects should use platform & render
 		std::shared_ptr<Vulkan::IndexBuffer> indices;
 		std::shared_ptr<Material> material; //TODO: Add Material-Attributes for vertexGroups
 
-		void sendDataLayoutToDesciptorPool();
-		//TODO : Move to TransformObj 
-		//Figure out where to initialize & update 
-		//Make UniformBuffer Interface (API)
-		std::vector<Vulkan::UniformBuffer> MVP_UBOs; //TODO : MVP matrix uniform -> Move to TransformObj
-
 	protected:
 		void ParseObjFile(IFileRef& objFile);
 	};

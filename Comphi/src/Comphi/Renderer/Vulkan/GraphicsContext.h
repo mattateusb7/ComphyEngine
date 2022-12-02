@@ -3,19 +3,12 @@
 
 #include "GraphicsHandler.h"
 
-//#include "Objects/VertexBuffer.h"
-//#include "Objects/IndexBuffer.h"
-//#include "Objects/UniformBuffer.h"
-//#include "Objects/ImageBufer.h"
-//#include "Objects/ImageView.h"
-//#include "Objects/ShaderProgram.h"
-
 #include "Initialization/GraphicsInstance.h"
 #include "Initialization/SwapChain.h"
 #include "Initialization/CommandPool.h"
 #include "Initialization/SyncObjects.h"
 
-#include "Comphi/Core/API/MeshObject.h" //TODO: TEMP debug
+#include "Comphi/Core/API/Camera.h" //TODO: TEMP debug
 
 namespace Comphi::Vulkan {
 
@@ -32,7 +25,7 @@ namespace Comphi::Vulkan {
 	protected:
 		bool framebufferResized = false;
 		//Debug ?
-		void updateUniformBuffer(uint32_t currentImage);
+		void updateUniformBuffers(uint32_t currentImage);
 	public:
 
 		std::unique_ptr<GraphicsInstance> graphicsInstance;
@@ -47,6 +40,8 @@ namespace Comphi::Vulkan {
 		MaterialInstance Albedo1;
 		ShaderProgramInstance vertShader;
 		ShaderProgramInstance fragShader;
+		GameObjectInstance gameObj1;
+		CameraInstance camObj1;
 		Windows::FileRef vert;
 		Windows::FileRef frag;
 		Windows::FileRef modelMesh;

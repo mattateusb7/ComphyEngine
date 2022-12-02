@@ -14,6 +14,8 @@ namespace Comphi::Vulkan {
 		setupDebugMessenger();
 #endif //!NDEBUG
 		createSurface();
+		GraphicsHandler::get()->setWindowHandler(GraphicsHandler::get()->windowHandle, surface);
+
 		pickPhysicalDevice();
 		createLogicalDevices();
 
@@ -63,7 +65,6 @@ namespace Comphi::Vulkan {
 			throw std::runtime_error("Failed to create window surface!");
 		}
 
-		GraphicsHandler::get()->setWindowHandler(GraphicsHandler::get()->windowHandle, surface);
 
 		COMPHILOG_CORE_INFO("vk_surface window creation successful!");
 	}

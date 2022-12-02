@@ -5,9 +5,9 @@ namespace Comphi::Vulkan {
 
 	SwapChain::SwapChain()
 	{
-		GraphicsHandler::get()->setSwapchainHandler(MAX_FRAMES_IN_FLIGHT);
 		createSwapChain();
 		createRenderPass();
+		GraphicsHandler::get()->setSwapchainHandler(MAX_FRAMES_IN_FLIGHT, renderPassObj, swapChainExtent);
 		createFramebuffers();
 	}
 
@@ -297,7 +297,6 @@ namespace Comphi::Vulkan {
 		}
 
 		COMPHILOG_CORE_INFO("created RenderPass Successfully!");
-		GraphicsHandler::get()->setRenderPass(renderPassObj);
 
 	}
 

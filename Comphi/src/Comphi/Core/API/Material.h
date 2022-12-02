@@ -3,15 +3,18 @@
 #include "Comphi/Renderer/Vulkan/Initialization/GraphicsPipeline.h"
 
 namespace Comphi {
+
+	struct MaterialProperties
+	{
+		std::vector<IShaderProgram*> shaders;
+		std::vector<Vulkan::Texture*> textures;
+		Vulkan::DescriptorPool* descriptorPool;
+	};
+
 	class Material //TODO: public IMaterial API / make virtual implementations for different Materials ? or generic for all
 	{
 	public:
-		struct MaterialProperties
-		{
-			std::vector<IShaderProgram*> shaders;
-			std::vector<Vulkan::Texture*> textures;
-			Vulkan::DescriptorPool* descriptorPool;
-		};
+		
 		Material(MaterialProperties properties);
 
 		//linked MaterialProperties:

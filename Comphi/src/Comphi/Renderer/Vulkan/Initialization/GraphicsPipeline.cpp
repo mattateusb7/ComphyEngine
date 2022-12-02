@@ -202,7 +202,7 @@ namespace Comphi::Vulkan {
 
 	}
 
-	void GraphicsPipeline::sendDescriptorSet(std::vector<Vulkan::Texture*> textures, std::vector<UniformBuffer> MVP_ubos)
+	void GraphicsPipeline::sendDescriptorSet(std::vector<Vulkan::Texture*>& textures, std::vector<UniformBuffer>& MVP_ubos)
 	{
 		int MAX_FRAMES_IN_FLIGHT = *GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);

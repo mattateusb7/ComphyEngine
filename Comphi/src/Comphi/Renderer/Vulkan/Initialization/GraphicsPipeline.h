@@ -21,7 +21,7 @@ namespace Comphi::Vulkan {
 		std::vector<VkDescriptorSet> descriptorSets;
 
 		//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts
-		void sendDescriptorSet(std::vector<Vulkan::Texture*>textures, std::vector<UniformBuffer> MVP_ubos);
+		void sendDescriptorSet(std::vector<Vulkan::Texture*>& textures, std::vector<UniformBuffer>& MVP_ubos);
 
 		~GraphicsPipeline();
 	

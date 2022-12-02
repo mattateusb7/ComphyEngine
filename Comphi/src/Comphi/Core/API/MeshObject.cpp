@@ -17,7 +17,6 @@ namespace Comphi {
 	{
 		ParseObjFile(objFile);
 		this->material = std::make_shared<Material>(material);
-		sendDataLayoutToDesciptorPool();
 	}
 
 	MeshObject::MeshObject(VertexArray& vertices, IndexArray& indices, Material& material)
@@ -30,7 +29,6 @@ namespace Comphi {
 		this->vertices = std::make_shared<Vulkan::VertexBuffer>(vertices);
 		this->indices = std::make_shared<Vulkan::IndexBuffer>(indices);
 		this->material = std::make_shared<Material>(material);
-		sendDataLayoutToDesciptorPool();
 	}
 
 	void MeshObject::ParseObjFile(IFileRef& objFile) {
@@ -82,21 +80,7 @@ namespace Comphi {
 		indices = std::make_shared<Vulkan::IndexBuffer>(iArray);
 	}
 
-	void MeshObject::sendDataLayoutToDesciptorPool()
-	{
-		int MAX_FRAMES_IN_FLIGHT = *Vulkan::GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
-		MVP_UBOs.resize(MAX_FRAMES_IN_FLIGHT);
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-		{
-			//initialize
-			UniformBufferObject ubo = {};
-			MVP_UBOs[i] = UniformBufferObject(ubo);
-		}
 
-		//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts compatible with Descriptor Pool
-		material->graphicsPipeline.sendDescriptorSet(material->shaderTextures, MVP_UBOs); 
-		
-	}
 
 
 }
