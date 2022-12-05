@@ -4,29 +4,20 @@
 namespace Comphi::Vulkan {
 
 	ShaderProgram::ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile) : IShaderProgram(shaderType, shaderFile) {
-		shaderModule = recreateShaderModule();
+		createShaderModule();
 	}
 
-	VkShaderModule ShaderProgram::createShaderModule(const std::vector<char>& code) {
+	void ShaderProgram::createShaderModule() {
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+		createInfo.codeSize = shaderFile.getByteData().size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderFile.getByteData().data());
 
-		VkShaderModule shaderModule;
-		if (vkCreateShaderModule(*GraphicsHandler::get()->logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+		vkCheckError(vkCreateShaderModule(*GraphicsHandler::get()->logicalDevice, &createInfo, nullptr, &shaderModule)) {
 			COMPHILOG_CORE_FATAL("failed to create shader module!");
-			return shaderModule;
 		}
 		COMPHILOG_CORE_INFO("created shaderModule successfully!");
-
-		return shaderModule;
-	}
-
-	VkShaderModule ShaderProgram::recreateShaderModule()
-	{
-		shaderModule = createShaderModule(shaderFile.getByteData());
-		return shaderModule;
+		
 	}
 
 	ShaderProgram::~ShaderProgram() {

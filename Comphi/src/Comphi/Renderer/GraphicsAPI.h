@@ -1,8 +1,20 @@
 #pragma once
-#include <GLFW/glfw3.h>
+
+//API
+#include "Comphi/API/Time.h"
+#include "Comphi/API/Transform.h"
+
+#include "Comphi/API/Scene.h"
+#include "Comphi/API/GameObject.h"
+#include "Comphi/API/Camera.h"
+
+#include "Comphi/API/Shader.h"
+#include "Comphi/API/Texture.h"
+#include "Comphi/API/Material.h"
 
 ///Vulkan
-#include "Vulkan/GraphicsContext.h"
+#include "IGraphicsContext.h"
+#include "../../../vendor/GLFW/include/GLFW/glfw3.h"
 
 namespace Comphi {
 	class GraphicsAPI
@@ -29,12 +41,11 @@ namespace Comphi {
 
 		struct create {
 			static IGraphicsContext* GraphicsContext(GLFWwindow& windowHandler);
-			/* TODO : Design comfy Interfaces
+			//TODO : Design comfy Interfaces
 			static IVertexBuffer* VertexBuffer(IGraphicsContext* currentGraphicsContext, const VertexArray& vertices);
 			static IIndexBuffer* IndexBuffer(IGraphicsContext* currentGraphicsContext, const IndexArray& indices);
-			static IGraphicsPipeline* GraphicsPipeline();
 			static IShaderProgram* ShaderProgram(IGraphicsContext* currentGraphicsContext, Comphi::ShaderType shaderType, IFileRef& shaderFile);
-			*/
+			
 		};
 
 		//std::shared_ptr<IGraphicsContext> currentGraphicsContext;

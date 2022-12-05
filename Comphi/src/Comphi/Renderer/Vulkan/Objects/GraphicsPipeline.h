@@ -1,6 +1,6 @@
 #pragma once
-#include "../Objects/ShaderProgram.h"
-#include "DescriptorPool.h"
+#include "../Objects/UniformBuffer.h"
+#include "ImageView.h"
 
 namespace Comphi::Vulkan {
 
@@ -14,19 +14,21 @@ namespace Comphi::Vulkan {
 		//}graphicsPipelineSetupData;
 
 		GraphicsPipeline() = default;
-		void initialize(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages, DescriptorPool& descriptorPool);
+		void initialize(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages);//TODO: Swap this shaderStages with ShaderStagesPipeline Class (also defining deescriptor Sets)
 
 		VkPipelineLayout pipelineLayout;
 		VkPipeline pipelineObj;
+
 		std::vector<VkDescriptorSet> descriptorSets;
+		VkDescriptorPool descriptorPoolObj;
 
 		//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts
-		void sendDescriptorSet(std::vector<Vulkan::Texture*>& textures, std::vector<UniformBuffer>& MVP_ubos);
+		void sendDescriptorSet(std::vector<ITexture*>& textures, std::vector<IUniformBuffer>& MVP_ubos);
 
 		~GraphicsPipeline();
 	
 	protected:
-		DescriptorPool* updatePool;
+		void createDescriptorPool();
 		void createDescriptorSetLayout();
 		VkDescriptorSetLayout descriptorSetLayout;
 	};

@@ -4,7 +4,7 @@
 
 namespace Comphi {
 
-	Camera::Camera(CameraProperties cameraProperties, SceneObjectData sceneData)
+	Camera::Camera(CameraProperties cameraProperties, GameObjectData sceneData)
 	{
 		parent = sceneData.parent;
 		transform = sceneData.transform;

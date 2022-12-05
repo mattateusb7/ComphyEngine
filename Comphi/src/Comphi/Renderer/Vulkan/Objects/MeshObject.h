@@ -1,41 +1,39 @@
 #pragma once
 
 #include "Comphi/Platform/IFileRef.h"
+#include "Comphi/Renderer/IMeshObject.h"
 #include "Comphi/Renderer/Vulkan/Objects/VertexBuffer.h"
 #include "Comphi/Renderer/Vulkan/Objects/IndexBuffer.h"
-#include "Comphi/Core/API/Material.h"
+#include "Comphi/Renderer/Vulkan/Objects/Material.h"
 
-namespace Comphi { //TODO: Comphi namepsace objects should use platform & renderer independent interfaces (API)
-	class MeshObject //Add to GameObject (if not Empty)
+namespace Comphi::Vulkan {
+
+	class MeshObject : public IMeshObject
 	{
 	public:
-		MeshObject() = default;
-
 		//TODO: move material out of MeshObject Contructor to GameObject (that holds both mesh & textures 
 		//although each mesh can only render one material at the time... so batched rendering would require us to group all meshes with the same material in a single buffer
 		// so its probably not that bad to keep material Refs inside meshes.
 
 		MeshObject(IFileRef& objFile, Material& material);
-		void initialize(IFileRef& objFile, Material& material);
 		MeshObject(VertexArray& vertices, IndexArray& indices, Material& material);
-		void initialize(VertexArray& vertices, IndexArray& indices, Material& material);
-		IFileRef* objFile;
+		
 		/*
 		* Driver developers recommend that you also store multiple buffers, like the vertex and index buffer, into a single VkBuffer
 		* (DrawBuffer or maybe batchDrawBuffer/multipleObjs)
 		* and use offsets in commands like vkCmdBindVertexBuffers.
 		* The advantage is that your data is more cache friendly in that case, because it's closer together.
 		*/
-
-		std::shared_ptr<Vulkan::VertexBuffer> vertices;
-		std::shared_ptr<Vulkan::IndexBuffer> indices;
-		std::shared_ptr<Material> material; //TODO: Add Material-Attributes for vertexGroups
+		virtual void bind(void* commandBuffer) override;
 
 	protected:
 		void ParseObjFile(IFileRef& objFile);
+
+		// Inherited via IMeshObject
+		virtual void initMVP() override;
+		virtual void updateMVP(uint currentImage) override;
+
 	};
 
-	#define MeshInstance std::shared_ptr<MeshObject>
-	#define MakeMeshInstance std::make_shared<MeshObject>
 }
 

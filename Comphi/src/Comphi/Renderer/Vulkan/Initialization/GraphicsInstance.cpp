@@ -2,6 +2,7 @@
 #include "GraphicsInstance.h"
 #include <optional>
 #include <set>
+#include <Comphi/Renderer/Vulkan/Initialization/SwapChain.h>
 
 namespace Comphi::Vulkan {
 

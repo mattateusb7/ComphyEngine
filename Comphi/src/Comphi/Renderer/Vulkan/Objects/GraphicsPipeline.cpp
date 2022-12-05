@@ -5,9 +5,9 @@
 
 namespace Comphi::Vulkan {
 
-	void GraphicsPipeline::initialize(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages, DescriptorPool& descriptorPool)
+	void GraphicsPipeline::initialize(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages)
 	{
-		updatePool = &descriptorPool;
+		createDescriptorPool();
 		createDescriptorSetLayout();
 
 		//VertexBufferDescription
@@ -202,14 +202,41 @@ namespace Comphi::Vulkan {
 
 	}
 
-	void GraphicsPipeline::sendDescriptorSet(std::vector<Vulkan::Texture*>& textures, std::vector<UniformBuffer>& MVP_ubos)
+	void GraphicsPipeline::createDescriptorPool()
+	{
+		/***
+		/TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts
+		/This constructor defines DescriptorPool Compatibility with Descriptor Sets Layouts
+		/All Descriptor Sets in this Graphics Pipeline Should Be Compatible with this Descriptor Pool
+		***/
+
+		int MAX_FRAMES_IN_FLIGHT = *GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
+		std::array<VkDescriptorPoolSize, 2> poolSizes{};
+		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+		VkDescriptorPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+		poolInfo.pPoolSizes = poolSizes.data();
+		poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+		if (vkCreateDescriptorPool(*GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &descriptorPoolObj) != VK_SUCCESS) {
+			COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
+			throw std::runtime_error("failed to create descriptor pool!");
+		}
+	}
+
+	void GraphicsPipeline::sendDescriptorSet(std::vector<ITexture*>& textures, std::vector<IUniformBuffer>& MVP_ubos)
 	{
 		int MAX_FRAMES_IN_FLIGHT = *GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
 		
 		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = updatePool->descriptorPoolObj;
+		allocInfo.descriptorPool = descriptorPoolObj;
 		allocInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
 		allocInfo.pSetLayouts = layouts.data();
 
@@ -225,15 +252,15 @@ namespace Comphi::Vulkan {
 
 			//OBJECT VERTEX
 			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = MVP_ubos[i].bufferObj;
+			bufferInfo.buffer = ((UniformBuffer*)&MVP_ubos[i])->bufferObj;
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
 
 			//OBJECT TEXTURES
 			VkDescriptorImageInfo imageInfo{};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = textures[0]->imageViewObj;
-			imageInfo.sampler = textures[0]->textureSamplerObj;
+			imageInfo.imageView = ((ImageView*)textures[0])->imageViewObj;
+			imageInfo.sampler = ((ImageView*)textures[0])->textureSamplerObj;
 
 			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -259,6 +286,9 @@ namespace Comphi::Vulkan {
 
 	GraphicsPipeline::~GraphicsPipeline()
 	{
+		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
+		vkDestroyDescriptorPool(*Vulkan::GraphicsHandler::get()->logicalDevice, descriptorPoolObj, nullptr);
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorSetLayout");
 		vkDestroyDescriptorSetLayout(*Vulkan::GraphicsHandler::get()->logicalDevice, descriptorSetLayout, nullptr);
 

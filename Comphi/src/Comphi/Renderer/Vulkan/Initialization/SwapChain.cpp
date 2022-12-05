@@ -338,15 +338,9 @@ namespace Comphi::Vulkan {
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		{//begin render pass
 
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, meshObj.material->graphicsPipeline.pipelineObj);
+			meshObj.i_material->bind(commandBuffer);
 
-			//Bind VertexBuffers @0
-			VkBuffer vertexBuffers[] = { meshObj.vertices->bufferObj };
-			VkDeviceSize offsets[] = { 0 }; //batch render
-			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
-			//Bind IndexBuffers @1
-			vkCmdBindIndexBuffer(commandBuffer, meshObj.indices->bufferObj, 0, VK_INDEX_TYPE_UINT32);
+			meshObj.bind(commandBuffer);
 
 			//dynamic VIEWPORT/SCISSOR SETUP
 			VkViewport viewport{};
@@ -363,11 +357,10 @@ namespace Comphi::Vulkan {
 			scissor.extent = swapChainExtent;
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-			//BindIndex UniformBuffers 
-			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, meshObj.material->graphicsPipeline.pipelineLayout, 0, 1, &meshObj.material->graphicsPipeline.descriptorSets[currentFrame], 0, nullptr);
+			meshObj.i_material->bindDescriptorSet(commandBuffer,currentFrame);
 
 			//DRAW COMMAND
-			vkCmdDrawIndexed(commandBuffer, meshObj.indices->indexCount, 1, 0, 0, 0);
+			vkCmdDrawIndexed(commandBuffer, meshObj.i_indices->i_indexCount, 1, 0, 0, 0);
 			//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
 
 		}//end render pass

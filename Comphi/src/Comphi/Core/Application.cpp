@@ -26,48 +26,75 @@ namespace Comphi {
 
 	void Application::Run()
 	{
+		//Awake Loop
+		for (auto layer : m_LayerStack) {
+			layer->OnStart();
+		}
+
 		while (m_running) {
 
-			m_Window->OnBeginUpdate();
-
-			//for (auto layer : m_LayerStack) {
-			//	layer->OnUpdate();
-			//}
-			//
-			//m_ImGuiLayer->Begin();
-			//for (auto layer : m_LayerStack) {
-			//	layer->OnUIRender();
-			//}
-			//m_ImGuiLayer->End();
+			//Draw Loop
+			m_Window->OnBeginUpdate(m_ScenesToRender);
+			
+			//Action Loop
+			for (auto layer : m_LayerStack) {
+				layer->OnUpdate();
+			}
+			
+			//UI Render Loop
+			m_ImGuiLayer->Begin();
+			for (auto layer : m_LayerStack) {
+				layer->OnUIRender();
+			}
+			m_ImGuiLayer->End();
 		
+			//Event Loop
 			m_Window->OnUpdate();
 		};
+
+		//Destroy Loop
+		for (auto layer : m_LayerStack) {
+			layer->OnEnd();
+		}
 	}
 
 	void Application::OnEvent(Event& e)
 	{
 
-		EventHandler::Throw<WindowCloseEvent>(e, BIND_EVENT_FN(Application::OnWindowClose));
-		EventHandler::Throw<WindowResizedEvent>(e, BIND_EVENT_FN(Application::OnWindowResized));
-		EventHandler::Throw<FramebufferResizedEvent>(e, BIND_EVENT_FN(Application::OnFramebufferResized));
+		EventHandler::Bind<WindowCloseEvent>(e, BIND_EVENT_FN(Application::OnWindowClose));
+		EventHandler::Bind<WindowResizedEvent>(e, BIND_EVENT_FN(Application::OnWindowResized));
+		EventHandler::Bind<FramebufferResizedEvent>(e, BIND_EVENT_FN(Application::OnFramebufferResized));
 
-		//set Layer Events Handling
+		//Call Layer Events Handling
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
 			(*--it)->OnEvent(e);
 			if (e.Handled) break;
 		}
 	}
 
+	void Application::PushScene(SceneInstance& scene)
+	{
+		m_ScenesToRender.push_back(scene);
+	}
+
+	void Application::PopScene(SceneInstance& scene)
+	{
+		auto it = std::find(m_ScenesToRender.begin(), m_ScenesToRender.end(), scene);
+		if (it != m_ScenesToRender.end()) {
+			m_ScenesToRender.erase(it);
+		}
+	}
+
 	void Application::PushLayer(Layer& layer)
 	{
 		m_LayerStack.PushLayer(&layer);
-		//layer.OnAttach();
+		layer.OnAttach();
 	}
 
 	void Application::PushOverlay(Layer& overlay)
 	{
 		m_LayerStack.PushOverlay(&overlay);
-		//overlay.OnAttach();
+		overlay.OnAttach();
 	}
 
 	void Application::PopLayer(Layer& layer)

@@ -1,26 +1,26 @@
 #include "cphipch.h"
 #include "Material.h"
 
-namespace Comphi {
+namespace Comphi::Vulkan {
 
-	Material::Material(MaterialProperties properties)
+	Material::Material(Comphi::MaterialProperties properties)
 	{
-		shaderTextures = properties.textures;
+		shaderTextures = properties.shaderTextures;
 
-		for (int i = 0; i < properties.shaders.size(); i++) {
-			BindProgram(*properties.shaders[i]);
+		for (int i = 0; i < properties.shaderPrograms.size(); i++) {
+			BindProgram(*properties.shaderPrograms[i]);
 		}
 
-		graphicsPipeline.initialize(shaderStages, *properties.descriptorPool);
+		graphicsPipeline.initialize(shaderStages);
 
-		for (int i = 0; i < properties.shaders.size(); i++) {
-			UnbindProgram(*properties.shaders[i]);
+		for (int i = 0; i < properties.shaderPrograms.size(); i++) {
+			UnbindProgram(*properties.shaderPrograms[i]);
 		}
 	}
 
 	bool Material::BindProgram(IShaderProgram& shaderProgram)
 	{
-		auto _shaderProgram = static_cast<Vulkan::ShaderProgram* > (&shaderProgram); //Interfaces Need Rework
+		auto _shaderProgram = static_cast<Vulkan::ShaderProgram*> (&shaderProgram); //Casting Interface
 
 		switch (shaderProgram.GetType())
 		{
@@ -66,6 +66,23 @@ namespace Comphi {
 			return true;
 		}
 		return false;
+	}
+
+	void Material::sendDescriptorSet(std::vector<IUniformBuffer> MVP_ubos)
+	{
+		graphicsPipeline.sendDescriptorSet(shaderTextures, MVP_ubos);
+	}
+
+	void Material::bind(void* commandBuffer)
+	{
+		VkCommandBuffer vkCommnad = (VkCommandBuffer)commandBuffer;
+		vkCmdBindPipeline(vkCommnad, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.pipelineObj);
+	}
+
+	void Material::bindDescriptorSet(void* commandBuffer, uint32_t currentFrame)
+	{
+		VkCommandBuffer vkCommnad = static_cast<VkCommandBuffer>(commandBuffer);
+		vkCmdBindDescriptorSets(vkCommnad, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.pipelineLayout, 0, 1, &graphicsPipeline.descriptorSets[currentFrame], 0, nullptr);
 	}
 
 	Material::~Material()

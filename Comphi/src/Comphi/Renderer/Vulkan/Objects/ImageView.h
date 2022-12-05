@@ -1,9 +1,10 @@
 #pragma once
+#include "Comphi/Renderer/ITexture.h"
 #include "ImageBufer.h"
 
 namespace Comphi::Vulkan {
 
-	class ImageView : public ImageBuffer
+	class ImageView : public ITexture, public ImageBuffer
 	{
 	public:
 		//default constructer auto alocates ImageBuffer
@@ -35,10 +36,6 @@ namespace Comphi::Vulkan {
 		VkFormat findDepthFormat();
 		
 	};
-
-	typedef ImageView Texture; //TODO: temp ?
-	#define TextureInstance std::shared_ptr<Texture>
-	#define MakeTextureInstance std::make_shared<Texture>
 
 }
 

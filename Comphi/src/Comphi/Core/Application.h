@@ -12,6 +12,8 @@ namespace Comphi {
 		void Run();
 
 		void OnEvent(Event& e);
+		void PushScene(SceneInstance& scene);
+		void PopScene(SceneInstance& scene);
 		void PushLayer(Layer& layer);
 		void PushOverlay(Layer& overlay);		
 		void PopLayer(Layer& layer);
@@ -26,11 +28,13 @@ namespace Comphi {
 		bool OnFramebufferResized(FramebufferResizedEvent& e);
 	
 		LayerStack m_LayerStack;
+		MultiScene m_ScenesToRender;
 		std::shared_ptr<IWindow> m_Window;
 		std::shared_ptr<ImGuiLayer> m_ImGuiLayer;
 		bool m_running = true;
 	private:
 		static std::unique_ptr<Application> s_instance;
+
 	};
 
 	// To be defined by Client

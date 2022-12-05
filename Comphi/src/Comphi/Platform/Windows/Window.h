@@ -11,7 +11,7 @@ namespace Comphi::Windows {
 		virtual ~Window();
 
 		void OnUpdate() override;
-		void OnBeginUpdate() override;
+		void OnBeginUpdate(MultiScene& scenes) override;
 		void OnWindowResized(uint x, uint y) override;
 		void OnFramebufferResized(uint x, uint y) override;
 

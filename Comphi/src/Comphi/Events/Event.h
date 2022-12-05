@@ -74,7 +74,7 @@ namespace Comphi {
 		using EventFn = std::function<bool(T&)>;
 	public:
 		template<typename T>
-		static bool Throw(Event& event, EventFn<T> func ) {
+		static bool Bind(Event& event, EventFn<T> func ) {
 			std::unique_ptr<EventDispatcher> newEvent = std::make_unique<EventDispatcher>(event);
 			return newEvent->Dispatch(func);
 		}

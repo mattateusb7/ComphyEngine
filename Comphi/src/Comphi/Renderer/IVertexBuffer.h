@@ -1,6 +1,4 @@
 #pragma once
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
 
 namespace Comphi {
 
@@ -19,8 +17,7 @@ namespace Comphi {
 	class IVertexBuffer
 	{
 	public:
-		virtual void bind() = 0;
-		virtual void unbind() = 0;
+		uint32_t i_vertexCount;
 	};
 }
 

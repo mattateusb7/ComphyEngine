@@ -1,10 +1,10 @@
 #pragma once
-#include "Comphi/Renderer/IObjects/IUniformBuffer.h"
+#include "Comphi/Renderer/IUniformBuffer.h"
 #include "MemBuffer.h"
 
 namespace Comphi::Vulkan {
 
-	class UniformBuffer : public MemBuffer
+	class UniformBuffer : public IUniformBuffer,  public MemBuffer
 	{
 	public:
 		UniformBuffer() = default;

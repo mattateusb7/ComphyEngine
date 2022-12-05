@@ -1,5 +1,4 @@
 #pragma once
-#include "Comphi/Renderer/Vulkan/Objects/UniformBuffer.h"
 
 namespace Comphi {
 
@@ -33,7 +32,7 @@ namespace Comphi {
 
 	};
 
-	namespace Vector3 {
+	namespace Coordinates {
 
 	const glm::vec3 up = glm::vec3(0, 0, 1);
 	const glm::vec3 right = glm::vec3(1, 0, 0);

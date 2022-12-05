@@ -1,6 +1,6 @@
 #pragma once
 #include "../Objects/ImageView.h"
-#include <Comphi/Core/API/MeshObject.h>
+#include "../Objects/MeshObject.h"
 
 namespace Comphi::Vulkan {
 

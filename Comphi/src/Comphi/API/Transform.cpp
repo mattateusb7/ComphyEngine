@@ -5,17 +5,17 @@ namespace Comphi {
 
 	glm::vec3 Transform::getForwardVector()
 	{
-		return quaternionRotation * Vector3::forward;
+		return quaternionRotation * Coordinates::forward;
 	}
 
 	glm::vec3 Transform::getUpVector()
 	{
-		return quaternionRotation * Vector3::up;
+		return quaternionRotation * Coordinates::up;
 	}
 
 	glm::vec3 Transform::getRightVector()
 	{
-		return quaternionRotation * Vector3::right;
+		return quaternionRotation * Coordinates::right;
 	}
 	
 	glm::vec3 Transform::getLookVector()
@@ -40,7 +40,7 @@ namespace Comphi {
 
 	glm::quat Transform::lookAt(glm::vec3 point)
 	{
-		return quaternionRotation = glm::quatLookAt(glm::normalize(point-position), Vector3::up);
+		return quaternionRotation = glm::quatLookAt(glm::normalize(point-position), Coordinates::up);
 	}
 
 	glm::mat4 Transform::getModelMatrix()

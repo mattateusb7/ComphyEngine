@@ -5,6 +5,7 @@
 #include <cstdint> // Necessary for uint32_t
 #include <limits> // Necessary for std::numeric_limits
 #include <algorithm> // Necessary for std::clamp
+#include <Comphi/Renderer/Vulkan/Initialization/SyncObjectsFactory.h>
 
 namespace Comphi::Vulkan {
 
@@ -27,110 +28,65 @@ namespace Comphi::Vulkan {
 		commandPool = std::make_unique<CommandPool>();
 		swapchain = std::make_unique<SwapChain>();
 		commandPool->createCommandBuffers(swapchain->MAX_FRAMES_IN_FLIGHT);
+		createSyncObjects();
+	}
 
-		// ------------------------------------------------------------
-		//					GRAPHICS PIPELINE 
-		//TODO : Shader/Texture/Material initialization stage -> Move outside of Graphics context
+	void GraphicsContext::SetScenes(MultiScene& scenes)
+	{
+		this->scenes = &scenes;
+	}
 
-		descriptorPool = MakeDescriptorPoolInstance(); //TODO: Single Layout for now
+	void GraphicsContext::createSyncObjects() {
 
-		MaterialProperties materialProperties;
-		materialProperties.descriptorPool = descriptorPool.get();
+		imageAvailableSemaphores.resize(swapchain->MAX_FRAMES_IN_FLIGHT);
+		renderFinishedSemaphores.resize(swapchain->MAX_FRAMES_IN_FLIGHT);
+		inFlightFences.resize(swapchain->MAX_FRAMES_IN_FLIGHT);
 
-		std::string Texfile = "textures/viking_room.png";
-		texture1 = MakeTextureInstance(Texfile);
-
-		std::vector<Texture*> textures = { texture1.get()};
-		materialProperties.textures = textures;
-
-		vert = Windows::FileRef("shaders\\vert.spv");
-		frag = Windows::FileRef("shaders\\frag.spv");
-		vertShader = MakeShaderProgramInstance(ShaderType::VertexShader, vert);
-		fragShader = MakeShaderProgramInstance(ShaderType::FragmentShader, frag);
-
-		std::vector<IShaderProgram*> shaders = { &*vertShader , &*fragShader };
-		materialProperties.shaders = shaders;
-
-		//shared Material Instance
-		Albedo1 = MakeMaterialInstance(materialProperties);
-
-
-		// ------------------------------------------------------------
-		//					TEST OBJECTS PIPELINE 
-		const VertexArray vertices = {
-			{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-			{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-			{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-			{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-			{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-			{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-			{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-		};
-
-		const IndexArray indices = {
-			0, 1, 2, 2, 3, 0,
-			4, 5, 6, 6, 7, 4
-		};
-
-		VertexArray cubeVx = {
-			{{ 0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 1.0f} , {1.0f, 0.0f}},
-			{{-0.5f, 0.5f, 0.5f} , {1.0f, 1.0f, 0.0f} , {0.0f, 0.0f}},
-			{{-0.5f,-0.5f, 0.5f} , {1.0f, 0.0f, 0.0f} , {0.0f, 1.0f}},
-			{{ 0.5f,-0.5f, 0.5f} , {1.0f, 0.0f, 1.0f} , {1.0f, 1.0f}},
-			{{ 0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 1.0f} , {1.0f, 0.0f}},
-			{{ 0.5f, 0.5f,-0.5f} , {0.0f, 1.0f, 1.0f} , {0.0f, 0.0f}},
-			{{-0.5f, 0.5f,-0.5f} , {0.0f, 1.0f, 0.0f} , {0.0f, 1.0f}},
-			{{-0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 0.0f} , {1.0f, 1.0f}}
-		};
-
-		IndexArray CubeIx = {
-			0, 1, 2,   2, 3, 0,   // v0-v1-v2, v2-v3-v0 (front)
-			0, 3, 4,   4, 5, 0,   // v0-v3-v4, v4-v5-v0 (right)
-			0, 5, 6,   6, 1, 0,   // v0-v5-v6, v6-v1-v0 (top)
-			1, 6, 7,   7, 2, 1,   // v1-v6-v7, v7-v2-v1 (left)
-			7, 4, 3,   3, 2, 7,   // v7-v4-v3, v3-v2-v7 (bottom)
-			4, 7, 6,   6, 5, 4    // v4-v7-v6, v6-v5-v4 (back)
-		};
-
-		modelMesh = Windows::FileRef("models/viking_room.obj");
-		meshObj1 = MakeMeshInstance(modelMesh, *Albedo1.get());
-		gameObj1 = MakeGameObjectInstance(meshObj1);
-
-		camObj1 = MakeCameraInstance();
-		camObj1->transform.position = glm::vec3(0.0f, 4.0f, 0.0f);
-
-		// ------------------------------------------------------------
-	
-		syncObjects = std::make_unique<SyncObjects>(swapchain->MAX_FRAMES_IN_FLIGHT);
+		SyncObjectsFactory.createSemaphores(&imageAvailableSemaphores[0], swapchain->MAX_FRAMES_IN_FLIGHT);
+		SyncObjectsFactory.createSemaphores(&renderFinishedSemaphores[0], swapchain->MAX_FRAMES_IN_FLIGHT);
+		SyncObjectsFactory.createFences(&inFlightFences[0], swapchain->MAX_FRAMES_IN_FLIGHT);
+		
+		COMPHILOG_CORE_INFO("semaphores created Successfully!");
 	}
 
 #pragma region //DEBUG!
 
-	void GraphicsContext::updateUniformBuffers(uint32_t currentImage) {
+	void GraphicsContext::updateSceneLoop() {
 
-		//TODO: Move this vvv to a TIME Class
-		static auto startTime = std::chrono::high_resolution_clock::now();
+		FrameTime.Stop();
 
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float Time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-		// ^^^
+		for (size_t i = 0; i < scenes->size(); i++)
+		{
+			Scene& ThisScene = *(*scenes)[i];
 
-		gameObj1->transform.position = glm::vec3(0, 0, glm::sin(Time));
-		gameObj1->transform.setEulerAngles(glm::vec3(0.0f, 0.0f, 45.0f) * Time);
+			//Action UpdateCallback
+			for (size_t i = 0; i < ThisScene.sceneObjects.size(); i++)
+			{
+				ThisScene.sceneObjects[i]->action.updateCallback(FrameTime, 0);
+			}
+
+			for (size_t i = 0; i < ThisScene.sceneObjects.size(); i++)
+			{
+				//Update Uniform Buffers MVP_UBOs per GameObject :
+				UniformBufferObject ubo{};
+				ubo.model = ThisScene.sceneObjects[i]->transform.getModelMatrix();
+				ubo.view = ThisScene.sceneCamera->getViewMatrix();
+				ubo.proj = ThisScene.sceneCamera->getProjectionMatrix();
+
+				ThisScene.sceneObjects[i]->mesh->updateMVP(swapchain->currentFrame);
+				ThisScene.sceneObjects[i]->action.startCallback(FrameTime, 0);
+
+				//Draw Command Buffer Submission:
+				//One command Buffer / render Pass , per Object / TODO: InstancedObjects
+				swapchain->recordCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], *static_cast<MeshObject*>(&*ThisScene.sceneObjects[i]->mesh), swapchain->currentFrame);
+
+			}
+		}
 		
-		camObj1->transform.lookAt(gameObj1->transform.position);
-
-		//Update MVP_UBOs per GameObject
-		UniformBufferObject ubo{};
-		ubo.model = gameObj1->transform.getModelMatrix();
-		ubo.view = camObj1->getViewMatrix();
-		ubo.proj = camObj1->getProjectionMatrix();
-
-		gameObj1->updateMVP(ubo,currentImage);
+		FrameTime.Start();
 
 	}
+
 #pragma endregion
 
 	void GraphicsContext::Draw()
@@ -141,10 +97,10 @@ namespace Comphi::Vulkan {
 		//Submit the recorded command buffer
 		//Present the swap chain image
 
-		vkWaitForFences(graphicsInstance->logicalDevice, 1, &syncObjects->inFlightFences[swapchain->currentFrame], VK_TRUE, UINT64_MAX);
+		vkWaitForFences(graphicsInstance->logicalDevice, 1, &inFlightFences[swapchain->currentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t imageIndex;
-		VkResult result = vkAcquireNextImageKHR(graphicsInstance->logicalDevice, swapchain->swapChainObj, UINT64_MAX, syncObjects->imageAvailableSemaphores[swapchain->currentFrame], VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(graphicsInstance->logicalDevice, swapchain->swapChainObj, UINT64_MAX, imageAvailableSemaphores[swapchain->currentFrame], VK_NULL_HANDLE, &imageIndex);
 		if (result != VK_SUCCESS) {
 			COMPHILOG_CORE_ERROR("failed to acquireNextImage!");
 			//throw std::runtime_error("failed to acquireNextImage!");
@@ -161,21 +117,19 @@ namespace Comphi::Vulkan {
 		}
 
 		// Only reset the fence if we are submitting work
-		vkResetFences(graphicsInstance->logicalDevice, 1, &syncObjects->inFlightFences[swapchain->currentFrame]);
+		vkResetFences(graphicsInstance->logicalDevice, 1, &inFlightFences[swapchain->currentFrame]);
 
 		//vkResetCommandPool(graphicsInstance->logicalDevice, commandPool->graphicsCommandPool,0); 
 		//if you are making multiple command buffers from one pool, resetting the pool will be quicker.
 		vkResetCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], 0);
 
-		//SEND render COMMANDS TO GPU
-		swapchain->recordCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], *meshObj1.get(), imageIndex);
-
-		updateUniformBuffers(swapchain->currentFrame);
+		//Scene Update
+		updateSceneLoop();
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-		VkSemaphore waitSemaphores[] = { syncObjects->imageAvailableSemaphores[swapchain->currentFrame] };
+		VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[swapchain->currentFrame] };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores;
@@ -184,11 +138,11 @@ namespace Comphi::Vulkan {
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandPool->graphicsCommandBuffers[swapchain->currentFrame];
 
-		VkSemaphore signalSemaphores[] = { syncObjects->renderFinishedSemaphores[swapchain->currentFrame] };
+		VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[swapchain->currentFrame] };
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		if (vkQueueSubmit(graphicsInstance->graphicsQueue, 1, &submitInfo, syncObjects->inFlightFences[swapchain->currentFrame]) != VK_SUCCESS) {
+		if (vkQueueSubmit(graphicsInstance->graphicsQueue, 1, &submitInfo, inFlightFences[swapchain->currentFrame]) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to submit draw command buffer!");
 			throw std::runtime_error("failed to submit draw command buffer!");
 			return;
@@ -228,8 +182,14 @@ namespace Comphi::Vulkan {
 
 		swapchain->~SwapChain();
 		commandPool->~CommandPool();
-		//graphicsPipeline->~GraphicsPipeline();
-		syncObjects->~SyncObjects();
+		
+		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
+		for (size_t i = 0; i < swapchain->MAX_FRAMES_IN_FLIGHT; i++) {
+			vkDestroySemaphore(*GraphicsHandler::get()->logicalDevice, renderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(*GraphicsHandler::get()->logicalDevice, imageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(*GraphicsHandler::get()->logicalDevice, inFlightFences[i], nullptr);
+		}
+
 		graphicsInstance->~GraphicsInstance();
 		GraphicsHandler::get()->DeleteStatic();
 	}

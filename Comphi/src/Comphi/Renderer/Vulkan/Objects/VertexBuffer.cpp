@@ -5,8 +5,8 @@ namespace Comphi::Vulkan {
 
     VertexBuffer::VertexBuffer(const VertexArray& vertices)
     {
-        vertexCount = static_cast<uint32_t>(vertices.size());
-        VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
+        i_vertexCount = static_cast<uint32_t>(vertices.size());
+        VkDeviceSize bufferSize = sizeof(vertices[0]) * i_vertexCount;
 
         MemBuffer stagingBuffer(bufferSize,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);

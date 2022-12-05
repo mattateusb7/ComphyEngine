@@ -5,8 +5,8 @@ namespace Comphi::Vulkan {
 
     IndexBuffer::IndexBuffer(const IndexArray& indices)
     {
-        indexCount = static_cast<uint16_t>(indices.size());
-        VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
+        i_indexCount = static_cast<uint16_t>(indices.size());
+        VkDeviceSize bufferSize = sizeof(indices[0]) * i_indexCount;
 
         MemBuffer stagingBuffer(bufferSize,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);

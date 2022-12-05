@@ -1,6 +1,5 @@
 #pragma once
-
-#include "SwapChain.h"
+#include "Comphi/Renderer/Vulkan/GraphicsHandler.h"
 
 namespace Comphi::Vulkan {
 	class GraphicsInstance
