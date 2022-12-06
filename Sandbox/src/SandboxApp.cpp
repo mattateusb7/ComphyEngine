@@ -6,7 +6,6 @@ using namespace Comphi;
 class GameSceneLayer : public Comphi::Layer
 {
 public:
-	GameSceneLayer() : Layer("GameSceneLayer") { };
 
 	//TODO: Comphi namepsace objects should use platform & renderer independent interfaces (API)
 
@@ -23,14 +22,14 @@ public:
 
 	Windows::FileRef modelMesh;
 	MeshInstance meshObj;
-	
+
 	GameObjectInstance gameObj;
 
 	CameraInstance camObj;
 
 	SceneInstance scene;
 
-	void OnStart() override {
+	GameSceneLayer() : Layer("GameSceneLayer") { 
 
 		//Texture
 		MaterialProperties materialProperties;
@@ -38,7 +37,7 @@ public:
 		texture = GraphicsAPI::create::Texture(textureFile);
 
 		//Shaders
-		ShaderTextures textures = { texture.get()};
+		ShaderTextures textures = { texture.get() };
 		materialProperties.shaderTextures = textures;
 
 		vert = Windows::FileRef("shaders/vert.spv");
@@ -48,7 +47,7 @@ public:
 
 		ShaderPrograms shaders = { &*vertShader , &*fragShader };
 		materialProperties.shaderPrograms = shaders;
-		
+
 		//Material
 		Albedo = GraphicsAPI::create::Material(materialProperties);
 
@@ -113,8 +112,11 @@ public:
 		scene = GraphicsAPI::create::Scene();
 		scene->sceneObjects.push_back(gameObj);
 		scene->sceneCamera = (camObj);
+	
+	};
 
-	}
+	
+	void OnStart() override {}
 
 	void OnEnd() override {};
 

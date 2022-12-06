@@ -10,7 +10,6 @@ namespace Comphi::Vulkan {
 	{
 		ParseObjFile(objFile);
 		this->i_material = std::make_shared<Material>(material);
-		initializeMVPMatrices();
 		initializeMeshData();
 	}
 
@@ -19,10 +18,28 @@ namespace Comphi::Vulkan {
 		this->i_vertices = std::make_shared<VertexBuffer>(vertices);
 		this->i_indices = std::make_shared<IndexBuffer>(indices);
 		this->i_material = std::make_shared<Material>(material);	
-		initializeMVPMatrices();
 		initializeMeshData();
 	}
 
+	void MeshObject::initializeMeshData() {
+		if (i_material.get() != nullptr) {
+			initializeMVPMatrices();
+			//send Data Layout To DesciptorPool
+			//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts compatible with Descriptor Pool
+			static_cast<Material*>(i_material.get())->sendDescriptorSet(MVP_UBOs);
+		}
+	};
+
+	void MeshObject::initializeMVPMatrices()
+	{
+		int MAX_FRAMES_IN_FLIGHT = *Vulkan::GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
+		MVP_UBOs.resize(MAX_FRAMES_IN_FLIGHT);
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			//initialize
+			MVP_UBOs[i] = UniformBuffer();
+		}
+	}
 
 	void MeshObject::ParseObjFile(IFileRef& objFile) {
 		this->i_ModelFileOBJ = &objFile;
@@ -76,36 +93,21 @@ namespace Comphi::Vulkan {
 	void MeshObject::updateMVP(uint currentImage)
 	{
 		void* data;
-		vkMapMemory(*Vulkan::GraphicsHandler::get()->logicalDevice, static_cast<UniformBuffer>(i_MVP_UBOs[currentImage]).bufferMemory, 0, sizeof(i_MVP_UBOs), 0, &data);
-		memcpy(data, &i_MVP_UBOs, sizeof(i_MVP_UBOs));
-		vkUnmapMemory(*Vulkan::GraphicsHandler::get()->logicalDevice, static_cast<UniformBuffer>(i_MVP_UBOs[currentImage]).bufferMemory);
+		vkMapMemory(*Vulkan::GraphicsHandler::get()->logicalDevice, MVP_UBOs[currentImage].bufferMemory, 0, sizeof(MVP_UBOs), 0, &data);
+		memcpy(data, &MVP_UBOs, sizeof(MVP_UBOs));
+		vkUnmapMemory(*Vulkan::GraphicsHandler::get()->logicalDevice, MVP_UBOs[currentImage].bufferMemory);
 	}
 
 	void MeshObject::bind(void* commandBuffer)
 	{
-		VkCommandBuffer vkCommand = (VkCommandBuffer)commandBuffer;
-
 		//Bind VertexBuffers @0
-		VkBuffer vertexBuffers[] = { ((VertexBuffer*)&i_vertices)->bufferObj };
+		VkBuffer vertexBuffers[] = { static_cast<VertexBuffer*>(i_vertices.get())->bufferObj };
 		VkDeviceSize offsets[] = { 0 }; //batch render
-		vkCmdBindVertexBuffers(vkCommand, 0, 1, vertexBuffers, offsets);
+		vkCmdBindVertexBuffers(static_cast<VkCommandBuffer>(commandBuffer), 0, 1, vertexBuffers, offsets);
 
 		//Bind IndexBuffers @1
-		vkCmdBindIndexBuffer(vkCommand, static_cast<IndexBuffer*>(i_indices.get())->bufferObj, 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(static_cast<VkCommandBuffer>(commandBuffer), static_cast<IndexBuffer*>(i_indices.get())->bufferObj, 0, VK_INDEX_TYPE_UINT32);
 
-	}
-
-	//API: 
-
-	void MeshObject::initializeMVPMatrices()
-	{
-		int MAX_FRAMES_IN_FLIGHT = *Vulkan::GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
-		i_MVP_UBOs.resize(MAX_FRAMES_IN_FLIGHT);
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-		{
-			//initialize
-			i_MVP_UBOs[i] = UniformBufferObject();
-		}
 	}
 
 }

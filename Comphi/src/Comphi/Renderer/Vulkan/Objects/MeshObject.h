@@ -25,13 +25,15 @@ namespace Comphi::Vulkan {
 		* and use offsets in commands like vkCmdBindVertexBuffers.
 		* The advantage is that your data is more cache friendly in that case, because it's closer together.
 		*/
+		std::vector<UniformBuffer> MVP_UBOs;
+
 		void bind(void* commandBuffer);
 		void updateMVP(uint currentImage);
 
 	protected:
-		void initializeMVPMatrices();
 		void ParseObjFile(IFileRef& objFile);
-
+		void initializeMeshData();
+		void initializeMVPMatrices();
 	};
 
 }

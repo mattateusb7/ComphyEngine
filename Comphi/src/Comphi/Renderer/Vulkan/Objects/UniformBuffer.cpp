@@ -3,7 +3,7 @@
 
 namespace Comphi::Vulkan {
 
-    UniformBuffer::UniformBuffer(const UniformBufferObject& ubo)
+    UniformBuffer::UniformBuffer()
     {
         VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 

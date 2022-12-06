@@ -229,7 +229,7 @@ namespace Comphi::Vulkan {
 		}
 	}
 
-	void GraphicsPipeline::sendDescriptorSet(std::vector<ITexture*>& textures, std::vector<IUniformBuffer>& MVP_ubos)
+	void GraphicsPipeline::sendDescriptorSet(std::vector<ITexture*>& textures, std::vector<UniformBuffer>& MVP_ubos)
 	{
 		int MAX_FRAMES_IN_FLIGHT = *GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
@@ -252,7 +252,7 @@ namespace Comphi::Vulkan {
 
 			//OBJECT VERTEX
 			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = static_cast<UniformBuffer>(MVP_ubos[i]).bufferObj;
+			bufferInfo.buffer = MVP_ubos[i].bufferObj;
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
 

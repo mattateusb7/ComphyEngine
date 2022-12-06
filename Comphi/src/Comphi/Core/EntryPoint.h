@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 		app->Run(); 
 	}
 	catch (std::exception& e) {
-		COMPHILOG_CORE_ERROR(e.what());
+		COMPHILOG_CORE_FATAL(e.what());
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;

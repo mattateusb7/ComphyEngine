@@ -55,27 +55,31 @@ namespace Comphi::Vulkan {
 		{
 			Scene* ThisScene = (*scenes)[i].get();
 			if (ThisScene == nullptr) continue;
+
 			//Action UpdateCallback
 			for (size_t i = 0; i < ThisScene->sceneObjects.size(); i++)
 			{
-				ThisScene->sceneObjects[i]->action.updateCallback(FrameTime, 0);
+				ActionHandle handle = ThisScene->sceneObjects[i]->action;
+				if (handle.updateCallback) {
+					handle.updateCallback(FrameTime, 0);
+				}
 			}
 
+			//Update Uniform Buffers MVP_UBOs per GameObject & submit Draw Command Buffer
 			for (size_t i = 0; i < ThisScene->sceneObjects.size(); i++)
 			{
-				//Update Uniform Buffers MVP_UBOs per GameObject :
 				UniformBufferObject ubo{};
 				ubo.model = ThisScene->sceneObjects[i]->transform.getModelMatrix();
 				ubo.view = ThisScene->sceneCamera->getViewMatrix();
 				ubo.proj = ThisScene->sceneCamera->getProjectionMatrix();
 
-				((MeshObject*)(ThisScene->sceneObjects[i]->mesh.get()))->updateMVP(swapchain->currentFrame); //TODO: This is not OK
-				ThisScene->sceneObjects[i]->action.startCallback(FrameTime, 0);
+				static_cast<MeshObject*>(ThisScene->sceneObjects[i]->mesh.get())->updateMVP(swapchain->currentFrame);
+				//ThisScene->sceneObjects[i]->action.startCallback(FrameTime, 0);
 
 				//Draw Command Buffer Submission:
 				//One command Buffer / render Pass , per Object 
 				//TODO: InstancedObjects
-				swapchain->recordCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], *((MeshObject*)(ThisScene->sceneObjects[i]->mesh.get())), swapchain->currentFrame);  //TODO: This is not OK either
+				swapchain->recordCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], *static_cast<MeshObject*>(ThisScene->sceneObjects[i]->mesh.get()), swapchain->currentFrame);  //TODO: This is not OK either
 
 			}
 		}

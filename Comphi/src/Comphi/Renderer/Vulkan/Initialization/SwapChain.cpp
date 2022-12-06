@@ -313,7 +313,7 @@ namespace Comphi::Vulkan {
 		beginInfo.pInheritanceInfo = nullptr; // Optional
 
 		//StartRecordingCommandBuffer
-		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+		vkCheckError(vkBeginCommandBuffer(commandBuffer, &beginInfo)) {
 			COMPHILOG_CORE_FATAL("failed to begin recording command buffer!");
 			throw std::runtime_error("failed to begin recording command buffer!");
 			return;
@@ -333,7 +333,6 @@ namespace Comphi::Vulkan {
 
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
-
 
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		{//begin render pass
