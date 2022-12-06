@@ -89,7 +89,7 @@ namespace Comphi::Vulkan {
 			swapChainImageViews[i].initSwapchainImageView(swapChainImages[i], swapChainImageFormat);
 			swapChainImageViews[i].imageExtent = swapChainExtent;
 		}
-		swapChainDepthView = ImageView();
+		swapChainDepthView = ImageView(); //TODO: validate depth of inheritance and split classes if needed
 		swapChainDepthView.initDepthImageView(swapChainImageViews[0]);
 	}
 
@@ -338,7 +338,7 @@ namespace Comphi::Vulkan {
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		{//begin render pass
 
-			meshObj.i_material->bind(commandBuffer);
+			static_cast<Material*>(meshObj.i_material.get())->bind(commandBuffer);
 
 			meshObj.bind(commandBuffer);
 
@@ -357,7 +357,7 @@ namespace Comphi::Vulkan {
 			scissor.extent = swapChainExtent;
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-			meshObj.i_material->bindDescriptorSet(commandBuffer,currentFrame);
+			static_cast<Material*>(meshObj.i_material.get())->bindDescriptorSet(commandBuffer,currentFrame);
 
 			//DRAW COMMAND
 			vkCmdDrawIndexed(commandBuffer, meshObj.i_indices->i_indexCount, 1, 0, 0, 0);

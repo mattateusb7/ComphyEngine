@@ -10,7 +10,7 @@ namespace Comphi::Vulkan {
 		createDescriptorPool();
 		createDescriptorSetLayout();
 
-		//VertexBufferDescription
+		//VertexBufferDescription //TODO: this seems like a good place to start working on dynamic Descriptor Pools
 		auto bindingDescription = VertexBuffer::getBindingDescription();
 		auto attributeDescriptions = VertexBuffer::getAttributeDescriptions();
 
@@ -166,7 +166,7 @@ namespace Comphi::Vulkan {
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 		pipelineInfo.basePipelineIndex = -1; // Optional
 
-		if (vkCreateGraphicsPipelines(*GraphicsHandler::get()->logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipelineObj) != VK_SUCCESS) {
+		vkCheckError(vkCreateGraphicsPipelines(*GraphicsHandler::get()->logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipelineObj)) {
 			COMPHILOG_CORE_FATAL("failed to create graphics pipeline!");
 			throw std::runtime_error("failed to create graphics layout!");
 		}
@@ -195,7 +195,7 @@ namespace Comphi::Vulkan {
 		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 		layoutInfo.pBindings = bindings.data();
 
-		if (vkCreateDescriptorSetLayout(*GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+		vkCheckError(vkCreateDescriptorSetLayout(*GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &descriptorSetLayout)) {
 			COMPHILOG_CORE_FATAL("failed to create descriptor set layout!");
 			throw std::runtime_error("failed to create descriptor set layout!");
 		}
@@ -205,7 +205,7 @@ namespace Comphi::Vulkan {
 	void GraphicsPipeline::createDescriptorPool()
 	{
 		/***
-		/TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts
+		//TODO: Add DescriptonSetLayoutProperties Struct in the future to allow diferent layouts
 		/This constructor defines DescriptorPool Compatibility with Descriptor Sets Layouts
 		/All Descriptor Sets in this Graphics Pipeline Should Be Compatible with this Descriptor Pool
 		***/
@@ -223,7 +223,7 @@ namespace Comphi::Vulkan {
 		poolInfo.pPoolSizes = poolSizes.data();
 		poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
-		if (vkCreateDescriptorPool(*GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &descriptorPoolObj) != VK_SUCCESS) {
+		vkCheckError(vkCreateDescriptorPool(*GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &descriptorPoolObj)) {
 			COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
 			throw std::runtime_error("failed to create descriptor pool!");
 		}
@@ -241,7 +241,7 @@ namespace Comphi::Vulkan {
 		allocInfo.pSetLayouts = layouts.data();
 
 		descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-		if (vkAllocateDescriptorSets(*GraphicsHandler::get()->logicalDevice, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+		vkCheckError(vkAllocateDescriptorSets(*GraphicsHandler::get()->logicalDevice, &allocInfo, descriptorSets.data())) {
 			COMPHILOG_CORE_FATAL("failed to allocate descriptor sets!");
 			throw std::runtime_error("failed to allocate descriptor sets!");
 		}
@@ -252,15 +252,15 @@ namespace Comphi::Vulkan {
 
 			//OBJECT VERTEX
 			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = ((UniformBuffer*)&MVP_ubos[i])->bufferObj;
+			bufferInfo.buffer = static_cast<UniformBuffer>(MVP_ubos[i]).bufferObj;
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
 
 			//OBJECT TEXTURES
 			VkDescriptorImageInfo imageInfo{};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = ((ImageView*)textures[0])->imageViewObj;
-			imageInfo.sampler = ((ImageView*)textures[0])->textureSamplerObj;
+			imageInfo.imageView = static_cast<ImageView*>(textures[0])->imageViewObj;
+			imageInfo.sampler = static_cast<ImageView*>(textures[0])->textureSamplerObj;
 
 			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 

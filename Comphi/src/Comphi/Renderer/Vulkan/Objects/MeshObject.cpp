@@ -10,17 +10,22 @@ namespace Comphi::Vulkan {
 	{
 		ParseObjFile(objFile);
 		this->i_material = std::make_shared<Material>(material);
+		initializeMVPMatrices();
+		initializeMeshData();
 	}
 
 	MeshObject::MeshObject(VertexArray& vertices, IndexArray& indices, Material& material)
 	{
 		this->i_vertices = std::make_shared<VertexBuffer>(vertices);
 		this->i_indices = std::make_shared<IndexBuffer>(indices);
-		this->i_material = std::make_shared<Material>(material);	}
+		this->i_material = std::make_shared<Material>(material);	
+		initializeMVPMatrices();
+		initializeMeshData();
+	}
 
 
 	void MeshObject::ParseObjFile(IFileRef& objFile) {
-		this->i_objFile = &objFile;
+		this->i_ModelFileOBJ = &objFile;
 
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -68,17 +73,6 @@ namespace Comphi::Vulkan {
 		i_indices = std::make_shared<Vulkan::IndexBuffer>(iArray);
 	}
 
-	void MeshObject::initMVP()
-	{
-		int MAX_FRAMES_IN_FLIGHT = *Vulkan::GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
-		i_MVP_UBOs.resize(MAX_FRAMES_IN_FLIGHT);
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-		{
-			//initialize
-			i_MVP_UBOs[i] = UniformBufferObject();
-		}
-	}
-
 	void MeshObject::updateMVP(uint currentImage)
 	{
 		void* data;
@@ -99,6 +93,19 @@ namespace Comphi::Vulkan {
 		//Bind IndexBuffers @1
 		vkCmdBindIndexBuffer(vkCommand, static_cast<IndexBuffer*>(i_indices.get())->bufferObj, 0, VK_INDEX_TYPE_UINT32);
 
+	}
+
+	//API: 
+
+	void MeshObject::initializeMVPMatrices()
+	{
+		int MAX_FRAMES_IN_FLIGHT = *Vulkan::GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
+		i_MVP_UBOs.resize(MAX_FRAMES_IN_FLIGHT);
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			//initialize
+			i_MVP_UBOs[i] = UniformBufferObject();
+		}
 	}
 
 }

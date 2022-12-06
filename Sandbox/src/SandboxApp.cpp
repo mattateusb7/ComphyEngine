@@ -10,51 +10,49 @@ public:
 
 	//TODO: Comphi namepsace objects should use platform & renderer independent interfaces (API)
 
-	MeshInstance meshObj1;
+	Windows::FileRef textureFile;
+	TextureInstance texture;
 
-	Comphi::Windows::FileRef textureFile;
-	TextureInstance texture1;
-	MaterialInstance Albedo1;
+	Windows::FileRef vert;
+	ShaderInstance vertShader;
 
-	Comphi::Windows::FileRef vert;
-	ShaderProgramInstance vertShader;
+	Windows::FileRef frag;
+	ShaderInstance fragShader;
 
-	ShaderProgramInstance fragShader;
-	Comphi::Windows::FileRef frag;
+	MaterialInstance Albedo;
 
-	GameObjectInstance gameObj1;
-	Comphi::Windows::FileRef modelMesh;
+	Windows::FileRef modelMesh;
+	MeshInstance meshObj;
+	
+	GameObjectInstance gameObj;
 
-	CameraInstance camObj1;
+	CameraInstance camObj;
 
-	SceneInstance scene1;
+	SceneInstance scene;
 
 	void OnStart() override {
-		// ------------------------------------------------------------
-		//					GRAPHICS PIPELINE 
-		//TODO : Shader/Texture/Material initialization stage -> Move outside of Graphics context
 
+		//Texture
 		MaterialProperties materialProperties;
 		textureFile = Windows::FileRef("textures/viking_room.png");
-		texture1 = MakeTextureInstance(textureFile);
+		texture = GraphicsAPI::create::Texture(textureFile);
 
-		ShaderTextures textures = { texture1.get()};
+		//Shaders
+		ShaderTextures textures = { texture.get()};
 		materialProperties.shaderTextures = textures;
 
-		vert = Windows::FileRef("shaders\\vert.spv");
-		frag = Windows::FileRef("shaders\\frag.spv");
-		vertShader = MakeShaderProgramInstance(ShaderType::VertexShader, vert);
-		fragShader = MakeShaderProgramInstance(ShaderType::FragmentShader, frag);
+		vert = Windows::FileRef("shaders/vert.spv");
+		frag = Windows::FileRef("shaders/frag.spv");
+		vertShader = GraphicsAPI::create::ShaderProgram(ShaderType::VertexShader, vert);
+		fragShader = GraphicsAPI::create::ShaderProgram(ShaderType::FragmentShader, frag);
 
-		std::vector<IShaderProgram*> shaders = { &*vertShader , &*fragShader };
-		materialProperties.shaders = shaders;
+		ShaderPrograms shaders = { &*vertShader , &*fragShader };
+		materialProperties.shaderPrograms = shaders;
+		
+		//Material
+		Albedo = GraphicsAPI::create::Material(materialProperties);
 
-		//shared Material Instance
-		Albedo1 = MakeMaterialInstance(materialProperties);
-
-
-		// ------------------------------------------------------------
-		//					TEST OBJECTS PIPELINE 
+		//Mesh
 		const VertexArray vertices = {
 			{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
 			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
@@ -93,19 +91,28 @@ public:
 		};
 
 		modelMesh = Windows::FileRef("models/viking_room.obj");
-		meshObj1 = MakeMeshInstance(modelMesh, *Albedo1.get());
-		gameObj1 = MakeGameObjectInstance(meshObj1);
-		gameObj1->action.updateCallback = [this](Time frameTime,void*) {
-			gameObj1->transform.position = glm::vec3(0, 0, glm::sin(frameTime.deltaTime()));
-			gameObj1->transform.setEulerAngles(glm::vec3(0.0f, 0.0f, 45.0f) * frameTime.deltaTime());
-		};
+		meshObj = GraphicsAPI::create::Mesh(modelMesh, Albedo);
+		MeshData mesh{ meshObj };
 
-		camObj1 = MakeCameraInstance();
-		camObj1->transform.position = glm::vec3(0.0f, 4.0f, 0.0f);
+		//GameObject
+		gameObj = GraphicsAPI::create::GameObject(mesh);
+		//gameObj1->action.updateCallback = [this](Time frameTime,void*) { //TODO: fix Lambda not defined when out of scope
+		//	gameObj1->transform.position = glm::vec3(0, 0, glm::sin(frameTime.deltaTime()));
+		//	gameObj1->transform.setEulerAngles(glm::vec3(0.0f, 0.0f, 45.0f) * frameTime.deltaTime());
+		//};
 
-		camObj1->action.updateCallback = [this](Time frameTime,void*) {
-			camObj1->transform.lookAt(gameObj1->transform.position);
-		};
+		//Camera
+		camObj = GraphicsAPI::create::Camera();
+		camObj->transform.position = glm::vec3(0.0f, 4.0f, 0.0f);
+		camObj->transform.lookAt(gameObj->transform.position);
+
+		//camObj1->action.updateCallback = [this](Time frameTime,void*) {
+		//	camObj1->transform.lookAt(gameObj1->transform.position);
+		//};
+
+		scene = GraphicsAPI::create::Scene();
+		scene->sceneObjects.push_back(gameObj);
+		scene->sceneCamera = (camObj);
 
 	}
 
@@ -115,7 +122,10 @@ public:
 
 	void OnUIRender() override {};
 
-	void OnEvent(Comphi::Event& e) override {};
+	void OnEvent(Comphi::Event& e) override 
+	{
+		//Called once per event 
+	};
 
 private:
 };
@@ -126,7 +136,7 @@ public:
 	Sandbox() {
 		GameSceneLayer* Renderlayer = new GameSceneLayer();
 		PushLayer(*Renderlayer);
-		PushScene(Renderlayer->scene1);
+		PushScene(Renderlayer->scene);
 	}
 	~Sandbox(){}
 private:

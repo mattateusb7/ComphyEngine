@@ -159,7 +159,7 @@ namespace Comphi::Windows {
 
 		COMPHILOG_CORE_INFO("Creating Window {0} ({1},{2}) - Success!", props.Title, props.Width, props.Height);
 
-		m_GraphicsContext.reset(GraphicsAPI::create::GraphicsContext(*m_Window));
+		m_GraphicsContext.reset(GraphicsAPI::create::GraphicsContext(m_Window));
 		m_GraphicsContext->Init();
 	}
 

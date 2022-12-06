@@ -2,6 +2,8 @@
 #include "Time.h"
 
 namespace Comphi {
+	
+	const TimePoint Time::programTime = std::chrono::high_resolution_clock::now();
 
 	TimePoint Time::currentTime()
 	{

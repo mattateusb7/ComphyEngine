@@ -4,9 +4,11 @@
 #include <iostream>
 #include <memory>
 #include <utility>
-#include <algorithm>
+#include <algorithm> // Necessary for std::clamp
 #include <functional>
 #include <chrono>
+#include <cstdint> // Necessary for uint32_t
+#include <limits> // Necessary for std::numeric_limits
 
 #include <string>
 #include <fstream>

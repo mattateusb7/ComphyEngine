@@ -11,7 +11,7 @@ namespace Comphi::Vulkan {
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.codeSize = shaderFile.getByteData().size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderFile.getByteData().data());
+		createInfo.pCode = shaderFile.getUint32tByteData();
 
 		vkCheckError(vkCreateShaderModule(*GraphicsHandler::get()->logicalDevice, &createInfo, nullptr, &shaderModule)) {
 			COMPHILOG_CORE_FATAL("failed to create shader module!");

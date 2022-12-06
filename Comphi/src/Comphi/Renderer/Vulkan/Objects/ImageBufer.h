@@ -1,4 +1,5 @@
 #pragma once
+#include "Comphi/Platform/IFileRef.h"
 #include "MemBuffer.h"
 
 namespace Comphi::Vulkan {
@@ -12,7 +13,7 @@ namespace Comphi::Vulkan {
 			VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
 			VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 		};
-		ImageBuffer(std::string& filepath, ImgSpecification spec);//TODO: Add rawData Initialization construct
+		ImageBuffer(IFileRef& fileref, ImgSpecification spec);//TODO: Add rawData Initialization construct
 		
 		VkImage bufferObj; //override bufferType
 		//<< bufferMemory;

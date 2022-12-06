@@ -1,12 +1,9 @@
 #pragma once
-#include "Comphi/Renderer/IGraphicsContext.h"
+#include "../../Renderer/IGraphicsContext.h"
 #include "GraphicsHandler.h"
-
 #include "Initialization/GraphicsInstance.h"
 #include "Initialization/SwapChain.h"
 #include "Initialization/CommandPool.h"
-#include "Comphi/API/Time.h"
-#include "Comphi/API/Camera.h"
 
 namespace Comphi::Vulkan {
 

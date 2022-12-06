@@ -3,9 +3,6 @@
 
 namespace Comphi {
 
-#define CameraInstance std::shared_ptr<Comphi::Camera>
-#define MakeCameraInstance std::make_shared<Comphi::Camera>
-
 	struct CameraProperties {
 		float FOV = 45.0f;
 		float NearPlane = 0.1f;
@@ -13,17 +10,19 @@ namespace Comphi {
 	};
 
 	//TODO: Implement Stereoscopic Camera.
-	class Camera : public GameObjectData
+	class Camera : public TransformData, public CameraProperties
 	{
 	public:
-		Camera(CameraProperties cameraProperties = {}, GameObjectData sceneData = {});
+		Camera(CameraProperties cameraProperties = {}, TransformData transformData = {});
 
 		//Camera Action
 		ActionHandle action;
 
-		CameraProperties cameraProperties;
 		glm::mat4 getViewMatrix();
 		glm::mat4 getProjectionMatrix();
 
 	};
+
+	typedef std::shared_ptr<Camera> CameraInstance;
+
 }

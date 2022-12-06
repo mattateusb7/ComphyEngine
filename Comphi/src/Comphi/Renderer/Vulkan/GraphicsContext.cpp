@@ -1,11 +1,7 @@
 #include "cphipch.h"
 #include "GraphicsContext.h"
 
-
-#include <cstdint> // Necessary for uint32_t
-#include <limits> // Necessary for std::numeric_limits
-#include <algorithm> // Necessary for std::clamp
-#include <Comphi/Renderer/Vulkan/Initialization/SyncObjectsFactory.h>
+#include "Initialization/SyncObjectsFactory.h"
 
 namespace Comphi::Vulkan {
 
@@ -57,28 +53,29 @@ namespace Comphi::Vulkan {
 
 		for (size_t i = 0; i < scenes->size(); i++)
 		{
-			Scene& ThisScene = *(*scenes)[i];
-
+			Scene* ThisScene = (*scenes)[i].get();
+			if (ThisScene == nullptr) continue;
 			//Action UpdateCallback
-			for (size_t i = 0; i < ThisScene.sceneObjects.size(); i++)
+			for (size_t i = 0; i < ThisScene->sceneObjects.size(); i++)
 			{
-				ThisScene.sceneObjects[i]->action.updateCallback(FrameTime, 0);
+				ThisScene->sceneObjects[i]->action.updateCallback(FrameTime, 0);
 			}
 
-			for (size_t i = 0; i < ThisScene.sceneObjects.size(); i++)
+			for (size_t i = 0; i < ThisScene->sceneObjects.size(); i++)
 			{
 				//Update Uniform Buffers MVP_UBOs per GameObject :
 				UniformBufferObject ubo{};
-				ubo.model = ThisScene.sceneObjects[i]->transform.getModelMatrix();
-				ubo.view = ThisScene.sceneCamera->getViewMatrix();
-				ubo.proj = ThisScene.sceneCamera->getProjectionMatrix();
+				ubo.model = ThisScene->sceneObjects[i]->transform.getModelMatrix();
+				ubo.view = ThisScene->sceneCamera->getViewMatrix();
+				ubo.proj = ThisScene->sceneCamera->getProjectionMatrix();
 
-				ThisScene.sceneObjects[i]->mesh->updateMVP(swapchain->currentFrame);
-				ThisScene.sceneObjects[i]->action.startCallback(FrameTime, 0);
+				((MeshObject*)(ThisScene->sceneObjects[i]->mesh.get()))->updateMVP(swapchain->currentFrame); //TODO: This is not OK
+				ThisScene->sceneObjects[i]->action.startCallback(FrameTime, 0);
 
 				//Draw Command Buffer Submission:
-				//One command Buffer / render Pass , per Object / TODO: InstancedObjects
-				swapchain->recordCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], *static_cast<MeshObject*>(&*ThisScene.sceneObjects[i]->mesh), swapchain->currentFrame);
+				//One command Buffer / render Pass , per Object 
+				//TODO: InstancedObjects
+				swapchain->recordCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], *((MeshObject*)(ThisScene->sceneObjects[i]->mesh.get())), swapchain->currentFrame);  //TODO: This is not OK either
 
 			}
 		}

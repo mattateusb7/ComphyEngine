@@ -3,8 +3,8 @@
 
 namespace Comphi::Vulkan {
 
-	ImageView::ImageView(std::string& filepath, ImgSpecification spec) //change FilePath to Windows::FileRef
-		: ImageBuffer(filepath, spec)
+	ImageView::ImageView(IFileRef& fileref, ImgSpecification spec)
+		: ImageBuffer(fileref, spec) , ITexture(fileref)
 	{
 		this->aspectFlags = spec.aspectFlags;
 		initImageView();
@@ -81,7 +81,7 @@ namespace Comphi::Vulkan {
 		createInfo.subresourceRange.baseMipLevel = 0;
 		createInfo.subresourceRange.levelCount = 1;
 		createInfo.subresourceRange.baseArrayLayer = 0;
-		createInfo.subresourceRange.layerCount = 1;
+		createInfo.subresourceRange.layerCount = 1; // <<< Refering to this v v v 
 
 		//TODO: If you were working on a stereographic 3D application, then you would create a swap chain with multiple layers. 
 		//You could then create multiple image views for each image 

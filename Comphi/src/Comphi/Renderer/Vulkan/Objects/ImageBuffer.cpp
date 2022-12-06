@@ -14,8 +14,9 @@ namespace Comphi::Vulkan {
 		vkFreeMemory(*GraphicsHandler::get()->logicalDevice.get(), bufferMemory, nullptr);
 	}
 
-	ImageBuffer::ImageBuffer(std::string& filepath, ImgSpecification spec)
+	ImageBuffer::ImageBuffer(IFileRef& fileref, ImgSpecification spec)
 	{
+		std::string filepath = fileref.getFilePath();
 		initTextureImageBuffer(filepath, spec);
 	}
 

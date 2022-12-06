@@ -7,23 +7,22 @@
 
 namespace Comphi {
 
-	class IMeshObject
+	class IMeshObject //TODO:rename to IMesh or IMeshOBJ
 	{
 	public:
-		IFileRef* i_objFile;
+		IFileRef* i_ModelFileOBJ;
 		std::shared_ptr<IMaterial> i_material; //TODO: Add Material-Attributes for vertexGroups
 		std::shared_ptr<IVertexBuffer> i_vertices;
 		std::shared_ptr<IIndexBuffer> i_indices;
-
-		virtual void initMVP() = 0;
-		virtual void updateMVP(uint currentImage) = 0;
 		std::vector<IUniformBuffer> i_MVP_UBOs;
-
-		//Rendering
-		virtual void bind(void* commandBuffer) = 0;
-
-	protected :
-		IMeshObject() = default;
+	protected:
+		void initializeMeshData() {
+			if (i_material.get() != nullptr) {
+				//send Data Layout To DesciptorPool
+				//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts compatible with Descriptor Pool
+				i_material->sendDescriptorSet(i_MVP_UBOs);
+			}
+		};
 	};
 }
 

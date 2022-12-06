@@ -9,7 +9,7 @@ namespace Comphi::Vulkan {
 
 		MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 		
-		VkBuffer bufferObj; //change to DATA
+		VkBuffer bufferObj;
 		VkDeviceMemory bufferMemory;
 		VkDeviceSize bufferSize;
 

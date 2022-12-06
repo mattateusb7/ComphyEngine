@@ -1,33 +1,31 @@
 #pragma once
 
 //API
+#include "Comphi/Renderer/IGraphicsContext.h"
+
 #include "Comphi/API/Time.h"
 #include "Comphi/API/Transform.h"
 
 #include "Comphi/API/Scene.h"
 #include "Comphi/API/GameObject.h"
+#include "Comphi/API/Mesh.h"
 #include "Comphi/API/Camera.h"
 
 #include "Comphi/API/Shader.h"
 #include "Comphi/API/Texture.h"
 #include "Comphi/API/Material.h"
 
-///Vulkan
-#include "IGraphicsContext.h"
-#include "../../../vendor/GLFW/include/GLFW/glfw3.h"
-
 namespace Comphi {
+
+
 	class GraphicsAPI
 	{
 	public:
+		
 		enum RenderingAPI {
 			None,
 			Vulkan
 		};
-	private:
-		static inline RenderingAPI activeAPI = RenderingAPI::None;
-	public:
-
 		static void selectNone() {
 			COMPHILOG_CORE_ERROR("No rendering API Selected.");
 			activeAPI = RenderingAPI::None; 
@@ -39,27 +37,22 @@ namespace Comphi {
 		
 		static inline RenderingAPI getActiveAPI() { return activeAPI; }
 
-		struct create {
-			static IGraphicsContext* GraphicsContext(GLFWwindow& windowHandler);
-			//TODO : Design comfy Interfaces
-			static IVertexBuffer* VertexBuffer(IGraphicsContext* currentGraphicsContext, const VertexArray& vertices);
-			static IIndexBuffer* IndexBuffer(IGraphicsContext* currentGraphicsContext, const IndexArray& indices);
-			static IShaderProgram* ShaderProgram(IGraphicsContext* currentGraphicsContext, Comphi::ShaderType shaderType, IFileRef& shaderFile);
-			
+		//TODO : Design Comfy Interfaces
+		struct create { //comply with vulkan object constructors
+			static IGraphicsContext* GraphicsContext(void* windowHandler);
+			static CameraInstance Camera(CameraProperties cameraProperties = {}, TransformData transformData = {});
+			static GameObjectInstance GameObject(MeshData meshData = {}, TransformData transformData = {});
+			static SceneInstance Scene();
+			static ShaderInstance ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile);
+			static TextureInstance Texture(IFileRef& fileref); //TODO: make abstraction of ImgSpecification
+			static MaterialInstance Material(MaterialProperties materialProperties);
+			static MeshInstance Mesh(IFileRef& objFile, MaterialInstance& material);
+			static MeshInstance Mesh(VertexArray& vertices, IndexArray& indices, MaterialInstance& material);
 		};
 
-		//std::shared_ptr<IGraphicsContext> currentGraphicsContext;
+	protected:
+		static inline RenderingAPI activeAPI = RenderingAPI::None;
+		static inline std::shared_ptr<IGraphicsContext> currentGraphicsContext = nullptr;
 
-		//struct start {
-		//	virtual void test() = 0;
-		//};
-
-		//struct end{
-		//	virtual void test() = 0;
-		//};
-
-		//struct draw {
-		//	virtual void Triangle();
-		//}
 	};
 }

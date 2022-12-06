@@ -14,7 +14,8 @@ namespace Comphi::Vulkan {
 		//}graphicsPipelineSetupData;
 
 		GraphicsPipeline() = default;
-		void initialize(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages);//TODO: Swap this shaderStages with ShaderStagesPipeline Class (also defining deescriptor Sets)
+		//TODO: Swap this shaderStages with ShaderStagesPipeline Class (also defining deescriptor Sets)
+		void initialize(std::vector<VkPipelineShaderStageCreateInfo>& shaderStages);
 
 		VkPipelineLayout pipelineLayout;
 		VkPipeline pipelineObj;

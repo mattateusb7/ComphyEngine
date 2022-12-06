@@ -1,8 +1,7 @@
 #pragma once
-
 namespace Comphi {
 
-	class Transform
+	class Transform 
 	{
 	public:
 		Transform() = default;
@@ -28,7 +27,6 @@ namespace Comphi {
 
 	protected:
 		glm::mat4 ModelMatrix;
-	
 
 	};
 
@@ -39,4 +37,7 @@ namespace Comphi {
 	const glm::vec3 forward = glm::vec3(0, 1, 0);
 	
 	}
+
+	typedef std::shared_ptr<Transform> TransformInstance;
+
 }

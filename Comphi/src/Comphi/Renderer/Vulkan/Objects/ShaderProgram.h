@@ -19,6 +19,4 @@ namespace Comphi::Vulkan {
 		void createShaderModule();
 	};
 
-	//TODO: make GraphicsAPI Factory
-
 }

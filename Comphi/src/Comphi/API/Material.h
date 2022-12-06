@@ -2,11 +2,13 @@
 #include "Comphi/Renderer/IMaterial.h"
 namespace Comphi {
 
-	class Material : IMaterial
-	{
-		Material();
+	typedef std::shared_ptr<IMaterial> MaterialInstance;
 
-	};
+	//class Material : IMaterial
+	//{
+	//	Material();
+	//
+	//};
 
 };
 

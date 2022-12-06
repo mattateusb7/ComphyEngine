@@ -1,7 +1,7 @@
 #pragma once
 #include "Transform.h"
 #include "Time.h"
-#include "Comphi/Renderer/IMeshObject.h"
+#include "Comphi/API/Mesh.h"
 
 namespace Comphi {
 
@@ -14,34 +14,25 @@ namespace Comphi {
 	};
 
 	class GameObject;
+	typedef std::shared_ptr<GameObject> GameObjectInstance;
 
-#define GameObjectInstance std::shared_ptr<Comphi::GameObject>
-#define MakeGameObjectInstance std::make_shared<Comphi::GameObject>
-
-	struct GameObjectData {
+	struct TransformData {
 		GameObjectInstance parent;
 		Transform transform;
 	};
 
-	class GameObject : public GameObjectData
+	class GameObject : public TransformData, public MeshData
 	{
 	public:
-
-		GameObject(std::shared_ptr<IMeshObject>& mesh, GameObjectData data = {});
+		GameObject(MeshData meshData = {}, TransformData transformData = {});
 		~GameObject() = default;
 
-		//GameObject Data
-		std::shared_ptr<IMeshObject> mesh;
-	
 		//GameObject Actions (single Action For now)
-		//TODO: may become vector of behaviours; 
-		//for now trying to keep "options open" (data oriented Maybe?)
-		//instead of going for a component system arquitecture
-		ActionHandle action;
-
-	protected:
-
-		void initializeMeshData();
+		//TODO: may become vector of ActionHandles; 
+		//for now trying to keep "options open" (data Driven Maybe?)
+		//instead of going for component system arquitecture
+		//TODO: Planning to add DLL Loading for Scripting & File IO for Data Driven HotReload
+		ActionHandle action; 
 
 	};
 

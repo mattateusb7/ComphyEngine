@@ -17,21 +17,20 @@ namespace Comphi::Vulkan {
 
 		MeshObject(IFileRef& objFile, Material& material);
 		MeshObject(VertexArray& vertices, IndexArray& indices, Material& material);
-		
+
+		//Rendering
 		/*
 		* Driver developers recommend that you also store multiple buffers, like the vertex and index buffer, into a single VkBuffer
 		* (DrawBuffer or maybe batchDrawBuffer/multipleObjs)
 		* and use offsets in commands like vkCmdBindVertexBuffers.
 		* The advantage is that your data is more cache friendly in that case, because it's closer together.
 		*/
-		virtual void bind(void* commandBuffer) override;
+		void bind(void* commandBuffer);
+		void updateMVP(uint currentImage);
 
 	protected:
+		void initializeMVPMatrices();
 		void ParseObjFile(IFileRef& objFile);
-
-		// Inherited via IMeshObject
-		virtual void initMVP() override;
-		virtual void updateMVP(uint currentImage) override;
 
 	};
 

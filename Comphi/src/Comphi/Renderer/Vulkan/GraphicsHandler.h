@@ -91,7 +91,7 @@ namespace Comphi::Vulkan {
 		VkCommandBuffer buffer;
 	};
 
-	//TODO: evaluate if possible to make instanced per Vulkan GraphicsContext ?
+	//TODO: evaluate if possible to make instanced per Vulkan GraphicsContext (MultiGraphicsContext Handler)?
 	class GraphicsHandler : public DeviceHandler, public QueueHandler , public WindowHandler, public SwapchainHandler {
 	public:
 		GraphicsHandler() = default;

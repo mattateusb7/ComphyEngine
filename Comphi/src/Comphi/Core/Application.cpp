@@ -15,7 +15,7 @@ namespace Comphi {
 		m_Window.reset(IWindow::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
-		//INIT IMGUI
+		//INIT IMGUI LAYER //TODO: temp ? (application may not want a default Imgui Overlay Layer)
 		m_ImGuiLayer = std::make_shared<ImGuiLayer>();
 		PushOverlay(*m_ImGuiLayer);
 	}
@@ -42,11 +42,11 @@ namespace Comphi {
 			}
 			
 			//UI Render Loop
-			m_ImGuiLayer->Begin();
-			for (auto layer : m_LayerStack) {
-				layer->OnUIRender();
-			}
-			m_ImGuiLayer->End();
+			//m_ImGuiLayer->Begin();
+			//for (auto layer : m_LayerStack) {
+			//	layer->OnUIRender();
+			//}
+			//m_ImGuiLayer->End();
 		
 			//Event Loop
 			m_Window->OnUpdate();

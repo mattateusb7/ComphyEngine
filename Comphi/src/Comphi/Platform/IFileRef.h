@@ -12,6 +12,7 @@ namespace Comphi {
 		const std::string getFilePath() { return m_filePath; };
 		const std::string getData() { return m_byte_fileContent.data(); };
 		const std::vector<char> getByteData() { return m_byte_fileContent; };
+		const uint32_t* getUint32tByteData() { return reinterpret_cast<const uint32_t*>(m_byte_fileContent.data()); };
 		void setFileByteData(const std::vector<char> data) { m_byte_fileContent = data; };
 		void setFileData(const std::string in) { m_byte_fileContent = std::vector<char>(in.begin(), in.end()); };
 		
