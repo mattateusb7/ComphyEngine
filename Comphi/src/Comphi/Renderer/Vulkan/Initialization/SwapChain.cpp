@@ -14,7 +14,7 @@ namespace Comphi::Vulkan {
 	void SwapChain::createSwapChain() {
 
 		COMPHILOG_CORE_TRACE("Creating Swapchain...");
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(*GraphicsHandler::get()->physicalDevice.get(), *GraphicsHandler::get()->surface.get());
+		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(*GraphicsHandler::get()->physicalDevice, *GraphicsHandler::get()->surface);
 
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
 		VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -28,7 +28,7 @@ namespace Comphi::Vulkan {
 
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = *GraphicsHandler::get()->surface.get();
+		createInfo.surface = *GraphicsHandler::get()->surface;
 
 		createInfo.minImageCount = imageCount;
 		createInfo.imageFormat = surfaceFormat.format;
@@ -64,7 +64,7 @@ namespace Comphi::Vulkan {
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 		//swap chain becomes invalid if window was resized
 
-		if (vkCreateSwapchainKHR(*GraphicsHandler::get()->logicalDevice.get(), &createInfo, nullptr, &swapChainObj) != VK_SUCCESS) {
+		vkCheckError(vkCreateSwapchainKHR(*GraphicsHandler::get()->logicalDevice.get(), &createInfo, nullptr, &swapChainObj)) {
 			COMPHILOG_CORE_FATAL("failed to create swap chain!");
 			throw std::runtime_error("failed to create swap chain");
 			return;
@@ -112,16 +112,16 @@ namespace Comphi::Vulkan {
 	}
 
 	void SwapChain::cleanUp() {
-		short fbid = 0;
-		for (auto framebuffer : swapChainFramebuffers) {
-			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid++);
-			vkDestroyFramebuffer(*GraphicsHandler::get()->logicalDevice, framebuffer, nullptr);
+		for (int fbid = 0; fbid < swapChainFramebuffers.size(); fbid++) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid);
+			vkDestroyFramebuffer(*GraphicsHandler::get()->logicalDevice, swapChainFramebuffers[fbid], nullptr);
 		}
 
-		int n_img = 0;
-		for (auto imageView : swapChainImageViews) {
-			imageView.cleanUp();
+		for (int i = 0; i < swapChainImageViews.size(); i++) {
+			swapChainImageViews[i].cleanUp();
 		}
+
+		swapChainDepthView.cleanUp();
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Swapchain:");
 		vkDestroySwapchainKHR(*GraphicsHandler::get()->logicalDevice.get(), swapChainObj, nullptr);

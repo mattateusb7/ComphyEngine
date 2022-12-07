@@ -12,6 +12,7 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageBuffer");
 		vkDestroyImage(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, nullptr);
 		vkFreeMemory(*GraphicsHandler::get()->logicalDevice.get(), bufferMemory, nullptr);
+		MemBuffer::cleanUp();
 	}
 
 	ImageBuffer::ImageBuffer(IFileRef& fileref, ImgSpecification spec)

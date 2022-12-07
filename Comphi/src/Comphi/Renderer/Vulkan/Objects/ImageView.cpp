@@ -122,11 +122,11 @@ namespace Comphi::Vulkan {
 	void ImageView::cleanUp()
 	{
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageView");
-		vkDestroyImageView(*GraphicsHandler::get()->logicalDevice.get(), imageViewObj, nullptr);
+		vkDestroyImageView(*GraphicsHandler::get()->logicalDevice, imageViewObj, nullptr);
 		
 		COMPHILOG_CORE_INFO("vkDestroy Destroy textureSampler");
-		vkDestroySampler(*GraphicsHandler::get()->logicalDevice.get(), textureSamplerObj, nullptr);
-
+		vkDestroySampler(*GraphicsHandler::get()->logicalDevice, textureSamplerObj, nullptr);
+		MemBuffer::cleanUp();
 	}
 
 }
