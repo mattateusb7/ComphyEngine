@@ -11,7 +11,7 @@ namespace Comphi::Vulkan {
 	public:
 		
 		Material(Comphi::MaterialProperties properties);
-		~Material();
+		void cleanUp();
 
 		//Each Material owns one Shader/Graphics Pipeline
 		GraphicsPipeline graphicsPipeline;
@@ -19,8 +19,8 @@ namespace Comphi::Vulkan {
 		//linked MaterialProperties:
 		std::vector<ShaderProgram*> shaderPrograms = std::vector<ShaderProgram*>();
 
-		virtual void bind(void* commandBuffer);
-		virtual void bindDescriptorSet(void* commandBuffer, uint32_t currentFrame);
+		void bindGraphicsPipeline(VkCommandBuffer& commandBuffer);
+		void bindDescriptorSet(VkCommandBuffer& commandBuffer, uint32_t currentFrame);
 		void sendDescriptorSet(std::vector<UniformBuffer>& MVP_ubos);
 
 	protected:

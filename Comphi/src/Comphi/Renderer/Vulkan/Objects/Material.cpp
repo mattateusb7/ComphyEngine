@@ -73,19 +73,19 @@ namespace Comphi::Vulkan {
 		graphicsPipeline.sendDescriptorSet(shaderTextures, MVP_ubos);
 	}
 
-	void Material::bind(void* commandBuffer)
+	void Material::bindGraphicsPipeline(VkCommandBuffer& commandBuffer)
 	{
-		vkCmdBindPipeline(static_cast<VkCommandBuffer>(commandBuffer), VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.pipelineObj);
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.pipelineObj);
 	}
 
-	void Material::bindDescriptorSet(void* commandBuffer, uint32_t currentFrame)
+	void Material::bindDescriptorSet(VkCommandBuffer& commandBuffer, uint32_t currentFrame)
 	{
-		vkCmdBindDescriptorSets(static_cast<VkCommandBuffer>(commandBuffer), VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.pipelineLayout, 0, 1, &graphicsPipeline.descriptorSets[currentFrame], 0, nullptr);
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.pipelineLayout, 0, 1, &graphicsPipeline.descriptorSets[currentFrame], 0, nullptr);
 	}
 
-	Material::~Material()
+	void Material::cleanUp()
 	{
-		graphicsPipeline.~GraphicsPipeline();
+		graphicsPipeline.cleanUp();
 	}
 	
 }

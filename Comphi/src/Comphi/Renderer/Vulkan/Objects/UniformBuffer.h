@@ -8,6 +8,5 @@ namespace Comphi::Vulkan {
 	{
 	public:
 		UniformBuffer();
-		~UniformBuffer() = default;
 	};
 }

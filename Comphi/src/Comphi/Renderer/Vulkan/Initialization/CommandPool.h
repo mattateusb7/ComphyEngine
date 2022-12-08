@@ -17,7 +17,7 @@ namespace Comphi::Vulkan {
 
 		VkCommandPool graphicsCommandPool;
 		VkCommandPool transferCommandPool;
-		~CommandPool();
+		void cleanUp();
 	};
 }
 

@@ -23,7 +23,7 @@ namespace Comphi::Vulkan {
 
 		//External ImageBuffer
 		void initSwapchainImageView(VkImage& imageBufferObj, VkFormat& imageFormat);
-		void initDepthImageView(ImageBuffer& swapChainImageBuffer);
+		void initDepthImageView(VkExtent2D& swapChainImageBufferExtent);
 
 		void cleanUp();
 		VkImageView imageViewObj;

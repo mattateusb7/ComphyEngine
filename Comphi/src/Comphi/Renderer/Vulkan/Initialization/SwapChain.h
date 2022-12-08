@@ -16,12 +16,14 @@ namespace Comphi::Vulkan {
 		SwapChain();
 		void recreateSwapChain();
 		void cleanUp();
+		void cleanupRenderPass();
 		static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 		VkSwapchainKHR swapChainObj;
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
 		std::vector<VkImage> swapChainImages;
+
 		std::vector<ImageView> swapChainImageViews;
 		ImageView swapChainDepthView;
 		std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -31,9 +33,10 @@ namespace Comphi::Vulkan {
 		int MAX_FRAMES_IN_FLIGHT = 3; //triple-buffering
 		uint32_t currentFrame = 0;
 
-		void recordCommandBuffer(VkCommandBuffer commandBuffer, MeshObject& meshObj, uint32_t imageIndex);
+		void beginRenderPassCommandBuffer(VkCommandBuffer& commandBuffer);
+		void drawCommandBuffer(VkCommandBuffer& commandBuffer, MeshObject& meshObj);
+		void endRenderPassCommandBuffer(VkCommandBuffer& commandBuffer);
 
-		~SwapChain();
 	protected:
 		void createRenderPass();
 		void createFramebuffers();

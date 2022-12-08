@@ -21,8 +21,8 @@ namespace Comphi::Vulkan {
 		initTextureImageBuffer(filepath, spec);
 	}
 
-	void ImageBuffer::initDepthImageBuffer(ImageBuffer& swapChainImageBuffer, VkFormat format) {
-		imageExtent = swapChainImageBuffer.imageExtent;
+	void ImageBuffer::initDepthImageBuffer(VkExtent2D& swapchainExtent, VkFormat format) {
+		imageExtent = swapchainExtent;
 		ImgSpecification specs{};
 		specs.format = format;
 		specs.tiling = VK_IMAGE_TILING_OPTIMAL;

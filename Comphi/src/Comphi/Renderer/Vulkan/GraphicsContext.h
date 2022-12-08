@@ -30,7 +30,7 @@ namespace Comphi::Vulkan {
 		std::vector<VkFence> inFlightFences;
 
 	protected:
-		bool framebufferResized = false;
+		bool _framebufferResized = false;
 		void createSyncObjects();
 		void updateSceneLoop();
 	};

@@ -7,7 +7,7 @@ namespace Comphi::Vulkan {
 	{
 		createSwapChain();
 		createRenderPass();
-		GraphicsHandler::get()->setSwapchainHandler(MAX_FRAMES_IN_FLIGHT, renderPassObj, swapChainExtent);
+		GraphicsHandler::get()->setSwapchainHandler(renderPassObj, MAX_FRAMES_IN_FLIGHT, swapChainExtent);
 		createFramebuffers();
 	}
 
@@ -17,8 +17,10 @@ namespace Comphi::Vulkan {
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(*GraphicsHandler::get()->physicalDevice, *GraphicsHandler::get()->surface);
 
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
+		swapChainImageFormat = surfaceFormat.format;
+
 		VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-		VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+		swapChainExtent = chooseSwapExtent(swapChainSupport.capabilities);
 
 		//Prevent waiting of img aloc from driver
 		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
@@ -31,9 +33,9 @@ namespace Comphi::Vulkan {
 		createInfo.surface = *GraphicsHandler::get()->surface;
 
 		createInfo.minImageCount = imageCount;
-		createInfo.imageFormat = surfaceFormat.format;
+		createInfo.imageFormat = swapChainImageFormat;
 		createInfo.imageColorSpace = surfaceFormat.colorSpace;
-		createInfo.imageExtent = extent;
+		createInfo.imageExtent = swapChainExtent;
 		createInfo.imageArrayLayers = 1; //1 unless stereoscopic 3D application.
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; //post-processing : may use a value like VK_IMAGE_USAGE_TRANSFER_DST_BIT
 
@@ -69,28 +71,21 @@ namespace Comphi::Vulkan {
 			throw std::runtime_error("failed to create swap chain");
 			return;
 		}
-
 		COMPHILOG_CORE_INFO("SwapChain created Successfully!");
 
+		//Create Swapchain image views
 		vkGetSwapchainImagesKHR(*GraphicsHandler::get()->logicalDevice.get(), swapChainObj, &imageCount, nullptr);
 		swapChainImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(*GraphicsHandler::get()->logicalDevice.get(), swapChainObj, &imageCount, swapChainImages.data());
 
-		swapChainImageFormat = surfaceFormat.format;
-		swapChainExtent = extent;
-
-		createImageViews();
-	}
-
-	void SwapChain::createImageViews() {
 		COMPHILOG_CORE_TRACE("Creating ImageViews...");
 		swapChainImageViews.resize(swapChainImages.size());
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
 			swapChainImageViews[i].initSwapchainImageView(swapChainImages[i], swapChainImageFormat);
 			swapChainImageViews[i].imageExtent = swapChainExtent;
 		}
-		swapChainDepthView = ImageView(); //TODO: validate depth of inheritance and split classes if needed
-		swapChainDepthView.initDepthImageView(swapChainImageViews[0]);
+		swapChainDepthView = ImageView();
+		swapChainDepthView.initDepthImageView(swapChainExtent);
 	}
 
 	void SwapChain::recreateSwapChain() {
@@ -196,8 +191,6 @@ namespace Comphi::Vulkan {
 		}
 	}
 
-#pragma region Framebuffer
-
 	void SwapChain::createFramebuffers() {
 		swapChainFramebuffers.resize(swapChainImageViews.size());
 
@@ -216,7 +209,7 @@ namespace Comphi::Vulkan {
 			framebufferInfo.height = swapChainExtent.height;
 			framebufferInfo.layers = 1;
 
-			if (vkCreateFramebuffer(*GraphicsHandler::get()->logicalDevice, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+			vkCheckError(vkCreateFramebuffer(*GraphicsHandler::get()->logicalDevice, &framebufferInfo, nullptr, &swapChainFramebuffers[i])) {
 				COMPHILOG_CORE_FATAL("failed to create framebuffer!");
 				throw std::runtime_error("failed to create framebuffer!");
 				return;
@@ -224,6 +217,8 @@ namespace Comphi::Vulkan {
 			COMPHILOG_CORE_INFO("created framebuffer of imageView {0}!",i);
 		}
 	}
+
+
 
 	void SwapChain::createRenderPass()
 	{
@@ -305,8 +300,8 @@ namespace Comphi::Vulkan {
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
-	void SwapChain::recordCommandBuffer(VkCommandBuffer commandBuffer, MeshObject& meshObj, uint32_t imageIndex) {
-
+	void SwapChain::beginRenderPassCommandBuffer(VkCommandBuffer& commandBuffer)
+	{
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = 0; // Optional
@@ -323,7 +318,7 @@ namespace Comphi::Vulkan {
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = renderPassObj;
-		renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+		renderPassInfo.framebuffer = swapChainFramebuffers[currentFrame];
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = swapChainExtent;
 
@@ -334,36 +329,43 @@ namespace Comphi::Vulkan {
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
+		//TODO: check it out later :https://zeux.io/2020/02/27/writing-an-efficient-vulkan-renderer/
+
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		{//begin render pass
 
-			static_cast<Material*>(meshObj.i_material.get())->bind(commandBuffer);
+	}
 
-			meshObj.bind(commandBuffer);
+	void SwapChain::drawCommandBuffer(VkCommandBuffer& commandBuffer, MeshObject& meshObj)
+	{
+		static_cast<Material*>(meshObj.i_material.get())->bindGraphicsPipeline(commandBuffer);
 
-			//dynamic VIEWPORT/SCISSOR SETUP
-			VkViewport viewport{};
-			viewport.x = 0.0f;
-			viewport.y = 0.0f;
-			viewport.width = static_cast<float>(swapChainExtent.width);
-			viewport.height = static_cast<float>(swapChainExtent.height);
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+		meshObj.bind(commandBuffer);
 
-			VkRect2D scissor{};
-			scissor.offset = { 0, 0 };
-			scissor.extent = swapChainExtent;
-			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+		//dynamic VIEWPORT/SCISSOR SETUP
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = static_cast<float>(swapChainExtent.width);
+		viewport.height = static_cast<float>(swapChainExtent.height);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
-			static_cast<Material*>(meshObj.i_material.get())->bindDescriptorSet(commandBuffer,currentFrame);
+		VkRect2D scissor{};
+		scissor.offset = { 0, 0 };
+		scissor.extent = swapChainExtent;
+		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-			//DRAW COMMAND
-			vkCmdDrawIndexed(commandBuffer, meshObj.i_indices->i_indexCount, 1, 0, 0, 0);
-			//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
+		//Only bind new descriptor set if this material differs from lastMaterial (group all materials / Instanced objects) ?
+		static_cast<Material*>(meshObj.i_material.get())->bindDescriptorSet(commandBuffer, currentFrame);
 
-		}//end render pass
+		//DRAW COMMAND
+		vkCmdDrawIndexed(commandBuffer, meshObj.i_indices->i_indexCount, 1, 0, 0, 0);
+		//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
+	}
 
+	void Comphi::Vulkan::SwapChain::endRenderPassCommandBuffer(VkCommandBuffer& commandBuffer)
+	{
 		vkCmdEndRenderPass(commandBuffer);
 
 		//EndRecordingCommandBuffer
@@ -375,12 +377,9 @@ namespace Comphi::Vulkan {
 
 	}
 
-	SwapChain::~SwapChain()
+	void SwapChain::cleanupRenderPass()
 	{
-		cleanUp();
 		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
 		vkDestroyRenderPass(*GraphicsHandler::get()->logicalDevice, renderPassObj, nullptr);
 	}
-
-#pragma endregion
 }

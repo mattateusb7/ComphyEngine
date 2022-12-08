@@ -48,8 +48,11 @@ namespace Comphi::Vulkan {
 #pragma region //DEBUG!
 
 	void GraphicsContext::updateSceneLoop() {
-
+		
 		FrameTime.Stop();
+
+		VkCommandBuffer& commandBuffer = commandPool->graphicsCommandBuffers[swapchain->currentFrame];
+		swapchain->beginRenderPassCommandBuffer(commandBuffer);
 
 		for (size_t i = 0; i < scenes->size(); i++)
 		{
@@ -65,6 +68,7 @@ namespace Comphi::Vulkan {
 				}
 			}
 
+
 			//Update Uniform Buffers MVP_UBOs per GameObject & submit Draw Command Buffer
 			for (size_t i = 0; i < ThisScene->sceneObjects.size(); i++)
 			{
@@ -79,11 +83,13 @@ namespace Comphi::Vulkan {
 				//Draw Command Buffer Submission:
 				//One command Buffer / render Pass , per Object 
 				//TODO: InstancedObjects
-				swapchain->recordCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], *static_cast<MeshObject*>(ThisScene->sceneObjects[i]->mesh.get()), swapchain->currentFrame);  //TODO: This is not OK either
-
+				//we are able to send multiple vkCmdDraw inside same renderpass Command ! : https://vkguide.dev/docs/chapter-3/scene_management/
+				swapchain->drawCommandBuffer(commandBuffer, *static_cast<MeshObject*>(ThisScene->sceneObjects[i]->mesh.get()));  //TODO: This is not OK either
 			}
 		}
 		
+		swapchain->endRenderPassCommandBuffer(commandBuffer);
+
 		FrameTime.Start();
 
 	}
@@ -144,9 +150,9 @@ namespace Comphi::Vulkan {
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
 		if (vkQueueSubmit(graphicsInstance->graphicsQueue, 1, &submitInfo, inFlightFences[swapchain->currentFrame]) != VK_SUCCESS) {
-			COMPHILOG_CORE_FATAL("failed to submit draw command buffer!");
-			throw std::runtime_error("failed to submit draw command buffer!");
-			return;
+			COMPHILOG_CORE_WARN("failed to submit draw command buffer!");
+			//throw std::runtime_error("failed to submit draw command buffer!");
+			//return;
 		}
 
 		VkPresentInfoKHR presentInfo{};
@@ -164,14 +170,26 @@ namespace Comphi::Vulkan {
 
 		result = vkQueuePresentKHR(graphicsInstance->presentQueue, &presentInfo);
 
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
-			framebufferResized = false;
+		/* TODO : Fix ImageView Presentation ready-ness on Framebuffer Resize
+		* VK_validation layer: Validation Error: [ VUID-VkPresentInfoKHR-pImageIndices-01296 ] 
+		Object 0: handle = 0x1dec32603e0, type = VK_OBJECT_TYPE_QUEUE; | MessageID = 0xc7aabc16 | vkQueuePresentKHR(): 
+		pSwapchains[0] images passed to present must be in layout VK_IMAGE_LAYOUT_PRESENT_SRC_KHR or VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR but is in VK_IMAGE_LAYOUT_UNDEFINED. 
+		The Vulkan spec states: Each element of pImageIndices must be the index of a presentable image acquired from the swapchain 
+		specified by the corresponding element of the pSwapchains array, 
+		and the presented image subresource must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout 
+		at the time the operation is executed on a VkDevice (https://github.com/KhronosGroup/Vulkan-Docs/search?q=)VUID-VkPresentInfoKHR-pImageIndices-01296)
+		*/
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized) {
+			_framebufferResized = false;
 			swapchain->recreateSwapChain();
 		}
 		else if (result != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to present swap chain image!");
-			throw std::runtime_error("failed to present swap chain image!");
-			return;
+			//throw std::runtime_error("failed to present swap chain image!"); <<< HERE
+			//TODO : fix : "Dist" configuration build fails to present first 2 swapchain images 
+			//not throwing runtime_error and returning (skip frame count?) "bypasses the error" (for now...)
+			//return; 
 		}
 
 		swapchain->incrementSwapChainFrame();
@@ -181,9 +199,14 @@ namespace Comphi::Vulkan {
 	{
 		vkDeviceWaitIdle(graphicsInstance->logicalDevice);
 
-		swapchain->~SwapChain();
-		commandPool->~CommandPool();
+		//TODO : create Cleanup Stack of all Instanced Engine Objects (send vk objRefs to static queue on creation)
+
+		swapchain->cleanUp();
+		swapchain->cleanupRenderPass();
+		commandPool->cleanUp();
 		
+		//we need a way to clean Shaders & Graphics Pipelines
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
 		for (size_t i = 0; i < swapchain->MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(*GraphicsHandler::get()->logicalDevice, renderFinishedSemaphores[i], nullptr);
@@ -191,7 +214,7 @@ namespace Comphi::Vulkan {
 			vkDestroyFence(*GraphicsHandler::get()->logicalDevice, inFlightFences[i], nullptr);
 		}
 
-		graphicsInstance->~GraphicsInstance();
+		graphicsInstance->cleanUp();
 		GraphicsHandler::get()->DeleteStatic();
 	}
 
@@ -202,6 +225,6 @@ namespace Comphi::Vulkan {
 
 	void GraphicsContext::ResizeFramebuffer(uint x, uint y)
 	{
-		framebufferResized = true;
+		_framebufferResized = true;
 	}
 }

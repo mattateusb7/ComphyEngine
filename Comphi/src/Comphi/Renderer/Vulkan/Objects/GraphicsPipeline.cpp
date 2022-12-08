@@ -10,6 +10,9 @@ namespace Comphi::Vulkan {
 		createDescriptorPool();
 		createDescriptorSetLayout();
 
+		//TODO: Separate initialization to list of different pipeline creation stages (functions);
+		//https://vkguide.dev/docs/chapter-2/pipeline_walkthrough/
+
 		//VertexBufferDescription //TODO: this seems like a good place to start working on dynamic Descriptor Pools
 		auto bindingDescription = VertexBuffer::getBindingDescription();
 		auto attributeDescriptions = VertexBuffer::getAttributeDescriptions();
@@ -56,9 +59,9 @@ namespace Comphi::Vulkan {
 		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		rasterizer.depthClampEnable = VK_FALSE;
 		rasterizer.rasterizerDiscardEnable = VK_FALSE;
-		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+		rasterizer.polygonMode = VK_POLYGON_MODE_FILL; //TODO: Toggle Wireframe
 		rasterizer.lineWidth = 1.0f;
-		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;//VK_CULL_MODE_NONE;
+		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT; //TODO: Toggle culling mode : VK_CULL_MODE_NONE;
 		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		rasterizer.depthBiasEnable = VK_FALSE; //For Shadow mapping
 		rasterizer.depthBiasConstantFactor = 0.0f; // Optional
@@ -69,13 +72,13 @@ namespace Comphi::Vulkan {
 		VkPipelineMultisampleStateCreateInfo multisampling{};
 		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multisampling.sampleShadingEnable = VK_FALSE;
-		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT; //to enable MSAA, you would need to set rasterizationSamples to more than 1, and enable sampleShading
 		multisampling.minSampleShading = 1.0f; // Optional
 		multisampling.pSampleMask = nullptr; // Optional
 		multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
 		multisampling.alphaToOneEnable = VK_FALSE; // Optional
 
-		VkPipelineDepthStencilStateCreateInfo depthStencilState{}; //NotinUse
+		VkPipelineDepthStencilStateCreateInfo depthStencilState{}; //TODO: Add Stencil Shader Support "Cutouts"
 
 		//ColorBlending
 		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
@@ -284,7 +287,7 @@ namespace Comphi::Vulkan {
 		}
 	}
 
-	GraphicsPipeline::~GraphicsPipeline()
+	void GraphicsPipeline::cleanUp()
 	{
 		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
 		vkDestroyDescriptorPool(*Vulkan::GraphicsHandler::get()->logicalDevice, descriptorPoolObj, nullptr);

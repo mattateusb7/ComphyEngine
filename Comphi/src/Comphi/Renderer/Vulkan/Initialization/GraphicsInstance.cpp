@@ -30,7 +30,7 @@ namespace Comphi::Vulkan {
 		);
 	}
 
-	GraphicsInstance::~GraphicsInstance()
+	void GraphicsInstance::cleanUp()
 	{
 
 		COMPHILOG_CORE_INFO("vkDestroy Surface");

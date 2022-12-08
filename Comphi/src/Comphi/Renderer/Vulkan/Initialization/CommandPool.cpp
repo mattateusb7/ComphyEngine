@@ -70,7 +70,7 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("Allocated {0} TransferCommandBuffers from graphicsCommandPool", MAX_FRAMES_IN_FLIGHT);
 	}
 
-	CommandPool::~CommandPool()
+	void CommandPool::cleanUp()
 	{
 		COMPHILOG_CORE_INFO("vkDestroy Destroy transferCommandPool");
 		vkDestroyCommandPool(*GraphicsHandler::get()->logicalDevice, transferCommandPool, nullptr);

@@ -55,16 +55,15 @@ namespace Comphi::Vulkan {
 		initImageView();
 	}
 
-	void ImageView::initDepthImageView(ImageBuffer& swapChainImageBuffer)
+	void ImageView::initDepthImageView(VkExtent2D& swapChainImageBufferExtent)
 	{
-		initDepthImageBuffer(swapChainImageBuffer, findDepthFormat());
+		initDepthImageBuffer(swapChainImageBufferExtent, findDepthFormat());
 		this->aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
 		initImageView();
 	}
 
 	void ImageView::initImageView()
 	{
-
 		VkImageViewCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		createInfo.image = bufferObj;
@@ -87,7 +86,7 @@ namespace Comphi::Vulkan {
 		//You could then create multiple image views for each image 
 		//representing the views for the left and right eyes by accessing different layers.
 
-		if (vkCreateImageView(*GraphicsHandler::get()->logicalDevice.get(), &createInfo, nullptr, &imageViewObj) != VK_SUCCESS) {
+		vkCheckError(vkCreateImageView(*GraphicsHandler::get()->logicalDevice.get(), &createInfo, nullptr, &imageViewObj)) {
 			COMPHILOG_CORE_FATAL("failed to create image view!");
 			throw std::runtime_error("failed to create image view!");
 			return;

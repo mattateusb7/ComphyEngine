@@ -30,7 +30,7 @@ namespace Comphi::Vulkan {
 	protected :
 		void initTextureImageBuffer(std::string& filepath, ImgSpecification spec);
 		void initImageBuffer(ImgSpecification spec);
-		void initDepthImageBuffer(ImageBuffer& swapChainImageBuffer, VkFormat format);
+		void initDepthImageBuffer(VkExtent2D& swapchainExtent, VkFormat format);
 		
 		ImageBuffer() = default;
 		void transitionImageLayout(VkImageLayout newLayout);

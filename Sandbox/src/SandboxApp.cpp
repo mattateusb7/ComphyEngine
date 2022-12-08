@@ -32,7 +32,7 @@ public:
 	GameSceneLayer() : Layer("GameSceneLayer") { 
 
 		//Texture
-		MaterialProperties materialProperties;
+		/*MaterialProperties materialProperties;
 		textureFile = Windows::FileRef("textures/viking_room.png");
 		texture = GraphicsAPI::create::Texture(textureFile);
 
@@ -111,9 +111,9 @@ public:
 
 		scene = GraphicsAPI::create::Scene();
 		scene->sceneObjects.push_back(gameObj);
-		scene->sceneCamera = (camObj);
+		scene->sceneCamera = (camObj);*/
 	
-	};
+	}; 
 
 	
 	void OnStart() override {}
@@ -140,7 +140,6 @@ public:
 		PushLayer(*Renderlayer);
 		PushScene(Renderlayer->scene);
 	}
-	~Sandbox(){}
 private:
 };
 

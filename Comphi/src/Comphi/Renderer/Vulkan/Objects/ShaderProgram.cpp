@@ -20,7 +20,7 @@ namespace Comphi::Vulkan {
 		
 	}
 
-	ShaderProgram::~ShaderProgram() {
+	void ShaderProgram::cleanUp() {
 		vkDestroyShaderModule(*GraphicsHandler::get()->logicalDevice, shaderModule, 0);
 		COMPHILOG_CORE_INFO("shaderModule Destroyed!");
 	}

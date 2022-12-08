@@ -54,8 +54,8 @@ namespace Comphi::Vulkan {
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 	public:
+		void cleanUp();
 		GraphicsInstance();
-		~GraphicsInstance();
 
 #ifndef NDEBUG
 		VkDebugUtilsMessengerEXT debugMessenger;

@@ -9,7 +9,6 @@ namespace Comphi::Vulkan {
 	public:
 
 		IndexBuffer(const IndexArray& indices);
-		~IndexBuffer() = default;
 
 	};
 }

@@ -9,7 +9,6 @@ namespace Comphi::Vulkan {
 	public:
 
 		VertexBuffer(const VertexArray& vertices);
-		~VertexBuffer() = default;
 
 		static VkVertexInputBindingDescription getBindingDescription() {
 			VkVertexInputBindingDescription bindingDescription{};
