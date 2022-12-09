@@ -18,25 +18,25 @@ namespace Comphi::Vulkan {
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(*GraphicsHandler::get()->logicalDevice.get(), &bufferInfo, nullptr, &bufferObj) != VK_SUCCESS) {
+        if (vkCreateBuffer(GraphicsHandler::get()->logicalDevice, &bufferInfo, nullptr, &bufferObj) != VK_SUCCESS) {
             COMPHILOG_CORE_ERROR("failed to create buffer!");
             throw std::runtime_error("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, &memRequirements);
+        vkGetBufferMemoryRequirements(GraphicsHandler::get()->logicalDevice, bufferObj, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(*GraphicsHandler::get()->logicalDevice.get(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(GraphicsHandler::get()->logicalDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
             COMPHILOG_CORE_ERROR("failed to allocate vertex buffer memory!");
             throw std::runtime_error("failed to allocate vertex buffer memory!");
         }
 
-        vkBindBufferMemory(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, bufferMemory, 0);
+        vkBindBufferMemory(GraphicsHandler::get()->logicalDevice, bufferObj, bufferMemory, 0);
     }
 
     uint32_t MemBuffer::findMemoryType(VkPhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
@@ -56,14 +56,14 @@ namespace Comphi::Vulkan {
 
     uint32_t MemBuffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
-        return findMemoryType(*GraphicsHandler::get()->physicalDevice.get(),typeFilter,properties);
+        return findMemoryType(GraphicsHandler::get()->physicalDevice,typeFilter,properties);
     }
 
     void MemBuffer::cleanUp()
     {
         COMPHILOG_CORE_INFO("vkDestroy Destroy MemBuffer");
-        vkDestroyBuffer(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, nullptr);
-        vkFreeMemory(*GraphicsHandler::get()->logicalDevice.get(),bufferMemory, nullptr);
+        vkDestroyBuffer(GraphicsHandler::get()->logicalDevice, bufferObj, nullptr);
+        vkFreeMemory(GraphicsHandler::get()->logicalDevice,bufferMemory, nullptr);
     }
 
     void MemBuffer::copyBuffer(MemBuffer& srcBuffer, MemBuffer& dstBuffer)

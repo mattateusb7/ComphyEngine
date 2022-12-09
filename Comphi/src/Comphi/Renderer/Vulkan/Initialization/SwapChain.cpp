@@ -14,7 +14,7 @@ namespace Comphi::Vulkan {
 	void SwapChain::createSwapChain() {
 
 		COMPHILOG_CORE_TRACE("Creating Swapchain...");
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(*GraphicsHandler::get()->physicalDevice, *GraphicsHandler::get()->surface);
+		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(GraphicsHandler::get()->physicalDevice, GraphicsHandler::get()->surface);
 
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
 		swapChainImageFormat = surfaceFormat.format;
@@ -30,7 +30,7 @@ namespace Comphi::Vulkan {
 
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = *GraphicsHandler::get()->surface;
+		createInfo.surface = GraphicsHandler::get()->surface;
 
 		createInfo.minImageCount = imageCount;
 		createInfo.imageFormat = swapChainImageFormat;
@@ -39,14 +39,14 @@ namespace Comphi::Vulkan {
 		createInfo.imageArrayLayers = 1; //1 unless stereoscopic 3D application.
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; //post-processing : may use a value like VK_IMAGE_USAGE_TRANSFER_DST_BIT
 
-		uint32_t queueFamilyIndices[] = { *GraphicsHandler::get()->graphicsQueueFamily.index, *GraphicsHandler::get()->transferQueueFamily.index }; //indices.presentFamily.value() == graphicsFamily
+		uint32_t queueFamilyIndices[] = { GraphicsHandler::get()->graphicsQueueFamily.index, GraphicsHandler::get()->transferQueueFamily.index }; //indices.presentFamily.value() == graphicsFamily
 
 		//uint32_t uniqueQueueCount = 0;
 		//if (indices.graphicsFamily != indices.transferFamily) uniqueQueueCount += 1;
 		//if (indices.graphicsFamily != indices.presentFamily) uniqueQueueCount += 1;
 		//if (indices.presentFamily != indices.transferFamily) uniqueQueueCount += 1;
 
-		if (*GraphicsHandler::get()->graphicsQueueFamily.index != *GraphicsHandler::get()->transferQueueFamily.index) {
+		if (GraphicsHandler::get()->graphicsQueueFamily.index != GraphicsHandler::get()->transferQueueFamily.index) {
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = 2;
 			createInfo.pQueueFamilyIndices = queueFamilyIndices;
@@ -66,7 +66,7 @@ namespace Comphi::Vulkan {
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 		//swap chain becomes invalid if window was resized
 
-		vkCheckError(vkCreateSwapchainKHR(*GraphicsHandler::get()->logicalDevice.get(), &createInfo, nullptr, &swapChainObj)) {
+		vkCheckError(vkCreateSwapchainKHR(GraphicsHandler::get()->logicalDevice, &createInfo, nullptr, &swapChainObj)) {
 			COMPHILOG_CORE_FATAL("failed to create swap chain!");
 			throw std::runtime_error("failed to create swap chain");
 			return;
@@ -74,9 +74,9 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("SwapChain created Successfully!");
 
 		//Create Swapchain image views
-		vkGetSwapchainImagesKHR(*GraphicsHandler::get()->logicalDevice.get(), swapChainObj, &imageCount, nullptr);
+		vkGetSwapchainImagesKHR(GraphicsHandler::get()->logicalDevice, swapChainObj, &imageCount, nullptr);
 		swapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(*GraphicsHandler::get()->logicalDevice.get(), swapChainObj, &imageCount, swapChainImages.data());
+		vkGetSwapchainImagesKHR(GraphicsHandler::get()->logicalDevice, swapChainObj, &imageCount, swapChainImages.data());
 
 		COMPHILOG_CORE_TRACE("Creating ImageViews...");
 		swapChainImageViews.resize(swapChainImages.size());
@@ -99,7 +99,7 @@ namespace Comphi::Vulkan {
 			glfwWaitEvents();
 		}
 
-		vkDeviceWaitIdle(*GraphicsHandler::get()->logicalDevice);
+		vkDeviceWaitIdle(GraphicsHandler::get()->logicalDevice);
 
 		cleanUp();
 		createSwapChain();
@@ -107,9 +107,10 @@ namespace Comphi::Vulkan {
 	}
 
 	void SwapChain::cleanUp() {
+
 		for (int fbid = 0; fbid < swapChainFramebuffers.size(); fbid++) {
 			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid);
-			vkDestroyFramebuffer(*GraphicsHandler::get()->logicalDevice, swapChainFramebuffers[fbid], nullptr);
+			vkDestroyFramebuffer(GraphicsHandler::get()->logicalDevice, swapChainFramebuffers[fbid], nullptr);
 		}
 
 		for (int i = 0; i < swapChainImageViews.size(); i++) {
@@ -119,7 +120,7 @@ namespace Comphi::Vulkan {
 		swapChainDepthView.cleanUp();
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Swapchain:");
-		vkDestroySwapchainKHR(*GraphicsHandler::get()->logicalDevice.get(), swapChainObj, nullptr);
+		vkDestroySwapchainKHR(GraphicsHandler::get()->logicalDevice, swapChainObj, nullptr);
 	}
 
 
@@ -209,7 +210,7 @@ namespace Comphi::Vulkan {
 			framebufferInfo.height = swapChainExtent.height;
 			framebufferInfo.layers = 1;
 
-			vkCheckError(vkCreateFramebuffer(*GraphicsHandler::get()->logicalDevice, &framebufferInfo, nullptr, &swapChainFramebuffers[i])) {
+			vkCheckError(vkCreateFramebuffer(GraphicsHandler::get()->logicalDevice, &framebufferInfo, nullptr, &swapChainFramebuffers[i])) {
 				COMPHILOG_CORE_FATAL("failed to create framebuffer!");
 				throw std::runtime_error("failed to create framebuffer!");
 				return;
@@ -285,7 +286,7 @@ namespace Comphi::Vulkan {
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		if (vkCreateRenderPass(*GraphicsHandler::get()->logicalDevice, &renderPassInfo, nullptr, &renderPassObj) != VK_SUCCESS) {
+		if (vkCreateRenderPass(GraphicsHandler::get()->logicalDevice, &renderPassInfo, nullptr, &renderPassObj) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create render pass!");
 			throw std::runtime_error("failed to create render pass!");
 			return;
@@ -380,6 +381,6 @@ namespace Comphi::Vulkan {
 	void SwapChain::cleanupRenderPass()
 	{
 		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
-		vkDestroyRenderPass(*GraphicsHandler::get()->logicalDevice, renderPassObj, nullptr);
+		vkDestroyRenderPass(GraphicsHandler::get()->logicalDevice, renderPassObj, nullptr);
 	}
 }

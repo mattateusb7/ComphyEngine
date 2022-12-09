@@ -8,6 +8,9 @@ namespace Comphi {
 		mesh = meshData.mesh;
 		parent = transformData.parent;
 		transform = transformData.transform;
+		if (parent != nullptr) {
+			transform.parent = &parent->transform;
+		}
 	}
 
 

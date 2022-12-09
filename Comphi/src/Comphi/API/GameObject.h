@@ -17,7 +17,7 @@ namespace Comphi {
 	typedef std::shared_ptr<GameObject> GameObjectInstance;
 
 	struct TransformData {
-		GameObjectInstance parent;
+		GameObject* parent;
 		Transform transform;
 	};
 

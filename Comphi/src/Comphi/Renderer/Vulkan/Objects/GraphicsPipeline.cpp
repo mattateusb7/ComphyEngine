@@ -127,7 +127,7 @@ namespace Comphi::Vulkan {
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-		vkCheckError(vkCreatePipelineLayout(*GraphicsHandler::get()->logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout)) {
+		vkCheckError(vkCreatePipelineLayout(GraphicsHandler::get()->logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout)) {
 			COMPHILOG_CORE_FATAL("failed to create pipeline layout!");
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
@@ -169,7 +169,7 @@ namespace Comphi::Vulkan {
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 		pipelineInfo.basePipelineIndex = -1; // Optional
 
-		vkCheckError(vkCreateGraphicsPipelines(*GraphicsHandler::get()->logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipelineObj)) {
+		vkCheckError(vkCreateGraphicsPipelines(GraphicsHandler::get()->logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipelineObj)) {
 			COMPHILOG_CORE_FATAL("failed to create graphics pipeline!");
 			throw std::runtime_error("failed to create graphics layout!");
 		}
@@ -198,7 +198,7 @@ namespace Comphi::Vulkan {
 		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 		layoutInfo.pBindings = bindings.data();
 
-		vkCheckError(vkCreateDescriptorSetLayout(*GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &descriptorSetLayout)) {
+		vkCheckError(vkCreateDescriptorSetLayout(GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &descriptorSetLayout)) {
 			COMPHILOG_CORE_FATAL("failed to create descriptor set layout!");
 			throw std::runtime_error("failed to create descriptor set layout!");
 		}
@@ -226,7 +226,7 @@ namespace Comphi::Vulkan {
 		poolInfo.pPoolSizes = poolSizes.data();
 		poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
-		vkCheckError(vkCreateDescriptorPool(*GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &descriptorPoolObj)) {
+		vkCheckError(vkCreateDescriptorPool(GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &descriptorPoolObj)) {
 			COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
 			throw std::runtime_error("failed to create descriptor pool!");
 		}
@@ -244,7 +244,7 @@ namespace Comphi::Vulkan {
 		allocInfo.pSetLayouts = layouts.data();
 
 		descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-		vkCheckError(vkAllocateDescriptorSets(*GraphicsHandler::get()->logicalDevice, &allocInfo, descriptorSets.data())) {
+		vkCheckError(vkAllocateDescriptorSets(GraphicsHandler::get()->logicalDevice, &allocInfo, descriptorSets.data())) {
 			COMPHILOG_CORE_FATAL("failed to allocate descriptor sets!");
 			return;
 		}
@@ -283,7 +283,7 @@ namespace Comphi::Vulkan {
 			descriptorWrites[1].descriptorCount = 1;
 			descriptorWrites[1].pImageInfo = &imageInfo;
 
-			vkUpdateDescriptorSets(*GraphicsHandler::get()->logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+			vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
 		COMPHILOG_CORE_INFO("vkUpdateDescriptorSets success!");
 	}
@@ -291,16 +291,16 @@ namespace Comphi::Vulkan {
 	void GraphicsPipeline::cleanUp()
 	{
 		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
-		vkDestroyDescriptorPool(*Vulkan::GraphicsHandler::get()->logicalDevice, descriptorPoolObj, nullptr);
+		vkDestroyDescriptorPool(Vulkan::GraphicsHandler::get()->logicalDevice, descriptorPoolObj, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorSetLayout");
-		vkDestroyDescriptorSetLayout(*Vulkan::GraphicsHandler::get()->logicalDevice, descriptorSetLayout, nullptr);
+		vkDestroyDescriptorSetLayout(Vulkan::GraphicsHandler::get()->logicalDevice, descriptorSetLayout, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
-		vkDestroyPipelineLayout(*GraphicsHandler::get()->logicalDevice, pipelineLayout, nullptr);
+		vkDestroyPipelineLayout(GraphicsHandler::get()->logicalDevice, pipelineLayout, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy graphicsPipeline");
-		vkDestroyPipeline(*GraphicsHandler::get()->logicalDevice, pipelineObj, nullptr);
+		vkDestroyPipeline(GraphicsHandler::get()->logicalDevice, pipelineObj, nullptr);
 
 	}
 

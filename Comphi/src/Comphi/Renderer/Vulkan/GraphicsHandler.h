@@ -8,14 +8,14 @@ namespace Comphi::Vulkan {
 	class DeviceHandler {
 	public:
 		DeviceHandler() = default;
-		std::shared_ptr<VkDevice> logicalDevice;
-		std::shared_ptr<VkPhysicalDevice> physicalDevice;
+		VkDevice logicalDevice;
+		VkPhysicalDevice physicalDevice;
 		void setDeviceHandler(
 			const VkDevice& logicalDevice,
 			const VkPhysicalDevice& physicalDevice
 		) {
-			this->logicalDevice = std::make_shared<VkDevice>(logicalDevice);
-			this->physicalDevice = std::make_shared<VkPhysicalDevice>(physicalDevice);
+			this->logicalDevice =  logicalDevice;
+			this->physicalDevice = physicalDevice;
 		}
 	};
 
@@ -23,44 +23,44 @@ namespace Comphi::Vulkan {
 	public:
 		QueueHandler() = default;
 		struct CommandQueueFamily {
-			std::shared_ptr<uint32_t> index;
-			std::shared_ptr<VkCommandPool> commandPool;
-			std::shared_ptr<VkQueue> queue;
+			uint32_t index; //not a pointer
+			VkCommandPool commandPool;
+			VkQueue queue;
 		};
 		CommandQueueFamily transferQueueFamily;
 		CommandQueueFamily graphicsQueueFamily;
 		void setCommandQueues(
-			const uint32_t& transferQueueFamilyIndex,
-			const VkQueue& transferQueue,
-			const uint32_t& graphicsQueueFamilyIndex,
-			const VkQueue& graphicsQueue
+			const uint32_t transferQueueFamilyIndex,
+			const VkQueue transferQueue,
+			const uint32_t graphicsQueueFamilyIndex,
+			const VkQueue graphicsQueue
 		) {
-			this->transferQueueFamily.index = std::make_shared<uint32_t>(transferQueueFamilyIndex);
-			this->transferQueueFamily.queue = std::make_shared<VkQueue>(transferQueue);
+			this->transferQueueFamily.index = transferQueueFamilyIndex;
+			this->transferQueueFamily.queue = transferQueue;
 
-			this->graphicsQueueFamily.index = std::make_shared<uint32_t>(graphicsQueueFamilyIndex);
-			this->graphicsQueueFamily.queue = std::make_shared<VkQueue>(graphicsQueue);
+			this->graphicsQueueFamily.index = graphicsQueueFamilyIndex;
+			this->graphicsQueueFamily.queue = graphicsQueue;
 		}
 
 		void setCommandPools(
-			const VkCommandPool& transferCommandPool,
-			const VkCommandPool& graphicsCommandPool
+			const VkCommandPool transferCommandPool,
+			const VkCommandPool graphicsCommandPool
 		) {
-			this->transferQueueFamily.commandPool = std::make_shared<VkCommandPool>(transferCommandPool);
-			this->graphicsQueueFamily.commandPool = std::make_shared<VkCommandPool>(graphicsCommandPool);
+			this->transferQueueFamily.commandPool = transferCommandPool;
+			this->graphicsQueueFamily.commandPool = graphicsCommandPool;
 		}
 	};
 
 	class WindowHandler {
 	public:
 		WindowHandler() = default;
-		std::shared_ptr<VkSurfaceKHR> surface;
+		VkSurfaceKHR surface;
 		GLFWwindow* windowHandle;
 		void setWindowHandler(
 			GLFWwindow* windowHandle,
 			const VkSurfaceKHR& surface
 		) {
-			this->surface = std::make_shared<VkSurfaceKHR>(surface);
+			this->surface = surface;
 			this->windowHandle = windowHandle;
 		}
 
@@ -69,18 +69,18 @@ namespace Comphi::Vulkan {
 	class SwapchainHandler {
 	public:
 		SwapchainHandler() = default;
-		std::shared_ptr<int> MAX_FRAMES_IN_FLIGHT;
-		std::shared_ptr<VkRenderPass> renderPass;
-		std::shared_ptr<VkExtent2D> swapChainExtent;
+		int* MAX_FRAMES_IN_FLIGHT;
+		VkRenderPass* renderPass;
+		VkExtent2D* swapChainExtent;
 		void setSwapchainHandler(
 			VkRenderPass& renderPass,
 			int& MAX_FRAMES_IN_FLIGHT,
 			VkExtent2D& swapChainExtent
 
 		) {
-			this->renderPass = std::make_shared<VkRenderPass>(renderPass);
-			this->MAX_FRAMES_IN_FLIGHT = std::make_shared<int>(MAX_FRAMES_IN_FLIGHT);
-			this->swapChainExtent = std::make_shared<VkExtent2D>(swapChainExtent);
+			this->renderPass = &renderPass;
+			this->MAX_FRAMES_IN_FLIGHT = &MAX_FRAMES_IN_FLIGHT;
+			this->swapChainExtent = &swapChainExtent;
 		}
 	};
 

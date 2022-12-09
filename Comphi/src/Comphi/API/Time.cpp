@@ -25,5 +25,10 @@ namespace Comphi {
 		return std::chrono::duration<float, std::chrono::seconds::period>(currentTime() - startTime).count();
 	}
 
+	float Time::sinceBegining()
+	{
+		return std::chrono::duration<float, std::chrono::seconds::period>(currentTime() - programTime).count();
+	}
+
 
 }

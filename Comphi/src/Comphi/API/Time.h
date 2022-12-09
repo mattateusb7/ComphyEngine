@@ -11,7 +11,8 @@ namespace Comphi {
 
 		TimePoint Start();
 		TimePoint Stop();
-		inline float deltaTime();
+		float deltaTime();
+		static float sinceBegining();
 		
 		static const TimePoint programTime;
 	protected:

@@ -19,11 +19,16 @@ public:
 	ShaderInstance fragShader;
 
 	MaterialInstance Albedo;
+	MaterialInstance Albedo1;
 
 	Windows::FileRef modelMesh;
-	MeshInstance meshObj;
+	MeshInstance meshObj;	
+
+	Windows::FileRef modelMesh2;
+	MeshInstance meshObj2;
 
 	GameObjectInstance gameObj;
+	GameObjectInstance gameObj2;
 
 	CameraInstance camObj;
 
@@ -32,7 +37,7 @@ public:
 	GameSceneLayer() : Layer("GameSceneLayer") { 
 
 		//Texture
-		/*MaterialProperties materialProperties;
+		MaterialProperties materialProperties;
 		textureFile = Windows::FileRef("textures/viking_room.png");
 		texture = GraphicsAPI::create::Texture(textureFile);
 
@@ -50,6 +55,7 @@ public:
 
 		//Material
 		Albedo = GraphicsAPI::create::Material(materialProperties);
+		Albedo1 = GraphicsAPI::create::Material(materialProperties);
 
 		//Mesh
 		const VertexArray vertices = {
@@ -89,21 +95,24 @@ public:
 			4, 7, 6,   6, 5, 4    // v4-v7-v6, v6-v5-v4 (back)
 		};
 
+		//GameObject
 		modelMesh = Windows::FileRef("models/viking_room.obj");
 		meshObj = GraphicsAPI::create::Mesh(modelMesh, Albedo);
-		MeshData mesh{ meshObj };
-
-		//GameObject
-		gameObj = GraphicsAPI::create::GameObject(mesh);
+		gameObj = GraphicsAPI::create::GameObject({ meshObj });
 		//gameObj1->action.updateCallback = [this](Time frameTime,void*) { //TODO: fix Lambda not defined when out of scope
 		//	gameObj1->transform.position = glm::vec3(0, 0, glm::sin(frameTime.deltaTime()));
 		//	gameObj1->transform.setEulerAngles(glm::vec3(0.0f, 0.0f, 45.0f) * frameTime.deltaTime());
 		//};
 
+		modelMesh2 = Windows::FileRef("models/BLEPOSPACE.obj");
+		meshObj2 = GraphicsAPI::create::Mesh(modelMesh2, Albedo1); //TODO: fix materials / descriptor sets not share-able ...
+		gameObj2 = GraphicsAPI::create::GameObject({ meshObj2 }, { gameObj.get() });
+
 		//Camera
-		camObj = GraphicsAPI::create::Camera();
-		camObj->transform.position = glm::vec3(0.0f, 4.0f, 0.0f);
-		camObj->transform.lookAt(gameObj->transform.position);
+		Transform t;
+		t.position = glm::vec3(0, 0, 1);
+		camObj = GraphicsAPI::create::Camera({}, {nullptr,t});
+		camObj->transform.position = glm::vec3(5.0f, 2.0f, 0.0f);
 
 		//camObj1->action.updateCallback = [this](Time frameTime,void*) {
 		//	camObj1->transform.lookAt(gameObj1->transform.position);
@@ -111,22 +120,32 @@ public:
 
 		scene = GraphicsAPI::create::Scene();
 		scene->sceneObjects.push_back(gameObj);
-		scene->sceneCamera = (camObj);*/
+		scene->sceneObjects.push_back(gameObj2);
+		scene->sceneCamera = (camObj);
 	
 	}; 
-
 	
 	void OnStart() override {}
 
 	void OnEnd() override {};
 
-	void OnUpdate() override {};
+	Time time;
+	void OnUpdate() override {
+		time.Stop(); //TODO: send as parameter
+		
+		gameObj->transform.eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * 45.0f));
+		gameObj->transform.position = (glm::vec3(0.0f, 0.0f, glm::sin(time.sinceBegining())));
+		camObj->transform.lookAt(gameObj->transform.position);
+
+		time.Start();
+	};
 
 	void OnUIRender() override {};
 
 	void OnEvent(Comphi::Event& e) override 
 	{
 		//Called once per event 
+		//TODO: we Need to Abstract this into general hooks that GET events instead of sorting it out here  
 	};
 
 private:

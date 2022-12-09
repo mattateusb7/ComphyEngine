@@ -36,7 +36,7 @@ namespace Comphi::Vulkan {
         allocInfo.commandPool = commandPool;
         allocInfo.commandBufferCount = 1; //how many command buffers to create
 
-        vkAllocateCommandBuffers(*GraphicsHandler::get()->logicalDevice.get(), &allocInfo, &commandBuffer.buffer);
+        vkAllocateCommandBuffers(GraphicsHandler::get()->logicalDevice, &allocInfo, &commandBuffer.buffer);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -70,7 +70,7 @@ namespace Comphi::Vulkan {
         That may give the driver more opportunities to optimize.
         */
 
-        vkFreeCommandBuffers(*GraphicsHandler::get()->logicalDevice.get(), commandPool, 1, &commandBuffer.buffer);
+        vkFreeCommandBuffers(GraphicsHandler::get()->logicalDevice, commandPool, 1, &commandBuffer.buffer);
     }
 
 #pragma region Protected
@@ -79,11 +79,11 @@ namespace Comphi::Vulkan {
         switch (op)
         {
         case TransferCommand:
-            return *GraphicsHandler::get()->transferQueueFamily.commandPool.get();
+            return GraphicsHandler::get()->transferQueueFamily.commandPool;
             break;
         case GraphicsCommand:
         default:
-            return *GraphicsHandler::get()->graphicsQueueFamily.commandPool.get();
+            return GraphicsHandler::get()->graphicsQueueFamily.commandPool;
             break;
         }
 
@@ -93,11 +93,11 @@ namespace Comphi::Vulkan {
         switch (op)
         {
         case TransferCommand:
-            return *GraphicsHandler::get()->transferQueueFamily.queue.get();
+            return GraphicsHandler::get()->transferQueueFamily.queue;
             break;
         case GraphicsCommand:
         default:
-            return *GraphicsHandler::get()->graphicsQueueFamily.queue.get();
+            return GraphicsHandler::get()->graphicsQueueFamily.queue;
             break;
         }
     }

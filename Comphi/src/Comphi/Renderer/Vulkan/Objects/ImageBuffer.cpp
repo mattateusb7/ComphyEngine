@@ -10,8 +10,8 @@ namespace Comphi::Vulkan {
 	void ImageBuffer::cleanUp()
 	{
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageBuffer");
-		vkDestroyImage(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, nullptr);
-		vkFreeMemory(*GraphicsHandler::get()->logicalDevice.get(), bufferMemory, nullptr);
+		vkDestroyImage(GraphicsHandler::get()->logicalDevice, bufferObj, nullptr);
+		vkFreeMemory(GraphicsHandler::get()->logicalDevice, bufferMemory, nullptr);
 		MemBuffer::cleanUp();
 	}
 
@@ -45,9 +45,9 @@ namespace Comphi::Vulkan {
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 		void* data; //copy data to staging buffer
-		vkMapMemory(*GraphicsHandler::get()->logicalDevice.get(), stagingBuffer.bufferMemory, 0, bufferSize, 0, &data);
+		vkMapMemory(GraphicsHandler::get()->logicalDevice, stagingBuffer.bufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, pixels, static_cast<size_t>(bufferSize));
-		vkUnmapMemory(*GraphicsHandler::get()->logicalDevice.get(), stagingBuffer.bufferMemory);
+		vkUnmapMemory(GraphicsHandler::get()->logicalDevice, stagingBuffer.bufferMemory);
 
 		stbi_image_free(pixels);
 
@@ -60,8 +60,8 @@ namespace Comphi::Vulkan {
 		transitionImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		//cleanup
-		vkDestroyBuffer(*GraphicsHandler::get()->logicalDevice.get(), stagingBuffer.bufferObj, nullptr);
-		vkFreeMemory(*GraphicsHandler::get()->logicalDevice.get(), stagingBuffer.bufferMemory, nullptr);
+		vkDestroyBuffer(GraphicsHandler::get()->logicalDevice, stagingBuffer.bufferObj, nullptr);
+		vkFreeMemory(GraphicsHandler::get()->logicalDevice, stagingBuffer.bufferMemory, nullptr);
 
 	}
 
@@ -89,23 +89,23 @@ namespace Comphi::Vulkan {
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.flags = 0; // Optional
 
-		if (vkCreateImage(*GraphicsHandler::get()->logicalDevice.get(), &imageInfo, nullptr, &bufferObj) != VK_SUCCESS) {
+		if (vkCreateImage(GraphicsHandler::get()->logicalDevice, &imageInfo, nullptr, &bufferObj) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create image!");
 		}
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, &memRequirements);
+		vkGetImageMemoryRequirements(GraphicsHandler::get()->logicalDevice, bufferObj, &memRequirements);
 
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(*GraphicsHandler::get()->physicalDevice.get(), memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		allocInfo.memoryTypeIndex = findMemoryType(GraphicsHandler::get()->physicalDevice, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-		if (vkAllocateMemory(*GraphicsHandler::get()->logicalDevice.get(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+		if (vkAllocateMemory(GraphicsHandler::get()->logicalDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate image memory!");
 		}
 
-		vkBindImageMemory(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, bufferMemory, 0);
+		vkBindImageMemory(GraphicsHandler::get()->logicalDevice, bufferObj, bufferMemory, 0);
 
 	}
 
@@ -189,8 +189,8 @@ namespace Comphi::Vulkan {
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-			barrier.srcQueueFamilyIndex = *GraphicsHandler::get()->transferQueueFamily.index;
-			barrier.dstQueueFamilyIndex = *GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
 
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
@@ -202,8 +202,8 @@ namespace Comphi::Vulkan {
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-			barrier.srcQueueFamilyIndex = *GraphicsHandler::get()->transferQueueFamily.index;
-			barrier.dstQueueFamilyIndex = *GraphicsHandler::get()->graphicsQueueFamily.index;
+			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
 
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
@@ -215,8 +215,8 @@ namespace Comphi::Vulkan {
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-			barrier.srcQueueFamilyIndex = *GraphicsHandler::get()->transferQueueFamily.index;
-			barrier.dstQueueFamilyIndex = *GraphicsHandler::get()->graphicsQueueFamily.index;
+			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
 		}
 		else {
 			throw std::invalid_argument("unsupported layout transition!");

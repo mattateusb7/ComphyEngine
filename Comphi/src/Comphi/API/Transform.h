@@ -7,6 +7,8 @@ namespace Comphi {
 		Transform() = default;
 		~Transform() = default;
 
+		Transform* parent;
+
 		glm::vec3 getForwardVector();
 		glm::vec3 getLookVector();
 		glm::vec3 getUpVector();
@@ -22,7 +24,7 @@ namespace Comphi {
 		glm::quat quaternionRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 		glm::vec3 position = glm::vec3(0.0f);
 		glm::vec3 scale = glm::vec3(1.0f);
-		//glm::vec3 skew;
+		//glm::vec3 skew; //in the 4th dimension
 		//glm::vec3 prespective;
 
 	protected:
@@ -32,9 +34,9 @@ namespace Comphi {
 
 	namespace Coordinates {
 
-	const glm::vec3 up = glm::vec3(0, 0, 1);
-	const glm::vec3 right = glm::vec3(1, 0, 0);
-	const glm::vec3 forward = glm::vec3(0, 1, 0);
+		const glm::vec3 up = glm::vec3(0, 0, 1);
+		const glm::vec3 right = glm::vec3(1, 0, 0);
+		const glm::vec3 forward = glm::vec3(0, 1, 0);
 	
 	}
 

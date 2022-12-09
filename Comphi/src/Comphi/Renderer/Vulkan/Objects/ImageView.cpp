@@ -24,7 +24,7 @@ namespace Comphi::Vulkan {
 		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 
 		VkPhysicalDeviceProperties properties{};
-		vkGetPhysicalDeviceProperties(*GraphicsHandler::get()->physicalDevice.get(), &properties);
+		vkGetPhysicalDeviceProperties(GraphicsHandler::get()->physicalDevice, &properties);
 
 		samplerInfo.anisotropyEnable = VK_TRUE;
 		samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
@@ -39,7 +39,7 @@ namespace Comphi::Vulkan {
 		samplerInfo.minLod = 0.0f;
 		samplerInfo.maxLod = 0.0f;
 
-		if (vkCreateSampler(*GraphicsHandler::get()->logicalDevice.get(), &samplerInfo, nullptr, &textureSamplerObj) != VK_SUCCESS) {
+		if (vkCreateSampler(GraphicsHandler::get()->logicalDevice, &samplerInfo, nullptr, &textureSamplerObj) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create texture sampler!");
 		}
 		COMPHILOG_CORE_INFO("Created TextureSampler successfully!");
@@ -86,7 +86,7 @@ namespace Comphi::Vulkan {
 		//You could then create multiple image views for each image 
 		//representing the views for the left and right eyes by accessing different layers.
 
-		vkCheckError(vkCreateImageView(*GraphicsHandler::get()->logicalDevice.get(), &createInfo, nullptr, &imageViewObj)) {
+		vkCheckError(vkCreateImageView(GraphicsHandler::get()->logicalDevice, &createInfo, nullptr, &imageViewObj)) {
 			COMPHILOG_CORE_FATAL("failed to create image view!");
 			throw std::runtime_error("failed to create image view!");
 			return;
@@ -97,7 +97,7 @@ namespace Comphi::Vulkan {
 	VkFormat ImageView::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
 		for (VkFormat format : candidates) {
 			VkFormatProperties props;
-			vkGetPhysicalDeviceFormatProperties(*GraphicsHandler::get()->physicalDevice.get(), format, &props);
+			vkGetPhysicalDeviceFormatProperties(GraphicsHandler::get()->physicalDevice, format, &props);
 
 			if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
 				return format;
@@ -121,10 +121,10 @@ namespace Comphi::Vulkan {
 	void ImageView::cleanUp()
 	{
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageView");
-		vkDestroyImageView(*GraphicsHandler::get()->logicalDevice, imageViewObj, nullptr);
+		vkDestroyImageView(GraphicsHandler::get()->logicalDevice, imageViewObj, nullptr);
 		
 		COMPHILOG_CORE_INFO("vkDestroy Destroy textureSampler");
-		vkDestroySampler(*GraphicsHandler::get()->logicalDevice, textureSamplerObj, nullptr);
+		vkDestroySampler(GraphicsHandler::get()->logicalDevice, textureSamplerObj, nullptr);
 		MemBuffer::cleanUp();
 	}
 

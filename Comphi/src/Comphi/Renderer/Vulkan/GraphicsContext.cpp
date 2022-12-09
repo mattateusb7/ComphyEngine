@@ -209,9 +209,9 @@ namespace Comphi::Vulkan {
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
 		for (size_t i = 0; i < swapchain->MAX_FRAMES_IN_FLIGHT; i++) {
-			vkDestroySemaphore(*GraphicsHandler::get()->logicalDevice, renderFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(*GraphicsHandler::get()->logicalDevice, imageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(*GraphicsHandler::get()->logicalDevice, inFlightFences[i], nullptr);
+			vkDestroySemaphore(GraphicsHandler::get()->logicalDevice, renderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(GraphicsHandler::get()->logicalDevice, imageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(GraphicsHandler::get()->logicalDevice, inFlightFences[i], nullptr);
 		}
 
 		graphicsInstance->cleanUp();

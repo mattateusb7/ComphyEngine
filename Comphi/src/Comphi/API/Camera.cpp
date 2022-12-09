@@ -6,8 +6,6 @@ namespace Comphi {
 
 	Camera::Camera(CameraProperties cameraProperties, TransformData transformData)
 	{
-		(TransformData)*this = transformData;
-		(CameraProperties)*this = cameraProperties;
 		parent = transformData.parent;
 		transform = transformData.transform;
 

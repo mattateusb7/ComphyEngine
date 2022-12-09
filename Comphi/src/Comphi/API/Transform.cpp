@@ -45,25 +45,23 @@ namespace Comphi {
 
 	glm::mat4 Transform::getModelMatrix()
 	{
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
-		glm::mat4 rotateMatrix = glm::toMat4(quaternionRotation);
-		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), position);
+		glm::mat4 ModelMatrix = glm::mat4(1.0f);
 
-		return translateMatrix * rotateMatrix * scaleMatrix;
+		if (parent != nullptr) {
+			ModelMatrix = glm::translate(ModelMatrix, parent->position);
+			ModelMatrix *= glm::toMat4(parent->quaternionRotation);
+			ModelMatrix *= glm::toMat4(quaternionRotation);
+			ModelMatrix = glm::translate(ModelMatrix, position);
+			ModelMatrix = glm::scale(ModelMatrix, parent->scale);
+			ModelMatrix = glm::scale(ModelMatrix, scale);
+		}
+		else {
+			ModelMatrix = glm::translate(ModelMatrix, position);
+			ModelMatrix *= glm::toMat4(quaternionRotation); //rotate
+			ModelMatrix = glm::scale(ModelMatrix, scale);
+		}
+		return ModelMatrix;
+		
 	}
-
-	/*glm::quat Transform::LookAt(glm::vec3 target, glm::vec3 Dir)
-	{
-
-		glm::vec3 forward = glm::normalize(target - position); //get new Local Z
-
-		glm::vec3 worldForward = Dir; //get World Z
-		float dot = glm::dot(worldForward, forward); //getAngle LocalZ > WorldZ
-		float rotationAngle = glm::acos(dot); //AngleIn degrees
-		glm::vec3 rotationAxis = glm::normalize(glm::cross(forward, worldForward)); //localUP
-
-		return glm::toQuat(glm::rotate(glm::mat4(), rotationAngle, -rotationAxis));
-
-	}*/
 
 }

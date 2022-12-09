@@ -10,7 +10,7 @@ namespace Comphi::Vulkan {
 
 		for (size_t i = 0; i < count; i++)
 		{
-			vkCheckError(vkCreateSemaphore(*GraphicsHandler::get()->logicalDevice, &semaphoreInfo, nullptr, &semaphores[i])) {
+			vkCheckError(vkCreateSemaphore(GraphicsHandler::get()->logicalDevice, &semaphoreInfo, nullptr, &semaphores[i])) {
 				COMPHILOG_CORE_FATAL("failed to create semaphore!");
 				throw std::runtime_error("failed to create semaphore!");
 				return;
@@ -26,7 +26,7 @@ namespace Comphi::Vulkan {
 
 		for (size_t i = 0; i < count; i++)
 		{
-			vkCheckError(vkCreateFence(*GraphicsHandler::get()->logicalDevice, &fenceInfo, nullptr, &fences[i])) {
+			vkCheckError(vkCreateFence(GraphicsHandler::get()->logicalDevice, &fenceInfo, nullptr, &fences[i])) {
 				COMPHILOG_CORE_FATAL("failed to create semaphore!");
 				throw std::runtime_error("failed to create semaphore!");
 				return;
