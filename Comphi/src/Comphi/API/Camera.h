@@ -10,7 +10,7 @@ namespace Comphi {
 	};
 
 	//TODO: Implement Stereoscopic Camera.
-	class Camera : public TransformData, public CameraProperties
+	class Camera : public GameObject, public CameraProperties
 	{
 	public:
 		Camera(CameraProperties cameraProperties = {}, TransformData transformData = {});

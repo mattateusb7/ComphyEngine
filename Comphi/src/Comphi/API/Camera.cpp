@@ -4,11 +4,9 @@
 
 namespace Comphi {
 
-	Camera::Camera(CameraProperties cameraProperties, TransformData transformData)
+	Camera::Camera(CameraProperties cameraProperties, TransformData transformData) 
+		: GameObject({}, transformData)
 	{
-		parent = transformData.parent;
-		transform = transformData.transform;
-
 		FarPlane = cameraProperties.FarPlane;
 		FOV = cameraProperties.FOV;
 		NearPlane = cameraProperties.NearPlane;
@@ -16,7 +14,7 @@ namespace Comphi {
 
 	glm::mat4 Camera::getViewMatrix() //TODO: << implement ICamera Abstraction
 	{
-		return glm::lookAt(transform.position, transform.getLookVector(), transform.getUpVector());
+		return glm::lookAt(transform.getRelativePosition(), transform.getLookVector(), transform.getUpVector());
 	}
 
 	glm::mat4 Camera::getProjectionMatrix()  //TODO: << implement ICamera Abstraction

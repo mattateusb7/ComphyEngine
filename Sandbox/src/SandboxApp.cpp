@@ -10,7 +10,9 @@ public:
 	//TODO: Comphi namepsace objects should use platform & renderer independent interfaces (API)
 
 	Windows::FileRef textureFile;
+	Windows::FileRef textureFile2;
 	TextureInstance texture;
+	TextureInstance texture2;
 
 	Windows::FileRef vert;
 	ShaderInstance vertShader;
@@ -20,15 +22,17 @@ public:
 
 	MaterialInstance Albedo;
 	MaterialInstance Albedo1;
+	MaterialInstance Albedo2;
 
 	Windows::FileRef modelMesh;
 	MeshInstance meshObj;	
 
-	Windows::FileRef modelMesh2;
-	MeshInstance meshObj2;
+	Windows::FileRef modelMesh1;
+	MeshInstance meshObj1;
 
 	GameObjectInstance gameObj;
-	GameObjectInstance gameObj2;
+	GameObjectInstance gameObj1;
+	GameObjectInstance emptyObj;
 
 	CameraInstance camObj;
 
@@ -37,25 +41,30 @@ public:
 	GameSceneLayer() : Layer("GameSceneLayer") { 
 
 		//Texture
-		MaterialProperties materialProperties;
 		textureFile = Windows::FileRef("textures/viking_room.png");
 		texture = GraphicsAPI::create::Texture(textureFile);
 
+		textureFile2 = Windows::FileRef("textures/lain.jpg");
+		texture2 = GraphicsAPI::create::Texture(textureFile2);
+
 		//Shaders
-		ShaderTextures textures = { texture.get() };
-		materialProperties.shaderTextures = textures;
+		MaterialProperties materialProperties;
+		materialProperties.shaderTextures = { texture.get() };
 
 		vert = Windows::FileRef("shaders/vert.spv");
 		frag = Windows::FileRef("shaders/frag.spv");
 		vertShader = GraphicsAPI::create::ShaderProgram(ShaderType::VertexShader, vert);
 		fragShader = GraphicsAPI::create::ShaderProgram(ShaderType::FragmentShader, frag);
 
-		ShaderPrograms shaders = { &*vertShader , &*fragShader };
-		materialProperties.shaderPrograms = shaders;
+		ShaderPrograms AlbedoShader = { vertShader.get() , fragShader.get() };
+		materialProperties.shaderPrograms = AlbedoShader;
 
-		//Material
+		//Materials
 		Albedo = GraphicsAPI::create::Material(materialProperties);
+
+		materialProperties.shaderTextures = { texture2.get() };
 		Albedo1 = GraphicsAPI::create::Material(materialProperties);
+		Albedo2 = GraphicsAPI::create::Material(materialProperties);
 
 		//Mesh
 		const VertexArray vertices = {
@@ -95,7 +104,7 @@ public:
 			4, 7, 6,   6, 5, 4    // v4-v7-v6, v6-v5-v4 (back)
 		};
 
-		//GameObject
+		//GameObject1
 		modelMesh = Windows::FileRef("models/viking_room.obj");
 		meshObj = GraphicsAPI::create::Mesh(modelMesh, Albedo);
 		gameObj = GraphicsAPI::create::GameObject({ meshObj });
@@ -104,38 +113,54 @@ public:
 		//	gameObj1->transform.setEulerAngles(glm::vec3(0.0f, 0.0f, 45.0f) * frameTime.deltaTime());
 		//};
 
-		modelMesh2 = Windows::FileRef("models/BLEPOSPACE.obj");
-		meshObj2 = GraphicsAPI::create::Mesh(modelMesh2, Albedo1); //TODO: fix materials / descriptor sets not share-able ...
-		gameObj2 = GraphicsAPI::create::GameObject({ meshObj2 }, { gameObj.get() });
+		//GameObject2
+		modelMesh1 = Windows::FileRef("models/BLEPOSPACE.obj");
+		meshObj1 = GraphicsAPI::create::Mesh(modelMesh1, Albedo1); //TODO: fix materials / descriptor sets not share-able ...
+		gameObj1 = GraphicsAPI::create::GameObject({ meshObj1 }, { gameObj.get() });
 
 		//Camera
-		Transform t;
-		t.position = glm::vec3(0, 0, 1);
-		camObj = GraphicsAPI::create::Camera({}, {nullptr,t});
-		camObj->transform.position = glm::vec3(5.0f, 2.0f, 0.0f);
-
-		//camObj1->action.updateCallback = [this](Time frameTime,void*) {
-		//	camObj1->transform.lookAt(gameObj1->transform.position);
-		//};
+		Transform scaleup  = Transform();
+		scaleup.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+		emptyObj = GraphicsAPI::create::GameObject({ GraphicsAPI::create::Mesh(cubeVx, CubeIx, Albedo2) }, { nullptr, scaleup });
+		camObj = GraphicsAPI::create::Camera({}, { emptyObj.get() });
 
 		scene = GraphicsAPI::create::Scene();
 		scene->sceneObjects.push_back(gameObj);
-		scene->sceneObjects.push_back(gameObj2);
+		scene->sceneObjects.push_back(gameObj1);
+		scene->sceneObjects.push_back(emptyObj);
 		scene->sceneCamera = (camObj);
 	
 	}; 
 	
-	void OnStart() override {}
-
-	void OnEnd() override {};
+	void OnStart() override {
+		gameObj1->transform.position = glm::vec3(0, 0, 1.0f);
+	}
 
 	Time time;
 	void OnUpdate() override {
+		//Works with HotReloadinng <3 ! (only allows manipulation of already sent data)
+		//recompiling Sandbox.exe refreshes the code without the need to recompile the engine (simply re-links the static engine lib ).
+		//TODO: detect when a hotreload is done and call "UpdateOnce after hotreload" function. (to send new values) 
+
 		time.Stop(); //TODO: send as parameter
-		
-		gameObj->transform.eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * 45.0f));
-		gameObj->transform.position = (glm::vec3(0.0f, 0.0f, glm::sin(time.sinceBegining())));
-		camObj->transform.lookAt(gameObj->transform.position);
+
+		camObj->transform.position = glm::vec3(0.0, -3.0f, 1.0f);
+		//camObj->transform.parent = &emptyObj->transform;
+		camObj->transform.parent = &emptyObj->transform;
+		//camObj->transform.parent = nullptr;
+		emptyObj->transform.parent = &gameObj1->transform;
+
+		emptyObj->transform.eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * -45.0f));
+
+		gameObj->transform.eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * 0.0f));
+		gameObj->transform.position = (glm::vec3(0.0f, 0.0f, glm::sin(time.sinceBegining())/2.0f));
+
+		gameObj1->transform.position = (glm::vec3(glm::cos(time.sinceBegining())/2.0f, 0, 1.0f));
+
+		camObj->FOV = 70;
+		//camObj->transform.lookAt(glm::vec3(0.0f,0.0f,0.0f));
+		//camObj->transform.setEulerAngles(glm::vec3(0,0,0));
+		//camObj->transform.eulerRotation(glm::vec3(0.0f, 45.0f * time.deltaTime(), 0));
 
 		time.Start();
 	};
@@ -147,6 +172,8 @@ public:
 		//Called once per event 
 		//TODO: we Need to Abstract this into general hooks that GET events instead of sorting it out here  
 	};
+
+	void OnEnd() override {};
 
 private:
 };
