@@ -246,7 +246,7 @@ namespace Comphi::Vulkan {
 		descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
 		vkCheckError(vkAllocateDescriptorSets(*GraphicsHandler::get()->logicalDevice, &allocInfo, descriptorSets.data())) {
 			COMPHILOG_CORE_FATAL("failed to allocate descriptor sets!");
-			throw std::runtime_error("failed to allocate descriptor sets!");
+			return;
 		}
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) { //move To MeshObject
@@ -285,6 +285,7 @@ namespace Comphi::Vulkan {
 
 			vkUpdateDescriptorSets(*GraphicsHandler::get()->logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
+		COMPHILOG_CORE_INFO("vkUpdateDescriptorSets success!");
 	}
 
 	void GraphicsPipeline::cleanUp()

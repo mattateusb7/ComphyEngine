@@ -8,6 +8,12 @@ namespace Comphi {
 	{
 		(TransformData)*this = transformData;
 		(CameraProperties)*this = cameraProperties;
+		parent = transformData.parent;
+		transform = transformData.transform;
+
+		FarPlane = cameraProperties.FarPlane;
+		FOV = cameraProperties.FOV;
+		NearPlane = cameraProperties.NearPlane;
 	}
 
 	glm::mat4 Camera::getViewMatrix() //TODO: << implement ICamera Abstraction

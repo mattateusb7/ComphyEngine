@@ -26,6 +26,8 @@ namespace Comphi::Vulkan {
 			initializeMVPMatrices();
 			//send Data Layout To DesciptorPool
 			//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts compatible with Descriptor Pool
+			//TODO: BUG: when multiple objects share same Material, there's a conflict between the Descriptor Set MVP buffers (crash)
+			//Descriptor Sets are not sharable rn because each graphics pipeline gets bound to one model's MVPBuffer :(
 			static_cast<Material*>(i_material.get())->sendDescriptorSet(MVP_UBOs);
 		}
 	};
@@ -90,12 +92,12 @@ namespace Comphi::Vulkan {
 		i_indices = std::make_shared<Vulkan::IndexBuffer>(iArray);
 	}
 
-	void MeshObject::updateMVP(uint currentImage)
+	void MeshObject::updateMVP(UniformBufferObject& mvpUBO, uint currentImage)
 	{
 		void* data;
-		vkMapMemory(*Vulkan::GraphicsHandler::get()->logicalDevice, MVP_UBOs[currentImage].bufferMemory, 0, sizeof(MVP_UBOs), 0, &data);
-		memcpy(data, &MVP_UBOs, sizeof(MVP_UBOs));
-		vkUnmapMemory(*Vulkan::GraphicsHandler::get()->logicalDevice, MVP_UBOs[currentImage].bufferMemory);
+		vkMapMemory(Vulkan::GraphicsHandler::get()->logicalDevice, MVP_UBOs[currentImage].bufferMemory, 0, sizeof(mvpUBO), 0, &data);
+		memcpy(data, &mvpUBO, sizeof(mvpUBO));
+		vkUnmapMemory(Vulkan::GraphicsHandler::get()->logicalDevice, MVP_UBOs[currentImage].bufferMemory);
 	}
 
 	void MeshObject::bind(void* commandBuffer)

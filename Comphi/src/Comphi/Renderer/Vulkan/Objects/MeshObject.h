@@ -28,7 +28,7 @@ namespace Comphi::Vulkan {
 		std::vector<UniformBuffer> MVP_UBOs;
 
 		void bind(void* commandBuffer);
-		void updateMVP(uint currentImage);
+		void updateMVP(UniformBufferObject& mvpUBO, uint currentImage);
 
 	protected:
 		void ParseObjFile(IFileRef& objFile);

@@ -14,7 +14,7 @@ namespace Comphi::Vulkan {
 		graphicsPipeline.initialize(shaderStages);
 
 		for (int i = 0; i < properties.shaderPrograms.size(); i++) {
-			UnbindProgram(*properties.shaderPrograms[i]);
+			UnbindProgram(*properties.shaderPrograms[i]); 
 		}
 	}
 
@@ -60,8 +60,6 @@ namespace Comphi::Vulkan {
 
 		auto it_shaderProgram = std::find(shaderPrograms.begin(), shaderPrograms.end(), _shaderProgram);
 		if (it_shaderProgram != shaderPrograms.end()) {
-			COMPHILOG_CORE_INFO("Destroyed ShaderModule!");
-			vkDestroyShaderModule(*Vulkan::GraphicsHandler::get()->logicalDevice, (*it_shaderProgram)->shaderModule, nullptr);
 			shaderPrograms.erase(it_shaderProgram);
 			return true;
 		}

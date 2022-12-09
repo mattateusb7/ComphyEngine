@@ -77,7 +77,7 @@ namespace Comphi::Vulkan {
 				ubo.view = ThisScene->sceneCamera->getViewMatrix();
 				ubo.proj = ThisScene->sceneCamera->getProjectionMatrix();
 
-				static_cast<MeshObject*>(ThisScene->sceneObjects[i]->mesh.get())->updateMVP(swapchain->currentFrame);
+				static_cast<MeshObject*>(ThisScene->sceneObjects[i]->mesh.get())->updateMVP(ubo, swapchain->currentFrame);
 				//ThisScene->sceneObjects[i]->action.startCallback(FrameTime, 0);
 
 				//Draw Command Buffer Submission:
