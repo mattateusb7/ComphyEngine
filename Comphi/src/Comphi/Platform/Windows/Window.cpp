@@ -20,11 +20,6 @@ namespace Comphi::Windows {
 		Init(props);
 	}	
 	
-	Window::~Window()
-	{
-		Shutdown();
-	}
-
 	void Window::Init(const WindowProperties& props)
 	{
 		m_Data.Title = props.Title;

@@ -12,16 +12,17 @@ namespace Comphi {
 		s_instance.reset(this);
 
 		//INIT WINDOW & EventCallback
-		m_Window.reset(IWindow::Create());
+		m_Window = IWindow::Create();
 		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
 		//INIT IMGUI LAYER //TODO: temp ? (application may not want a default Imgui Overlay Layer)
-		m_ImGuiLayer = std::make_shared<ImGuiLayer>();
-		PushOverlay(*m_ImGuiLayer);
+		m_ImGuiLayer = ImGuiLayer();
+		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
 	{
+		m_Window->Shutdown();
 	}
 
 	void Application::Run()

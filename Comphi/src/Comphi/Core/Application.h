@@ -19,7 +19,7 @@ namespace Comphi {
 		void PopLayer(Layer& layer);
 		void PopOverlay(Layer& overlay);
 	
-		inline IWindow& GetWindow() { return *m_Window; };
+		inline IWindow& GetWindowHandler() { return *m_Window; };
 
 		inline static Application& Get() { return *s_instance; };
 	private:
@@ -29,8 +29,8 @@ namespace Comphi {
 	
 		LayerStack m_LayerStack;
 		MultiScene m_ScenesToRender;
-		std::shared_ptr<IWindow> m_Window;
-		std::shared_ptr<ImGuiLayer> m_ImGuiLayer;
+		IWindow* m_Window;
+		ImGuiLayer m_ImGuiLayer;
 		bool m_running = true;
 	private:
 		static std::unique_ptr<Application> s_instance;

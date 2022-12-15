@@ -28,6 +28,7 @@ namespace Comphi{
 		virtual void OnFramebufferResized(uint x, uint y) = 0;
 		virtual void OnBeginUpdate(MultiScene& scenes) = 0;
 		virtual void OnUpdate() = 0;
+		virtual void Shutdown() = 0;
 
 		virtual uint GetWidth() const = 0;
 		virtual uint GetHeight() const = 0;

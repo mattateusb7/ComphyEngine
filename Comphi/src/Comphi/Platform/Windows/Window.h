@@ -8,7 +8,6 @@ namespace Comphi::Windows {
 	{
 	public:
 		Window(const WindowProperties& props);
-		virtual ~Window();
 
 		void OnUpdate() override;
 		void OnBeginUpdate(MultiScene& scenes) override;
@@ -25,7 +24,7 @@ namespace Comphi::Windows {
 		inline void* GetGraphicsContext() const override { return m_GraphicsContext.get(); }
 	private:
 		virtual void Init(const WindowProperties& props);
-		virtual void Shutdown();
+		virtual void Shutdown() override;
 	private:
 		GLFWwindow* m_Window;
 		std::unique_ptr<IGraphicsContext> m_GraphicsContext;

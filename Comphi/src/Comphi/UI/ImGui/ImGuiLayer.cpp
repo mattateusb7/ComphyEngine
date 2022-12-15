@@ -51,7 +51,7 @@ namespace Comphi {
 
 		// Setup Platform/Renderer bindings
 		//auto window = std::static_pointer_cast<GLFWwindow>(Application::Get().GetWindow().GetNativeWindow());
-		auto window = static_cast<GLFWwindow*>((Application::Get().GetWindow().GetNativeWindow()));
+		auto window = static_cast<GLFWwindow*>((Application::Get().GetWindowHandler().GetNativeWindow()));
 
 		switch (GraphicsAPI::getActiveAPI()) {
 		case GraphicsAPI::Vulkan:
@@ -126,7 +126,7 @@ namespace Comphi {
 		
 		ImGuiIO io = ImGui::GetIO();
 		Application& app = Application::Get();
-		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
+		io.DisplaySize = ImVec2((float)app.GetWindowHandler().GetWidth(), (float)app.GetWindowHandler().GetHeight());
 
 		//Rendering 
 		ImGui::Render();
