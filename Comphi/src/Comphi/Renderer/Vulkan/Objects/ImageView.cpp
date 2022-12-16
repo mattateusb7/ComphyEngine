@@ -83,8 +83,8 @@ namespace Comphi::Vulkan {
 		createInfo.subresourceRange.layerCount = 1; // <<< Refering to this v v v 
 
 		//TODO: If you were working on a stereographic 3D application, then you would create a swap chain with multiple layers. 
-		//You could then create multiple image views for each image 
-		//representing the views for the left and right eyes by accessing different layers.
+		//You could then create multiple image views layers for each image View
+		//representing the views for the left and right eyes by accessing different layers!
 
 		vkCheckError(vkCreateImageView(GraphicsHandler::get()->logicalDevice, &createInfo, nullptr, &imageViewObj)) {
 			COMPHILOG_CORE_FATAL("failed to create image view!");

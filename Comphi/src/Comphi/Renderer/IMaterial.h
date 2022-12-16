@@ -16,5 +16,6 @@ namespace Comphi {
 
 	class IMaterial : public MaterialProperties //TODO: public IMaterial API / make virtual implementations for different Materials ? or generic for all
 	{
+		//Default Material
 	};
 }

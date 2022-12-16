@@ -44,7 +44,7 @@ namespace Comphi {
 			static GameObjectInstance GameObject(MeshData meshData = {}, TransformData transformData = {});
 			static SceneInstance Scene();
 			static ShaderInstance ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile);
-			static TextureInstance Texture(IFileRef& fileref); //TODO: make abstraction of ImgSpecification
+			static TextureInstance Texture(IFileRef& fileref); //TODO: make abstraction of ImgSpecification as a parameter
 			static MaterialInstance Material(MaterialProperties materialProperties);
 			static MeshInstance Mesh(IFileRef& objFile, MaterialInstance& material);
 			static MeshInstance Mesh(VertexArray& vertices, IndexArray& indices, MaterialInstance& material);

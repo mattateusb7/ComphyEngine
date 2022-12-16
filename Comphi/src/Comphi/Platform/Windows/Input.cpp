@@ -1,7 +1,7 @@
 #include "cphipch.h"
 #include "Input.h"
-#include "Comphi/Core/Application.h" //temp
-#include "GLFW/glfw3.h"				 //temp
+#include "Comphi/Core/Application.h" //TODO: temp?
+#include "GLFW/glfw3.h"				 //TODO: temp?
 
 std::unique_ptr<Comphi::IInput> Comphi::IInput::s_instance = std::make_unique<Comphi::Windows::Input>();
 

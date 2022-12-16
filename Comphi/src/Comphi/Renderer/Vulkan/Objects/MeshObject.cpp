@@ -6,7 +6,7 @@
 
 namespace Comphi::Vulkan {
 
-	MeshObject::MeshObject(IFileRef& objFile, Material& material) //TODO: Add default Material
+	MeshObject::MeshObject(IFileRef& objFile, Material& material) //TODO: Add default "Empty" Material parameter
 	{
 		ParseObjFile(objFile);
 		this->i_material = std::make_shared<Material>(material);
@@ -26,7 +26,7 @@ namespace Comphi::Vulkan {
 			initializeMVPMatrices();
 			//send Data Layout To DesciptorPool
 			//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts compatible with Descriptor Pool
-			//TODO: BUG: when multiple objects share same Material, there's a conflict between the Descriptor Set MVP buffers (crash)
+			//BUG: when multiple objects share same Material, there's a conflict between the Descriptor Set MVP buffers (crash!)
 			//Descriptor Sets are not sharable rn because each graphics pipeline gets bound to one model's MVPBuffer :(
 			static_cast<Material*>(i_material.get())->sendDescriptorSet(MVP_UBOs);
 		}

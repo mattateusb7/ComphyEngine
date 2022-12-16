@@ -17,7 +17,7 @@ namespace Comphi {
 	typedef std::shared_ptr<GameObject> GameObjectInstance;
 
 	struct TransformData {
-		GameObject* parent; //TODO: validate if shared_instances are being updated with source refs (replaced with raw pointer for now)
+		GameObject* parent;
 		Transform transform;
 	};
 

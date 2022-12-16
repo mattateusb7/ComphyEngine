@@ -80,9 +80,9 @@ namespace Comphi::Vulkan {
 				static_cast<MeshObject*>(ThisScene->sceneObjects[i]->mesh.get())->updateMVP(ubo, swapchain->currentFrame);
 				//ThisScene->sceneObjects[i]->action.startCallback(FrameTime, 0);
 
+				//TODO: InstancedObjects
 				//Draw Command Buffer Submission:
 				//One command Buffer / render Pass , per Object 
-				//TODO: InstancedObjects
 				//we are able to send multiple vkCmdDraw inside same renderpass Command ! : https://vkguide.dev/docs/chapter-3/scene_management/
 				swapchain->drawCommandBuffer(commandBuffer, *static_cast<MeshObject*>(ThisScene->sceneObjects[i]->mesh.get()));  //TODO: This is not OK either
 			}
@@ -186,10 +186,7 @@ namespace Comphi::Vulkan {
 		}
 		else if (result != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to present swap chain image!");
-			//throw std::runtime_error("failed to present swap chain image!"); <<< HERE
-			//TODO : fix : "Dist" configuration build fails to present first 2 swapchain images 
-			//not throwing runtime_error and returning (skip frame count?) "bypasses the error" (for now...)
-			//return; 
+			throw std::runtime_error("failed to present swap chain image!"); 
 		}
 
 		swapchain->incrementSwapChainFrame();

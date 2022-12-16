@@ -92,6 +92,7 @@ namespace Comphi::Vulkan {
 
 		//TODO: It is possible to create a new swap chain while drawing commands on an image from the old swap chain are still in-flight. 
 		//You need to pass the previous swap chain to the oldSwapChain field in the VkSwapchainCreateInfoKHR struct and destroy the old swap chain as soon as you've finished using it.
+		
 		int width = 0, height = 0;
 		glfwGetFramebufferSize(GraphicsHandler::get()->windowHandle, &width, &height);
 		while (width == 0 || height == 0) {
@@ -99,7 +100,8 @@ namespace Comphi::Vulkan {
 			glfwWaitEvents();
 		}
 
-		vkDeviceWaitIdle(GraphicsHandler::get()->logicalDevice);
+		vkDeviceWaitIdle(GraphicsHandler::get()->logicalDevice); //<< Instead of waiting 
+		//using Semaphores to syncronise end of frame with swap operation prolly help, followed by destruction of old Swapchain (below)
 
 		cleanUp();
 		createSwapChain();

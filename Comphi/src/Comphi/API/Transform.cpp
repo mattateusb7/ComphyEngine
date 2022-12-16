@@ -5,7 +5,6 @@ namespace Comphi {
 
 	glm::vec3 Transform::getForwardVector()
 	{
-		//TODO: Does not account parent rotation ?
 		if (parent != nullptr) {
 			return quaternionRotation * parent->getForwardVector();
 		}
@@ -69,7 +68,6 @@ namespace Comphi {
 
 	glm::vec3 Transform::getRelativePosition()
 	{
-		//TODO: fix recursive relative pos
 		if (parent != nullptr) {
 			return parent->getRelativePosition() + (parent->quaternionRotation * position);
 		}

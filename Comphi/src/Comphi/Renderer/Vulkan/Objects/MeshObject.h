@@ -11,16 +11,16 @@ namespace Comphi::Vulkan {
 	class MeshObject : public IMeshObject
 	{
 	public:
-		//TODO: move material out of MeshObject Contructor to GameObject (that holds both mesh & textures 
-		//although each mesh can only render one material at the time... so batched rendering would require us to group all meshes with the same material in a single buffer
-		// so its probably not that bad to keep material Refs inside meshes.
+		//TODO: we are keeping material Refs inside meshes, maybe move material out of MeshObject 
+		//one mesh can render moree than one material at the same time... maybe make it a vector of indexed materials bound to indices
+		//don't forget batched rendering would require us to group all meshes with the same material in a single buffer
 
 		MeshObject(IFileRef& objFile, Material& material);
 		MeshObject(VertexArray& vertices, IndexArray& indices, Material& material);
 
 		//Rendering
-		/*
-		* Driver developers recommend that you also store multiple buffers, like the vertex and index buffer, into a single VkBuffer
+		/* TODO: 
+		* Driver developers recommend storeing multiple buffers, like the vertex and index buffer, into a single VkBuffer
 		* (DrawBuffer or maybe batchDrawBuffer/multipleObjs)
 		* and use offsets in commands like vkCmdBindVertexBuffers.
 		* The advantage is that your data is more cache friendly in that case, because it's closer together.
