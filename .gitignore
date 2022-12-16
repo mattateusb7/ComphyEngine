@@ -2,6 +2,8 @@
 .vs/
 bin/
 bin-int/ 
+vendor/premake/
+Sandbox/
 
 # Files
 .user
@@ -10,6 +12,10 @@ bin-int/
 .filters
 .sln
 .vscode/
-vendor/premake/premake5.exe
 *.filters
 *.vcxproj
+Comphi/Comphi.vcxproj.filters
+Comphi/Comphi.vcxproj
+Sandbox/textures
+Sandbox/textures
+Sandbox/models
