@@ -27,10 +27,16 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 
 //GLM Defines
+#define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #define BIT(x) (1 << x)
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+
+//vk Macros
+#define vkCheckError(x) if(x != VK_SUCCESS)
 
 namespace Comphi {
 	typedef uint32_t uint;

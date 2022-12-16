@@ -1,60 +1,19 @@
 #include "cphipch.h"
 #include "GraphicsAPI.h"
 
+#include "Comphi/Renderer/Vulkan/GraphicsContext.h"
+#include "Comphi/Renderer/Vulkan/Objects/ShaderProgram.h"
+#include "Comphi/Renderer/Vulkan/Objects/ImageView.h"
+
 namespace Comphi {
-    
-    IGraphicsPipeline* GraphicsAPI::create::GraphicsPipeline()
+   
+    IGraphicsContext* GraphicsAPI::create::GraphicsContext(void* windowHandler)
     {
         switch (activeAPI)
         {
-        case RenderingAPI::OpenGL:
-            return new OpenGL::ShaderPipeline();
-        case RenderingAPI::Vulkan: 
-        {
-            Vulkan::GraphicsPipeline::GraphicsPipelineSetupData data {};
-            data.viewport = {};
-            data.scissor = {};
-            return new Vulkan::GraphicsPipeline(data);
-            break;
-        }
-        default:
-            COMPHILOG_CORE_FATAL("No rendering API Selected!");
-            break;
-        }
-        return nullptr;
-    }
-
-    IVertexBuffer* GraphicsAPI::create::VertexBuffer(IGraphicsContext* currentGraphicsContext, const VertexArray& vertices)
-    {
-        switch (activeAPI)
-        {
-        case RenderingAPI::OpenGL:
-            //return new OpenGL::VertexBuffer(vertices.data(), count);
-        case RenderingAPI::Vulkan: 
-        {
-            //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
-            //return new Vulkan::VertexBuffer(vertices, graphicsContext->getGraphicsHandler());
-            //break;
-        }
-        default:
-            COMPHILOG_CORE_FATAL("No rendering API Selected!");
-            break;
-        }
-        return nullptr;
-    }
-
-    IIndexBuffer* GraphicsAPI::create::IndexBuffer(IGraphicsContext* currentGraphicsContext, const IndexArray& indices)
-    {
-        switch (activeAPI)
-        {
-        case RenderingAPI::OpenGL:
-            return new OpenGL::IndexBuffer(indices);
         case RenderingAPI::Vulkan:
-        {
-            //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
-            //return new Vulkan::IndexBuffer(indices, graphicsContext->getGraphicsHandler());
-            //break;
-        }
+            currentGraphicsContext = std::make_shared<Vulkan::GraphicsContext>(Vulkan::GraphicsContext(*static_cast<GLFWwindow*>(windowHandler)));
+            return currentGraphicsContext.get();
         default:
             COMPHILOG_CORE_FATAL("No rendering API Selected!");
             break;
@@ -62,38 +21,53 @@ namespace Comphi {
         return nullptr;
     }
 
-    IShaderProgram* GraphicsAPI::create::ShaderProgram(IGraphicsContext* currentGraphicsContext, Comphi::ShaderType shaderType, IFileRef& shaderFile)
+    CameraInstance GraphicsAPI::create::Camera(CameraProperties cameraProperties, TransformData transformData)
     {
-        switch (activeAPI)
-        {
-        case RenderingAPI::OpenGL:
-            return new OpenGL::ShaderProgram(shaderType,shaderFile);
-        case RenderingAPI::Vulkan:
-        {
-            //auto graphicsContext = static_cast<Vulkan::GraphicsContext*>(currentGraphicsContext);
-            //return new Vulkan::ShaderProgram(shaderType, shaderFile, *graphicsContext->getGraphicsHandler()->logicalDevice.get());
-            //break;
-        }
-        default:
-            COMPHILOG_CORE_FATAL("No rendering API Selected!");
-            break;
-        }
-        return nullptr;
+        //TODO : Switch RenderingAPI
+        return std::make_shared<Comphi::Camera>(cameraProperties,transformData);
     }
 
-    IGraphicsContext* GraphicsAPI::create::GraphicsContext(GLFWwindow& windowHandler)
+    GameObjectInstance GraphicsAPI::create::GameObject(MeshData meshData, TransformData transformData)
     {
-        switch (activeAPI)
-        {
-        case RenderingAPI::OpenGL:
-            return new OpenGL::GraphicsContext(windowHandler);
-        case RenderingAPI::Vulkan:
-            return new Vulkan::GraphicsContext(windowHandler);
-        default:
-            COMPHILOG_CORE_FATAL("No rendering API Selected!");
-            break;
-        }
-        return nullptr;
+        //TODO : Switch RenderingAPI
+        return std::make_shared<Comphi::GameObject>(meshData, transformData);
     }
+
+    SceneInstance GraphicsAPI::create::Scene()
+    {
+        //TODO : Switch RenderingAPI
+        return std::make_shared<Comphi::Scene>();
+    }
+
+    ShaderInstance GraphicsAPI::create::ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile)
+    {
+        //TODO : Switch RenderingAPI
+        return std::make_shared<Vulkan::ShaderProgram>(shaderType, shaderFile);
+    }
+
+    TextureInstance GraphicsAPI::create::Texture(IFileRef& fileref)
+    {
+        //TODO : Switch RenderingAPI
+        return std::make_shared<Vulkan::ImageView>(fileref);
+    }
+
+    MaterialInstance GraphicsAPI::create::Material(MaterialProperties materialProperties)
+    {
+        //TODO : Switch RenderingAPI
+        return std::make_shared<Vulkan::Material>(materialProperties);
+    }
+
+    MeshInstance GraphicsAPI::create::Mesh(IFileRef& objFile, MaterialInstance& material)
+    {
+        //TODO : Switch RenderingAPI
+        return std::make_shared<Vulkan::MeshObject>(objFile, *static_cast<Vulkan::Material*>(material.get()));
+    }
+
+    MeshInstance GraphicsAPI::create::Mesh(VertexArray& vertices, IndexArray& indices, MaterialInstance& material)
+    {
+        //TODO : Switch RenderingAPI
+        return std::make_shared<Vulkan::MeshObject>(vertices, indices, *static_cast<Vulkan::Material*>(material.get()));
+    }
+   
 
 }

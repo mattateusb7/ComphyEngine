@@ -1,16 +1,14 @@
 #pragma once
-#include "Comphi/Renderer/IObjects/IIndexBuffer.h"
+#include "Comphi/Renderer/IIndexBuffer.h"
 #include "MemBuffer.h"
 
 namespace Comphi::Vulkan {
 
-	class IndexBuffer : public MemBuffer
+	class IndexBuffer : public IIndexBuffer, public MemBuffer
 	{
 	public:
 
 		IndexBuffer(const IndexArray& indices);
-		~IndexBuffer() = default;
-		uint32_t indexCount;
 
 	};
 }

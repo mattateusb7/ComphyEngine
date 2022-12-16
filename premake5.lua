@@ -79,7 +79,7 @@ project "Comphi"
         "GLFW",
         "Glad",
         "Imgui",
-        "opengl32.lib",
+        --"opengl32.lib",
         "%{IncludeDir.vulkanLib}/vulkan-1.lib"
     }
 

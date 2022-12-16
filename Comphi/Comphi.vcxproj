@@ -77,18 +77,19 @@
       <PrecompiledHeaderFile>cphipch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPHI_WINDOWS_PLATFORM;CPHI_BUILD_DLL;GLFW_INCLUDE_NONE;CPHI_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;C:\VulkanSDK\1.3.216.0\Include;vendor\stb;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;C:\VulkanSDK\1.3.224.1\Include;vendor\stb;vendor\tinyobjloader;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;C:\VulkanSDK\1.3.216.0\Lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;C:\VulkanSDK\1.3.224.1\Lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -97,14 +98,15 @@
       <PrecompiledHeaderFile>cphipch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPHI_WINDOWS_PLATFORM;CPHI_BUILD_DLL;GLFW_INCLUDE_NONE;NDEBUG;RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;C:\VulkanSDK\1.3.216.0\Include;vendor\stb;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;C:\VulkanSDK\1.3.224.1\Include;vendor\stb;vendor\tinyobjloader;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,7 +114,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;C:\VulkanSDK\1.3.216.0\Lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;C:\VulkanSDK\1.3.224.1\Lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -121,14 +123,15 @@
       <PrecompiledHeaderFile>cphipch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CPHI_WINDOWS_PLATFORM;CPHI_BUILD_DLL;GLFW_INCLUDE_NONE;NDEBUG;DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;C:\VulkanSDK\1.3.216.0\Include;vendor\stb;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glm;C:\VulkanSDK\1.3.224.1\Include;vendor\stb;vendor\tinyobjloader;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -136,12 +139,12 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;C:\VulkanSDK\1.3.216.0\Lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;C:\VulkanSDK\1.3.224.1\Lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.h" />
     <ClInclude Include="src\Comphi.h" />
+    <ClInclude Include="src\Comphi\Core\API\MeshObject.h" />
     <ClInclude Include="src\Comphi\Core\Application.h" />
     <ClInclude Include="src\Comphi\Core\Core.h" />
     <ClInclude Include="src\Comphi\Core\EntryPoint.h" />
@@ -180,15 +183,15 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsHandler.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageBufer.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\MemBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ShaderProgram.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\UniformBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\VertexBuffer.h" />
     <ClInclude Include="src\Comphi\UI\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\cphipch.h" />
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.h" />
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\TextureSampler.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_fixes.hpp" />
@@ -605,9 +608,10 @@
     <ClInclude Include="vendor\glm\glm\vec4.hpp" />
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp" />
     <ClInclude Include="vendor\stb\stb_image.h" />
+    <ClInclude Include="vendor\tinyobjloader\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.cpp" />
+    <ClCompile Include="src\Comphi\Core\API\MeshObject.cpp" />
     <ClCompile Include="src\Comphi\Core\Application.cpp" />
     <ClCompile Include="src\Comphi\Core\Layer.cpp" />
     <ClCompile Include="src\Comphi\Core\LayerStack.cpp" />
@@ -626,8 +630,10 @@
     <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsContext.cpp">
       <ObjectFileName>$(IntDir)\GraphicsContext1.obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsHandler.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageBuffer.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.cpp">
       <ObjectFileName>$(IntDir)\IndexBuffer1.obj</ObjectFileName>
     </ClCompile>
@@ -635,6 +641,7 @@
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ShaderProgram.cpp">
       <ObjectFileName>$(IntDir)\ShaderProgram1.obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\UniformBuffer.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\VertexBuffer.cpp">
       <ObjectFileName>$(IntDir)\VertexBuffer1.obj</ObjectFileName>
@@ -644,8 +651,6 @@
     <ClCompile Include="src\cphipch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.cpp" />
-    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\TextureSampler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">

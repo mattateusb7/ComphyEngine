@@ -1,98 +1,112 @@
 #pragma once
-#include "Common.h"
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+#include <vulkan/vulkan_win32.h>
 
 namespace Comphi::Vulkan {
 
 	class DeviceHandler {
 	public:
-		std::shared_ptr<VkDevice> logicalDevice;
-		std::shared_ptr<VkPhysicalDevice> physicalDevice;
-		DeviceHandler(
+		DeviceHandler() = default;
+		VkDevice logicalDevice;
+		VkPhysicalDevice physicalDevice;
+		void setDeviceHandler(
 			const VkDevice& logicalDevice,
 			const VkPhysicalDevice& physicalDevice
 		) {
-			this->logicalDevice = std::make_shared<VkDevice>(logicalDevice);
-			this->physicalDevice = std::make_shared<VkPhysicalDevice>(physicalDevice);
+			this->logicalDevice =  logicalDevice;
+			this->physicalDevice = physicalDevice;
 		}
 	};
 
 	class QueueHandler {
 	public:
+		QueueHandler() = default;
 		struct CommandQueueFamily {
-			uint32_t index;
-			std::shared_ptr<VkCommandPool> commandPool;
-			std::shared_ptr<VkQueue> queue;
+			uint32_t index; //not a pointer
+			VkCommandPool commandPool;
+			VkQueue queue;
 		};
 		CommandQueueFamily transferQueueFamily;
 		CommandQueueFamily graphicsQueueFamily;
-		QueueHandler(
+		void setCommandQueues(
 			const uint32_t transferQueueFamilyIndex,
-			const VkCommandPool& transferCommandPool,
-			const VkQueue& transferQueue,
+			const VkQueue transferQueue,
 			const uint32_t graphicsQueueFamilyIndex,
-			const VkCommandPool& graphicsCommandPool,
-			const VkQueue& graphicsQueue
+			const VkQueue graphicsQueue
 		) {
 			this->transferQueueFamily.index = transferQueueFamilyIndex;
-			this->transferQueueFamily.commandPool = std::make_shared<VkCommandPool>(transferCommandPool);
-			this->transferQueueFamily.queue = std::make_shared<VkQueue>(transferQueue);
+			this->transferQueueFamily.queue = transferQueue;
 
 			this->graphicsQueueFamily.index = graphicsQueueFamilyIndex;
-			this->graphicsQueueFamily.commandPool = std::make_shared<VkCommandPool>(graphicsCommandPool);
-			this->graphicsQueueFamily.queue = std::make_shared<VkQueue>(graphicsQueue);
+			this->graphicsQueueFamily.queue = graphicsQueue;
+		}
+
+		void setCommandPools(
+			const VkCommandPool transferCommandPool,
+			const VkCommandPool graphicsCommandPool
+		) {
+			this->transferQueueFamily.commandPool = transferCommandPool;
+			this->graphicsQueueFamily.commandPool = graphicsCommandPool;
 		}
 	};
 
 	class WindowHandler {
 	public:
-		std::shared_ptr<VkSurfaceKHR> surface;
+		WindowHandler() = default;
+		VkSurfaceKHR surface;
 		GLFWwindow* windowHandle;
-		WindowHandler(
+		void setWindowHandler(
 			GLFWwindow* windowHandle,
 			const VkSurfaceKHR& surface
 		) {
-			this->surface = std::make_shared<VkSurfaceKHR>(surface);
+			this->surface = surface;
 			this->windowHandle = windowHandle;
 		}
 
 	};
 
-	class GraphicsHandler : public DeviceHandler, public QueueHandler , public WindowHandler {
-	protected :
-		GraphicsHandler(
-			GLFWwindow* windowHandle,
-			const VkSurfaceKHR& surface,
-			const VkDevice& logicalDevice,
-			const VkPhysicalDevice& physicalDevice,
-			const uint32_t transferQueueFamilyIndex,
-			const VkCommandPool& transferCommandPool,
-			const VkQueue& transferQueue,
-			const uint32_t graphicsQueueFamilyIndex,
-			const VkCommandPool& graphicsCommandPool,
-			const VkQueue& graphicsQueue
-		) :
-			WindowHandler(windowHandle, surface),
-			DeviceHandler(logicalDevice, physicalDevice),
-			QueueHandler(
-				transferQueueFamilyIndex, transferCommandPool, transferQueue,
-				graphicsQueueFamilyIndex, graphicsCommandPool, graphicsQueue
-			)
-		{}
+	class SwapchainHandler {
 	public:
-		GraphicsHandler();
-		static void setGraphicsHandler(
-			GLFWwindow* windowHandle,
-			const VkSurfaceKHR& surface,
-			const VkDevice& logicalDevice,
-			const VkPhysicalDevice& physicalDevice,
-			const uint32_t transferQueueFamilyIndex,
-			const VkCommandPool& transferCommandPool,
-			const VkQueue& transferQueue,
-			const uint32_t graphicsQueueFamilyIndex,
-			const VkCommandPool& graphicsCommandPool,
-			const VkQueue& graphicsQueue
-		);
-		
+		SwapchainHandler() = default;
+		int* MAX_FRAMES_IN_FLIGHT;
+		VkRenderPass* renderPass;
+		VkExtent2D* swapChainExtent;
+		void setSwapchainHandler(
+			VkRenderPass& renderPass,
+			int& MAX_FRAMES_IN_FLIGHT,
+			VkExtent2D& swapChainExtent
+
+		) {
+			this->renderPass = &renderPass;
+			this->MAX_FRAMES_IN_FLIGHT = &MAX_FRAMES_IN_FLIGHT;
+			this->swapChainExtent = &swapChainExtent;
+		}
+	};
+
+	enum CommandQueueOperation { TransferCommand, GraphicsCommand };
+
+	struct CommandBuffer {
+		CommandQueueOperation op = TransferCommand;
+		VkCommandBuffer buffer;
+	};
+
+	//TODO: evaluate if possible to make instanced per Vulkan GraphicsContext (MultiGraphicsContext Handler)?
+	class GraphicsHandler : public DeviceHandler, public QueueHandler , public WindowHandler, public SwapchainHandler {
+	public:
+		GraphicsHandler() = default;
 		static GraphicsHandler* get();
+
+		static CommandBuffer beginCommandBuffer(CommandQueueOperation op);
+		static void endCommandBuffer(CommandBuffer& commandBuffer);
+	
+		bool isInUse = true;
+		void DeleteStatic();
+		~GraphicsHandler();
+
+	protected:
+		static VkCommandPool getCommandPool(CommandQueueOperation& op);
+		static VkQueue getCommandQueue(CommandQueueOperation& op);
+
 	};
 }

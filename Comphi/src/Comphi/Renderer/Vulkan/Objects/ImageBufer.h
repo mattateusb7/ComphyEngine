@@ -1,4 +1,5 @@
 #pragma once
+#include "Comphi/Platform/IFileRef.h"
 #include "MemBuffer.h"
 
 namespace Comphi::Vulkan {
@@ -12,7 +13,7 @@ namespace Comphi::Vulkan {
 			VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
 			VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 		};
-		ImageBuffer(std::string filepath, ImgSpecification spec);
+		ImageBuffer(IFileRef& fileref, ImgSpecification spec);//TODO: Add rawData Initialization construct - send pixel Array as input
 		
 		VkImage bufferObj; //override bufferType
 		//<< bufferMemory;
@@ -27,9 +28,9 @@ namespace Comphi::Vulkan {
 		virtual void cleanUp() override;
 
 	protected :
-		void initTextureImageBuffer(std::string filepath, ImgSpecification spec);
+		void initTextureImageBuffer(std::string& filepath, ImgSpecification spec);
 		void initImageBuffer(ImgSpecification spec);
-		void initDepthImageBuffer(ImageBuffer& swapChainImageBuffer, VkFormat format);
+		void initDepthImageBuffer(VkExtent2D& swapchainExtent, VkFormat format);
 		
 		ImageBuffer() = default;
 		void transitionImageLayout(VkImageLayout newLayout);

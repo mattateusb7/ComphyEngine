@@ -1,17 +1,14 @@
 #pragma once
-#include "Comphi/Renderer/IObjects/IVertexBuffer.h"
+#include "Comphi/Renderer/IVertexBuffer.h"
 #include "MemBuffer.h"
 
 namespace Comphi::Vulkan {
 
-	class VertexBuffer : public MemBuffer
+	class VertexBuffer : public IVertexBuffer, public MemBuffer
 	{
 	public:
 
 		VertexBuffer(const VertexArray& vertices);
-		~VertexBuffer() = default;
-
-		uint32_t vertexCount;
 
 		static VkVertexInputBindingDescription getBindingDescription() {
 			VkVertexInputBindingDescription bindingDescription{};

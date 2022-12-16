@@ -1,14 +1,15 @@
 #pragma once
+#include "Comphi/Renderer/ITexture.h"
 #include "ImageBufer.h"
 
 namespace Comphi::Vulkan {
 
-	class ImageView : public ImageBuffer
+	class ImageView : public ImageBuffer, public ITexture
 	{
 	public:
-		//default constructer auto alocates ImageBuffer
+		//default constructor auto alocates ImageBuffer
 		ImageView() = default;
-		ImageView(std::string filepath, ImgSpecification specification = ImgSpecification());
+		ImageView(IFileRef& fileref, ImgSpecification specification = ImgSpecification());
 		VkSampler initTextureSampler();
 
 		//from ImageBuffer: 
@@ -22,7 +23,7 @@ namespace Comphi::Vulkan {
 
 		//External ImageBuffer
 		void initSwapchainImageView(VkImage& imageBufferObj, VkFormat& imageFormat);
-		void initDepthImageView(ImageBuffer& swapChainImageBuffer);
+		void initDepthImageView(VkExtent2D& swapChainImageBufferExtent);
 
 		void cleanUp();
 		VkImageView imageViewObj;

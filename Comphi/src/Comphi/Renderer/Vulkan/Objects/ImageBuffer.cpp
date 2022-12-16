@@ -10,17 +10,19 @@ namespace Comphi::Vulkan {
 	void ImageBuffer::cleanUp()
 	{
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageBuffer");
-		vkDestroyImage(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, nullptr);
-		vkFreeMemory(*GraphicsHandler::get()->logicalDevice.get(), bufferMemory, nullptr);
+		vkDestroyImage(GraphicsHandler::get()->logicalDevice, bufferObj, nullptr);
+		vkFreeMemory(GraphicsHandler::get()->logicalDevice, bufferMemory, nullptr);
+		MemBuffer::cleanUp();
 	}
 
-	ImageBuffer::ImageBuffer(std::string filepath, ImgSpecification spec)
+	ImageBuffer::ImageBuffer(IFileRef& fileref, ImgSpecification spec)
 	{
+		std::string filepath = fileref.getFilePath();
 		initTextureImageBuffer(filepath, spec);
 	}
 
-	void ImageBuffer::initDepthImageBuffer(ImageBuffer& swapChainImageBuffer, VkFormat format) {
-		imageExtent = swapChainImageBuffer.imageExtent;
+	void ImageBuffer::initDepthImageBuffer(VkExtent2D& swapchainExtent, VkFormat format) {
+		imageExtent = swapchainExtent;
 		ImgSpecification specs{};
 		specs.format = format;
 		specs.tiling = VK_IMAGE_TILING_OPTIMAL;
@@ -29,7 +31,7 @@ namespace Comphi::Vulkan {
 		transitionImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 	}
 
-	void ImageBuffer::initTextureImageBuffer(std::string filepath, ImgSpecification spec) {
+	void ImageBuffer::initTextureImageBuffer(std::string& filepath, ImgSpecification spec) {
 		
 		int texWidth, texHeight, texChannels;
 		stbi_uc* pixels = stbi_load(filepath.data(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -43,9 +45,9 @@ namespace Comphi::Vulkan {
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 		void* data; //copy data to staging buffer
-		vkMapMemory(*GraphicsHandler::get()->logicalDevice.get(), stagingBuffer.bufferMemory, 0, bufferSize, 0, &data);
+		vkMapMemory(GraphicsHandler::get()->logicalDevice, stagingBuffer.bufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, pixels, static_cast<size_t>(bufferSize));
-		vkUnmapMemory(*GraphicsHandler::get()->logicalDevice.get(), stagingBuffer.bufferMemory);
+		vkUnmapMemory(GraphicsHandler::get()->logicalDevice, stagingBuffer.bufferMemory);
 
 		stbi_image_free(pixels);
 
@@ -58,8 +60,8 @@ namespace Comphi::Vulkan {
 		transitionImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		//cleanup
-		vkDestroyBuffer(*GraphicsHandler::get()->logicalDevice.get(), stagingBuffer.bufferObj, nullptr);
-		vkFreeMemory(*GraphicsHandler::get()->logicalDevice.get(), stagingBuffer.bufferMemory, nullptr);
+		vkDestroyBuffer(GraphicsHandler::get()->logicalDevice, stagingBuffer.bufferObj, nullptr);
+		vkFreeMemory(GraphicsHandler::get()->logicalDevice, stagingBuffer.bufferMemory, nullptr);
 
 	}
 
@@ -87,29 +89,29 @@ namespace Comphi::Vulkan {
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.flags = 0; // Optional
 
-		if (vkCreateImage(*GraphicsHandler::get()->logicalDevice.get(), &imageInfo, nullptr, &bufferObj) != VK_SUCCESS) {
+		if (vkCreateImage(GraphicsHandler::get()->logicalDevice, &imageInfo, nullptr, &bufferObj) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create image!");
 		}
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, &memRequirements);
+		vkGetImageMemoryRequirements(GraphicsHandler::get()->logicalDevice, bufferObj, &memRequirements);
 
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(*GraphicsHandler::get()->physicalDevice.get(), memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		allocInfo.memoryTypeIndex = findMemoryType(GraphicsHandler::get()->physicalDevice, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-		if (vkAllocateMemory(*GraphicsHandler::get()->logicalDevice.get(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+		if (vkAllocateMemory(GraphicsHandler::get()->logicalDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate image memory!");
 		}
 
-		vkBindImageMemory(*GraphicsHandler::get()->logicalDevice.get(), bufferObj, bufferMemory, 0);
+		vkBindImageMemory(GraphicsHandler::get()->logicalDevice, bufferObj, bufferMemory, 0);
 
 	}
 
 	void ImageBuffer::copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer)
 	{
-		CommandBuffer commandBuffer = beginCommandBuffer(MEM_TransferCommand);
+		CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(TransferCommand);
 
 		VkBufferImageCopy region{}; // how the pixels are laid out in memory. For example, you could have some padding bytes between rows of the image
 		region.bufferOffset = 0;
@@ -138,7 +140,7 @@ namespace Comphi::Vulkan {
 			&region
 		);
 
-		endCommandBuffer(commandBuffer);
+		GraphicsHandler::endCommandBuffer(commandBuffer);
 	}
 
 	void ImageBuffer::copyBufferToImgBuffer(MemBuffer& srcBuffer)
@@ -179,7 +181,7 @@ namespace Comphi::Vulkan {
 		VkPipelineStageFlags destinationStage;
 
 		if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-			queueOperation = MEM_TransferCommand;
+			queueOperation = TransferCommand;
 			
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -192,7 +194,7 @@ namespace Comphi::Vulkan {
 
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-			queueOperation = MEM_GraphicsCommand;
+			queueOperation = GraphicsCommand;
 
 			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
@@ -205,7 +207,7 @@ namespace Comphi::Vulkan {
 
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-			queueOperation = MEM_GraphicsCommand;
+			queueOperation = GraphicsCommand;
 
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
@@ -220,7 +222,7 @@ namespace Comphi::Vulkan {
 			throw std::invalid_argument("unsupported layout transition!");
 		}
 
-		CommandBuffer commandBuffer = beginCommandBuffer(queueOperation);
+		CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(queueOperation);
 
 		//https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
 		//https://vulkan-tutorial.com/en/Texture_mapping/Images
@@ -234,7 +236,7 @@ namespace Comphi::Vulkan {
 			1, &barrier
 		);
 
-		endCommandBuffer(commandBuffer);
+		GraphicsHandler::endCommandBuffer(commandBuffer);
 
 		imageLayout = newLayout;
 
