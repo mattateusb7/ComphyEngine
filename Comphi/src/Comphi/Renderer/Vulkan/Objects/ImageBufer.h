@@ -4,35 +4,38 @@
 
 namespace Comphi::Vulkan {
 
-	class ImageBuffer : public MemBuffer
+	struct ImageBufferSpecification {
+		VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+		VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+		VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+		VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+	};
+
+	class ImageBuffer
 	{
 	public:
-		struct ImgSpecification {
-			VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
-			VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
-			VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-			VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-		};
-		ImageBuffer(IFileRef& fileref, ImgSpecification spec);//TODO: Add rawData Initialization construct - send pixel Array as input
-		
-		VkImage bufferObj; //override bufferType
-		//<< bufferMemory;
-		//<< bufferSize;
+		static ImageBuffer createTextureImageBuffer(IFileRef& fileref, ImageBufferSpecification& specification); //TODO: Add rawData Initialization construct - send pixel Array as input
+		static ImageBuffer createDepthImageBuffer(VkExtent2D& swapchainExtent, ImageBufferSpecification& specification);
+
+		//Memory
+		VkDeviceMemory memoryBuffer;
+		VkImage imageBuffer;
+		//Format
 		VkExtent2D imageExtent;
-		VkFormat imageFormat;
 		VkImageLayout imageLayout;
+		ImageBufferSpecification specification;
 
-		static void copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer);
-		void copyBufferToImgBuffer(MemBuffer& srcBuffer);
-		bool hasStencilComponent();
-		virtual void cleanUp() override;
+		void cleanUp();
 
-	protected :
-		void initTextureImageBuffer(std::string& filepath, ImgSpecification spec);
-		void initImageBuffer(ImgSpecification spec);
-		void initDepthImageBuffer(VkExtent2D& swapchainExtent, VkFormat format);
-		
 		ImageBuffer() = default;
+	protected :
+
+		void sendBufferToImgBuffer(MemBuffer& srcBuffer);
+		//TODO: retrieveImageBufferToBuffer?
+
+		void allocateImageBuffer();
+		
+		bool hasStencilComponent();
 		void transitionImageLayout(VkImageLayout newLayout);
 	};
 

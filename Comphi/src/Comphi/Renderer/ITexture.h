@@ -6,7 +6,7 @@ namespace Comphi {
 	{
 	public:
 		IFileRef* i_imageFileRef;
-		ITexture() = default;
 		ITexture(IFileRef& imageFileRef) : i_imageFileRef(&imageFileRef) {};
+		ITexture() = default;
 	};
 }

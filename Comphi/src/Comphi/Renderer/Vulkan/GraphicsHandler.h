@@ -97,9 +97,14 @@ namespace Comphi::Vulkan {
 		GraphicsHandler() = default;
 		static GraphicsHandler* get();
 
+		//CommandBuffers
 		static CommandBuffer beginCommandBuffer(CommandQueueOperation op);
 		static void endCommandBuffer(CommandBuffer& commandBuffer);
-	
+
+		//MemoryHandling
+		static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+		static void copyBufferTo(VkBuffer& srcBuffer, VkBuffer& dstBuffer, uint copySize);
+
 		bool isInUse = true;
 		void DeleteStatic();
 		~GraphicsHandler();

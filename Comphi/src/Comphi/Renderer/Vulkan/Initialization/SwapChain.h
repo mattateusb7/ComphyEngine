@@ -22,10 +22,10 @@ namespace Comphi::Vulkan {
 		VkSwapchainKHR swapChainObj;
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
-		std::vector<VkImage> swapChainImages;
-
+		
 		std::vector<ImageView> swapChainImageViews;
 		ImageView swapChainDepthView;
+
 		std::vector<VkFramebuffer> swapChainFramebuffers;
 		VkRenderPass renderPassObj;
 

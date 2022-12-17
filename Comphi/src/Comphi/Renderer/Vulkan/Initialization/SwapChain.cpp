@@ -73,19 +73,10 @@ namespace Comphi::Vulkan {
 		}
 		COMPHILOG_CORE_INFO("SwapChain created Successfully!");
 
-		//Create Swapchain image views
-		vkGetSwapchainImagesKHR(GraphicsHandler::get()->logicalDevice, swapChainObj, &imageCount, nullptr);
-		swapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(GraphicsHandler::get()->logicalDevice, swapChainObj, &imageCount, swapChainImages.data());
+		//TODO: move to ImageView Factory Create Swapchain image views
 
-		COMPHILOG_CORE_TRACE("Creating ImageViews...");
-		swapChainImageViews.resize(swapChainImages.size());
-		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			swapChainImageViews[i].initSwapchainImageView(swapChainImages[i], swapChainImageFormat);
-			swapChainImageViews[i].imageExtent = swapChainExtent;
-		}
-		swapChainDepthView = ImageView();
-		swapChainDepthView.initDepthImageView(swapChainExtent);
+		swapChainImageViews = ImageView::createSwapchainImageViews(swapChainObj, swapChainImageFormat);
+		swapChainDepthView = ImageView::createDepthImageView(swapChainExtent);
 	}
 
 	void SwapChain::recreateSwapChain() {
@@ -199,8 +190,8 @@ namespace Comphi::Vulkan {
 
 		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
 			std::array<VkImageView, 2> attachments = {
-				swapChainImageViews[i].imageViewObj,
-				swapChainDepthView.imageViewObj
+				swapChainImageViews[i].imageView,
+				swapChainDepthView.imageView
 			};
 
 			VkFramebufferCreateInfo framebufferInfo{};
@@ -242,7 +233,7 @@ namespace Comphi::Vulkan {
 
 		//DepthAttachment
 		VkAttachmentDescription depthAttachment{};
-		depthAttachment.format = swapChainDepthView.imageFormat;
+		depthAttachment.format = swapChainDepthView.imageBuffer.specification.format;
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;

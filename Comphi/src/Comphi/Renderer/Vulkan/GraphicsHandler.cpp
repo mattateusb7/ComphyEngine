@@ -83,6 +83,34 @@ namespace Comphi::Vulkan {
 
     }
 
+    uint32_t GraphicsHandler::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+
+        VkPhysicalDeviceMemoryProperties memProperties;
+        vkGetPhysicalDeviceMemoryProperties(get()->physicalDevice, &memProperties);
+
+        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+            if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+                return i;
+            }
+        }
+        COMPHILOG_CORE_ERROR("failed to find suitable memory type!");
+        throw std::runtime_error("failed to find suitable memory type!");
+
+    }
+
+    void GraphicsHandler::copyBufferTo(VkBuffer& srcBuffer, VkBuffer& dstBuffer, uint copySize)
+    {
+        CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(TransferCommand);
+
+        VkBufferCopy copyRegion{};
+        //copyRegion.srcOffset = 0; // Optional
+        //copyRegion.dstOffset = 0; // Optional
+        copyRegion.size = copySize;
+        vkCmdCopyBuffer(commandBuffer.buffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+        GraphicsHandler::endCommandBuffer(commandBuffer);
+    }
+
 #pragma region Protected
 
     VkCommandPool GraphicsHandler::getCommandPool(CommandQueueOperation& op) {
