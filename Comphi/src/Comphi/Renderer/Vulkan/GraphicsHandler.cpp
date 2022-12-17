@@ -1,5 +1,6 @@
 #include "cphipch.h"
 #include "GraphicsHandler.h"
+#include "Initialization/SyncObjectsFactory.h"
 
 namespace Comphi::Vulkan {
 
@@ -47,7 +48,7 @@ namespace Comphi::Vulkan {
         return commandBuffer;
 
     }
-
+    VkFence commandBufferFence;
     void GraphicsHandler::endCommandBuffer(CommandBuffer& commandBuffer)
     {
         VkQueue commandQueue = getCommandQueue(commandBuffer.op);
@@ -60,8 +61,15 @@ namespace Comphi::Vulkan {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer.buffer;
 
-        vkQueueSubmit(commandQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(commandQueue);
+        
+        if (commandBufferFence == nullptr) {
+            SyncObjectsFactory::createFences(&commandBufferFence, 1);
+            vkResetFences(GraphicsHandler::get()->logicalDevice, 1, &commandBufferFence);
+        }
+
+        vkQueueSubmit(commandQueue, 1, &submitInfo, commandBufferFence);
+        vkWaitForFences(GraphicsHandler::get()->logicalDevice, 1, &commandBufferFence, VK_TRUE, UINT64_MAX);
+        //vkQueueWaitIdle(commandQueue);
 
         /*
         We could use a fence and wait with vkWaitForFences,
@@ -71,6 +79,8 @@ namespace Comphi::Vulkan {
         */
 
         vkFreeCommandBuffers(GraphicsHandler::get()->logicalDevice, commandPool, 1, &commandBuffer.buffer);
+        vkResetFences(GraphicsHandler::get()->logicalDevice, 1, &commandBufferFence);
+
     }
 
 #pragma region Protected

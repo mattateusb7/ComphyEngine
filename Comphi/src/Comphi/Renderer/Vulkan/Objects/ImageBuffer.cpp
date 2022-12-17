@@ -111,7 +111,7 @@ namespace Comphi::Vulkan {
 
 	void ImageBuffer::copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer)
 	{
-		CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(TransferCommand);
+		CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(GraphicsCommand);
 
 		VkBufferImageCopy region{}; // how the pixels are laid out in memory. For example, you could have some padding bytes between rows of the image
 		region.bufferOffset = 0;
@@ -154,6 +154,11 @@ namespace Comphi::Vulkan {
 
 	void ImageBuffer::transitionImageLayout(VkImageLayout newLayout)
 	{
+		//TODO: add Transfer Buffer release Barrier to sync Ownership between transfer & Graphics Queues.
+		//VkBufferMemoryBarrier bufferBarrier{};
+		//bufferBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+		//bufferBarrier.buffer = ;
+
 		VkImageMemoryBarrier barrier{};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 		barrier.oldLayout = imageLayout;
@@ -196,13 +201,13 @@ namespace Comphi::Vulkan {
 		else if (imageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
 			queueOperation = GraphicsCommand;
 
-			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; //VK_PIPELINE_STAGE_TRANSFER_BIT;
 			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 
-			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			barrier.srcAccessMask = 0; //VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index; //TODO: set src = TransferQueue when buffer barriers work ^^^
 			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
 
 		}
@@ -215,7 +220,7 @@ namespace Comphi::Vulkan {
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
 			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
 		}
 		else {
