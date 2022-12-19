@@ -4,6 +4,34 @@
 namespace Comphi::Vulkan {
 	class GraphicsInstance
 	{
+	public:
+
+		void cleanUp();
+		GraphicsInstance();
+
+#ifndef NDEBUG
+		VkDebugUtilsMessengerEXT debugMessenger;
+#endif //!NDEBUG
+
+		//Vulkan Instance
+		void createVKInstance();
+		VkInstance instance;
+
+		//Surface 
+		void createSurface();
+		VkSurfaceKHR surface;
+
+		//Physical Device
+		void pickPhysicalDevice();
+		VkPhysicalDevice physicalDevice;
+
+		//Logical Device & GRAPHICS QUEUES
+		void createLogicalDevices();
+		VkDevice logicalDevice;
+		VkQueue graphicsQueue;
+		VkQueue presentQueue;
+		VkQueue transferQueue;
+
 	protected:
 
 #ifndef NDEBUG
@@ -52,32 +80,5 @@ namespace Comphi::Vulkan {
 		};
 		QueueFamilyIndices queueFamilyIndices;
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-
-	public:
-		void cleanUp();
-		GraphicsInstance();
-
-#ifndef NDEBUG
-		VkDebugUtilsMessengerEXT debugMessenger;
-#endif //!NDEBUG
-
-		//Vulkan Instance
-		void createVKInstance();
-		VkInstance instance;
-
-		//Surface 
-		void createSurface();
-		VkSurfaceKHR surface;
-
-		//Physical Device
-		void pickPhysicalDevice();
-		VkPhysicalDevice physicalDevice;
-
-		//Logical Device & GRAPHICS QUEUES
-		void createLogicalDevices();
-		VkDevice logicalDevice;
-		VkQueue graphicsQueue;
-		VkQueue presentQueue;
-		VkQueue transferQueue;
 	};
 }

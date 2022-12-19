@@ -1,8 +1,6 @@
 #include "cphipch.h"
 #include "GraphicsContext.h"
 
-#include "Initialization/SyncObjectsFactory.h"
-
 namespace Comphi::Vulkan {
 
 	GraphicsContext::GraphicsContext(GLFWwindow& windowHandle)
@@ -22,8 +20,9 @@ namespace Comphi::Vulkan {
 	{
 		graphicsInstance = std::make_unique<GraphicsInstance>();
 		commandPool = std::make_unique<CommandPool>();
+		createCommandBuffers();
 		swapchain = std::make_unique<SwapChain>();
-		commandPool->createCommandBuffers(swapchain->MAX_FRAMES_IN_FLIGHT);
+		syncObjectsFactory = std::make_unique<SyncObjectsFactory>();
 		createSyncObjects();
 	}
 
@@ -32,15 +31,20 @@ namespace Comphi::Vulkan {
 		this->scenes = &scenes;
 	}
 
+	void GraphicsContext::createCommandBuffers() {
+		commandPool->allocateGraphicsCommandBuffer(&graphicsCommandBuffers[0], swapchain->MAX_FRAMES_IN_FLIGHT);
+		commandPool->allocateTransferCommandBuffer(&transferCommandBuffers[0], swapchain->MAX_FRAMES_IN_FLIGHT);
+	}
+
 	void GraphicsContext::createSyncObjects() {
 
 		imageAvailableSemaphores.resize(swapchain->MAX_FRAMES_IN_FLIGHT);
 		renderFinishedSemaphores.resize(swapchain->MAX_FRAMES_IN_FLIGHT);
 		inFlightFences.resize(swapchain->MAX_FRAMES_IN_FLIGHT);
 
-		SyncObjectsFactory.createSemaphores(&imageAvailableSemaphores[0], swapchain->MAX_FRAMES_IN_FLIGHT);
-		SyncObjectsFactory.createSemaphores(&renderFinishedSemaphores[0], swapchain->MAX_FRAMES_IN_FLIGHT);
-		SyncObjectsFactory.createFences(&inFlightFences[0], swapchain->MAX_FRAMES_IN_FLIGHT);
+		syncObjectsFactory->createSemaphores(&imageAvailableSemaphores[0], swapchain->MAX_FRAMES_IN_FLIGHT);
+		syncObjectsFactory->createSemaphores(&renderFinishedSemaphores[0], swapchain->MAX_FRAMES_IN_FLIGHT);
+		syncObjectsFactory->createFences(&inFlightFences[0], swapchain->MAX_FRAMES_IN_FLIGHT);
 		
 		COMPHILOG_CORE_INFO("semaphores created Successfully!");
 	}
@@ -51,7 +55,7 @@ namespace Comphi::Vulkan {
 		
 		FrameTime.Stop();
 
-		VkCommandBuffer& commandBuffer = commandPool->graphicsCommandBuffers[swapchain->currentFrame];
+		VkCommandBuffer& commandBuffer = graphicsCommandBuffers[swapchain->currentFrame];
 		swapchain->beginRenderPassCommandBuffer(commandBuffer);
 
 		for (size_t i = 0; i < scenes->size(); i++)
@@ -128,7 +132,7 @@ namespace Comphi::Vulkan {
 
 		//vkResetCommandPool(graphicsInstance->logicalDevice, commandPool->graphicsCommandPool,0); 
 		//if you are making multiple command buffers from one pool, resetting the pool will be quicker.
-		vkResetCommandBuffer(commandPool->graphicsCommandBuffers[swapchain->currentFrame], 0);
+		vkResetCommandBuffer(graphicsCommandBuffers[swapchain->currentFrame], 0);
 
 		//Scene Update
 		updateSceneLoop();
@@ -143,7 +147,7 @@ namespace Comphi::Vulkan {
 		submitInfo.pWaitDstStageMask = waitStages;
 
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandPool->graphicsCommandBuffers[swapchain->currentFrame];
+		submitInfo.pCommandBuffers = &graphicsCommandBuffers[swapchain->currentFrame];
 
 		VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[swapchain->currentFrame] };
 		submitInfo.signalSemaphoreCount = 1;
@@ -205,14 +209,10 @@ namespace Comphi::Vulkan {
 		//we need a way to clean Shaders & Graphics Pipelines
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
-		for (size_t i = 0; i < swapchain->MAX_FRAMES_IN_FLIGHT; i++) {
-			vkDestroySemaphore(GraphicsHandler::get()->logicalDevice, renderFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(GraphicsHandler::get()->logicalDevice, imageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(GraphicsHandler::get()->logicalDevice, inFlightFences[i], nullptr);
-		}
 
-		graphicsInstance->cleanUp();
+
 		GraphicsHandler::get()->DeleteStatic();
+		graphicsInstance->cleanUp();
 	}
 
 	void GraphicsContext::ResizeWindow(uint x, uint y)

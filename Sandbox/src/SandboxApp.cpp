@@ -41,7 +41,7 @@ public:
 	GameSceneLayer() : Layer("GameSceneLayer") { 
 
 		//Texture
-		textureFile = Windows::FileRef("textures/viking_room.png");
+		/*textureFile = Windows::FileRef("textures/viking_room.png");
 		texture = GraphicsAPI::create::Texture(textureFile);
 
 		textureFile2 = Windows::FileRef("textures/lain.jpg");
@@ -128,16 +128,17 @@ public:
 		scene->sceneObjects.push_back(gameObj);
 		scene->sceneObjects.push_back(gameObj1);
 		scene->sceneObjects.push_back(emptyObj);
-		scene->sceneCamera = (camObj);
+		scene->sceneCamera = (camObj);*/
 	
 	}; 
 	
 	void OnStart() override {
-		gameObj1->transform.position = glm::vec3(0, 0, 1.0f);
+		//gameObj1->transform.position = glm::vec3(0, 0, 1.0f);
 	}
 
 	Time time;
 	void OnUpdate() override {
+		/*
 		//Works with HotReloadinng <3 ! (only allows manipulation of already sent data)
 		//recompiling Sandbox.exe refreshes the code without the need to recompile the engine (simply re-links the static engine lib ).
 		//TODO: detect when a hotreload is done and call "UpdateOnce after hotreload" function. (to send new values) 
@@ -162,7 +163,7 @@ public:
 		//camObj->transform.setEulerAngles(glm::vec3(0,0,0));
 		//camObj->transform.eulerRotation(glm::vec3(0.0f, 45.0f * time.deltaTime(), 0));
 
-		time.Start();
+		time.Start();*/
 	};
 
 	void OnUIRender() override {};

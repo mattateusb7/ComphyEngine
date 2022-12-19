@@ -4,6 +4,7 @@
 #include "Initialization/GraphicsInstance.h"
 #include "Initialization/SwapChain.h"
 #include "Initialization/CommandPool.h"
+#include "Initialization/SyncObjectsFactory.h"
 
 namespace Comphi::Vulkan {
 
@@ -21,17 +22,23 @@ namespace Comphi::Vulkan {
 		std::unique_ptr<GraphicsInstance> graphicsInstance;
 		std::unique_ptr<SwapChain> swapchain;
 		std::unique_ptr<CommandPool> commandPool;
+		std::unique_ptr<SyncObjectsFactory> syncObjectsFactory;
 
 		Time FrameTime; //TODO: Debug ?
 		MultiScene* scenes;
 
+		std::vector<VkCommandBuffer> graphicsCommandBuffers;
+		std::vector<VkCommandBuffer> transferCommandBuffers;
+
 		std::vector<VkSemaphore> imageAvailableSemaphores;
 		std::vector<VkSemaphore> renderFinishedSemaphores;
 		std::vector<VkFence> inFlightFences;
+		std::vector<VkFence> FlightFences;
 
 	protected:
 		bool _framebufferResized = false;
 		void createSyncObjects();
+		void createCommandBuffers();
 		void updateSceneLoop();
 	};
 

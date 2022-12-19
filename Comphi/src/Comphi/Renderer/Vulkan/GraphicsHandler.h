@@ -82,26 +82,15 @@ namespace Comphi::Vulkan {
 			this->MAX_FRAMES_IN_FLIGHT = &MAX_FRAMES_IN_FLIGHT;
 			this->swapChainExtent = &swapChainExtent;
 		}
-	};
-
-	enum CommandQueueOperation { TransferCommand, GraphicsCommand };
-
-	struct CommandBuffer {
-		CommandQueueOperation op = TransferCommand;
-		VkCommandBuffer buffer;
-	};
-
+	};	
+	
 	//TODO: evaluate if possible to make instanced per Vulkan GraphicsContext (MultiGraphicsContext Handler)?
 	class GraphicsHandler : public DeviceHandler, public QueueHandler , public WindowHandler, public SwapchainHandler {
 	public:
 		GraphicsHandler() = default;
 		static GraphicsHandler* get();
 
-		//CommandBuffers
-		static CommandBuffer beginCommandBuffer(CommandQueueOperation op);
-		static void endCommandBuffer(CommandBuffer& commandBuffer);
-
-		//MemoryHandling
+		//TODO: Move to MemBuffer Class ? : MemoryHandling
 		static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 		static void copyBufferTo(VkBuffer& srcBuffer, VkBuffer& dstBuffer, uint copySize);
 
@@ -109,9 +98,6 @@ namespace Comphi::Vulkan {
 		void DeleteStatic();
 		~GraphicsHandler();
 
-	protected:
-		static VkCommandPool getCommandPool(CommandQueueOperation& op);
-		static VkQueue getCommandQueue(CommandQueueOperation& op);
-
 	};
+
 }

@@ -15,6 +15,7 @@ namespace Comphi::Vulkan {
 				throw std::runtime_error("failed to create semaphore!");
 				return;
 			}
+			this->semaphores.push_back(&semaphores[i]);
 		}
 	}
 
@@ -31,8 +32,20 @@ namespace Comphi::Vulkan {
 				throw std::runtime_error("failed to create semaphore!");
 				return;
 			}
+			this->fences.push_back(&fences[i]);
 		}
 	}
 
+	void SyncObjectsFactory::cleanup()
+	{
+		for (size_t i = semaphores.size(); i > 0; --i) {
+			vkDestroySemaphore(GraphicsHandler::get()->logicalDevice, *semaphores[i], nullptr);
+		}
 
+		for (size_t i = fences.size(); i > 0 ; --i) {
+			vkDestroyFence(GraphicsHandler::get()->logicalDevice, *fences[i], nullptr);
+		}
+
+
+	}
 }

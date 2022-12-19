@@ -4,6 +4,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "../Initialization/CommandPool.h"
+
 namespace Comphi::Vulkan {
 
 	ImageBuffer ImageBuffer::createTextureImageBuffer(IFileRef& fileref, ImageBufferSpecification& specification) {
@@ -100,7 +102,7 @@ namespace Comphi::Vulkan {
 
 	void ImageBuffer::sendBufferToImgBuffer(MemBuffer& srcBuffer)
 	{
-		CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(GraphicsCommand);
+		CommandBuffer commandBuffer = CommandPool::beginCommandBuffer(GraphicsCommand);
 
 		VkBufferImageCopy region{}; // how the pixels are laid out in memory. For example, you could have some padding bytes between rows of the image
 		region.bufferOffset = 0;
@@ -129,7 +131,7 @@ namespace Comphi::Vulkan {
 			&region
 		);
 
-		GraphicsHandler::endCommandBuffer(commandBuffer);
+		CommandPool::endCommandBuffer(commandBuffer);
 	}
 
 	bool ImageBuffer::hasStencilComponent() {
@@ -211,7 +213,7 @@ namespace Comphi::Vulkan {
 			throw std::invalid_argument("unsupported layout transition!");
 		}
 
-		CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(queueOperation);
+		CommandBuffer commandBuffer = CommandPool::beginCommandBuffer(queueOperation);
 
 		//https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
 		//https://vulkan-tutorial.com/en/Texture_mapping/Images
@@ -225,7 +227,7 @@ namespace Comphi::Vulkan {
 			1, &barrier
 		);
 
-		GraphicsHandler::endCommandBuffer(commandBuffer);
+		CommandPool::endCommandBuffer(commandBuffer);
 
 		imageLayout = newLayout;
 

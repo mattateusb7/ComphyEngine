@@ -101,9 +101,9 @@ namespace Comphi::Vulkan {
 
 	void SwapChain::cleanUp() {
 
-		for (int fbid = 0; fbid < swapChainFramebuffers.size(); fbid++) {
-			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid);
-			vkDestroyFramebuffer(GraphicsHandler::get()->logicalDevice, swapChainFramebuffers[fbid], nullptr);
+		for (int i = 0; i < swapChainFramebuffers.size(); i++) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", i);
+			vkDestroyFramebuffer(GraphicsHandler::get()->logicalDevice, swapChainFramebuffers[i], nullptr);
 		}
 
 		for (int i = 0; i < swapChainImageViews.size(); i++) {
@@ -186,7 +186,9 @@ namespace Comphi::Vulkan {
 	}
 
 	void SwapChain::createFramebuffers() {
-		swapChainFramebuffers.resize(swapChainImageViews.size());
+		if(swapChainFramebuffers.size() < swapChainImageViews.size()){
+			swapChainFramebuffers.resize(swapChainImageViews.size());
+		}
 
 		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
 			std::array<VkImageView, 2> attachments = {
