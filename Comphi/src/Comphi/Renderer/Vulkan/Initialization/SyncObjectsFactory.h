@@ -7,9 +7,11 @@ namespace Comphi::Vulkan {
 	{
 	public:
 		SyncObjectsFactory() = default;
+
 		void createSemaphores(VkSemaphore* semaphores, uint count);
 		void createFences(VkFence* fences, uint count);
 
+		~SyncObjectsFactory();
 		std::vector<VkSemaphore*> semaphores = std::vector<VkSemaphore*>();
 		std::vector<VkFence*> fences = std::vector<VkFence*>();
 

@@ -2,7 +2,6 @@
 #include "../GraphicsHandler.h"
 #include "SyncObjectsFactory.h"
 
-
 namespace Comphi::Vulkan {
 
 	enum CommandQueueOperation { TransferCommand, GraphicsCommand };
@@ -16,7 +15,7 @@ namespace Comphi::Vulkan {
 	class CommandPool
 	{
 	public:
-		CommandPool();
+		CommandPool(); 
 
 		static CommandBuffer beginCommandBuffer(CommandQueueOperation op);
 		static void endCommandBuffer(CommandBuffer& commandBuffer);
@@ -36,5 +35,6 @@ namespace Comphi::Vulkan {
 		void cleanUp(); //When a pool is destroyed, all command buffers allocated from the pool are freed.
 
 	};
+
 }
 

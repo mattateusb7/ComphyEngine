@@ -22,7 +22,7 @@ namespace Comphi::Vulkan {
 		std::unique_ptr<GraphicsInstance> graphicsInstance;
 		std::unique_ptr<SwapChain> swapchain;
 		std::unique_ptr<CommandPool> commandPool;
-		std::unique_ptr<SyncObjectsFactory> syncObjectsFactory;
+		std::unique_ptr<SyncObjectsFactory> syncObjectsFactory; //TODO: Rename to swapchainSyncObjects
 
 		Time FrameTime; //TODO: Debug ?
 		MultiScene* scenes;
@@ -30,6 +30,7 @@ namespace Comphi::Vulkan {
 		std::vector<VkCommandBuffer> graphicsCommandBuffers;
 		std::vector<VkCommandBuffer> transferCommandBuffers;
 
+		//TODO : SwapchainSyncObjects move to Swapchain
 		std::vector<VkSemaphore> imageAvailableSemaphores;
 		std::vector<VkSemaphore> renderFinishedSemaphores;
 		std::vector<VkFence> inFlightFences;

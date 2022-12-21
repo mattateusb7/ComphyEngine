@@ -1,10 +1,10 @@
 #include "cphipch.h"
 #include "ImageBufer.h"
 
+#include "../Initialization/CommandPool.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
-#include "../Initialization/CommandPool.h"
 
 namespace Comphi::Vulkan {
 

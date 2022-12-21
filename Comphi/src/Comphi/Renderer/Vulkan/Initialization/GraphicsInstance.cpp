@@ -60,7 +60,7 @@ namespace Comphi::Vulkan {
 			COMPHILOG_CORE_FATAL("Failed to create window surface!");
 			throw std::runtime_error("Failed to create window surface!");
 		}
-
+		
 		if (glfwCreateWindowSurface(instance, GraphicsHandler::get()->windowHandle, nullptr, &surface) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("Failed to create window surface!");
 			throw std::runtime_error("Failed to create window surface!");

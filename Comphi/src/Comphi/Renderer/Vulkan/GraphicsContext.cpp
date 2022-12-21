@@ -20,10 +20,10 @@ namespace Comphi::Vulkan {
 	{
 		graphicsInstance = std::make_unique<GraphicsInstance>();
 		commandPool = std::make_unique<CommandPool>();
-		createCommandBuffers();
 		swapchain = std::make_unique<SwapChain>();
 		syncObjectsFactory = std::make_unique<SyncObjectsFactory>();
 		createSyncObjects();
+		createCommandBuffers();
 	}
 
 	void GraphicsContext::SetScenes(MultiScene& scenes)
@@ -32,8 +32,11 @@ namespace Comphi::Vulkan {
 	}
 
 	void GraphicsContext::createCommandBuffers() {
-		commandPool->allocateGraphicsCommandBuffer(&graphicsCommandBuffers[0], swapchain->MAX_FRAMES_IN_FLIGHT);
-		commandPool->allocateTransferCommandBuffer(&transferCommandBuffers[0], swapchain->MAX_FRAMES_IN_FLIGHT);
+		graphicsCommandBuffers.resize(swapchain->MAX_FRAMES_IN_FLIGHT);
+		transferCommandBuffers.resize(swapchain->MAX_FRAMES_IN_FLIGHT);
+
+		commandPool->allocateGraphicsCommandBuffer(&graphicsCommandBuffers[0], graphicsCommandBuffers.size());
+		commandPool->allocateTransferCommandBuffer(&transferCommandBuffers[0], transferCommandBuffers.size());
 	}
 
 	void GraphicsContext::createSyncObjects() {
@@ -45,8 +48,6 @@ namespace Comphi::Vulkan {
 		syncObjectsFactory->createSemaphores(&imageAvailableSemaphores[0], swapchain->MAX_FRAMES_IN_FLIGHT);
 		syncObjectsFactory->createSemaphores(&renderFinishedSemaphores[0], swapchain->MAX_FRAMES_IN_FLIGHT);
 		syncObjectsFactory->createFences(&inFlightFences[0], swapchain->MAX_FRAMES_IN_FLIGHT);
-		
-		COMPHILOG_CORE_INFO("semaphores created Successfully!");
 	}
 
 #pragma region //DEBUG!
@@ -206,11 +207,10 @@ namespace Comphi::Vulkan {
 		swapchain->cleanupRenderPass();
 		commandPool->cleanUp();
 		
-		//we need a way to clean Shaders & Graphics Pipelines
+		//TODO: we need a way to track & clean Shaders & Graphics Pipelines (Game Instances)
 
-		COMPHILOG_CORE_INFO("vkDestroy Destroy Semaphores & Frames in flight");
-
-
+		syncObjectsFactory->cleanup();
+		
 		GraphicsHandler::get()->DeleteStatic();
 		graphicsInstance->cleanUp();
 	}

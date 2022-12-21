@@ -16,6 +16,7 @@ namespace Comphi::Vulkan {
 				return;
 			}
 			this->semaphores.push_back(&semaphores[i]);
+			COMPHILOG_CORE_INFO("created semaphore!");
 		}
 	}
 
@@ -33,19 +34,31 @@ namespace Comphi::Vulkan {
 				return;
 			}
 			this->fences.push_back(&fences[i]);
+			COMPHILOG_CORE_INFO("created Fence!");
 		}
+	}
+
+	SyncObjectsFactory::~SyncObjectsFactory()
+	{
+		//COMPHILOG_CORE_INFO("cleanup static SyncObjectsFactories");
+		cleanup();
 	}
 
 	void SyncObjectsFactory::cleanup()
 	{
-		for (size_t i = semaphores.size(); i > 0; --i) {
+		if(semaphores.size() > 0)
+		for (int i = semaphores.size()-1; i >= 0; --i) {
 			vkDestroySemaphore(GraphicsHandler::get()->logicalDevice, *semaphores[i], nullptr);
+			semaphores.pop_back();
+			COMPHILOG_CORE_INFO("destroyed Semaphore!");
 		}
 
-		for (size_t i = fences.size(); i > 0 ; --i) {
+		if (fences.size() > 0)
+		for (int i = fences.size()-1; i >= 0 ; --i) {
 			vkDestroyFence(GraphicsHandler::get()->logicalDevice, *fences[i], nullptr);
+			fences.pop_back();
+			COMPHILOG_CORE_INFO("destroyed Fence!");
 		}
-
 
 	}
 }

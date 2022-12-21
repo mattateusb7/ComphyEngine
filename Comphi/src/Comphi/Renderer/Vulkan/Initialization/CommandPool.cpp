@@ -3,6 +3,9 @@
 
 namespace Comphi::Vulkan {
 
+    SyncObjectsFactory CommandPool::commandBuffersSyncObjects = SyncObjectsFactory();
+    VkFence CommandPool::commandBuffersFence;
+
 	CommandPool::CommandPool()
 	{
 		VkCommandPoolCreateInfo poolInfo{};
