@@ -3,9 +3,6 @@
 
 namespace Comphi::Vulkan {
 
-    SyncObjectsFactory CommandPool::commandBuffersSyncObjects = SyncObjectsFactory();
-    VkFence CommandPool::commandBuffersFence;
-
 	CommandPool::CommandPool()
 	{
 		VkCommandPoolCreateInfo poolInfo{};
@@ -100,6 +97,7 @@ namespace Comphi::Vulkan {
     {
         VkQueue commandQueue = getCommandQueue(commandBuffer.op);
         VkCommandPool commandPool = getCommandPool(commandBuffer.op);
+        VkFence commandFence = getCommandFence(commandBuffer.op);
 
         vkEndCommandBuffer(commandBuffer.buffer);
 
@@ -108,13 +106,8 @@ namespace Comphi::Vulkan {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer.buffer;
 
-        if (commandBuffersFence == nullptr) {
-            commandBuffersSyncObjects.createFences(&commandBuffersFence, 1);
-            vkResetFences(GraphicsHandler::get()->logicalDevice, 1, &commandBuffersFence);
-        }
-
-        vkQueueSubmit(commandQueue, 1, &submitInfo, commandBuffersFence);
-        vkWaitForFences(GraphicsHandler::get()->logicalDevice, 1, &commandBuffersFence, VK_TRUE, UINT64_MAX);
+        vkQueueSubmit(commandQueue, 1, &submitInfo, commandFence);
+        vkWaitForFences(GraphicsHandler::get()->logicalDevice, 1, &commandFence, VK_TRUE, UINT64_MAX);
         //vkQueueWaitIdle(commandQueue);
 
         /*
@@ -125,7 +118,7 @@ namespace Comphi::Vulkan {
         */
 
         vkFreeCommandBuffers(GraphicsHandler::get()->logicalDevice, commandPool, 1, &commandBuffer.buffer);
-        vkResetFences(GraphicsHandler::get()->logicalDevice, 1, &commandBuffersFence);
+        vkResetFences(GraphicsHandler::get()->logicalDevice, 1, &commandFence);
 
     }
 
@@ -152,6 +145,19 @@ namespace Comphi::Vulkan {
         case GraphicsCommand:
         default:
             return GraphicsHandler::get()->graphicsQueueFamily.queue;
+            break;
+        }
+    }
+
+    VkFence CommandPool::getCommandFence(CommandQueueOperation& op) {
+        switch (op)
+        {
+        case TransferCommand:
+            return GraphicsHandler::get()->transferQueueFamily.fence;
+            break;
+        case GraphicsCommand:
+        default:
+            return GraphicsHandler::get()->graphicsQueueFamily.fence;
             break;
         }
     }

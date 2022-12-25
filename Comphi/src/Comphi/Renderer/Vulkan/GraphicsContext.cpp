@@ -47,7 +47,7 @@ namespace Comphi::Vulkan {
 
 		syncObjectsFactory->createSemaphores(&imageAvailableSemaphores[0], swapchain->MAX_FRAMES_IN_FLIGHT);
 		syncObjectsFactory->createSemaphores(&renderFinishedSemaphores[0], swapchain->MAX_FRAMES_IN_FLIGHT);
-		syncObjectsFactory->createFences(&inFlightFences[0], swapchain->MAX_FRAMES_IN_FLIGHT);
+		syncObjectsFactory->createFences(&inFlightFences[0], swapchain->MAX_FRAMES_IN_FLIGHT, false);
 	}
 
 #pragma region //DEBUG!

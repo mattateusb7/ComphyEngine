@@ -1,5 +1,6 @@
 #pragma once
 #include "Comphi/Renderer/Vulkan/GraphicsHandler.h"
+#include "SyncObjectsFactory.h"
 
 namespace Comphi::Vulkan {
 	class GraphicsInstance
@@ -29,9 +30,13 @@ namespace Comphi::Vulkan {
 		void createLogicalDevices();
 		VkDevice logicalDevice;
 		VkQueue graphicsQueue;
+		VkFence graphicsFence;
+
 		VkQueue presentQueue;
 		VkQueue transferQueue;
+		VkFence transferFence;
 
+		SyncObjectsFactory commandQueuesfences;
 	protected:
 
 #ifndef NDEBUG

@@ -20,7 +20,7 @@ namespace Comphi::Vulkan {
 		}
 	}
 
-	void SyncObjectsFactory::createFences(VkFence* fences, uint count)
+	void SyncObjectsFactory::createFences(VkFence* fences, uint count, bool reset)
 	{
 		VkFenceCreateInfo fenceInfo{};
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -36,13 +36,16 @@ namespace Comphi::Vulkan {
 			this->fences.push_back(&fences[i]);
 			COMPHILOG_CORE_INFO("created Fence!");
 		}
+		if (reset) {
+			vkResetFences(GraphicsHandler::get()->logicalDevice, count, fences);
+		}
 	}
 
-	SyncObjectsFactory::~SyncObjectsFactory()
-	{
-		//COMPHILOG_CORE_INFO("cleanup static SyncObjectsFactories");
-		cleanup();
-	}
+	//SyncObjectsFactory::~SyncObjectsFactory()
+	//{
+	//	//COMPHILOG_CORE_INFO("cleanup static SyncObjectsFactories");
+	//	cleanup();
+	//}
 
 	void SyncObjectsFactory::cleanup()
 	{

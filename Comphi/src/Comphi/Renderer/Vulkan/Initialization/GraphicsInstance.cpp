@@ -21,20 +21,27 @@ namespace Comphi::Vulkan {
 		createLogicalDevices();
 
 		GraphicsHandler::get()->setDeviceHandler(logicalDevice, physicalDevice);
+		
+		commandQueuesfences.createFences(&transferFence, 1);
+		commandQueuesfences.createFences(&graphicsFence, 1);
 
 		GraphicsHandler::get()->setCommandQueues(
 			queueFamilyIndices.transferFamily.value(),
 			transferQueue,
+			transferFence,
 			queueFamilyIndices.graphicsFamily.value(),
-			graphicsQueue
+			graphicsQueue,
+			graphicsFence
 		);
 	}
 
 	void GraphicsInstance::cleanUp()
 	{
 
+		commandQueuesfences.cleanup();
+
 		COMPHILOG_CORE_INFO("vkDestroy Surface");
-		vkDestroySurfaceKHR(instance, surface, nullptr);
+ 		vkDestroySurfaceKHR(instance, surface, nullptr);
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Logical Device");
 		vkDestroyDevice(logicalDevice, nullptr);
@@ -74,7 +81,7 @@ namespace Comphi::Vulkan {
 	{
 		VkApplicationInfo appInfo{};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "[Comphi Engine]";
+		appInfo.pApplicationName = "[Comphi Engine]";	
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.pEngineName = "Comphi";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);

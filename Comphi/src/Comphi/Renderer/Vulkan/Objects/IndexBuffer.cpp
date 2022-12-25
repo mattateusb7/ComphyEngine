@@ -19,7 +19,7 @@ namespace Comphi::Vulkan {
         allocateMemoryBuffer(bufferSize,
             VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-        GraphicsHandler::copyBufferTo(stagingBuffer.bufferObj,bufferObj, (size_t)bufferSize);
+        MemBuffer::copyBufferTo(stagingBuffer.bufferObj,bufferObj, (size_t)bufferSize);
 
         //cleanup
         vkDestroyBuffer(GraphicsHandler::get()->logicalDevice, stagingBuffer.bufferObj, nullptr);

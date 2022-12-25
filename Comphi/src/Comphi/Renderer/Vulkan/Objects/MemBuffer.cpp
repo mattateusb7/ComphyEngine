@@ -1,5 +1,6 @@
 #include "cphipch.h"
 #include "MemBuffer.h"
+#include "../Initialization/CommandPool.h"
 
 namespace Comphi::Vulkan {
     
@@ -29,7 +30,7 @@ namespace Comphi::Vulkan {
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = GraphicsHandler::findMemoryType(memRequirements.memoryTypeBits, properties);
+        allocInfo.memoryTypeIndex = MemBuffer::findMemoryType(memRequirements.memoryTypeBits, properties);
 
         vkCheckError(vkAllocateMemory(GraphicsHandler::get()->logicalDevice, &allocInfo, nullptr, &bufferMemory)) {
             COMPHILOG_CORE_ERROR("failed to allocate vertex buffer memory!");
@@ -39,10 +40,40 @@ namespace Comphi::Vulkan {
         vkBindBufferMemory(GraphicsHandler::get()->logicalDevice, bufferObj, bufferMemory, 0);
     }
 
+    uint32_t MemBuffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+
+        VkPhysicalDeviceMemoryProperties memProperties;
+        vkGetPhysicalDeviceMemoryProperties(GraphicsHandler::get()->physicalDevice, &memProperties);
+
+        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+            if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+                return i;
+            }
+        }
+        COMPHILOG_CORE_ERROR("failed to find suitable memory type!");
+        throw std::runtime_error("failed to find suitable memory type!");
+
+    }
+
+
+    void MemBuffer::copyBufferTo(VkBuffer& srcBuffer, VkBuffer& dstBuffer, uint copySize)
+    {
+        CommandBuffer commandBuffer = CommandPool::beginCommandBuffer(TransferCommand);
+
+        VkBufferCopy copyRegion{};
+        //copyRegion.srcOffset = 0; // Optional
+        //copyRegion.dstOffset = 0; // Optional
+        copyRegion.size = copySize;
+        vkCmdCopyBuffer(commandBuffer.buffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+        CommandPool::endCommandBuffer(commandBuffer);
+    }
+    
     void MemBuffer::cleanUp()
     {
         COMPHILOG_CORE_INFO("vkDestroy Destroy MemBuffer");
         vkDestroyBuffer(GraphicsHandler::get()->logicalDevice, bufferObj, nullptr);
         vkFreeMemory(GraphicsHandler::get()->logicalDevice, bufferMemory, nullptr);
     }
+
 }

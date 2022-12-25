@@ -34,7 +34,6 @@ namespace Comphi::Vulkan {
 		std::vector<VkSemaphore> imageAvailableSemaphores;
 		std::vector<VkSemaphore> renderFinishedSemaphores;
 		std::vector<VkFence> inFlightFences;
-		std::vector<VkFence> FlightFences;
 
 	protected:
 		bool _framebufferResized = false;

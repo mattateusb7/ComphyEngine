@@ -90,7 +90,7 @@ namespace Comphi::Vulkan {
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = GraphicsHandler::findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		allocInfo.memoryTypeIndex = MemBuffer::findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 		vkCheckError(vkAllocateMemory(GraphicsHandler::get()->logicalDevice, &allocInfo, nullptr, &memoryBuffer)) {
 			throw std::runtime_error("failed to allocate image memory!");
@@ -105,7 +105,7 @@ namespace Comphi::Vulkan {
 		CommandBuffer commandBuffer = CommandPool::beginCommandBuffer(GraphicsCommand);
 
 		VkBufferImageCopy region{}; // how the pixels are laid out in memory. For example, you could have some padding bytes between rows of the image
-		region.bufferOffset = 0;
+		region.bufferOffset = 0;	
 		region.bufferRowLength = 0;
 		region.bufferImageHeight = 0;
 
