@@ -113,7 +113,23 @@ namespace Comphi::Vulkan {
 			glfwWaitEvents();
 		}
 
-		vkDeviceWaitIdle(GraphicsHandler::get()->logicalDevice); //<< Instead of waiting 
+		vkWaitForFences(GraphicsHandler::get()->logicalDevice, 3, inFlightFences.data(), VK_TRUE, UINT64_MAX);
+		currentFrame = 0;
+		//SyncFrames with swapchain recreate operation
+		//waitsignal of swapchainRecreationSyncSemaphore ?
+
+		/* VkSemaphoreWaitInfo waitInfo = {};
+        waitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+        waitInfo.semaphoreCount = renderFinishedSemaphores.size();
+		VkSemaphore* waitSemaphores = renderFinishedSemaphores.data();
+        waitInfo.pSemaphores = waitSemaphores;
+		std::vector<uint64_t> semaphoreWaitValues = std::vector<uint64_t>(waitInfo.semaphoreCount);
+		for (i = 0; i < (waitInfo.semaphoreCount; i++)
+		
+        waitInfo.pValues = semaphoreWaitValues;
+        vkWaitSemaphores(GraphicsHandler::get()->logicalDevice, &waitInfo, UINT64_MAX);*/
+
+		//vkDeviceWaitIdle(GraphicsHandler::get()->logicalDevice); 
 		//using Semaphores to syncronise end of frame with swap operation prolly help, followed by destruction of old Swapchain (below)
 
 		cleanUp();

@@ -29,6 +29,7 @@ namespace Comphi::Vulkan {
 		};
 		CommandQueueFamily transferQueueFamily;
 		CommandQueueFamily graphicsQueueFamily;
+		//CommandQueueFamily presentQueueFamily;
 		void setCommandQueues(
 			const uint32_t transferQueueFamilyIndex,
 			const VkQueue transferQueue,

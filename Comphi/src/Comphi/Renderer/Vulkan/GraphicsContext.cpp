@@ -94,21 +94,21 @@ namespace Comphi::Vulkan {
 			UINT64_MAX, 
 			graphicsInstance->swapchain->getCurrentFrameAvailableSemaphore(),
 			VK_NULL_HANDLE, 
-			&imageIndex
+			&imageIndex //refers to vkGetSwapchainImagesKHR of swapchain ImageViews
 		);
 
 		if (result != VK_SUCCESS) {
 			COMPHILOG_CORE_ERROR("failed to acquireNextImage!");
 			//throw std::runtime_error("failed to acquireNextImage!");
+			if (result == VK_SUBOPTIMAL_KHR) {
+				COMPHILOG_CORE_ERROR("failed to acquire swap chain image!");
+				throw std::runtime_error("failed to acquire swap chain image!");
+			}
 		}
 		else {
 			if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 				graphicsInstance->swapchain->recreateSwapChain();
 				return;
-			}
-			else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-				COMPHILOG_CORE_ERROR("failed to acquire swap chain image!");
-				throw std::runtime_error("failed to acquire swap chain image!");
 			}
 		}
 
@@ -117,6 +117,7 @@ namespace Comphi::Vulkan {
 
 		//vkResetCommandPool(graphicsInstance->logicalDevice, commandPool->graphicsCommandPool,0); 
 		//if you are making multiple command buffers from one pool, resetting the pool will be quicker.
+		//It can be implicitly reset when calling vkBeginCommandBuffer on the render loop
 		vkResetCommandBuffer(graphicsInstance->swapchain->getCurrentFrameGraphicsCommandBuffer(), 0);
 
 		//Scene Update
@@ -168,6 +169,8 @@ namespace Comphi::Vulkan {
 		and the presented image subresource must be in the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout 
 		at the time the operation is executed on a VkDevice (https://github.com/KhronosGroup/Vulkan-Docs/search?q=)VUID-VkPresentInfoKHR-pImageIndices-01296)
 		*/
+
+		https://stackoverflow.com/questions/52915897/vulkan-at-vkqueuepresentkhr-the-validation-layer-throws-an-error-message-rega
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized) {
 			_framebufferResized = false;

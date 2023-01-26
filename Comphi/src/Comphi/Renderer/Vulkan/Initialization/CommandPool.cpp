@@ -7,7 +7,7 @@ namespace Comphi::Vulkan {
 	{
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		poolInfo.queueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
 
 		vkCheckError(vkCreateCommandPool(GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &graphicsCommandPool)) {
@@ -18,7 +18,7 @@ namespace Comphi::Vulkan {
 
 		VkCommandPoolCreateInfo poolInfoTransfer{};
 		poolInfoTransfer.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfoTransfer.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; //VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
+		poolInfoTransfer.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; //VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
 		poolInfoTransfer.queueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
 
 		vkCheckError(vkCreateCommandPool(GraphicsHandler::get()->logicalDevice, &poolInfoTransfer, nullptr, &transferCommandPool)) {
@@ -113,15 +113,6 @@ namespace Comphi::Vulkan {
             submitInfo.waitSemaphoreCount = 1;
             submitInfo.pWaitSemaphores = commandBuffer.waitSemaphore;
             submitInfo.pWaitDstStageMask = commandBuffer.waitDstStageMask;
-
-            /*//WorkAround for validation layer error:
-            VkSemaphoreWaitInfo waitInfo = {};
-            waitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
-            waitInfo.semaphoreCount = 1;
-            waitInfo.pSemaphores = commandBuffer.waitSemaphore;
-            uint64_t semaphoreWaitValues[1] = { 1 };
-            waitInfo.pValues = semaphoreWaitValues;
-            vkWaitSemaphores(GraphicsHandler::get()->logicalDevice, &waitInfo, UINT64_MAX);*/
         }
 
         if (commandBuffer.fence != VK_NULL_HANDLE) {

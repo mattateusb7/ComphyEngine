@@ -10,10 +10,12 @@ namespace Comphi::Vulkan {
 	{
 	public:
 		
-		Material(Comphi::MaterialProperties properties);
+		Material(Comphi::MaterialProperties properties); // Descriptor Sets : https://youtu.be/5VBVWCg7riQ?t=1171
+		//Binding IDS ?
+		//Binding points ID do not interfeer with eachother, each has their own IDs: Graphics, Compute, Ray_tracing (vkPipelineBindPoint)
 		void cleanUp();
 
-		//Each Material owns one Shader/Graphics Pipeline
+		//Each Material owns one Shader/Graphics Pipeline 
 		GraphicsPipeline graphicsPipeline;
 
 		//linked MaterialProperties:
