@@ -7,10 +7,9 @@ namespace Comphi::Vulkan {
 	class ImageView : public ITexture
 	{
 	public:
-		//factory
-		static ImageView createTextureImageView(IFileRef& fileref, ImageBufferSpecification bufferSpecs = {});
-		static std::vector<ImageView> createSwapchainImageViews(VkSwapchainKHR swapchain, VkFormat SwapchainImageFormat);
-		static ImageView createDepthImageView(VkExtent2D& swapChainImageBufferExtent);
+		void initTextureImageView(IFileRef& fileref, ImageBufferSpecification bufferSpecs = {});
+		void initDepthImageView(VkExtent2D& swapChainImageBufferExtent);
+		static void initSwapchainImageViews(VkSwapchainKHR swapchain, VkFormat SwapchainImageFormat, std::vector<ImageView>& swapchainImageViews);
 
 		void cleanUp();
 		VkImageView imageView;
@@ -18,11 +17,12 @@ namespace Comphi::Vulkan {
 		ImageBuffer imageBuffer;
 
 		ImageView() = default;
-		void allocateImageView();
-		void allocateTextureSampler();
 
 	protected:
-		bool isSwapchainImage;
+		void allocateTextureSampler();
+		void allocateImageView();
+		bool isDepthImageView = false;
+		bool hasTextureSampler = false;
 		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 		VkFormat findDepthFormat();
 		

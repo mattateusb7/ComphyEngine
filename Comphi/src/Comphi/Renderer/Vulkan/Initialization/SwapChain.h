@@ -1,6 +1,8 @@
 #pragma once
 #include "../Objects/ImageView.h"
 #include "../Objects/MeshObject.h"
+#include "SyncObjectsFactory.h"
+#include "CommandPool.h"
 
 namespace Comphi::Vulkan {
 
@@ -37,7 +39,26 @@ namespace Comphi::Vulkan {
 		void drawCommandBuffer(VkCommandBuffer& commandBuffer, MeshObject& meshObj);
 		void endRenderPassCommandBuffer(VkCommandBuffer& commandBuffer);
 
+		VkFence& getCurrentFrameFence();
+		VkSemaphore& getCurrentFrameAvailableSemaphore();
+		VkSemaphore& getCurrentFrameFinishedSemaphore();
+
+		VkCommandBuffer& getCurrentFrameGraphicsCommandBuffer();
+		VkCommandBuffer& getCurrentFrameTransferCommandBuffer();
+
 	protected:
+		void createFrameSyncObjects();
+		SyncObjectsFactory inFlightSyncObjectsFactory;
+		CommandPool inFlightCommandsPool;
+
+		std::vector<VkSemaphore> imageAvailableSemaphores;
+		std::vector<VkSemaphore> renderFinishedSemaphores;
+		std::vector<VkFence> inFlightFences;
+
+		void createFrameCommandBuffers();
+		std::vector<VkCommandBuffer> graphicsCommandBuffers;
+		std::vector<VkCommandBuffer> transferCommandBuffers;
+
 		void createRenderPass();
 		void createFramebuffers();
 		void createSwapChain();

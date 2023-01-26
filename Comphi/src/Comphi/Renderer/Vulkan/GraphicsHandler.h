@@ -25,7 +25,6 @@ namespace Comphi::Vulkan {
 		struct CommandQueueFamily {
 			uint32_t index; //not a pointer
 			VkCommandPool commandPool;
-			VkFence fence; //can also be Semaphore to send data between queues
 			VkQueue queue;
 		};
 		CommandQueueFamily transferQueueFamily;
@@ -33,18 +32,14 @@ namespace Comphi::Vulkan {
 		void setCommandQueues(
 			const uint32_t transferQueueFamilyIndex,
 			const VkQueue transferQueue,
-			const VkFence transferFence,
 			const uint32_t graphicsQueueFamilyIndex,
-			const VkQueue graphicsQueue,
-			const VkFence graphicsFence
+			const VkQueue graphicsQueue
 		) {
 			this->transferQueueFamily.index = transferQueueFamilyIndex;
 			this->transferQueueFamily.queue = transferQueue;
-			this->transferQueueFamily.fence = transferFence;
 
 			this->graphicsQueueFamily.index = graphicsQueueFamilyIndex;
 			this->graphicsQueueFamily.queue = graphicsQueue;
-			this->graphicsQueueFamily.fence = graphicsFence;
 		}
 
 		void setCommandPools(

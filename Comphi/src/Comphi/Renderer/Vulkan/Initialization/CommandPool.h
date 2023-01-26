@@ -1,5 +1,6 @@
 #pragma once
 #include "../GraphicsHandler.h"
+#include "SyncObjectsFactory.h"
 
 namespace Comphi::Vulkan {
 
@@ -8,6 +9,10 @@ namespace Comphi::Vulkan {
 	struct CommandBuffer {
 		CommandQueueOperation op;
 		VkCommandBuffer buffer;
+		VkFence* fence;
+		VkSemaphore* signalSemaphore;
+		VkSemaphore* waitSemaphore;
+		VkPipelineStageFlags* waitDstStageMask;
 	};
 
 	//Allocator for CommandBuffers
@@ -25,15 +30,11 @@ namespace Comphi::Vulkan {
 		VkCommandPool graphicsCommandPool;
 		VkCommandPool transferCommandPool;
 
-		//static SyncObjectsFactory commandBuffersSyncObjects;
-		//static VkFence commandBuffersFence;
-
 		void cleanUp(); //When a pool is destroyed, all command buffers allocated from the pool are freed.
 
 	protected:
 		static VkCommandPool getCommandPool(CommandQueueOperation& op);
 		static VkQueue getCommandQueue(CommandQueueOperation& op);
-		static VkFence getCommandFence(CommandQueueOperation& op);
 
 	};
 

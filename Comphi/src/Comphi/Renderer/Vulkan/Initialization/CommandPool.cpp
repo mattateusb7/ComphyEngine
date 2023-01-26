@@ -80,7 +80,6 @@ namespace Comphi::Vulkan {
         allocInfo.commandPool = commandPool;
         allocInfo.commandBufferCount = 1; //how many command buffers to create
 
-        //TODO: reuse same Command Buffer, within a queue, between multiple operations to reduce alocation overhead
         vkAllocateCommandBuffers(GraphicsHandler::get()->logicalDevice, &allocInfo, &commandBuffer.buffer);
 
         VkCommandBufferBeginInfo beginInfo{};
@@ -97,7 +96,6 @@ namespace Comphi::Vulkan {
     {
         VkQueue commandQueue = getCommandQueue(commandBuffer.op);
         VkCommandPool commandPool = getCommandPool(commandBuffer.op);
-        VkFence commandFence = getCommandFence(commandBuffer.op);
 
         vkEndCommandBuffer(commandBuffer.buffer);
 
@@ -106,27 +104,48 @@ namespace Comphi::Vulkan {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer.buffer;
 
-        vkQueueSubmit(commandQueue, 1, &submitInfo, commandFence);
-        vkWaitForFences(GraphicsHandler::get()->logicalDevice, 1, &commandFence, VK_TRUE, UINT64_MAX);
-        //vkQueueWaitIdle(commandQueue);
+        if (commandBuffer.signalSemaphore != VK_NULL_HANDLE) {
+            submitInfo.signalSemaphoreCount = 1;
+            submitInfo.pSignalSemaphores = commandBuffer.signalSemaphore;
+        } 
+        
+        if (commandBuffer.waitSemaphore != VK_NULL_HANDLE) {
+            submitInfo.waitSemaphoreCount = 1;
+            submitInfo.pWaitSemaphores = commandBuffer.waitSemaphore;
+            submitInfo.pWaitDstStageMask = commandBuffer.waitDstStageMask;
 
-        /*
-        We could use a fence and wait with vkWaitForFences,
-        or simply wait for the transfer queue to become idle with vkQueueWaitIdle.
-        A fence would allow you to schedule multiple transfers simultaneously and wait for all of them complete, instead of executing one at a time.
-        That may give the driver more opportunities to optimize.
-        */
+            /*//WorkAround for validation layer error:
+            VkSemaphoreWaitInfo waitInfo = {};
+            waitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+            waitInfo.semaphoreCount = 1;
+            waitInfo.pSemaphores = commandBuffer.waitSemaphore;
+            uint64_t semaphoreWaitValues[1] = { 1 };
+            waitInfo.pValues = semaphoreWaitValues;
+            vkWaitSemaphores(GraphicsHandler::get()->logicalDevice, &waitInfo, UINT64_MAX);*/
+        }
 
-        vkFreeCommandBuffers(GraphicsHandler::get()->logicalDevice, commandPool, 1, &commandBuffer.buffer);
-        vkResetFences(GraphicsHandler::get()->logicalDevice, 1, &commandFence);
+        if (commandBuffer.fence != VK_NULL_HANDLE) {
+            vkQueueSubmit(commandQueue, 1, &submitInfo, *commandBuffer.fence);
+            vkWaitForFences(GraphicsHandler::get()->logicalDevice, 1, commandBuffer.fence, VK_TRUE, UINT64_MAX);
+            vkResetFences(GraphicsHandler::get()->logicalDevice, 1, commandBuffer.fence);
+            vkFreeCommandBuffers(GraphicsHandler::get()->logicalDevice, commandPool, 1, &commandBuffer.buffer);
+            //vkFreeCommandBuffers is typically called once per frame, not immediately after the command buffer is submitted. 
+            //This is because you typically want to keep the command buffer around for a little while in case you need to resubmit it.
+        }
+        else {
+            vkQueueSubmit(commandQueue, 1, &submitInfo, 0);
+            vkQueueWaitIdle(commandQueue);
+            vkFreeCommandBuffers(GraphicsHandler::get()->logicalDevice, commandPool, 1, &commandBuffer.buffer);
+        }
 
+        
     }
 
     VkCommandPool CommandPool::getCommandPool(CommandQueueOperation& op) {
         switch (op)
         {
         case TransferCommand:
-            return GraphicsHandler::get()->graphicsQueueFamily.commandPool;
+            return GraphicsHandler::get()->transferQueueFamily.commandPool;
             break;
         case GraphicsCommand:
         default:
@@ -145,19 +164,6 @@ namespace Comphi::Vulkan {
         case GraphicsCommand:
         default:
             return GraphicsHandler::get()->graphicsQueueFamily.queue;
-            break;
-        }
-    }
-
-    VkFence CommandPool::getCommandFence(CommandQueueOperation& op) {
-        switch (op)
-        {
-        case TransferCommand:
-            return GraphicsHandler::get()->transferQueueFamily.fence;
-            break;
-        case GraphicsCommand:
-        default:
-            return GraphicsHandler::get()->graphicsQueueFamily.fence;
             break;
         }
     }

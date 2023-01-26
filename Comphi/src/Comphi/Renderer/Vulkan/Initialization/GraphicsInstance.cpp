@@ -2,7 +2,6 @@
 #include "GraphicsInstance.h"
 #include <optional>
 #include <set>
-#include <Comphi/Renderer/Vulkan/Initialization/SwapChain.h>
 
 namespace Comphi::Vulkan {
 
@@ -21,24 +20,21 @@ namespace Comphi::Vulkan {
 		createLogicalDevices();
 
 		GraphicsHandler::get()->setDeviceHandler(logicalDevice, physicalDevice);
-		
-		commandQueuesfences.createFences(&transferFence, 1);
-		commandQueuesfences.createFences(&graphicsFence, 1);
 
 		GraphicsHandler::get()->setCommandQueues(
 			queueFamilyIndices.transferFamily.value(),
 			transferQueue,
-			transferFence,
 			queueFamilyIndices.graphicsFamily.value(),
-			graphicsQueue,
-			graphicsFence
+			graphicsQueue
 		);
+
+		swapchain = std::make_unique<SwapChain>();
 	}
 
 	void GraphicsInstance::cleanUp()
 	{
-
-		commandQueuesfences.cleanup();
+		swapchain->cleanUp();
+		swapchain->cleanupRenderPass();
 
 		COMPHILOG_CORE_INFO("vkDestroy Surface");
  		vkDestroySurfaceKHR(instance, surface, nullptr);

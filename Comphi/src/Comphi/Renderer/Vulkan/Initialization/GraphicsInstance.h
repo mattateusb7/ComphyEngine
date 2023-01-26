@@ -1,6 +1,6 @@
 #pragma once
 #include "Comphi/Renderer/Vulkan/GraphicsHandler.h"
-#include "SyncObjectsFactory.h"
+#include "SwapChain.h"
 
 namespace Comphi::Vulkan {
 	class GraphicsInstance
@@ -29,14 +29,16 @@ namespace Comphi::Vulkan {
 		//Logical Device & GRAPHICS QUEUES
 		void createLogicalDevices();
 		VkDevice logicalDevice;
-		VkQueue graphicsQueue;
-		VkFence graphicsFence;
 
+		VkQueue graphicsQueue;
 		VkQueue presentQueue;
 		VkQueue transferQueue;
+
+		VkFence graphicsFence;
+		VkSemaphore queueSyncSemaphore;
 		VkFence transferFence;
 
-		SyncObjectsFactory commandQueuesfences;
+		std::unique_ptr<SwapChain> swapchain;
 	protected:
 
 #ifndef NDEBUG

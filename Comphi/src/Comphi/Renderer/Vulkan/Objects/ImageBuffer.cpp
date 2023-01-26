@@ -1,14 +1,12 @@
 #include "cphipch.h"
 #include "ImageBufer.h"
 
-#include "../Initialization/CommandPool.h"
-
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 namespace Comphi::Vulkan {
 
-	ImageBuffer ImageBuffer::createTextureImageBuffer(IFileRef& fileref, ImageBufferSpecification& specification) {
+	void ImageBuffer::initTextureImageBuffer(IFileRef& fileref, ImageBufferSpecification& specification) {
 		
 		//LoadData & Setup StagingBuffer
 		int texWidth, texHeight, texChannels, bufferSize;
@@ -29,32 +27,51 @@ namespace Comphi::Vulkan {
 
 		stbi_image_free(pixels);
 
-		ImageBuffer imageBuffer = ImageBuffer();
-		imageBuffer.specification = specification;
-		imageBuffer.imageExtent.width = static_cast<uint32_t>(texWidth);
-		imageBuffer.imageExtent.height = static_cast<uint32_t>(texHeight);
-		imageBuffer.allocateImageBuffer();
+		//Allocate and bind imageBuffer & BufferMemory
+		specification = specification;
+		imageExtent.width = static_cast<uint32_t>(texWidth);
+		imageExtent.height = static_cast<uint32_t>(texHeight);
+		allocateImageBuffer();
 
-		imageBuffer.transitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		imageBuffer.sendBufferToImgBuffer(stagingBuffer);
-		imageBuffer.transitionImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		//TODO : Abstract ownership changes (below)
+		//LayoutChange SyncObjects
+		layoutChangeSyncObjects.createFence(layoutChangeFence);
+		layoutChangeSyncObjects.createSemaphore(ownershipChangeSemaphore);
 
+		//command buffer that releases the image: Transition ImageLayout and ownership to Transfer Queue
+		CommandBuffer transferCommand = CommandPool::beginCommandBuffer(TransferCommand);
+		transferCommand.fence = &layoutChangeFence;
+		transferCommand.signalSemaphore = &ownershipChangeSemaphore;
+		transitionImageLayout(transferCommand, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		sendBufferToImgBuffer(stagingBuffer, transferCommand);
+		transitionImageLayout(transferCommand, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_NONE);
+		CommandPool::endCommandBuffer(transferCommand);
+		
 		stagingBuffer.cleanUp();
 
-		return imageBuffer;
-
+		//command buffer that acquires the image : Transition ImageLayout and ownership from Transfer Queue to Graphics Queue
+		CommandBuffer graphicsCommand = CommandPool::beginCommandBuffer(GraphicsCommand);
+		graphicsCommand.fence = &layoutChangeFence;
+		graphicsCommand.waitSemaphore = &ownershipChangeSemaphore;
+		VkPipelineStageFlags waitDstStageMask[1] = { VK_PIPELINE_STAGE_TRANSFER_BIT }; //wait for transfer copy ^
+		graphicsCommand.waitDstStageMask = waitDstStageMask;
+		transitionImageLayout(graphicsCommand, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_SHADER_READ_BIT);
+		CommandPool::endCommandBuffer(graphicsCommand);
 	}
 
-	ImageBuffer ImageBuffer::createDepthImageBuffer(VkExtent2D& swapchainExtent, ImageBufferSpecification& specification) {
+	void ImageBuffer::initDepthImageBuffer(VkExtent2D& swapchainExtent, ImageBufferSpecification& specification) {
 		
-		ImageBuffer imageBuffer = ImageBuffer();
-		imageBuffer.specification = specification;
+		specification = specification;
+		imageExtent = swapchainExtent;
+		allocateImageBuffer();
+		
+		//LayoutChange SyncObjects
+		//layoutChangeSyncObjects.createFence(layoutChangeFence);
 
-		imageBuffer.imageExtent = swapchainExtent;
-		imageBuffer.allocateImageBuffer();
-		imageBuffer.transitionImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-
-		return imageBuffer;
+		CommandBuffer graphicsCommand = CommandPool::beginCommandBuffer(GraphicsCommand);
+		//graphicsCommand.fence = &layoutChangeFence;
+		transitionImageLayout(graphicsCommand, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		CommandPool::endCommandBuffer(graphicsCommand);
 	}
 
 	void ImageBuffer::allocateImageBuffer()
@@ -73,12 +90,15 @@ namespace Comphi::Vulkan {
 		imageInfo.tiling = specification.tiling;
 		imageInfo.initialLayout = imageLayout;
 		imageInfo.usage = specification.usage;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;//VK_SHARING_MODE_CONCURRENT;
-														  //uint32_t QueueFamilyIndices[] = { graphicsHandler->transferQueueFamily.index, graphicsHandler->graphicsQueueFamily.index };
-														  //imageInfo.queueFamilyIndexCount = 2;
-														  //imageInfo.pQueueFamilyIndices = QueueFamilyIndices;
+		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;											  
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.flags = 0; // Optional
+
+		//imageInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+		//uint32_t QueueFamilyIndices[] = { GraphicsHandler::get()->transferQueueFamily.index, GraphicsHandler::get()->graphicsQueueFamily.index };
+		//imageInfo.queueFamilyIndexCount = 2;
+		//imageInfo.pQueueFamilyIndices = QueueFamilyIndices;
+	
 
 		if (vkCreateImage(GraphicsHandler::get()->logicalDevice, &imageInfo, nullptr, &imageBuffer) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create image!");
@@ -97,13 +117,10 @@ namespace Comphi::Vulkan {
 		}
 
 		vkBindImageMemory(GraphicsHandler::get()->logicalDevice, imageBuffer, memoryBuffer, 0); //Bind MemoryBuffer to ImageBuffer
-
 	}
 
-	void ImageBuffer::sendBufferToImgBuffer(MemBuffer& srcBuffer)
+	void ImageBuffer::sendBufferToImgBuffer(MemBuffer& srcBuffer, CommandBuffer& commandBuffer)
 	{
-		CommandBuffer commandBuffer = CommandPool::beginCommandBuffer(GraphicsCommand);
-
 		VkBufferImageCopy region{}; // how the pixels are laid out in memory. For example, you could have some padding bytes between rows of the image
 		region.bufferOffset = 0;	
 		region.bufferRowLength = 0;
@@ -131,26 +148,21 @@ namespace Comphi::Vulkan {
 			&region
 		);
 
-		CommandPool::endCommandBuffer(commandBuffer);
 	}
 
 	bool ImageBuffer::hasStencilComponent() {
 		return specification.format == VK_FORMAT_D32_SFLOAT_S8_UINT || specification.format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
 
-	void ImageBuffer::transitionImageLayout(VkImageLayout newLayout)
+	void ImageBuffer::transitionImageLayout(CommandBuffer& commandBuffer, VkImageLayout newLayout, VkAccessFlags accessMask)
 	{
-		//TODO: add Transfer Buffer release Barrier to sync Ownership between transfer & Graphics Queues.
-		//VkBufferMemoryBarrier bufferBarrier{};
-		//bufferBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-		//bufferBarrier.buffer = ;
 
 		VkImageMemoryBarrier barrier{};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 		barrier.oldLayout = imageLayout;
 		barrier.newLayout = newLayout;
-		
 		barrier.image = imageBuffer;
+
 		if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
 			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
@@ -167,74 +179,86 @@ namespace Comphi::Vulkan {
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
 
-		CommandQueueOperation queueOperation;
 		VkPipelineStageFlags sourceStage;
 		VkPipelineStageFlags destinationStage;
-
 		if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-			queueOperation = TransferCommand;
+
+			barrier.srcAccessMask = VK_ACCESS_NONE;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 
-			barrier.srcAccessMask = 0;
-			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
 			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
 			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
+			
+			imageLayout = newLayout;
 
 		}
-		else if (imageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-			queueOperation = GraphicsCommand;
+		else if (accessMask == VK_ACCESS_NONE && imageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
 
-			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; //VK_PIPELINE_STAGE_TRANSFER_BIT;
-			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_NONE;
 
-			barrier.srcAccessMask = 0; //VK_ACCESS_TRANSFER_WRITE_BIT;
+			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT; //TRANSFER OWNERSHIP barrier, don't save layout change yet
+			destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
+			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
+
+		}		
+		else if (accessMask == VK_ACCESS_SHADER_READ_BIT && imageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+
+			barrier.srcAccessMask = VK_ACCESS_NONE;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index; //TODO: set src = TransferQueue when buffer barriers work ^^^
+			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
+			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->transferQueueFamily.index;
 			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
+			
+			imageLayout = newLayout;
 
 		}
 		else if (imageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-			queueOperation = GraphicsCommand;
+
+			barrier.srcAccessMask = VK_ACCESS_NONE;
+			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 
-			barrier.srcAccessMask = 0;
-			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; //GraphicsHandler::get()->graphicsQueueFamily.index;
+			barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; //GraphicsHandler::get()->graphicsQueueFamily.index;
+			
+			imageLayout = newLayout;
 
-			barrier.srcQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
-			barrier.dstQueueFamilyIndex = GraphicsHandler::get()->graphicsQueueFamily.index;
 		}
 		else {
 			throw std::invalid_argument("unsupported layout transition!");
 		}
 
-		CommandBuffer commandBuffer = CommandPool::beginCommandBuffer(queueOperation);
-
 		//https://registry.khronos.org/vulkan/specs/1.3-extensions/html/chap7.html#synchronization-access-types-supported
 		//https://vulkan-tutorial.com/en/Texture_mapping/Images
-
+		//https://github.com/KhronosGroup/Vulkan-Docs/wiki/Synchronization-Examples-(Legacy-synchronization-APIs)
+		
 		vkCmdPipelineBarrier(
 			commandBuffer.buffer,
-			sourceStage, destinationStage,
+			sourceStage, 
+			destinationStage,
 			0,
-			0, nullptr,
-			0, nullptr,
+			0, VK_NULL_HANDLE,
+			0, VK_NULL_HANDLE,
 			1, &barrier
 		);
-
-		CommandPool::endCommandBuffer(commandBuffer);
-
-		imageLayout = newLayout;
 
 	}
 
 	void ImageBuffer::cleanUp()
 	{
+		layoutChangeSyncObjects.cleanup();
+		
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageBuffer");
 		vkDestroyImage(GraphicsHandler::get()->logicalDevice, imageBuffer, nullptr);
 		vkFreeMemory(GraphicsHandler::get()->logicalDevice, memoryBuffer, nullptr);

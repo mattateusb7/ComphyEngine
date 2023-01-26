@@ -41,11 +41,15 @@ namespace Comphi::Vulkan {
 		}
 	}
 
-	//SyncObjectsFactory::~SyncObjectsFactory()
-	//{
-	//	//COMPHILOG_CORE_INFO("cleanup static SyncObjectsFactories");
-	//	cleanup();
-	//}
+	void Comphi::Vulkan::SyncObjectsFactory::createSemaphore(VkSemaphore& semaphore)
+	{
+		createSemaphores(&semaphore, 1);
+	}
+
+	void Comphi::Vulkan::SyncObjectsFactory::createFence(VkFence& fence, bool reset)
+	{
+		createFences(&fence, 1, reset);
+	}
 
 	void SyncObjectsFactory::cleanup()
 	{
@@ -58,6 +62,10 @@ namespace Comphi::Vulkan {
 
 		if (fences.size() > 0)
 		for (int i = fences.size()-1; i >= 0 ; --i) {
+			vkCheckError(vkGetFenceStatus(GraphicsHandler::get()->logicalDevice,*fences[i])) {
+				std::runtime_error("Invalid Fence! was the owner object destroyed ?");
+			}
+			vkWaitForFences(GraphicsHandler::get()->logicalDevice, 1, fences[i], VK_TRUE, UINT16_MAX);
 			vkDestroyFence(GraphicsHandler::get()->logicalDevice, *fences[i], nullptr);
 			fences.pop_back();
 			COMPHILOG_CORE_INFO("destroyed Fence!");

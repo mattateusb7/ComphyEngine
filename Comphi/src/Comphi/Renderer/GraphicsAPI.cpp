@@ -48,7 +48,9 @@ namespace Comphi {
     TextureInstance GraphicsAPI::create::Texture(IFileRef& fileref)
     {
         //TODO : Switch RenderingAPI
-        return std::make_shared<Vulkan::ImageView>(Vulkan::ImageView::createTextureImageView(fileref));
+        std::shared_ptr<Vulkan::ImageView> texture = std::make_shared<Vulkan::ImageView>();
+        texture->initTextureImageView(fileref);
+        return texture;
     }
 
     MaterialInstance GraphicsAPI::create::Material(MaterialProperties materialProperties)

@@ -9,6 +9,29 @@ namespace Comphi::Vulkan {
 		createRenderPass();
 		GraphicsHandler::get()->setSwapchainHandler(renderPassObj, MAX_FRAMES_IN_FLIGHT, swapChainExtent);
 		createFramebuffers();
+
+		createFrameSyncObjects();
+		createFrameCommandBuffers();
+	}
+
+	void Comphi::Vulkan::SwapChain::createFrameSyncObjects()
+	{
+		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
+		inFlightSyncObjectsFactory.createSemaphores(&imageAvailableSemaphores[0], MAX_FRAMES_IN_FLIGHT);
+		inFlightSyncObjectsFactory.createSemaphores(&renderFinishedSemaphores[0], MAX_FRAMES_IN_FLIGHT);
+		inFlightSyncObjectsFactory.createFences(&inFlightFences[0], MAX_FRAMES_IN_FLIGHT, false);
+	}
+
+	void Comphi::Vulkan::SwapChain::createFrameCommandBuffers()
+	{
+		graphicsCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		transferCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+		inFlightCommandsPool.allocateGraphicsCommandBuffer(&graphicsCommandBuffers[0], graphicsCommandBuffers.size());
+		inFlightCommandsPool.allocateTransferCommandBuffer(&transferCommandBuffers[0], transferCommandBuffers.size());
 	}
 
 	void SwapChain::createSwapChain() {
@@ -73,10 +96,9 @@ namespace Comphi::Vulkan {
 		}
 		COMPHILOG_CORE_INFO("SwapChain created Successfully!");
 
-		//TODO: move to ImageView Factory Create Swapchain image views
-
-		swapChainImageViews = ImageView::createSwapchainImageViews(swapChainObj, swapChainImageFormat);
-		swapChainDepthView = ImageView::createDepthImageView(swapChainExtent);
+		//CREATE IMAGE VIEWS
+		ImageView::initSwapchainImageViews(swapChainObj, swapChainImageFormat, swapChainImageViews);
+		swapChainDepthView.initDepthImageView(swapChainExtent);
 	}
 
 	void SwapChain::recreateSwapChain() {
@@ -373,8 +395,36 @@ namespace Comphi::Vulkan {
 
 	}
 
+	VkFence& Comphi::Vulkan::SwapChain::getCurrentFrameFence()
+	{
+		return inFlightFences[currentFrame];
+	}
+
+	VkSemaphore& Comphi::Vulkan::SwapChain::getCurrentFrameAvailableSemaphore()
+	{
+		return imageAvailableSemaphores[currentFrame];
+	}
+
+	VkSemaphore& Comphi::Vulkan::SwapChain::getCurrentFrameFinishedSemaphore()
+	{
+		return renderFinishedSemaphores[currentFrame];
+	}
+
+	VkCommandBuffer& Comphi::Vulkan::SwapChain::getCurrentFrameGraphicsCommandBuffer()
+	{
+		return graphicsCommandBuffers[currentFrame];
+	}
+
+	VkCommandBuffer& Comphi::Vulkan::SwapChain::getCurrentFrameTransferCommandBuffer()
+	{
+		return transferCommandBuffers[currentFrame];
+	}
+
 	void SwapChain::cleanupRenderPass()
 	{
+		inFlightSyncObjectsFactory.cleanup();
+		inFlightCommandsPool.cleanUp();
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
 		vkDestroyRenderPass(GraphicsHandler::get()->logicalDevice, renderPassObj, nullptr);
 	}

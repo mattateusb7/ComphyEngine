@@ -39,14 +39,15 @@ public:
 	SceneInstance scene;
 
 	GameSceneLayer() : Layer("GameSceneLayer") { 
-
+		
 		//Texture
-		/*textureFile = Windows::FileRef("textures/viking_room.png");
+		textureFile = Windows::FileRef("textures/viking_room.png");
 		texture = GraphicsAPI::create::Texture(textureFile);
 
 		textureFile2 = Windows::FileRef("textures/lain.jpg");
 		texture2 = GraphicsAPI::create::Texture(textureFile2);
 
+		/*
 		//Shaders
 		MaterialProperties materialProperties;
 		materialProperties.shaderTextures = { texture.get() };
@@ -138,12 +139,12 @@ public:
 
 	Time time;
 	void OnUpdate() override {
-		/*
+		
 		//Works with HotReloadinng <3 ! (only allows manipulation of already sent data)
 		//recompiling Sandbox.exe refreshes the code without the need to recompile the engine (simply re-links the static engine lib ).
 		//TODO: detect when a hotreload is done and call "UpdateOnce after hotreload" function. (to send new values) 
 
-		time.Stop(); //TODO: send as parameter
+		/*time.Stop(); //TODO: send as parameter
 
 		camObj->transform.position = glm::vec3(0.0, -3.0f, 1.0f);
 		//camObj->transform.parent = &emptyObj->transform;

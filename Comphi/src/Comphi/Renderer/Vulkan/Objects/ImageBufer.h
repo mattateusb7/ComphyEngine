@@ -1,6 +1,8 @@
 #pragma once
 #include "Comphi/Platform/IFileRef.h"
 #include "MemBuffer.h"
+#include "../Initialization/CommandPool.h"
+#include "../Initialization/SyncObjectsFactory.h"
 
 namespace Comphi::Vulkan {
 
@@ -14,8 +16,8 @@ namespace Comphi::Vulkan {
 	class ImageBuffer
 	{
 	public:
-		static ImageBuffer createTextureImageBuffer(IFileRef& fileref, ImageBufferSpecification& specification); //TODO: Add rawData Initialization construct - send pixel Array as input
-		static ImageBuffer createDepthImageBuffer(VkExtent2D& swapchainExtent, ImageBufferSpecification& specification);
+		void initTextureImageBuffer(IFileRef& fileref, ImageBufferSpecification& specification); //TODO: Add rawData Initialization construct - send pixel Array as input
+		void initDepthImageBuffer(VkExtent2D& swapchainExtent, ImageBufferSpecification& specification);
 
 		//Memory
 		VkDeviceMemory memoryBuffer;
@@ -29,14 +31,14 @@ namespace Comphi::Vulkan {
 
 		ImageBuffer() = default;
 	protected :
-
-		void sendBufferToImgBuffer(MemBuffer& srcBuffer);
-		//TODO: retrieveImageBufferToBuffer?
+		SyncObjectsFactory layoutChangeSyncObjects;
+		VkSemaphore ownershipChangeSemaphore;
+		VkFence layoutChangeFence;
 
 		void allocateImageBuffer();
-		
 		bool hasStencilComponent();
-		void transitionImageLayout(VkImageLayout newLayout);
+		void transitionImageLayout(CommandBuffer& commandBuffer, VkImageLayout newLayout, VkAccessFlags accessMask = 0U);
+		void sendBufferToImgBuffer(MemBuffer& srcBuffer, CommandBuffer& commandBuffer);
 	};
 
 
