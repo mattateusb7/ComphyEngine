@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Comphi/Renderer/IObject.h"
 #include "Comphi/Renderer/IMaterial.h"
 #include "GraphicsPipeline.h"
 #include "ShaderProgram.h"
 
 namespace Comphi::Vulkan {
 
-	class Material : public IMaterial 
+	class Material : public IMaterial
 	{
 	public:
 		

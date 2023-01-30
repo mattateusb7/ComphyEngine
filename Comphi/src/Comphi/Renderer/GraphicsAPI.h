@@ -1,6 +1,7 @@
 #pragma once
 
 //API
+#include "Comphi/Renderer/IObject.h"
 #include "Comphi/Renderer/IGraphicsContext.h"
 
 #include "Comphi/API/Time.h"
@@ -26,14 +27,17 @@ namespace Comphi {
 			None,
 			Vulkan
 		};
-		static void selectNone() {
-			COMPHILOG_CORE_ERROR("No rendering API Selected.");
-			activeAPI = RenderingAPI::None; 
-		}
-		static void selectVulkan() { 
-			COMPHILOG_CORE_INFO("Vulkan rendering API Selected.");
-			activeAPI = RenderingAPI::Vulkan;
-		}
+
+		struct select {
+			static void None() {
+				COMPHILOG_CORE_ERROR("No rendering API Selected.");
+				activeAPI = RenderingAPI::None;
+			}
+			static void Vulkan() {
+				COMPHILOG_CORE_INFO("Vulkan rendering API Selected.");
+				activeAPI = RenderingAPI::Vulkan;
+			}
+		};
 		
 		static inline RenderingAPI getActiveAPI() { return activeAPI; }
 
@@ -50,7 +54,10 @@ namespace Comphi {
 			static MeshInstance Mesh(VertexArray& vertices, IndexArray& indices, MaterialInstance& material);
 		};
 
-	protected:
+		static void destroyObject(IObject* inst);
+		//static std::vector<IObject> memoryCleanupStack;
+
+	private:
 		static inline RenderingAPI activeAPI = RenderingAPI::None;
 		static inline std::shared_ptr<IGraphicsContext> currentGraphicsContext = nullptr;
 

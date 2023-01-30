@@ -14,7 +14,9 @@ namespace Comphi::Vulkan {
 		bufferSize = texWidth * texHeight * 4;//4=rgba
 
 		if (!pixels) {
-			throw std::runtime_error("failed to load texture image!");
+			std::runtime_error("failed to load texture image!");
+			COMPHILOG_CORE_ERROR("failed to load texture image!");
+			return;
 		}
 
 		MemBuffer stagingBuffer(bufferSize,
@@ -100,12 +102,12 @@ namespace Comphi::Vulkan {
 		//imageInfo.pQueueFamilyIndices = QueueFamilyIndices;
 	
 
-		if (vkCreateImage(GraphicsHandler::get()->logicalDevice, &imageInfo, nullptr, &imageBuffer) != VK_SUCCESS) {
+		if (vkCreateImage(GraphicsHandler::get()->logicalDevice, &imageInfo, nullptr, &imageReference) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create image!");
 		}
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(GraphicsHandler::get()->logicalDevice, imageBuffer, &memRequirements);
+		vkGetImageMemoryRequirements(GraphicsHandler::get()->logicalDevice, imageReference, &memRequirements);
 
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -116,7 +118,7 @@ namespace Comphi::Vulkan {
 			throw std::runtime_error("failed to allocate image memory!");
 		}
 
-		vkBindImageMemory(GraphicsHandler::get()->logicalDevice, imageBuffer, memoryBuffer, 0); //Bind MemoryBuffer to ImageBuffer
+		vkBindImageMemory(GraphicsHandler::get()->logicalDevice, imageReference, memoryBuffer, 0); //Bind MemoryBuffer to imageRef
 	}
 
 	void ImageBuffer::sendBufferToImgBuffer(MemBuffer& srcBuffer, CommandBuffer& commandBuffer)
@@ -142,7 +144,7 @@ namespace Comphi::Vulkan {
 		vkCmdCopyBufferToImage(
 			commandBuffer.buffer,
 			srcBuffer.bufferObj,
-			imageBuffer,
+			imageReference,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1,
 			&region
@@ -161,7 +163,7 @@ namespace Comphi::Vulkan {
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 		barrier.oldLayout = imageLayout;
 		barrier.newLayout = newLayout;
-		barrier.image = imageBuffer;
+		barrier.image = imageReference;
 
 		if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
 			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
@@ -260,7 +262,7 @@ namespace Comphi::Vulkan {
 		layoutChangeSyncObjects.cleanup();
 		
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageBuffer");
-		vkDestroyImage(GraphicsHandler::get()->logicalDevice, imageBuffer, nullptr);
 		vkFreeMemory(GraphicsHandler::get()->logicalDevice, memoryBuffer, nullptr);
+		vkDestroyImage(GraphicsHandler::get()->logicalDevice, imageReference, nullptr);
 	}
 }

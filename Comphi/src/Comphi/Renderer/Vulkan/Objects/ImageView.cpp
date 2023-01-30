@@ -59,9 +59,10 @@ namespace Comphi::Vulkan {
 		swapchainImageViews.resize(swapchainImages.size());
 
 		for (size_t i = 0; i < swapchainImages.size(); i++) {
-			swapchainImageViews[i].imageBuffer.imageBuffer = swapchainImages[i];
+			swapchainImageViews[i].imageBuffer.imageReference = swapchainImages[i];
 			swapchainImageViews[i].imageBuffer.specification.format = SwapchainImageFormat;
 			swapchainImageViews[i].allocateImageView();
+			swapchainImageViews[i].isSwapchainImage = true;
 		}
 	}
 
@@ -76,14 +77,13 @@ namespace Comphi::Vulkan {
 		
 		imageBuffer.initDepthImageBuffer(swapChainImageBufferExtent, specification); //todo: make it temp (do we need it when out of scope?)
 		allocateImageView();
-		isDepthImageView = true;
 	}
 
 	void ImageView::allocateImageView()
 	{
 		VkImageViewCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createInfo.image = imageBuffer.imageBuffer;
+		createInfo.image = imageBuffer.imageReference;
 
 		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D; //1D textures, 2D textures, 3D textures and cube maps.
 		createInfo.format = imageBuffer.specification.format;
@@ -137,6 +137,9 @@ namespace Comphi::Vulkan {
 
 	void ImageView::cleanUp()
 	{
+		if (imageBuffer.imageReference != VK_NULL_HANDLE && !isSwapchainImage)
+			imageBuffer.cleanUp();
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageView");
 		vkDestroyImageView(GraphicsHandler::get()->logicalDevice, imageView, nullptr);
 		
@@ -144,9 +147,7 @@ namespace Comphi::Vulkan {
 			COMPHILOG_CORE_INFO("vkDestroy Destroy textureSampler");
 			vkDestroySampler(GraphicsHandler::get()->logicalDevice, textureSampler, nullptr);
 		}
-
-		if (isDepthImageView)
-			imageBuffer.cleanUp();
+		
 	}
 
 }

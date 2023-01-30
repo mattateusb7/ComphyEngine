@@ -177,6 +177,7 @@
     <ClInclude Include="src\Comphi\Renderer\IIndexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\IMaterial.h" />
     <ClInclude Include="src\Comphi\Renderer\IMeshObject.h" />
+    <ClInclude Include="src\Comphi\Renderer\IObject.h" />
     <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h" />
     <ClInclude Include="src\Comphi\Renderer\ITexture.h" />
     <ClInclude Include="src\Comphi\Renderer\IUniformBuffer.h" />

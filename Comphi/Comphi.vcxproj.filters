@@ -1488,6 +1488,7 @@
     <ClInclude Include="vendor\tinyobjloader\tiny_obj_loader.h">
       <Filter>vendor\tinyobjloader</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\IObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Comphi\API\Camera.cpp">

@@ -170,7 +170,7 @@ namespace Comphi::Vulkan {
 		at the time the operation is executed on a VkDevice (https://github.com/KhronosGroup/Vulkan-Docs/search?q=)VUID-VkPresentInfoKHR-pImageIndices-01296)
 		*/
 
-		https://stackoverflow.com/questions/52915897/vulkan-at-vkqueuepresentkhr-the-validation-layer-throws-an-error-message-rega
+		//https://stackoverflow.com/questions/52915897/vulkan-at-vkqueuepresentkhr-the-validation-layer-throws-an-error-message-rega
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized) {
 			_framebufferResized = false;

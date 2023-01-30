@@ -71,5 +71,9 @@ namespace Comphi {
         return std::make_shared<Vulkan::MeshObject>(vertices, indices, *static_cast<Vulkan::Material*>(material.get()));
     }
    
+    void GraphicsAPI::destroyObject(IObject* inst)
+    {
+        inst->cleanUp();
+    }
 
 }

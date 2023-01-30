@@ -21,7 +21,7 @@ namespace Comphi::Vulkan {
 
 		//Memory
 		VkDeviceMemory memoryBuffer;
-		VkImage imageBuffer;
+		VkImage imageReference;
 		//Format
 		VkExtent2D imageExtent;
 		VkImageLayout imageLayout;

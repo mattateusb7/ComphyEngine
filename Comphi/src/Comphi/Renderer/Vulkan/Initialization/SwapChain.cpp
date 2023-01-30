@@ -115,9 +115,10 @@ namespace Comphi::Vulkan {
 
 		vkWaitForFences(GraphicsHandler::get()->logicalDevice, 3, inFlightFences.data(), VK_TRUE, UINT64_MAX);
 		currentFrame = 0;
-		//SyncFrames with swapchain recreate operation
+		
+		//TODO: SyncFrames with swapchain recreate operation
 		//waitsignal of swapchainRecreationSyncSemaphore ?
-
+		
 		/* VkSemaphoreWaitInfo waitInfo = {};
         waitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
         waitInfo.semaphoreCount = renderFinishedSemaphores.size();

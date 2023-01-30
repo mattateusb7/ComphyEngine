@@ -11,7 +11,8 @@ namespace Comphi::Vulkan {
 		void initDepthImageView(VkExtent2D& swapChainImageBufferExtent);
 		static void initSwapchainImageViews(VkSwapchainKHR swapchain, VkFormat SwapchainImageFormat, std::vector<ImageView>& swapchainImageViews);
 
-		void cleanUp();
+		virtual void cleanUp() override;
+
 		VkImageView imageView;
 		VkSampler textureSampler;
 		ImageBuffer imageBuffer;
@@ -21,7 +22,7 @@ namespace Comphi::Vulkan {
 	protected:
 		void allocateTextureSampler();
 		void allocateImageView();
-		bool isDepthImageView = false;
+		bool isSwapchainImage = false;
 		bool hasTextureSampler = false;
 		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 		VkFormat findDepthFormat();

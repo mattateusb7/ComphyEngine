@@ -46,7 +46,7 @@ public:
 
 		textureFile2 = Windows::FileRef("textures/lain.jpg");
 		texture2 = GraphicsAPI::create::Texture(textureFile2);
-
+		
 		/*
 		//Shaders
 		MaterialProperties materialProperties;
@@ -175,7 +175,11 @@ public:
 		//TODO: we Need to Abstract this into general hooks that GET events instead of sorting it out here  
 	};
 
-	void OnEnd() override {};
+	void OnEnd() override {
+		//IObject* o = 
+		GraphicsAPI::destroyObject(texture.get());
+		GraphicsAPI::destroyObject(texture2.get());
+	};
 
 private:
 };

@@ -54,22 +54,22 @@ namespace Comphi::Vulkan {
 	void SyncObjectsFactory::cleanup()
 	{
 		if(semaphores.size() > 0)
-		for (int i = semaphores.size()-1; i >= 0; --i) {
+		for (int i = 0; i < semaphores.size(); i++) {
 			vkDestroySemaphore(GraphicsHandler::get()->logicalDevice, *semaphores[i], nullptr);
-			semaphores.pop_back();
 			COMPHILOG_CORE_INFO("destroyed Semaphore!");
 		}
+		semaphores.clear();
 
 		if (fences.size() > 0)
-		for (int i = fences.size()-1; i >= 0 ; --i) {
+		for (int i = 0; i < fences.size(); i++) {
 			vkCheckError(vkGetFenceStatus(GraphicsHandler::get()->logicalDevice,*fences[i])) {
 				std::runtime_error("Invalid Fence! was the owner object destroyed ?");
 			}
 			vkWaitForFences(GraphicsHandler::get()->logicalDevice, 1, fences[i], VK_TRUE, UINT16_MAX);
 			vkDestroyFence(GraphicsHandler::get()->logicalDevice, *fences[i], nullptr);
-			fences.pop_back();
 			COMPHILOG_CORE_INFO("destroyed Fence!");
 		}
+		fences.clear();
 
 	}
 }

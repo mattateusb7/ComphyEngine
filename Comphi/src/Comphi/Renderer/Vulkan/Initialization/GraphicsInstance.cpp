@@ -79,7 +79,7 @@ namespace Comphi::Vulkan {
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = "[Comphi Engine]";	
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.pEngineName = "Comphi";
+		appInfo.pEngineName = "ComphiEngine";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 
@@ -93,6 +93,8 @@ namespace Comphi::Vulkan {
 		createInfo.pNext = nullptr;
 #else
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		//VK_KHR_synchronization2
+			//VK_KHR_get_physical_device_properties2 
 
 		if (!GraphicsInstance::checkValidationLayerSupport(validationLayers)) {
 			COMPHILOG_CORE_FATAL("validation layers requested, but not available!");
@@ -276,7 +278,7 @@ namespace Comphi::Vulkan {
 				continue;
 			}
 			/*List All Extensions*/
-			//COMPHILOG_CORE_INFO(vk_ext);
+			COMPHILOG_CORE_TRACE(vk_ext);
 		}
 
 		if (!extensionsRequired.empty()) {
