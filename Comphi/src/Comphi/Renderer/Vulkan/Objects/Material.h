@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Comphi/Renderer/IObject.h"
+#include "Comphi/Allocation/IObject.h"
 #include "Comphi/Renderer/IMaterial.h"
 #include "GraphicsPipeline.h"
 #include "ShaderProgram.h"
@@ -14,7 +14,7 @@ namespace Comphi::Vulkan {
 		Material(Comphi::MaterialProperties properties); // Descriptor Sets : https://youtu.be/5VBVWCg7riQ?t=1171
 		//Binding IDS ?
 		//Binding points ID do not interfeer with eachother, each has their own IDs: Graphics, Compute, Ray_tracing (vkPipelineBindPoint)
-		void cleanUp();
+		virtual void cleanUp() override;
 
 		//Each Material owns one Shader/Graphics Pipeline 
 		GraphicsPipeline graphicsPipeline;

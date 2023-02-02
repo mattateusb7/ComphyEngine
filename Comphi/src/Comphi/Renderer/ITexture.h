@@ -1,5 +1,5 @@
 #pragma once
-#include "IObject.h"
+#include "Comphi/Allocation/IObject.h"
 #include "Comphi/Platform/IFileRef.h"
 
 namespace Comphi {

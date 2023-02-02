@@ -10,6 +10,9 @@
     <Filter Include="src\Comphi\API">
       <UniqueIdentifier>{85220F3D-71F0-0243-5A84-736946F1DEA7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Comphi\Allocation">
+      <UniqueIdentifier>{F1B1D0EB-5D1E-8CE6-2612-2444923DAE4E}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Comphi\Core">
       <UniqueIdentifier>{7415F5DE-E0A0-62A3-E9B1-E59755BCBEA3}</UniqueIdentifier>
     </Filter>
@@ -98,6 +101,12 @@
     </ClInclude>
     <ClInclude Include="src\Comphi\API\Transform.h">
       <Filter>src\Comphi\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Allocation\IObject.h">
+      <Filter>src\Comphi\Allocation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Allocation\IObjectPool.h">
+      <Filter>src\Comphi\Allocation</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Core\Application.h">
       <Filter>src\Comphi\Core</Filter>
@@ -1488,7 +1497,6 @@
     <ClInclude Include="vendor\tinyobjloader\tiny_obj_loader.h">
       <Filter>vendor\tinyobjloader</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\IObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Comphi\API\Camera.cpp">
@@ -1517,6 +1525,9 @@
     </ClCompile>
     <ClCompile Include="src\Comphi\API\Transform.cpp">
       <Filter>src\Comphi\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Allocation\IObjectPool.cpp">
+      <Filter>src\Comphi\Allocation</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Core\Application.cpp">
       <Filter>src\Comphi\Core</Filter>

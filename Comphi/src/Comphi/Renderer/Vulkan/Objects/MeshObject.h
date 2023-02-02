@@ -30,6 +30,7 @@ namespace Comphi::Vulkan {
 		void bind(void* commandBuffer);
 		void updateMVP(UniformBufferObject& mvpUBO, uint currentImage);
 
+		virtual void cleanUp() override {}; //TODO : Implement
 	protected:
 		void ParseObjFile(IFileRef& objFile);
 		void initializeMeshData();

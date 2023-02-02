@@ -153,6 +153,8 @@
     <ClInclude Include="src\Comphi\API\Texture.h" />
     <ClInclude Include="src\Comphi\API\Time.h" />
     <ClInclude Include="src\Comphi\API\Transform.h" />
+    <ClInclude Include="src\Comphi\Allocation\IObject.h" />
+    <ClInclude Include="src\Comphi\Allocation\IObjectPool.h" />
     <ClInclude Include="src\Comphi\Core\Application.h" />
     <ClInclude Include="src\Comphi\Core\Core.h" />
     <ClInclude Include="src\Comphi\Core\EntryPoint.h" />
@@ -177,7 +179,6 @@
     <ClInclude Include="src\Comphi\Renderer\IIndexBuffer.h" />
     <ClInclude Include="src\Comphi\Renderer\IMaterial.h" />
     <ClInclude Include="src\Comphi\Renderer\IMeshObject.h" />
-    <ClInclude Include="src\Comphi\Renderer\IObject.h" />
     <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h" />
     <ClInclude Include="src\Comphi\Renderer\ITexture.h" />
     <ClInclude Include="src\Comphi\Renderer\IUniformBuffer.h" />
@@ -628,6 +629,7 @@
     <ClCompile Include="src\Comphi\API\Texture.cpp" />
     <ClCompile Include="src\Comphi\API\Time.cpp" />
     <ClCompile Include="src\Comphi\API\Transform.cpp" />
+    <ClCompile Include="src\Comphi\Allocation\IObjectPool.cpp" />
     <ClCompile Include="src\Comphi\Core\Application.cpp" />
     <ClCompile Include="src\Comphi\Core\Layer.cpp" />
     <ClCompile Include="src\Comphi\Core\LayerStack.cpp" />

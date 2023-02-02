@@ -11,7 +11,7 @@ namespace Comphi::Vulkan {
 		void initDepthImageView(VkExtent2D& swapChainImageBufferExtent);
 		static void initSwapchainImageViews(VkSwapchainKHR swapchain, VkFormat SwapchainImageFormat, std::vector<ImageView>& swapchainImageViews);
 
-		virtual void cleanUp() override;
+		virtual void cleanUp() override; //IObject
 
 		VkImageView imageView;
 		VkSampler textureSampler;

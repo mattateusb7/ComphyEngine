@@ -13,7 +13,7 @@ public:
 	Windows::FileRef textureFile2;
 	TextureInstance texture;
 	TextureInstance texture2;
-
+	IObjectPool pool1;
 	Windows::FileRef vert;
 	ShaderInstance vertShader;
 
@@ -47,7 +47,7 @@ public:
 		textureFile2 = Windows::FileRef("textures/lain.jpg");
 		texture2 = GraphicsAPI::create::Texture(textureFile2);
 		
-		/*
+		
 		//Shaders
 		MaterialProperties materialProperties;
 		materialProperties.shaderTextures = { texture.get() };
@@ -63,7 +63,7 @@ public:
 		//Materials
 		Albedo = GraphicsAPI::create::Material(materialProperties);
 
-		materialProperties.shaderTextures = { texture2.get() };
+		materialProperties.shaderTextures = {texture2.get()};
 		Albedo1 = GraphicsAPI::create::Material(materialProperties);
 		Albedo2 = GraphicsAPI::create::Material(materialProperties);
 
@@ -106,7 +106,7 @@ public:
 		};
 
 		//GameObject1
-		modelMesh = Windows::FileRef("models/viking_room.obj");
+		/*modelMesh = Windows::FileRef("models/viking_room.obj");
 		meshObj = GraphicsAPI::create::Mesh(modelMesh, Albedo);
 		gameObj = GraphicsAPI::create::GameObject({ meshObj });
 		//gameObj1->action.updateCallback = [this](Time frameTime,void*) { //TODO: fix Lambda not defined when out of scope
@@ -129,7 +129,8 @@ public:
 		scene->sceneObjects.push_back(gameObj);
 		scene->sceneObjects.push_back(gameObj1);
 		scene->sceneObjects.push_back(emptyObj);
-		scene->sceneCamera = (camObj);*/
+		scene->sceneCamera = (camObj);
+		*/
 	
 	}; 
 	
@@ -144,7 +145,8 @@ public:
 		//recompiling Sandbox.exe refreshes the code without the need to recompile the engine (simply re-links the static engine lib ).
 		//TODO: detect when a hotreload is done and call "UpdateOnce after hotreload" function. (to send new values) 
 
-		/*time.Stop(); //TODO: send as parameter
+		/*
+		time.Stop(); //TODO: send as parameter ?
 
 		camObj->transform.position = glm::vec3(0.0, -3.0f, 1.0f);
 		//camObj->transform.parent = &emptyObj->transform;
@@ -164,7 +166,8 @@ public:
 		//camObj->transform.setEulerAngles(glm::vec3(0,0,0));
 		//camObj->transform.eulerRotation(glm::vec3(0.0f, 45.0f * time.deltaTime(), 0));
 
-		time.Start();*/
+		time.Start(); //TODO : Start automatically after scripts ?
+		*/
 	};
 
 	void OnUIRender() override {};
@@ -176,9 +179,7 @@ public:
 	};
 
 	void OnEnd() override {
-		//IObject* o = 
-		GraphicsAPI::destroyObject(texture.get());
-		GraphicsAPI::destroyObject(texture2.get());
+		GraphicsAPI::cleanupUnhandledMemory();
 	};
 
 private:

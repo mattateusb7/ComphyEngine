@@ -14,7 +14,7 @@ namespace Comphi::Vulkan {
 		//bool operator==(ShaderProgram& other) {
 		//	return other. GetType() == GetType();
 		//}
-		void cleanUp();
+		virtual void cleanUp() override;
 	protected:
 		void createShaderModule();
 	};
