@@ -3,60 +3,26 @@
 
 namespace Comphi::Vulkan {
 
-	Material::Material(Comphi::MaterialProperties properties)
+	Material::Material(MaterialResources& properties)
 	{
-		shaderTextures = properties.shaderTextures;
-
 		for (int i = 0; i < properties.shaderPrograms.size(); i++) {
-			BindProgram(*properties.shaderPrograms[i]);
+			bindShaderProgram(*properties.shaderPrograms[i]);
 		}
 
-		graphicsPipeline.initialize(shaderStages);
+		graphicsPipeline.initialize(properties.pipelineConfiguration);
 
-		for (int i = 0; i < properties.shaderPrograms.size(); i++) {
-			UnbindProgram(*properties.shaderPrograms[i]); 
-		}
+		this->properties = properties;
 	}
 
-	bool Material::BindProgram(IShaderProgram& shaderProgram)
+	bool Material::bindShaderProgram(IShaderProgram& shaderProgram)
 	{
-		auto _shaderProgram = static_cast<Vulkan::ShaderProgram*> (&shaderProgram); //Casting Interface
-
-		switch (shaderProgram.GetType())
-		{
-		case (uint)Comphi::ShaderType::VertexShader: {
-			//VERTEX
-			VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-			vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-			vertShaderStageInfo.module = _shaderProgram->shaderModule;
-			vertShaderStageInfo.pName = "main";
-			vertShaderStageInfo.pSpecializationInfo = nullptr;
-			shaderStages.push_back(vertShaderStageInfo);
-			break;
-		}
-		case (uint)Comphi::ShaderType::FragmentShader: {
-			//FRAGMENT
-			VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-			fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-			fragShaderStageInfo.module = _shaderProgram->shaderModule;
-			fragShaderStageInfo.pName = "main";
-			shaderStages.push_back(fragShaderStageInfo);
-			break;
-		}
-		default:
-			break;
-		}
-
+		ShaderProgram* _shaderProgram = static_cast<ShaderProgram*>(&shaderProgram); //API Abstraction
 		shaderPrograms.push_back(_shaderProgram);
-
-		return true;
 	}
 
-	bool Material::UnbindProgram(IShaderProgram& shaderProgram)
+	bool Material::unbindShaderProgram(IShaderProgram& shaderProgram)
 	{
-		auto _shaderProgram = static_cast<Vulkan::ShaderProgram*>(&shaderProgram);
+		ShaderProgram* _shaderProgram = static_cast<ShaderProgram*>(&shaderProgram); //API Abstraction
 
 		auto it_shaderProgram = std::find(shaderPrograms.begin(), shaderPrograms.end(), _shaderProgram);
 		if (it_shaderProgram != shaderPrograms.end()) {
@@ -66,7 +32,7 @@ namespace Comphi::Vulkan {
 		return false;
 	}
 
-	void Material::sendDescriptorSet(std::vector<UniformBuffer>& MVP_ubos)
+	/*void Material::sendDescriptorSet(std::vector<UniformBuffer>& MVP_ubos)
 	{
 		graphicsPipeline.sendDescriptorSet(shaderTextures, MVP_ubos);
 	}
@@ -87,10 +53,14 @@ namespace Comphi::Vulkan {
 		//for reusing command buffers we'd need to set the command buffer usage Mode to "reuse" or "reset and re-record"
 		//But we need to be aware that if the instructions executed change acordingly to an application's requirements
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.pipelineLayout, 0, 1, &graphicsPipeline.descriptorSets[currentFrame], 0, nullptr);
-	}
+	}*/
 
 	void Material::cleanUp()
 	{
+
+		for (int i = 0; i < properties.shaderPrograms.size(); i++) {
+			UnbindProgram(*properties.shaderPrograms[i]);
+		}
 		graphicsPipeline.cleanUp();
 	}
 	

@@ -7,31 +7,49 @@
 
 namespace Comphi::Vulkan {
 
+	//API Abstraction
+	typedef std::vector<ITexture*> ShaderTextures;
+	typedef std::vector<IShaderProgram*> ShaderPrograms;
+
+	struct MaterialResources
+	{
+
+		GraphicsPipelineConfiguration pipelineConfiguration;
+
+		//TODO: DescriptorSets containing references to commandBuffer resources (Shader accessible data)
+		// Descriptor Sets : https://youtu.be/5VBVWCg7riQ?t=117
+
+		ShaderPrograms shaderPrograms = ShaderPrograms();
+		ShaderTextures shaderTextures = ShaderTextures();
+		//uniform MVPMatrix 
+		//Uniforms
+		//All kinds of data
+		
+		//Binding IDS ?
+		//Binding points ID do not interfeer with eachother, each has their own IDs: Graphics, Compute, Ray_tracing (vkPipelineBindPoint)
+	};
+
 	class Material : public IMaterial
 	{
 	public:
-		
-		Material(Comphi::MaterialProperties properties); // Descriptor Sets : https://youtu.be/5VBVWCg7riQ?t=1171
-		//Binding IDS ?
-		//Binding points ID do not interfeer with eachother, each has their own IDs: Graphics, Compute, Ray_tracing (vkPipelineBindPoint)
+
+		Material(MaterialResources& properties); 1
 		virtual void cleanUp() override;
+
+		MaterialResources properties;
 
 		//Each Material owns one Shader/Graphics Pipeline 
 		GraphicsPipeline graphicsPipeline;
 
-		//linked MaterialProperties:
-		std::vector<ShaderProgram*> shaderPrograms = std::vector<ShaderProgram*>();
-
-		void bindGraphicsPipeline(VkCommandBuffer& commandBuffer);
-		void bindDescriptorSet(VkCommandBuffer& commandBuffer, uint32_t currentFrame);
-		void sendDescriptorSet(std::vector<UniformBuffer>& MVP_ubos);
+		//void bindGraphicsPipeline(VkCommandBuffer& commandBuffer);
+		//void bindDescriptorSet(VkCommandBuffer& commandBuffer, uint32_t currentFrame);
+		//void sendDescriptorSet(std::vector<UniformBuffer>& MVP_ubos);
 
 	protected:
 
-		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
-		bool BindProgram(IShaderProgram& shaderProgram);
-		bool UnbindProgram(IShaderProgram& shaderProgram);
-
+		bool bindShaderProgram(IShaderProgram& shaderProgram);
+		bool unbindShaderProgram(IShaderProgram& shaderProgram);
+		
 	};
 
 }

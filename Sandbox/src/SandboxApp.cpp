@@ -49,8 +49,8 @@ public:
 		
 		
 		//Shaders
-		MaterialProperties materialProperties;
-		materialProperties.shaderTextures = { texture.get() };
+		MaterialResources materialResources;
+		materialResources.shaderTextures = { texture.get() };
 
 		vert = Windows::FileRef("shaders/vert.spv");
 		frag = Windows::FileRef("shaders/frag.spv");
@@ -58,14 +58,14 @@ public:
 		fragShader = GraphicsAPI::create::ShaderProgram(ShaderType::FragmentShader, frag);
 
 		ShaderPrograms AlbedoShader = { vertShader.get() , fragShader.get() };
-		materialProperties.shaderPrograms = AlbedoShader;
+		materialResources.shaderPrograms = AlbedoShader;
 
 		//Materials
-		Albedo = GraphicsAPI::create::Material(materialProperties);
+		Albedo = GraphicsAPI::create::Material(materialResources);
 
-		materialProperties.shaderTextures = {texture2.get()};
-		Albedo1 = GraphicsAPI::create::Material(materialProperties);
-		Albedo2 = GraphicsAPI::create::Material(materialProperties);
+		materialResources.shaderTextures = {texture2.get()};
+		Albedo1 = GraphicsAPI::create::Material(materialResources);
+		Albedo2 = GraphicsAPI::create::Material(materialResources);
 
 		//Mesh
 		const VertexArray vertices = {
@@ -106,7 +106,7 @@ public:
 		};
 
 		//GameObject1
-		/*modelMesh = Windows::FileRef("models/viking_room.obj");
+		modelMesh = Windows::FileRef("models/viking_room.obj");
 		meshObj = GraphicsAPI::create::Mesh(modelMesh, Albedo);
 		gameObj = GraphicsAPI::create::GameObject({ meshObj });
 		//gameObj1->action.updateCallback = [this](Time frameTime,void*) { //TODO: fix Lambda not defined when out of scope
@@ -115,7 +115,7 @@ public:
 		//};
 
 		//GameObject2
-		modelMesh1 = Windows::FileRef("models/BLEPOSPACE.obj");
+		/*modelMesh1 = Windows::FileRef("models/BLEPOSPACE.obj");
 		meshObj1 = GraphicsAPI::create::Mesh(modelMesh1, Albedo1); //TODO: fix materials / descriptor sets not share-able ...
 		gameObj1 = GraphicsAPI::create::GameObject({ meshObj1 }, { gameObj.get() });
 

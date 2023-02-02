@@ -5,19 +5,29 @@
 
 namespace Comphi {
 
+	//API Abstraction
 	typedef std::vector<ITexture*> ShaderTextures;
 	typedef std::vector<IShaderProgram*> ShaderPrograms;
-	
-	//Shader Resources
-	struct MaterialProperties
+
+	struct MaterialResources
 	{
-		//linked MaterialProperties:
+
+		GraphicsPipelineConfiguration pipelineConfiguration;
+
+		//TODO: DescriptorSets containing references to commandBuffer resources (Shader accessible data)
+		// Descriptor Sets : https://youtu.be/5VBVWCg7riQ?t=117
+
 		ShaderPrograms shaderPrograms = ShaderPrograms();
 		ShaderTextures shaderTextures = ShaderTextures();
+		//uniform MVPMatrix 
+		//Uniforms
+		//All kinds of data
+
+		//Binding IDS ?
+		//Binding points ID do not interfeer with eachother, each has their own IDs: Graphics, Compute, Ray_tracing (vkPipelineBindPoint)
 	};
 
-	class IMaterial : public IObject, public MaterialProperties //TODO: public IMaterial API / make virtual implementations for different Materials ? or generic for all
+	class IMaterial : public IObject //TODO: public IMaterial API / make virtual implementations for different Materials ? or generic for all
 	{
-		//Default Material
 	};
 }

@@ -21,6 +21,8 @@ namespace Comphi::Vulkan {
 
 		void cleanUp();
 
+		//TODO: Maybe add static syncObj for memoryCopy Transfer Command Operations ?
+
 	};
 
 }

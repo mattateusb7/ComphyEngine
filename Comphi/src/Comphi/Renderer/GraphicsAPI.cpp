@@ -67,7 +67,7 @@ namespace Comphi {
         return texture;
     }
 
-    MaterialInstance GraphicsAPI::create::Material(MaterialProperties materialProperties, IObjectPool* pool)
+    MaterialInstance GraphicsAPI::create::Material(MaterialResources materialProperties, IObjectPool* pool)
     {
         //TODO : Switch RenderingAPI
         std::shared_ptr<Vulkan::Material> material = std::make_shared<Vulkan::Material>(materialProperties);

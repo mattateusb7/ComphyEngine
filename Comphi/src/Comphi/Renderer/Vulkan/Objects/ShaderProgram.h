@@ -5,18 +5,24 @@
 
 namespace Comphi::Vulkan {
 
+	struct shaderStageCreateInfo {
+
+	};
+
 	class ShaderProgram : public IShaderProgram
 	{
 	public:
 		ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile);
 		VkShaderModule shaderModule;
+		VkPipelineShaderStageCreateInfo shaderStageInfo{};
 
 		//bool operator==(ShaderProgram& other) {
 		//	return other. GetType() == GetType();
 		//}
 		virtual void cleanUp() override;
-	protected:
+	private:
 		void createShaderModule();
+		void initializeShaderStageInfo();
 	};
 
 }

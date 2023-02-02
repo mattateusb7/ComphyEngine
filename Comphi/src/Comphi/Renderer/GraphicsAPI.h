@@ -50,7 +50,7 @@ namespace Comphi {
 			static SceneInstance Scene();
 			static ShaderInstance ShaderProgram(Comphi::ShaderType shaderType, IFileRef& shaderFile, IObjectPool* pool = &shaderPool);
 			static TextureInstance Texture(IFileRef& fileref, IObjectPool* pool = &texturePool); //TODO: make abstraction of ImgSpecification as a parameter & add pixelArray initializer
-			static MaterialInstance Material(MaterialProperties materialProperties, IObjectPool* pool = &materialPool);
+			static MaterialInstance Material(MaterialResources materialProperties, IObjectPool* pool = &materialPool);
 			static MeshInstance Mesh(IFileRef& objFile, MaterialInstance& material, IObjectPool* pool = &meshPool);
 			static MeshInstance Mesh(VertexArray& vertices, IndexArray& indices, MaterialInstance& material, IObjectPool* pool = &meshPool);
 		};

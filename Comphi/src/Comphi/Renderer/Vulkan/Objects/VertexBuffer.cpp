@@ -24,5 +24,4 @@ namespace Comphi::Vulkan {
         //cleanup
         stagingBuffer.cleanUp();
     }
-
 }
