@@ -179,7 +179,7 @@ public:
 	};
 
 	void OnEnd() override {
-		GraphicsAPI::cleanupUnhandledMemory();
+		GraphicsAPI::cleanUpInstances();
 	};
 
 private:
