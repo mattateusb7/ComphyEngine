@@ -9,6 +9,29 @@ namespace Comphi::Vulkan {
 		createRenderPass();
 		GraphicsHandler::get()->setSwapchainHandler(renderPassObj, MAX_FRAMES_IN_FLIGHT, swapChainExtent);
 		createFramebuffers();
+
+		createFrameSyncObjects();
+		createFrameCommandBuffers();
+	}
+
+	void Comphi::Vulkan::SwapChain::createFrameSyncObjects()
+	{
+		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
+		inFlightSyncObjectsFactory.createSemaphores(&imageAvailableSemaphores[0], MAX_FRAMES_IN_FLIGHT);
+		inFlightSyncObjectsFactory.createSemaphores(&renderFinishedSemaphores[0], MAX_FRAMES_IN_FLIGHT);
+		inFlightSyncObjectsFactory.createFences(&inFlightFences[0], MAX_FRAMES_IN_FLIGHT, false);
+	}
+
+	void Comphi::Vulkan::SwapChain::createFrameCommandBuffers()
+	{
+		graphicsCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		transferCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+		inFlightCommandsPool.allocateGraphicsCommandBuffer(&graphicsCommandBuffers[0], graphicsCommandBuffers.size());
+		inFlightCommandsPool.allocateTransferCommandBuffer(&transferCommandBuffers[0], transferCommandBuffers.size());
 	}
 
 	void SwapChain::createSwapChain() {
@@ -73,18 +96,8 @@ namespace Comphi::Vulkan {
 		}
 		COMPHILOG_CORE_INFO("SwapChain created Successfully!");
 
-		//Create Swapchain image views
-		vkGetSwapchainImagesKHR(GraphicsHandler::get()->logicalDevice, swapChainObj, &imageCount, nullptr);
-		swapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(GraphicsHandler::get()->logicalDevice, swapChainObj, &imageCount, swapChainImages.data());
-
-		COMPHILOG_CORE_TRACE("Creating ImageViews...");
-		swapChainImageViews.resize(swapChainImages.size());
-		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			swapChainImageViews[i].initSwapchainImageView(swapChainImages[i], swapChainImageFormat);
-			swapChainImageViews[i].imageExtent = swapChainExtent;
-		}
-		swapChainDepthView = ImageView();
+		//CREATE IMAGE VIEWS
+		ImageView::initSwapchainImageViews(swapChainObj, swapChainImageFormat, swapChainImageViews);
 		swapChainDepthView.initDepthImageView(swapChainExtent);
 	}
 
@@ -100,7 +113,24 @@ namespace Comphi::Vulkan {
 			glfwWaitEvents();
 		}
 
-		vkDeviceWaitIdle(GraphicsHandler::get()->logicalDevice); //<< Instead of waiting 
+		vkWaitForFences(GraphicsHandler::get()->logicalDevice, 3, inFlightFences.data(), VK_TRUE, UINT64_MAX);
+		currentFrame = 0;
+		
+		//TODO: SyncFrames with swapchain recreate operation
+		//waitsignal of swapchainRecreationSyncSemaphore ?
+		
+		/* VkSemaphoreWaitInfo waitInfo = {};
+        waitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+        waitInfo.semaphoreCount = renderFinishedSemaphores.size();
+		VkSemaphore* waitSemaphores = renderFinishedSemaphores.data();
+        waitInfo.pSemaphores = waitSemaphores;
+		std::vector<uint64_t> semaphoreWaitValues = std::vector<uint64_t>(waitInfo.semaphoreCount);
+		for (i = 0; i < (waitInfo.semaphoreCount; i++)
+		
+        waitInfo.pValues = semaphoreWaitValues;
+        vkWaitSemaphores(GraphicsHandler::get()->logicalDevice, &waitInfo, UINT64_MAX);*/
+
+		//vkDeviceWaitIdle(GraphicsHandler::get()->logicalDevice); 
 		//using Semaphores to syncronise end of frame with swap operation prolly help, followed by destruction of old Swapchain (below)
 
 		cleanUp();
@@ -110,9 +140,9 @@ namespace Comphi::Vulkan {
 
 	void SwapChain::cleanUp() {
 
-		for (int fbid = 0; fbid < swapChainFramebuffers.size(); fbid++) {
-			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", fbid);
-			vkDestroyFramebuffer(GraphicsHandler::get()->logicalDevice, swapChainFramebuffers[fbid], nullptr);
+		for (int i = 0; i < swapChainFramebuffers.size(); i++) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy framebuffer {0}", i);
+			vkDestroyFramebuffer(GraphicsHandler::get()->logicalDevice, swapChainFramebuffers[i], nullptr);
 		}
 
 		for (int i = 0; i < swapChainImageViews.size(); i++) {
@@ -195,12 +225,14 @@ namespace Comphi::Vulkan {
 	}
 
 	void SwapChain::createFramebuffers() {
-		swapChainFramebuffers.resize(swapChainImageViews.size());
+		if(swapChainFramebuffers.size() < swapChainImageViews.size()){
+			swapChainFramebuffers.resize(swapChainImageViews.size());
+		}
 
 		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
 			std::array<VkImageView, 2> attachments = {
-				swapChainImageViews[i].imageViewObj,
-				swapChainDepthView.imageViewObj
+				swapChainImageViews[i].imageView,
+				swapChainDepthView.imageView
 			};
 
 			VkFramebufferCreateInfo framebufferInfo{};
@@ -242,7 +274,7 @@ namespace Comphi::Vulkan {
 
 		//DepthAttachment
 		VkAttachmentDescription depthAttachment{};
-		depthAttachment.format = swapChainDepthView.imageFormat;
+		depthAttachment.format = swapChainDepthView.imageBuffer.specification.format;
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -380,8 +412,36 @@ namespace Comphi::Vulkan {
 
 	}
 
+	VkFence& Comphi::Vulkan::SwapChain::getCurrentFrameFence()
+	{
+		return inFlightFences[currentFrame];
+	}
+
+	VkSemaphore& Comphi::Vulkan::SwapChain::getCurrentFrameAvailableSemaphore()
+	{
+		return imageAvailableSemaphores[currentFrame];
+	}
+
+	VkSemaphore& Comphi::Vulkan::SwapChain::getCurrentFrameFinishedSemaphore()
+	{
+		return renderFinishedSemaphores[currentFrame];
+	}
+
+	VkCommandBuffer& Comphi::Vulkan::SwapChain::getCurrentFrameGraphicsCommandBuffer()
+	{
+		return graphicsCommandBuffers[currentFrame];
+	}
+
+	VkCommandBuffer& Comphi::Vulkan::SwapChain::getCurrentFrameTransferCommandBuffer()
+	{
+		return transferCommandBuffers[currentFrame];
+	}
+
 	void SwapChain::cleanupRenderPass()
 	{
+		inFlightSyncObjectsFactory.cleanup();
+		inFlightCommandsPool.cleanUp();
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy RenderPass");
 		vkDestroyRenderPass(GraphicsHandler::get()->logicalDevice, renderPassObj, nullptr);
 	}

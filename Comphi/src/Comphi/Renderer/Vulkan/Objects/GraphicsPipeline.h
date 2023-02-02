@@ -24,6 +24,7 @@ namespace Comphi::Vulkan {
 		VkDescriptorPool descriptorPoolObj;
 
 		//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts
+		//Or just dynamic Binding for construction of those structs
 		void sendDescriptorSet(std::vector<ITexture*>& textures, std::vector<UniformBuffer>& MVP_ubos);
 
 		void cleanUp();

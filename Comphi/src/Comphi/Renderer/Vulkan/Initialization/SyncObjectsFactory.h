@@ -3,12 +3,22 @@
 
 namespace Comphi::Vulkan {
 
-	static class SyncObjectsFactory
+	class SyncObjectsFactory
 	{
 	public:
-		static void createSemaphores(VkSemaphore* semaphores, uint count);
-		static void createFences(VkFence* fences, uint count);
-	}SyncObjectsFactory;
+		SyncObjectsFactory() = default;
+
+		void createSemaphore(VkSemaphore& semaphore);
+		void createSemaphores(VkSemaphore* semaphores, uint count);
+		void createFences(VkFence* fences, uint count, bool reset = true);
+		void createFence(VkFence& fence, bool reset = true);
+
+		std::vector<VkSemaphore*> semaphores = std::vector<VkSemaphore*>();
+		std::vector<VkFence*> fences = std::vector<VkFence*>();
+
+		void cleanup();
+
+	};
 
 }
 

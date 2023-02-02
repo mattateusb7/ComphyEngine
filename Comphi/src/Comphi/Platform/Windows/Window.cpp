@@ -36,7 +36,7 @@ namespace Comphi::Windows {
 		COMPHILOG_CORE_INFO("GLFW Initialized.");
 
 		//Select GraphicsAPI
-		GraphicsAPI::selectVulkan();
+		GraphicsAPI::select::Vulkan();
 
 		switch (GraphicsAPI::getActiveAPI()) {
 			case GraphicsAPI::Vulkan: {

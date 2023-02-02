@@ -262,8 +262,8 @@ namespace Comphi::Vulkan {
 			//OBJECT TEXTURES
 			VkDescriptorImageInfo imageInfo{};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = static_cast<ImageView*>(textures[0])->imageViewObj;
-			imageInfo.sampler = static_cast<ImageView*>(textures[0])->textureSamplerObj;
+			imageInfo.imageView = static_cast<ImageView*>(textures[0])->imageView;
+			imageInfo.sampler = static_cast<ImageView*>(textures[0])->textureSampler;
 
 			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 

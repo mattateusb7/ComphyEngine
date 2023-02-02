@@ -1,39 +1,44 @@
 #pragma once
 #include "Comphi/Platform/IFileRef.h"
 #include "MemBuffer.h"
+#include "../Initialization/CommandPool.h"
+#include "../Initialization/SyncObjectsFactory.h"
 
 namespace Comphi::Vulkan {
 
-	class ImageBuffer : public MemBuffer
+	struct ImageBufferSpecification {
+		VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+		VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+		VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+		VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+	};
+
+	class ImageBuffer
 	{
 	public:
-		struct ImgSpecification {
-			VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
-			VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
-			VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-			VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-		};
-		ImageBuffer(IFileRef& fileref, ImgSpecification spec);//TODO: Add rawData Initialization construct - send pixel Array as input
-		
-		VkImage bufferObj; //override bufferType
-		//<< bufferMemory;
-		//<< bufferSize;
+		void initTextureImageBuffer(IFileRef& fileref, ImageBufferSpecification& specification); //TODO: Add rawData Initialization construct - send pixel Array as input
+		void initDepthImageBuffer(VkExtent2D& swapchainExtent, ImageBufferSpecification& specification);
+
+		//Memory
+		VkDeviceMemory memoryBuffer;
+		VkImage imageReference;
+		//Format
 		VkExtent2D imageExtent;
-		VkFormat imageFormat;
 		VkImageLayout imageLayout;
+		ImageBufferSpecification specification;
 
-		static void copyBufferToImgBuffer(MemBuffer& srcBuffer, ImageBuffer& dstImagebuffer);
-		void copyBufferToImgBuffer(MemBuffer& srcBuffer);
-		bool hasStencilComponent();
-		virtual void cleanUp() override;
+		void cleanUp();
 
-	protected :
-		void initTextureImageBuffer(std::string& filepath, ImgSpecification spec);
-		void initImageBuffer(ImgSpecification spec);
-		void initDepthImageBuffer(VkExtent2D& swapchainExtent, VkFormat format);
-		
 		ImageBuffer() = default;
-		void transitionImageLayout(VkImageLayout newLayout);
+	protected :
+		SyncObjectsFactory layoutChangeSyncObjects;
+		VkSemaphore ownershipChangeSemaphore;
+		VkFence layoutChangeFence;
+
+		void allocateImageBuffer();
+		bool hasStencilComponent();
+		void transitionImageLayout(CommandBuffer& commandBuffer, VkImageLayout newLayout, VkAccessFlags accessMask = 0U);
+		void sendBufferToImgBuffer(MemBuffer& srcBuffer, CommandBuffer& commandBuffer);
 	};
 
 

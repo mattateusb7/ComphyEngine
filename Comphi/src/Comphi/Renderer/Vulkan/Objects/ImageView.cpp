@@ -3,15 +3,14 @@
 
 namespace Comphi::Vulkan {
 
-	ImageView::ImageView(IFileRef& fileref, ImgSpecification spec)
-		: ImageBuffer(fileref, spec) , ITexture(fileref)
+	void ImageView::initTextureImageView(IFileRef& fileref, ImageBufferSpecification bufferSpecs)
 	{
-		this->aspectFlags = spec.aspectFlags;
-		initImageView();
-		initTextureSampler();
+		imageBuffer.initTextureImageBuffer(fileref, bufferSpecs); //todo: make it temp (do we need it when out of scope?)
+		allocateImageView();
+		allocateTextureSampler();
 	}
 
-	VkSampler ImageView::initTextureSampler()
+	void ImageView::allocateTextureSampler()
 	{
 		VkSamplerCreateInfo samplerInfo{};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -39,44 +38,62 @@ namespace Comphi::Vulkan {
 		samplerInfo.minLod = 0.0f;
 		samplerInfo.maxLod = 0.0f;
 
-		if (vkCreateSampler(GraphicsHandler::get()->logicalDevice, &samplerInfo, nullptr, &textureSamplerObj) != VK_SUCCESS) {
+		if (vkCreateSampler(GraphicsHandler::get()->logicalDevice, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create texture sampler!");
 		}
 		COMPHILOG_CORE_INFO("Created TextureSampler successfully!");
-		
-		return textureSamplerObj;
+		hasTextureSampler = true;
 	}
 
-	void ImageView::initSwapchainImageView(VkImage& imageBufferObj, VkFormat& imageFormat)
+	void ImageView::initSwapchainImageViews(VkSwapchainKHR swapchain, VkFormat SwapchainImageFormat, std::vector<ImageView>& swapchainImageViews)
 	{
-		this->bufferObj = imageBufferObj;
-		this->imageFormat = imageFormat;
-		this->aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
-		initImageView();
+		uint imageCount;
+		std::vector<VkImage> swapchainImages = std::vector<VkImage>();
+
+		vkGetSwapchainImagesKHR(GraphicsHandler::get()->logicalDevice, swapchain, &imageCount, nullptr);
+		swapchainImages.resize(imageCount);
+		vkGetSwapchainImagesKHR(GraphicsHandler::get()->logicalDevice, swapchain, &imageCount, swapchainImages.data());
+
+		COMPHILOG_CORE_TRACE("Creating ImageViews...");
+
+		swapchainImageViews.resize(swapchainImages.size());
+
+		for (size_t i = 0; i < swapchainImages.size(); i++) {
+			swapchainImageViews[i].imageBuffer.imageReference = swapchainImages[i];
+			swapchainImageViews[i].imageBuffer.specification.format = SwapchainImageFormat;
+			swapchainImageViews[i].allocateImageView();
+			swapchainImageViews[i].isSwapchainImage = true;
+		}
 	}
 
 	void ImageView::initDepthImageView(VkExtent2D& swapChainImageBufferExtent)
 	{
-		initDepthImageBuffer(swapChainImageBufferExtent, findDepthFormat());
-		this->aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
-		initImageView();
+		//DepthImage specification
+		ImageBufferSpecification specification {};
+		imageBuffer.specification.format = findDepthFormat();
+		imageBuffer.specification.aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
+		imageBuffer.specification.tiling = VK_IMAGE_TILING_OPTIMAL;
+		imageBuffer.specification.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+		
+		imageBuffer.initDepthImageBuffer(swapChainImageBufferExtent, specification); //todo: make it temp (do we need it when out of scope?)
+		allocateImageView();
 	}
 
-	void ImageView::initImageView()
+	void ImageView::allocateImageView()
 	{
 		VkImageViewCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createInfo.image = bufferObj;
+		createInfo.image = imageBuffer.imageReference;
 
 		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D; //1D textures, 2D textures, 3D textures and cube maps.
-		createInfo.format = imageFormat;
+		createInfo.format = imageBuffer.specification.format;
 
 		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY; //defaultChannelMapping
 		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY; //defaultChannelMapping
 		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY; //defaultChannelMapping
 		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY; //defaultChannelMapping
 
-		createInfo.subresourceRange.aspectMask = aspectFlags;
+		createInfo.subresourceRange.aspectMask = imageBuffer.specification.aspectFlags;
 		createInfo.subresourceRange.baseMipLevel = 0;
 		createInfo.subresourceRange.levelCount = 1;
 		createInfo.subresourceRange.baseArrayLayer = 0;
@@ -86,7 +103,7 @@ namespace Comphi::Vulkan {
 		//You could then create multiple image views layers for each image View
 		//representing the views for the left and right eyes by accessing different layers!
 
-		vkCheckError(vkCreateImageView(GraphicsHandler::get()->logicalDevice, &createInfo, nullptr, &imageViewObj)) {
+		vkCheckError(vkCreateImageView(GraphicsHandler::get()->logicalDevice, &createInfo, nullptr, &imageView)) {
 			COMPHILOG_CORE_FATAL("failed to create image view!");
 			throw std::runtime_error("failed to create image view!");
 			return;
@@ -120,12 +137,17 @@ namespace Comphi::Vulkan {
 
 	void ImageView::cleanUp()
 	{
+		if (imageBuffer.imageReference != VK_NULL_HANDLE && !isSwapchainImage)
+			imageBuffer.cleanUp();
+
 		COMPHILOG_CORE_INFO("vkDestroy Destroy ImageView");
-		vkDestroyImageView(GraphicsHandler::get()->logicalDevice, imageViewObj, nullptr);
+		vkDestroyImageView(GraphicsHandler::get()->logicalDevice, imageView, nullptr);
 		
-		COMPHILOG_CORE_INFO("vkDestroy Destroy textureSampler");
-		vkDestroySampler(GraphicsHandler::get()->logicalDevice, textureSamplerObj, nullptr);
-		MemBuffer::cleanUp();
+		if (hasTextureSampler) {
+			COMPHILOG_CORE_INFO("vkDestroy Destroy textureSampler");
+			vkDestroySampler(GraphicsHandler::get()->logicalDevice, textureSampler, nullptr);
+		}
+		
 	}
 
 }

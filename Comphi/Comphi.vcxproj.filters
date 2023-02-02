@@ -7,11 +7,14 @@
     <Filter Include="src\Comphi">
       <UniqueIdentifier>{9CCF9D09-8887-DF56-F18E-B8B2DD657A47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Comphi\API">
+      <UniqueIdentifier>{85220F3D-71F0-0243-5A84-736946F1DEA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Comphi\Allocation">
+      <UniqueIdentifier>{F1B1D0EB-5D1E-8CE6-2612-2444923DAE4E}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Comphi\Core">
       <UniqueIdentifier>{7415F5DE-E0A0-62A3-E9B1-E59755BCBEA3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Comphi\Core\API">
-      <UniqueIdentifier>{5D94C5D5-C9F5-A2E3-5263-E995BEC3D9A2}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Comphi\Events">
       <UniqueIdentifier>{0054B275-6C6A-B00B-B5E1-3B2D21378193}</UniqueIdentifier>
@@ -25,17 +28,11 @@
     <Filter Include="src\Comphi\Renderer">
       <UniqueIdentifier>{C26292A2-2EC4-6FB0-B731-B6622392A66F}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Comphi\Renderer\IObjects">
-      <UniqueIdentifier>{C4998A31-B054-7ADD-590C-F32745A6C46D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Comphi\Renderer\OpenGL">
-      <UniqueIdentifier>{B61D10EA-A22D-BCBA-0BE7-20D9F715AB53}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Comphi\Renderer\OpenGL\Objects">
-      <UniqueIdentifier>{6F12F5F0-5B4E-F85A-C460-1052B0BBA075}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\Comphi\Renderer\Vulkan">
       <UniqueIdentifier>{0282C2FA-EE91-6ECB-574B-D3E9437A5D64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Comphi\Renderer\Vulkan\Initialization">
+      <UniqueIdentifier>{B9C7D62D-25E2-39CF-6E04-4A63DA5D61D6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Comphi\Renderer\Vulkan\Objects">
       <UniqueIdentifier>{BB02BDC4-A73E-C02E-1051-D825FCAB6849}</UniqueIdentifier>
@@ -78,8 +75,38 @@
     <ClInclude Include="src\Comphi.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Core\API\MeshObject.h">
-      <Filter>src\Comphi\Core\API</Filter>
+    <ClInclude Include="src\Comphi\API\Camera.h">
+      <Filter>src\Comphi\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\API\GameObject.h">
+      <Filter>src\Comphi\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\API\Material.h">
+      <Filter>src\Comphi\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\API\Mesh.h">
+      <Filter>src\Comphi\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\API\Scene.h">
+      <Filter>src\Comphi\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\API\Shader.h">
+      <Filter>src\Comphi\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\API\Texture.h">
+      <Filter>src\Comphi\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\API\Time.h">
+      <Filter>src\Comphi\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\API\Transform.h">
+      <Filter>src\Comphi\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Allocation\IObject.h">
+      <Filter>src\Comphi\Allocation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Allocation\IObjectPool.h">
+      <Filter>src\Comphi\Allocation</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Core\Application.h">
       <Filter>src\Comphi\Core</Filter>
@@ -138,50 +165,32 @@
     <ClInclude Include="src\Comphi\Renderer\GraphicsAPI.h">
       <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\ICamera.h">
+      <Filter>src\Comphi\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\IGraphicsContext.h">
       <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\IGraphicsPipeline.h">
+    <ClInclude Include="src\Comphi\Renderer\IIndexBuffer.h">
       <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\IObjects\IIndexBuffer.h">
-      <Filter>src\Comphi\Renderer\IObjects</Filter>
+    <ClInclude Include="src\Comphi\Renderer\IMaterial.h">
+      <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\IObjects\IUniformBuffer.h">
-      <Filter>src\Comphi\Renderer\IObjects</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\IObjects\IVertexBuffer.h">
-      <Filter>src\Comphi\Renderer\IObjects</Filter>
+    <ClInclude Include="src\Comphi\Renderer\IMeshObject.h">
+      <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\IShaderProgram.h">
       <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\GLError.h">
-      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    <ClInclude Include="src\Comphi\Renderer\ITexture.h">
+      <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\GraphicsContext.h">
-      <Filter>src\Comphi\Renderer\OpenGL</Filter>
+    <ClInclude Include="src\Comphi\Renderer\IUniformBuffer.h">
+      <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\IShaderWizard.h">
-      <Filter>src\Comphi\Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\Objects\IndexBuffer.h">
-      <Filter>src\Comphi\Renderer\OpenGL\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\Objects\ShaderPipeline.h">
-      <Filter>src\Comphi\Renderer\OpenGL\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\Objects\ShaderProgram.h">
-      <Filter>src\Comphi\Renderer\OpenGL\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\Objects\VertexBuffer.h">
-      <Filter>src\Comphi\Renderer\OpenGL\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\OpenGL\ShaderWizard.h">
-      <Filter>src\Comphi\Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Common.h">
-      <Filter>src\Comphi\Renderer\Vulkan</Filter>
+    <ClInclude Include="src\Comphi\Renderer\IVertexBuffer.h">
+      <Filter>src\Comphi\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsContext.h">
       <Filter>src\Comphi\Renderer\Vulkan</Filter>
@@ -189,8 +198,20 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsHandler.h">
       <Filter>src\Comphi\Renderer\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.h">
-      <Filter>src\Comphi\Renderer\Vulkan</Filter>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Initialization\CommandPool.h">
+      <Filter>src\Comphi\Renderer\Vulkan\Initialization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Initialization\GraphicsInstance.h">
+      <Filter>src\Comphi\Renderer\Vulkan\Initialization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Initialization\SwapChain.h">
+      <Filter>src\Comphi\Renderer\Vulkan\Initialization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Initialization\SyncObjectsFactory.h">
+      <Filter>src\Comphi\Renderer\Vulkan\Initialization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\GraphicsPipeline.h">
+      <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageBufer.h">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
@@ -201,13 +222,16 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.h">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\Material.h">
+      <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
+    </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\MemBuffer.h">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ShaderProgram.h">
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\MeshObject.h">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.h">
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ShaderProgram.h">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\UniformBuffer.h">
@@ -1475,8 +1499,35 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Comphi\Core\API\MeshObject.cpp">
-      <Filter>src\Comphi\Core\API</Filter>
+    <ClCompile Include="src\Comphi\API\Camera.cpp">
+      <Filter>src\Comphi\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\GameObject.cpp">
+      <Filter>src\Comphi\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\Material.cpp">
+      <Filter>src\Comphi\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\Mesh.cpp">
+      <Filter>src\Comphi\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\Scene.cpp">
+      <Filter>src\Comphi\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\Shader.cpp">
+      <Filter>src\Comphi\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\Texture.cpp">
+      <Filter>src\Comphi\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\Time.cpp">
+      <Filter>src\Comphi\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\Transform.cpp">
+      <Filter>src\Comphi\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Allocation\IObjectPool.cpp">
+      <Filter>src\Comphi\Allocation</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Core\Application.cpp">
       <Filter>src\Comphi\Core</Filter>
@@ -1502,35 +1553,26 @@
     <ClCompile Include="src\Comphi\Renderer\GraphicsAPI.cpp">
       <Filter>src\Comphi\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\GLError.cpp">
-      <Filter>src\Comphi\Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\GraphicsContext.cpp">
-      <Filter>src\Comphi\Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\Objects\IndexBuffer.cpp">
-      <Filter>src\Comphi\Renderer\OpenGL\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\Objects\ShaderPipeline.cpp">
-      <Filter>src\Comphi\Renderer\OpenGL\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\Objects\ShaderProgram.cpp">
-      <Filter>src\Comphi\Renderer\OpenGL\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\Objects\VertexBuffer.cpp">
-      <Filter>src\Comphi\Renderer\OpenGL\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\OpenGL\ShaderWizard.cpp">
-      <Filter>src\Comphi\Renderer\OpenGL</Filter>
-    </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsContext.cpp">
       <Filter>src\Comphi\Renderer\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsHandler.cpp">
       <Filter>src\Comphi\Renderer\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\Vulkan\GraphicsPipeline.cpp">
-      <Filter>src\Comphi\Renderer\Vulkan</Filter>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Initialization\CommandPool.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan\Initialization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Initialization\GraphicsInstance.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan\Initialization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Initialization\SwapChain.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan\Initialization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Initialization\SyncObjectsFactory.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan\Initialization</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\GraphicsPipeline.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageBuffer.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
@@ -1541,13 +1583,16 @@
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\IndexBuffer.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\Material.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
+    </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\MemBuffer.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ShaderProgram.cpp">
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\MeshObject.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\SwapChain.cpp">
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ShaderProgram.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Objects</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\UniformBuffer.cpp">

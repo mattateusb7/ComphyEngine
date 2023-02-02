@@ -29,6 +29,7 @@ namespace Comphi::Vulkan {
 		};
 		CommandQueueFamily transferQueueFamily;
 		CommandQueueFamily graphicsQueueFamily;
+		//CommandQueueFamily presentQueueFamily;
 		void setCommandQueues(
 			const uint32_t transferQueueFamilyIndex,
 			const VkQueue transferQueue,
@@ -82,31 +83,18 @@ namespace Comphi::Vulkan {
 			this->MAX_FRAMES_IN_FLIGHT = &MAX_FRAMES_IN_FLIGHT;
 			this->swapChainExtent = &swapChainExtent;
 		}
-	};
-
-	enum CommandQueueOperation { TransferCommand, GraphicsCommand };
-
-	struct CommandBuffer {
-		CommandQueueOperation op = TransferCommand;
-		VkCommandBuffer buffer;
-	};
-
+	};	
+	
 	//TODO: evaluate if possible to make instanced per Vulkan GraphicsContext (MultiGraphicsContext Handler)?
 	class GraphicsHandler : public DeviceHandler, public QueueHandler , public WindowHandler, public SwapchainHandler {
 	public:
 		GraphicsHandler() = default;
 		static GraphicsHandler* get();
 
-		static CommandBuffer beginCommandBuffer(CommandQueueOperation op);
-		static void endCommandBuffer(CommandBuffer& commandBuffer);
-	
 		bool isInUse = true;
 		void DeleteStatic();
 		~GraphicsHandler();
 
-	protected:
-		static VkCommandPool getCommandPool(CommandQueueOperation& op);
-		static VkQueue getCommandQueue(CommandQueueOperation& op);
-
 	};
+
 }

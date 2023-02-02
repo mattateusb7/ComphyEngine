@@ -1,4 +1,5 @@
 #pragma once
+#include "Comphi/Allocation/IObject.h"
 #include "Comphi/Platform/IFileRef.h"
 #include "Comphi/Renderer/IMaterial.h"
 #include "Comphi/Renderer/IVertexBuffer.h"
@@ -6,7 +7,7 @@
 
 namespace Comphi {
 
-	class IMeshObject //TODO:rename to IMesh or IMeshOBJ
+	class IMeshObject : public IObject //TODO:rename to IMesh or IMeshOBJ
 	{
 	public:
 		IFileRef* i_ModelFileOBJ;

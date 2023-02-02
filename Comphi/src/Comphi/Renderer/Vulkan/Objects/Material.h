@@ -1,19 +1,22 @@
 #pragma once
 
+#include "Comphi/Allocation/IObject.h"
 #include "Comphi/Renderer/IMaterial.h"
 #include "GraphicsPipeline.h"
 #include "ShaderProgram.h"
 
 namespace Comphi::Vulkan {
 
-	class Material : public IMaterial 
+	class Material : public IMaterial
 	{
 	public:
 		
-		Material(Comphi::MaterialProperties properties);
-		void cleanUp();
+		Material(Comphi::MaterialProperties properties); // Descriptor Sets : https://youtu.be/5VBVWCg7riQ?t=1171
+		//Binding IDS ?
+		//Binding points ID do not interfeer with eachother, each has their own IDs: Graphics, Compute, Ray_tracing (vkPipelineBindPoint)
+		virtual void cleanUp() override;
 
-		//Each Material owns one Shader/Graphics Pipeline
+		//Each Material owns one Shader/Graphics Pipeline 
 		GraphicsPipeline graphicsPipeline;
 
 		//linked MaterialProperties:

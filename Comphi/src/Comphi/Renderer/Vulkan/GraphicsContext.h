@@ -2,12 +2,10 @@
 #include "../../Renderer/IGraphicsContext.h"
 #include "GraphicsHandler.h"
 #include "Initialization/GraphicsInstance.h"
-#include "Initialization/SwapChain.h"
-#include "Initialization/CommandPool.h"
 
 namespace Comphi::Vulkan {
 
-	class GraphicsContext : public IGraphicsContext
+	class GraphicsContext : public IGraphicsContext //AKA Renderer
 	{
 	public:
 		GraphicsContext(GLFWwindow& windowHandle);
@@ -19,19 +17,14 @@ namespace Comphi::Vulkan {
 		virtual void CleanUp() override;
 
 		std::unique_ptr<GraphicsInstance> graphicsInstance;
-		std::unique_ptr<SwapChain> swapchain;
-		std::unique_ptr<CommandPool> commandPool;
 
 		Time FrameTime; //TODO: Debug ?
 		MultiScene* scenes;
 
-		std::vector<VkSemaphore> imageAvailableSemaphores;
-		std::vector<VkSemaphore> renderFinishedSemaphores;
-		std::vector<VkFence> inFlightFences;
-
 	protected:
 		bool _framebufferResized = false;
 		void createSyncObjects();
+		void createCommandBuffers();
 		void updateSceneLoop();
 	};
 

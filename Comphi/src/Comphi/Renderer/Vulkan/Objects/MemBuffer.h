@@ -3,28 +3,24 @@
 
 namespace Comphi::Vulkan {
 
-	class MemBuffer
+	class MemBuffer // TODO: IBuffer to concatenate shared buffers into single packaged buffer
 	{
 	public:
 
+		MemBuffer() = default;
 		MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-		
+
+		static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+		static void copyBufferTo(VkBuffer& srcBuffer, VkBuffer& dstBuffer, uint copySize);
+
+		void allocateMemoryBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+
 		VkBuffer bufferObj;
 		VkDeviceMemory bufferMemory;
 		VkDeviceSize bufferSize;
 
-		static uint32_t findMemoryType(VkPhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
-		
-		static void copyBuffer(MemBuffer& srcBuffer, MemBuffer& dstBuffer);
-		void copyBufferTo(MemBuffer& dstBuffer);
-	
-		virtual void cleanUp();
+		void cleanUp();
 
-	protected :
-		MemBuffer() = default;
-		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-		void InitMemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-		
 	};
 
 }

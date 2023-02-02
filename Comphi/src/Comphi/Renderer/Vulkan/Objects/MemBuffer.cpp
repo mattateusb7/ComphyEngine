@@ -1,14 +1,15 @@
 #include "cphipch.h"
 #include "MemBuffer.h"
+#include "../Initialization/CommandPool.h"
 
 namespace Comphi::Vulkan {
     
     MemBuffer::MemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
     {
-        InitMemBuffer(size, usage, properties);
+        allocateMemoryBuffer(size, usage, properties);
     }
 
-    void MemBuffer::InitMemBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
+    void MemBuffer::allocateMemoryBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
     {
         bufferSize = size;
 
@@ -18,7 +19,7 @@ namespace Comphi::Vulkan {
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(GraphicsHandler::get()->logicalDevice, &bufferInfo, nullptr, &bufferObj) != VK_SUCCESS) {
+        vkCheckError(vkCreateBuffer(GraphicsHandler::get()->logicalDevice, &bufferInfo, nullptr, &bufferObj)) {
             COMPHILOG_CORE_ERROR("failed to create buffer!");
             throw std::runtime_error("failed to create buffer!");
         }
@@ -29,9 +30,9 @@ namespace Comphi::Vulkan {
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+        allocInfo.memoryTypeIndex = MemBuffer::findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(GraphicsHandler::get()->logicalDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        vkCheckError(vkAllocateMemory(GraphicsHandler::get()->logicalDevice, &allocInfo, nullptr, &bufferMemory)) {
             COMPHILOG_CORE_ERROR("failed to allocate vertex buffer memory!");
             throw std::runtime_error("failed to allocate vertex buffer memory!");
         }
@@ -39,10 +40,10 @@ namespace Comphi::Vulkan {
         vkBindBufferMemory(GraphicsHandler::get()->logicalDevice, bufferObj, bufferMemory, 0);
     }
 
-    uint32_t MemBuffer::findMemoryType(VkPhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+    uint32_t MemBuffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
 
         VkPhysicalDeviceMemoryProperties memProperties;
-        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+        vkGetPhysicalDeviceMemoryProperties(GraphicsHandler::get()->physicalDevice, &memProperties);
 
         for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
             if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
@@ -54,35 +55,25 @@ namespace Comphi::Vulkan {
 
     }
 
-    uint32_t MemBuffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
-    {
-        return findMemoryType(GraphicsHandler::get()->physicalDevice,typeFilter,properties);
-    }
 
-    void MemBuffer::cleanUp()
+    void MemBuffer::copyBufferTo(VkBuffer& srcBuffer, VkBuffer& dstBuffer, uint copySize)
     {
-        COMPHILOG_CORE_INFO("vkDestroy Destroy MemBuffer");
-        vkDestroyBuffer(GraphicsHandler::get()->logicalDevice, bufferObj, nullptr);
-        vkFreeMemory(GraphicsHandler::get()->logicalDevice,bufferMemory, nullptr);
-    }
-
-    void MemBuffer::copyBuffer(MemBuffer& srcBuffer, MemBuffer& dstBuffer)
-    {
-        srcBuffer.copyBufferTo(dstBuffer);
-    }
-
-
-    void MemBuffer::copyBufferTo(MemBuffer& dstBuffer)
-    {
-        CommandBuffer commandBuffer = GraphicsHandler::beginCommandBuffer(TransferCommand);
+        CommandBuffer commandBuffer = CommandPool::beginCommandBuffer(TransferCommand);
 
         VkBufferCopy copyRegion{};
         //copyRegion.srcOffset = 0; // Optional
         //copyRegion.dstOffset = 0; // Optional
-        copyRegion.size = bufferSize;
-        vkCmdCopyBuffer(commandBuffer.buffer, bufferObj, dstBuffer.bufferObj, 1, &copyRegion);
+        copyRegion.size = copySize;
+        vkCmdCopyBuffer(commandBuffer.buffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-        GraphicsHandler::endCommandBuffer(commandBuffer);
-
+        CommandPool::endCommandBuffer(commandBuffer);
     }
+    
+    void MemBuffer::cleanUp()
+    {
+        COMPHILOG_CORE_INFO("vkDestroy Destroy MemBuffer");
+        vkDestroyBuffer(GraphicsHandler::get()->logicalDevice, bufferObj, nullptr);
+        vkFreeMemory(GraphicsHandler::get()->logicalDevice, bufferMemory, nullptr);
+    }
+
 }

@@ -14,7 +14,8 @@ namespace Comphi {
 	{
 	public:
 		Camera(CameraProperties cameraProperties = {}, TransformData transformData = {});
-
+		virtual void cleanUp() override {}; //TODO : Implement
+		
 		//Camera Action
 		ActionHandle action;
 

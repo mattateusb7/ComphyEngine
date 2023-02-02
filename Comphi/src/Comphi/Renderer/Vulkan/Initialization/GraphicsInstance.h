@@ -1,9 +1,44 @@
 #pragma once
 #include "Comphi/Renderer/Vulkan/GraphicsHandler.h"
+#include "SwapChain.h"
 
 namespace Comphi::Vulkan {
 	class GraphicsInstance
 	{
+	public:
+
+		void cleanUp();
+		GraphicsInstance();
+
+#ifndef NDEBUG
+		VkDebugUtilsMessengerEXT debugMessenger;
+#endif //!NDEBUG
+
+		//Vulkan Instance
+		void createVKInstance();
+		VkInstance instance;
+
+		//Surface 
+		void createSurface();
+		VkSurfaceKHR surface;
+
+		//Physical Device
+		void pickPhysicalDevice();
+		VkPhysicalDevice physicalDevice;
+
+		//Logical Device & GRAPHICS QUEUES
+		void createLogicalDevices();
+		VkDevice logicalDevice;
+
+		VkQueue graphicsQueue;
+		VkQueue presentQueue;
+		VkQueue transferQueue;
+
+		VkFence graphicsFence;
+		VkSemaphore queueSyncSemaphore;
+		VkFence transferFence;
+
+		std::unique_ptr<SwapChain> swapchain;
 	protected:
 
 #ifndef NDEBUG
@@ -52,32 +87,5 @@ namespace Comphi::Vulkan {
 		};
 		QueueFamilyIndices queueFamilyIndices;
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-
-	public:
-		void cleanUp();
-		GraphicsInstance();
-
-#ifndef NDEBUG
-		VkDebugUtilsMessengerEXT debugMessenger;
-#endif //!NDEBUG
-
-		//Vulkan Instance
-		void createVKInstance();
-		VkInstance instance;
-
-		//Surface 
-		void createSurface();
-		VkSurfaceKHR surface;
-
-		//Physical Device
-		void pickPhysicalDevice();
-		VkPhysicalDevice physicalDevice;
-
-		//Logical Device & GRAPHICS QUEUES
-		void createLogicalDevices();
-		VkDevice logicalDevice;
-		VkQueue graphicsQueue;
-		VkQueue presentQueue;
-		VkQueue transferQueue;
 	};
 }

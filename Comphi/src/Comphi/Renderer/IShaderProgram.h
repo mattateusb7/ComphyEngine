@@ -1,4 +1,5 @@
 #pragma once
+#include "Comphi/Allocation/IObject.h"
 #include "Comphi/Platform/IFileRef.h"
 
 namespace Comphi{
@@ -12,7 +13,7 @@ namespace Comphi{
 		ComputeShader,
 	};
 
-	class IShaderProgram
+	class IShaderProgram : public IObject
 	{
 	public:
 		IShaderProgram(ShaderType shaderType, IFileRef& file) : m_shaderType(shaderType), shaderFile(file) {};

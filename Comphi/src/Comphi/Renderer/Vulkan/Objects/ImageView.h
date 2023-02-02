@@ -4,34 +4,26 @@
 
 namespace Comphi::Vulkan {
 
-	class ImageView : public ImageBuffer, public ITexture
+	class ImageView : public ITexture
 	{
 	public:
-		//default constructor auto alocates ImageBuffer
-		ImageView() = default;
-		ImageView(IFileRef& fileref, ImgSpecification specification = ImgSpecification());
-		VkSampler initTextureSampler();
-
-		//from ImageBuffer: 
-		//<< VkImage bufferObj; 
-		//<< bufferMemory;
-		//<< bufferSize;
-		//<< uint32_t width;
-		//<< uint32_t height;
-		//<< VkFormat imageFormat;
-		//<< VkImageLayout imageLayout;
-
-		//External ImageBuffer
-		void initSwapchainImageView(VkImage& imageBufferObj, VkFormat& imageFormat);
+		void initTextureImageView(IFileRef& fileref, ImageBufferSpecification bufferSpecs = {});
 		void initDepthImageView(VkExtent2D& swapChainImageBufferExtent);
+		static void initSwapchainImageViews(VkSwapchainKHR swapchain, VkFormat SwapchainImageFormat, std::vector<ImageView>& swapchainImageViews);
 
-		void cleanUp();
-		VkImageView imageViewObj;
-		VkImageAspectFlags aspectFlags;
-		VkSampler textureSamplerObj;
+		virtual void cleanUp() override; //IObject
+
+		VkImageView imageView;
+		VkSampler textureSampler;
+		ImageBuffer imageBuffer;
+
+		ImageView() = default;
 
 	protected:
-		void initImageView();
+		void allocateTextureSampler();
+		void allocateImageView();
+		bool isSwapchainImage = false;
+		bool hasTextureSampler = false;
 		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 		VkFormat findDepthFormat();
 		
