@@ -25,31 +25,5 @@ namespace Comphi::Vulkan {
 		vkDestroyShaderModule(GraphicsHandler::get()->logicalDevice, shaderModule, 0);
 		COMPHILOG_CORE_INFO("shaderModule Destroyed!");
 	}
-	
-	void ShaderProgram::initializeShaderStageInfo()
-	{
-		switch (GetType())
-		{
-		case (uint)Comphi::ShaderType::VertexShader: {
-			//VERTEX
-			shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			shaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-			shaderStageInfo.module = shaderModule;
-			shaderStageInfo.pName = "main";
-			shaderStageInfo.pSpecializationInfo = nullptr;
-			break;
-		}
-		case (uint)Comphi::ShaderType::FragmentShader: {
-			//FRAGMENT
-			shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			shaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-			shaderStageInfo.module = shaderModule;
-			shaderStageInfo.pName = "main";
-			break;
-		}
-		default:
-			break;
-		}
-	}
 
 }

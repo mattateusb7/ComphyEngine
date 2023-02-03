@@ -41,6 +41,6 @@
 #define vkCheckError(x) if(x != VK_SUCCESS)
 
 namespace Comphi {
-	typedef uint32_t uint;
+	typedef uint32_t uint; //TODO: change to uint32
 	typedef uint64_t uint64;
 }

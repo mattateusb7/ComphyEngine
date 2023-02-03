@@ -5,49 +5,37 @@ namespace Comphi::Vulkan {
 
 	void GraphicsPipeline::initialize(GraphicsPipelineConfiguration config)
 	{
-		//createDescriptorPool();
-		//createDescriptorSetLayout();
-
-		//TODO: Separate initialization to list of different pipeline creation stages (functions);
-		//https://vkguide.dev/docs/chapter-2/pipeline_walkthrough/
-
-		//TODO: this seems like a good place to start working on dynamic Descriptor Pools
+		//TODO: Move all this code to separate Functions
 		
 		//---------- VertexBufferDescriptions
-		std::vector<VkVertexInputBindingDescription> bindingDescriptions = std::vector<VkVertexInputBindingDescription>(config.vertexInputDescription.attributeDescriptionsBindings.size());
-		std::vector<VkVertexInputAttributeDescription> attributeDescriptions = std::vector<VkVertexInputAttributeDescription>(config.vertexInputDescription.attributeDescriptionsBindings.size());
+		uint vertexBindingDescriptionCount = config.vertexInputDescription.bindingDescriptions.size();
+		uint vertexAttributeBindingsCount = config.vertexInputDescription.attributeDescriptionsBindings.size();
 
-		for (size_t i = 0; i < config.vertexInputDescription.bindingDescriptions.size(); i++) {
-			BindingDescription& binding = config.vertexInputDescription.bindingDescriptions[i];
+		std::vector<VkVertexInputBindingDescription> bindingDescriptions = std::vector<VkVertexInputBindingDescription>(vertexBindingDescriptionCount);
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions = std::vector<VkVertexInputAttributeDescription>(vertexAttributeBindingsCount);
+
+		for (size_t i = 0; i < vertexBindingDescriptionCount; i++) {
+			VertexBindingDescription& binding = config.vertexInputDescription.bindingDescriptions[i];
 			bindingDescriptions[i].binding = binding.ID;
 			bindingDescriptions[i].stride = binding.stride;
 			bindingDescriptions[i].inputRate = (VkVertexInputRate)binding.inputRate;
 			
-			for (size_t i = 0; i < config.vertexInputDescription.attributeDescriptionsBindings.size(); i++)
+			for (size_t i = 0; i < vertexAttributeBindingsCount; i++)
 			{
-				AttributeBinding& attribute = config.vertexInputDescription.attributeDescriptionsBindings[i];
+				VertexAttributeBinding& attribute = config.vertexInputDescription.attributeDescriptionsBindings[i];
 				attributeDescriptions[i].binding = attribute.ID;
 				attributeDescriptions[i].location = attribute.location;
-				attributeDescriptions[i].format = attribute.format;
+				attributeDescriptions[i].format = (VkFormat)attribute.format;
 				attributeDescriptions[i].offset = attribute.offset;
 			}
 		}
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint>(bindingDescriptions.size());
-		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint>(attributeDescriptions.size());
+		vertexInputInfo.vertexBindingDescriptionCount = vertexBindingDescriptionCount;
+		vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributeBindingsCount;
 		vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
 		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-
-		//----------
-
-
-		//---------- Primitives
-		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		inputAssembly.topology = (VkPrimitiveTopology)config.topologyType;
-		inputAssembly.primitiveRestartEnable = VK_FALSE;
 		//----------
 
 
@@ -67,15 +55,20 @@ namespace Comphi::Vulkan {
 		viewportState.viewportCount = 1;
 		viewportState.scissorCount = 1;
 
-			//Immutable ViewPort (requires reconstruction of pipeline)
-			//VkPipelineViewportStateCreateInfo viewportState{};
-			//viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-			//viewportState.viewportCount = 1;
-			//viewportState.pViewports = &viewport; &graphicsPipelineSetupData.viewport;
-			//viewportState.scissorCount = 1;
-			//viewportState.pScissors = &scissor; &graphicsPipelineSetupData.scissor;
+		//Immutable ViewPort (requires reconstruction of pipeline)
+		//VkPipelineViewportStateCreateInfo viewportState{};
+		//viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		//viewportState.viewportCount = 1;
+		//viewportState.pViewports = &viewport; &graphicsPipelineSetupData.viewport;
+		//viewportState.scissorCount = 1;
+		//viewportState.pScissors = &scissor; &graphicsPipelineSetupData.scissor;
 
-		//----------
+		//Primitives
+		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		inputAssembly.topology = (VkPrimitiveTopology)config.assemblySettings.topologyType;
+		inputAssembly.primitiveRestartEnable = VK_FALSE;
+
 
 		//Rasterizer
 		VkPipelineRasterizationStateCreateInfo rasterizer{};
@@ -100,9 +93,6 @@ namespace Comphi::Vulkan {
 		multisampling.pSampleMask = nullptr; // Optional
 		multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
 		multisampling.alphaToOneEnable = VK_FALSE; // Optional
-
-		//----------
-		
 
 
 		//ColorBlending
@@ -161,64 +151,94 @@ namespace Comphi::Vulkan {
 		depthStencil.back = {}; // Optional		stencil : make sure that the format of the depth/stencil image contains a stencil component.
 
 		{
+			//https://vkguide.dev/docs/chapter-2/pipeline_walkthrough/
 			/***
 			//TODO: Add DescriptonSetLayoutProperties Struct in the future to allow diferent layouts
 			/This constructor defines DescriptorPool Compatibility with Descriptor Sets Layouts
 			/All Descriptor Sets in this Graphics Pipeline Should Be Compatible with this Descriptor Pool
 			***/
-			//createDescriptorPool()
-			int MAX_FRAMES_IN_FLIGHT = *GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
-			std::array<VkDescriptorPoolSize, 2> poolSizes{};
-
-			poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-			poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-			VkDescriptorPoolCreateInfo poolInfo{};
-			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-			poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-			poolInfo.pPoolSizes = poolSizes.data();
-			poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-			vkCheckError(vkCreateDescriptorPool(GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &descriptorPoolObj)) {
-				COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
-				throw std::runtime_error("failed to create descriptor pool!");
-			}
-
-			//createDescriptorSetLayout()
-
-			VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-			samplerLayoutBinding.binding = 1;
-			samplerLayoutBinding.descriptorCount = 1;
-			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			samplerLayoutBinding.pImmutableSamplers = nullptr;
-			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-			VkDescriptorSetLayoutBinding uboLayoutBinding{};
-			uboLayoutBinding.binding = 0;
-			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			uboLayoutBinding.descriptorCount = 1;
-			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-			uboLayoutBinding.pImmutableSamplers = nullptr; // Optional : relevant for image sampling
-
-			std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-			VkDescriptorSetLayoutCreateInfo layoutInfo{};
-			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-			layoutInfo.pBindings = bindings.data();
-
-			vkCheckError(vkCreateDescriptorSetLayout(GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &descriptorSetLayout)) {
-				COMPHILOG_CORE_FATAL("failed to create descriptor set layout!");
-				throw std::runtime_error("failed to create descriptor set layout!");
-			}
-
+		
 			//Pipelineslayout
+			//the point of having multiple descriptor sets is to allow users to change one set of descriptors without changing another, 
+			//and to allow pipelines to be partially layout compatible with one another.
+			//https://stackoverflow.com/questions/56928041/what-is-the-purpose-of-multiple-setlayoutcounts-of-vulkan-vkpipelinelayoutcreate
+			// Foreach Scene
+			// Foreach Pipe{
+			// 
+			//	Custom Descriptor set Layout ex: 
+			//	set 0 (GlobalResouces) : Constants
+			//	set 1 (per-scene) : Camera Projection Matrix , Lights(unless we want masks of some kind)
+			//	set 2 (per-Material static data) : Textures
+			//	set 3 (per-Material dynamic (instance lvl) ) : parameters, ModelView matrix
+			// 
+			// }
+			//https://computergraphics.stackexchange.com/questions/12481/a-lot-of-pipelines-on-vulkan-for-each-render-pass-what-could-go-wrong
+			//Even if there are only a few pipelines per a frame, a program can still get into trouble by constantly switching between pipelines.
+			//So, combine draw calls on a per pipe basis, meaning bind a pipe, do all the draws for that pipe, bind the next pipe, etc.
+			
+			//Im planning to use the GraphicPipelineLayouts as the "Phases" and the Materials 
+			//will be variations of shader groups that fit those Layout descriptions of resources
+			
+			//TODO : The Client will be able to customize multiple PipelineLayouts through the ComphiAPI 
+			//and bind Materias(groups of shaders) to them through GraphicsPipeline*
+		
+			//How many Descriptor Sets per PipelineLayoutSet ?
+			//TODO: Test if i can have N DescriptorSetLayouts and One DescriptorPool per descriptorSet Layout
+
+			//Dynamic DescriptorSetLayout & Pool Creation !
+			uint pipelineLayoutSetCount = config.pipelineLayoutConfig.pipelineLayoutSets.size();
+			descriptorSetLayouts = std::vector<VkDescriptorSetLayout>(pipelineLayoutSetCount);
+			descriptorPools = std::vector<VkDescriptorPool>(pipelineLayoutSetCount);
+			for (size_t i = 0; i < pipelineLayoutSetCount; i++)
+			{
+
+				uint DescriptorSetBindingsCount = config.pipelineLayoutConfig.pipelineLayoutSets[i].shaderResourceDescriptors.size();
+				uint MAX_FRAMES_IN_FLIGHT = static_cast<uint>(*GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT); //TODO: Validate this with some tests
+
+				std::vector<VkDescriptorPoolSize> descriptorPoolSizes = std::vector<VkDescriptorPoolSize>(DescriptorSetBindingsCount);
+				std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>(DescriptorSetBindingsCount);
+				for (size_t n = 0; n < DescriptorSetBindingsCount; n++)
+				{
+					//Descriptor Set data
+					ShaderResourceDescriptorSet& descriptorSet = config.pipelineLayoutConfig.pipelineLayoutSets[i].shaderResourceDescriptors[n];
+					VkDescriptorSetLayoutBinding layoutBinding;
+					descriptorSetLayoutBindings[n].binding = descriptorSet.bindingID;
+					descriptorSetLayoutBindings[n].descriptorCount = descriptorSet.count;
+					descriptorSetLayoutBindings[n].descriptorType = (VkDescriptorType)descriptorSet.type;
+					descriptorSetLayoutBindings[n].stageFlags = (VkShaderStageFlags)descriptorSet.flags;
+					descriptorSetLayoutBindings[n].pImmutableSamplers = nullptr; // Optional : relevant for image sampling
+
+					//Descriptor Pool data
+					descriptorPoolSizes[n].type = (VkDescriptorType)descriptorSet.type;
+					descriptorPoolSizes[n].descriptorCount = MAX_FRAMES_IN_FLIGHT;
+				}
+				VkDescriptorSetLayoutCreateInfo layoutInfo{};
+				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+				layoutInfo.bindingCount = DescriptorSetBindingsCount;
+				layoutInfo.pBindings = descriptorSetLayoutBindings.data();
+
+				vkCheckError(vkCreateDescriptorSetLayout(GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &descriptorSetLayouts[i])) {
+					COMPHILOG_CORE_FATAL("failed to create descriptor set layout!");
+					throw std::runtime_error("failed to create descriptor set layout!");
+				}
+
+				VkDescriptorPoolCreateInfo poolInfo{};
+				poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+				poolInfo.poolSizeCount = DescriptorSetBindingsCount;
+				poolInfo.pPoolSizes = descriptorPoolSizes.data();
+				poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT;
+
+				vkCheckError(vkCreateDescriptorPool(GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &descriptorPools[i])) {
+					COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
+					throw std::runtime_error("failed to create descriptor pool!");
+				}
+
+			}
+
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = 1;
-			pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+			pipelineLayoutInfo.setLayoutCount = pipelineLayoutSetCount; //Descriptor set ID count
+			pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data(); //Descriptor set IDs ptr (layout(set = #))
 			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 			pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -230,10 +250,45 @@ namespace Comphi::Vulkan {
 			COMPHILOG_CORE_INFO("created pipelineLayout successfully!");
 		}
 
+		uint stageCount = config.pipelineLayoutConfig.shaderPrograms.size();
+		std::vector<VkPipelineShaderStageCreateInfo> shaderStagesInfo = std::vector<VkPipelineShaderStageCreateInfo>(stageCount);
+		for (size_t i = 0; i < stageCount; i++)
+		{
+			//Need to find a way to abstract Shader Modules after all ... DynamicCast It is !
+			//Just have to guarantee that ComphiAPI Creates a full obj of type ShaderProgram
+			ShaderProgram* _shaderProgram = dynamic_cast<ShaderProgram*>(config.pipelineLayoutConfig.shaderPrograms[i]);
+
+			switch (_shaderProgram->GetType())
+			{
+			case (uint)Comphi::ShaderType::VertexShader: {
+				//VERTEX
+				shaderStagesInfo[i].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+				shaderStagesInfo[i].stage = VK_SHADER_STAGE_VERTEX_BIT;
+				shaderStagesInfo[i].module = _shaderProgram->shaderModule;
+				shaderStagesInfo[i].pName = _shaderProgram->entryPointFunctionName.data();
+				shaderStagesInfo[i].pSpecializationInfo = nullptr;
+				break;
+			}
+			case (uint)Comphi::ShaderType::FragmentShader: {
+				//FRAGMENT
+				shaderStagesInfo[i].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+				shaderStagesInfo[i].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+				shaderStagesInfo[i].module = _shaderProgram->shaderModule;
+				shaderStagesInfo[i].pName = _shaderProgram->entryPointFunctionName.data();
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = config.shaderPrograms.data();
+		pipelineInfo.stageCount = stageCount;
+		pipelineInfo.pStages = shaderStagesInfo.data();
+
+
+		//pipelineInfo.pStages = shaderStages.data(); 
 		//pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
 
 		pipelineInfo.pVertexInputState = &vertexInputInfo;

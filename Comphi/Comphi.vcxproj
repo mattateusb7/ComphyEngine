@@ -146,6 +146,7 @@
     <ClInclude Include="src\Comphi.h" />
     <ClInclude Include="src\Comphi\API\Camera.h" />
     <ClInclude Include="src\Comphi\API\GameObject.h" />
+    <ClInclude Include="src\Comphi\API\GraphicsPipeline.h" />
     <ClInclude Include="src\Comphi\API\Material.h" />
     <ClInclude Include="src\Comphi\API\Mesh.h" />
     <ClInclude Include="src\Comphi\API\Scene.h" />
@@ -174,6 +175,7 @@
     <ClInclude Include="src\Comphi\Platform\Windows\Input.h" />
     <ClInclude Include="src\Comphi\Platform\Windows\Window.h" />
     <ClInclude Include="src\Comphi\Renderer\GraphicsAPI.h" />
+    <ClInclude Include="src\Comphi\Renderer\IGraphicsPipeline.h" />
     <ClInclude Include="src\Comphi\Renderer\ICamera.h" />
     <ClInclude Include="src\Comphi\Renderer\IGraphicsContext.h" />
     <ClInclude Include="src\Comphi\Renderer\IIndexBuffer.h" />

@@ -2,6 +2,7 @@
 
 #include "Comphi/Allocation/IObject.h"
 #include "Comphi/Renderer/IMaterial.h"
+#include "Comphi/Renderer/IGraphicsPipeline.h"
 #include "GraphicsPipeline.h"
 #include "ShaderProgram.h"
 
@@ -10,17 +11,19 @@ namespace Comphi::Vulkan {
 	//API Abstraction
 	typedef std::vector<ITexture*> ShaderTextures;
 	typedef std::vector<IShaderProgram*> ShaderPrograms;
+	GraphicsPipelineConfiguration pipelineConfiguration;
 
 	struct MaterialResources
 	{
-
-		GraphicsPipelineConfiguration pipelineConfiguration;
-
-		//TODO: DescriptorSets containing references to commandBuffer resources (Shader accessible data)
-		// Descriptor Sets : https://youtu.be/5VBVWCg7riQ?t=117
-
+		IGraphicsPipeline* graphicsPipeline;
 		ShaderPrograms shaderPrograms = ShaderPrograms();
 		ShaderTextures shaderTextures = ShaderTextures();
+
+		//TODO: DescriptorSets Specifications derived from data
+		// containing references to commandBuffer resources (Shader accessible data)
+		// Descriptor Sets : https://youtu.be/5VBVWCg7riQ?t=117
+
+	
 		//uniform MVPMatrix 
 		//Uniforms
 		//All kinds of data
@@ -33,17 +36,10 @@ namespace Comphi::Vulkan {
 	{
 	public:
 
-		Material(MaterialResources& properties); 1
+		Material(MaterialResources& properties);
 		virtual void cleanUp() override;
 
 		MaterialResources properties;
-
-		//Each Material owns one Shader/Graphics Pipeline 
-		GraphicsPipeline graphicsPipeline;
-
-		//void bindGraphicsPipeline(VkCommandBuffer& commandBuffer);
-		//void bindDescriptorSet(VkCommandBuffer& commandBuffer, uint32_t currentFrame);
-		//void sendDescriptorSet(std::vector<UniformBuffer>& MVP_ubos);
 
 	protected:
 

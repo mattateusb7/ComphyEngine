@@ -22,7 +22,7 @@ namespace Comphi::Vulkan {
 		virtual void cleanUp() override;
 	private:
 		void createShaderModule();
-		void initializeShaderStageInfo();
+
 	};
 
 }
