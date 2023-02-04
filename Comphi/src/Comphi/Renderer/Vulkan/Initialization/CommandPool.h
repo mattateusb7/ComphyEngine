@@ -1,6 +1,7 @@
 #pragma once
 #include "../GraphicsHandler.h"
 #include "SyncObjectsFactory.h"
+#include "Comphi/Renderer/IGraphicsPipeline.h"
 
 namespace Comphi::Vulkan {
 
@@ -31,11 +32,10 @@ namespace Comphi::Vulkan {
 		VkCommandPool transferCommandPool;
 
 		void cleanUp(); //When a pool is destroyed, all command buffers allocated from the pool are freed.
-
+		
 	protected:
 		static VkCommandPool getCommandPool(CommandQueueOperation& op);
 		static VkQueue getCommandQueue(CommandQueueOperation& op);
-
 	};
 
 }

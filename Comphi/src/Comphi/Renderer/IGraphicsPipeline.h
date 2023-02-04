@@ -83,21 +83,20 @@ namespace Comphi {
 	};
 
 	struct ShaderResourceDescriptorSet {
+		//uint bindingID = 0; << arrayPos
 		ShaderResourceDescriptorType type;
-		uint bindingID = 0;
-		uint count = 1; //TODO: Resource Count ?
+		uint count = 1; //Default = 1, Off = 0 | Resource Array Of Type x
 		ShaderStageFlags flags;
-		//Probably need to add Structure definition to describe sent data (UBO format)
 	};
 
 	//PIPELINE LAYOUT
 	struct PipelineLayoutSet {
-		std::vector<ShaderResourceDescriptorSet> shaderResourceDescriptors;
+		std::vector<ShaderResourceDescriptorSet> shaderResourceDescriptorSets;
 		//std::vector<pushConstants> //TODO: Add Later
 	};
 
 	struct PipelineLayoutConfiguration {
-		std::vector<PipelineLayoutSet> pipelineLayoutSets;
+		std::vector<PipelineLayoutSet> layoutSets;
 		std::vector<IShaderProgram*> shaderPrograms;
 	};
 
@@ -105,7 +104,7 @@ namespace Comphi {
 		AssemblySettings assemblySettings{};
 		RasterizerSettings rasterizerSettings{};
 		VertexBufferDescription vertexInputDescription{};
-		PipelineLayoutConfiguration pipelineLayoutConfig{};
+		PipelineLayoutConfiguration pipelineLayoutConfiguration{};
 
 		//TODO: Add missing Configurations v v v 
 		//pViewportState = &viewportState; //pDynamicState = &dynamicState;
@@ -114,12 +113,18 @@ namespace Comphi {
 		
 	};
 
+	//struct GraphicsPipelineSetupData{
+	//	VkViewport* viewport;
+	//	VkRect2D* scissor;
+	//}graphicsPipelineSetupData;
+
 	class IGraphicsPipeline
 	{
 	public:
 		IGraphicsPipeline() = default;
 		~IGraphicsPipeline() = default;
 
+		GraphicsPipelineConfiguration configuration;
 
 	};
 }

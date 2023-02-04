@@ -191,6 +191,7 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Initialization\GraphicsInstance.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Initialization\SwapChain.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Initialization\SyncObjectsFactory.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\DescriptorSetResource.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\GraphicsPipeline.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageBufer.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.h" />
@@ -646,6 +647,7 @@
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Initialization\GraphicsInstance.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Initialization\SwapChain.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Initialization\SyncObjectsFactory.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\DescriptorSetResource.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\GraphicsPipeline.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageBuffer.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Objects\ImageView.cpp" />

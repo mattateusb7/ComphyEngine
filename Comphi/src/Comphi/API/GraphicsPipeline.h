@@ -3,11 +3,13 @@
 
 namespace Comphi {
 	
-	class GraphicsPipeline : IGraphicsPipeline
-	{
-	public:
-		GraphicsPipeline() = default;
+	typedef std::shared_ptr<IGraphicsPipeline> GraphicsPipelineInstance;
 
-	};
+	//class GraphicsPipeline : IGraphicsPipeline
+	//{
+	//public:
+	//	GraphicsPipeline() = default;
+	//
+	//};
 
 }

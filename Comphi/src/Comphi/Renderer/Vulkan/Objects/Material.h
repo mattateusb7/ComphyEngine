@@ -18,18 +18,6 @@ namespace Comphi::Vulkan {
 		IGraphicsPipeline* graphicsPipeline;
 		ShaderPrograms shaderPrograms = ShaderPrograms();
 		ShaderTextures shaderTextures = ShaderTextures();
-
-		//TODO: DescriptorSets Specifications derived from data
-		// containing references to commandBuffer resources (Shader accessible data)
-		// Descriptor Sets : https://youtu.be/5VBVWCg7riQ?t=117
-
-	
-		//uniform MVPMatrix 
-		//Uniforms
-		//All kinds of data
-		
-		//Binding IDS ?
-		//Binding points ID do not interfeer with eachother, each has their own IDs: Graphics, Compute, Ray_tracing (vkPipelineBindPoint)
 	};
 
 	class Material : public IMaterial

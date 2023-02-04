@@ -1,5 +1,7 @@
 #include "cphipch.h"
 #include "GraphicsPipeline.h"
+#include "Comphi/Renderer/Vulkan/Objects/ShaderProgram.h"
+#include "../Objects/UniformBuffer.h"
 
 namespace Comphi::Vulkan {
 
@@ -150,113 +152,133 @@ namespace Comphi::Vulkan {
 		depthStencil.front = {}; // Optional	stencil : make sure that the format of the depth/stencil image contains a stencil component.
 		depthStencil.back = {}; // Optional		stencil : make sure that the format of the depth/stencil image contains a stencil component.
 
+		//https://vkguide.dev/docs/chapter-2/pipeline_walkthrough/
+		/***
+		//TODO: Add DescriptonSetLayoutProperties Struct in the future to allow diferent layouts
+		/This constructor defines DescriptorPool Compatibility with Descriptor Sets Layouts
+		/All Descriptor Sets in this Graphics Pipeline Should Be Compatible with this Descriptor Pool
+		***/
+		
+		//Pipelineslayout
+		//the point of having multiple descriptor sets is to allow users to change one set of descriptors without changing another, 
+		//and to allow pipelines to be partially layout compatible with one another.
+		//https://stackoverflow.com/questions/56928041/what-is-the-purpose-of-multiple-setlayoutcounts-of-vulkan-vkpipelinelayoutcreate
+		// Foreach Scene
+		// Foreach Pipe{
+		// 
+		//	Custom Descriptor set Layout ex: 
+		//	set 0 (GlobalResouces) : Constants
+		//	set 1 (per-scene) : Camera Projection Matrix , Lights(unless we want masks of some kind)
+		//	set 2 (per-Material static data) : Textures
+		//	set 3 (per-Material dynamic (instance lvl) ) : parameters, ModelView matrix
+		// 
+		// }
+		//https://computergraphics.stackexchange.com/questions/12481/a-lot-of-pipelines-on-vulkan-for-each-render-pass-what-could-go-wrong
+		//Even if there are only a few pipelines per a frame, a program can still get into trouble by constantly switching between pipelines.
+		//So, combine draw calls on a per pipe basis, meaning bind a pipe, do all the draws for that pipe, bind the next pipe, etc.
+		
+		//Im planning to use the GraphicPipelineLayouts as the "Phases" and the Materials 
+		//will be variations of shader groups that fit those Layout descriptions of resources
+		
+		//TODO : The Client will be able to customize multiple PipelineLayouts through the ComphiAPI 
+		//and bind Materials(groups of shaders) to them through GraphicsPipeline*
+		
+		//How many Descriptor Sets per PipelineLayoutSet ?
+		//TODO: Test if we can have N DescriptorSetLayouts and One DescriptorPool per descriptorSet Layout
+
+		//Dynamic DescriptorSetLayout & Pool Creation !
+		uint layoutSetsCount = config.pipelineLayoutConfiguration.layoutSets.size();
+		uint MAX_FRAMES_IN_FLIGHT = static_cast<uint>(*GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT); //TODO: Validate this with some tests
+		graphicsSetLayouts = std::vector<LayoutSet>(layoutSetsCount);
+		for (size_t i = 0; i < layoutSetsCount; i++)
 		{
-			//https://vkguide.dev/docs/chapter-2/pipeline_walkthrough/
-			/***
-			//TODO: Add DescriptonSetLayoutProperties Struct in the future to allow diferent layouts
-			/This constructor defines DescriptorPool Compatibility with Descriptor Sets Layouts
-			/All Descriptor Sets in this Graphics Pipeline Should Be Compatible with this Descriptor Pool
-			***/
-		
-			//Pipelineslayout
-			//the point of having multiple descriptor sets is to allow users to change one set of descriptors without changing another, 
-			//and to allow pipelines to be partially layout compatible with one another.
-			//https://stackoverflow.com/questions/56928041/what-is-the-purpose-of-multiple-setlayoutcounts-of-vulkan-vkpipelinelayoutcreate
-			// Foreach Scene
-			// Foreach Pipe{
-			// 
-			//	Custom Descriptor set Layout ex: 
-			//	set 0 (GlobalResouces) : Constants
-			//	set 1 (per-scene) : Camera Projection Matrix , Lights(unless we want masks of some kind)
-			//	set 2 (per-Material static data) : Textures
-			//	set 3 (per-Material dynamic (instance lvl) ) : parameters, ModelView matrix
-			// 
-			// }
-			//https://computergraphics.stackexchange.com/questions/12481/a-lot-of-pipelines-on-vulkan-for-each-render-pass-what-could-go-wrong
-			//Even if there are only a few pipelines per a frame, a program can still get into trouble by constantly switching between pipelines.
-			//So, combine draw calls on a per pipe basis, meaning bind a pipe, do all the draws for that pipe, bind the next pipe, etc.
-			
-			//Im planning to use the GraphicPipelineLayouts as the "Phases" and the Materials 
-			//will be variations of shader groups that fit those Layout descriptions of resources
-			
-			//TODO : The Client will be able to customize multiple PipelineLayouts through the ComphiAPI 
-			//and bind Materias(groups of shaders) to them through GraphicsPipeline*
-		
-			//How many Descriptor Sets per PipelineLayoutSet ?
-			//TODO: Test if i can have N DescriptorSetLayouts and One DescriptorPool per descriptorSet Layout
 
-			//Dynamic DescriptorSetLayout & Pool Creation !
-			uint pipelineLayoutSetCount = config.pipelineLayoutConfig.pipelineLayoutSets.size();
-			descriptorSetLayouts = std::vector<VkDescriptorSetLayout>(pipelineLayoutSetCount);
-			descriptorPools = std::vector<VkDescriptorPool>(pipelineLayoutSetCount);
-			for (size_t i = 0; i < pipelineLayoutSetCount; i++)
+			uint descriptorSetBindingsCount = config.pipelineLayoutConfiguration.layoutSets[i].shaderResourceDescriptorSets.size();
+
+			std::vector<VkDescriptorPoolSize> descriptorPoolSizes = std::vector<VkDescriptorPoolSize>(descriptorSetBindingsCount);
+			std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>(descriptorSetBindingsCount);
+			for (size_t n = 0; n < descriptorSetBindingsCount; n++)
 			{
+				//Descriptor Sets data
+				ShaderResourceDescriptorSet& descriptorSet = config.pipelineLayoutConfiguration.layoutSets[i].shaderResourceDescriptorSets[n];
+				descriptorSetLayoutBindings[n].binding = n;
+				descriptorSetLayoutBindings[n].descriptorType = (VkDescriptorType)descriptorSet.type;
+				descriptorSetLayoutBindings[n].descriptorCount = descriptorSet.count;
+				descriptorSetLayoutBindings[n].stageFlags = (VkShaderStageFlags)descriptorSet.flags;
+				descriptorSetLayoutBindings[n].pImmutableSamplers = nullptr; // Optional : relevant for image sampling
 
-				uint DescriptorSetBindingsCount = config.pipelineLayoutConfig.pipelineLayoutSets[i].shaderResourceDescriptors.size();
-				uint MAX_FRAMES_IN_FLIGHT = static_cast<uint>(*GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT); //TODO: Validate this with some tests
-
-				std::vector<VkDescriptorPoolSize> descriptorPoolSizes = std::vector<VkDescriptorPoolSize>(DescriptorSetBindingsCount);
-				std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>(DescriptorSetBindingsCount);
-				for (size_t n = 0; n < DescriptorSetBindingsCount; n++)
-				{
-					//Descriptor Set data
-					ShaderResourceDescriptorSet& descriptorSet = config.pipelineLayoutConfig.pipelineLayoutSets[i].shaderResourceDescriptors[n];
-					VkDescriptorSetLayoutBinding layoutBinding;
-					descriptorSetLayoutBindings[n].binding = descriptorSet.bindingID;
-					descriptorSetLayoutBindings[n].descriptorCount = descriptorSet.count;
-					descriptorSetLayoutBindings[n].descriptorType = (VkDescriptorType)descriptorSet.type;
-					descriptorSetLayoutBindings[n].stageFlags = (VkShaderStageFlags)descriptorSet.flags;
-					descriptorSetLayoutBindings[n].pImmutableSamplers = nullptr; // Optional : relevant for image sampling
-
-					//Descriptor Pool data
-					descriptorPoolSizes[n].type = (VkDescriptorType)descriptorSet.type;
-					descriptorPoolSizes[n].descriptorCount = MAX_FRAMES_IN_FLIGHT;
-				}
-				VkDescriptorSetLayoutCreateInfo layoutInfo{};
-				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-				layoutInfo.bindingCount = DescriptorSetBindingsCount;
-				layoutInfo.pBindings = descriptorSetLayoutBindings.data();
-
-				vkCheckError(vkCreateDescriptorSetLayout(GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &descriptorSetLayouts[i])) {
-					COMPHILOG_CORE_FATAL("failed to create descriptor set layout!");
-					throw std::runtime_error("failed to create descriptor set layout!");
-				}
+				//Descriptor Pools data
+				descriptorPoolSizes[n].type = (VkDescriptorType)descriptorSet.type;
+				descriptorPoolSizes[n].descriptorCount = descriptorSet.count * MAX_FRAMES_IN_FLIGHT; 
 
 				VkDescriptorPoolCreateInfo poolInfo{};
 				poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-				poolInfo.poolSizeCount = DescriptorSetBindingsCount;
+				poolInfo.poolSizeCount = descriptorSetBindingsCount;
 				poolInfo.pPoolSizes = descriptorPoolSizes.data();
 				poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT;
 
-				vkCheckError(vkCreateDescriptorPool(GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &descriptorPools[i])) {
+				vkCheckError(vkCreateDescriptorPool(GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &graphicsSetLayouts[i].descriptorPools[n])) {
 					COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
 					throw std::runtime_error("failed to create descriptor pool!");
-				}
+				};
 
 			}
 
-			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = pipelineLayoutSetCount; //Descriptor set ID count
-			pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data(); //Descriptor set IDs ptr (layout(set = #))
-			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-			pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+			//Create Layout Set
+			VkDescriptorSetLayoutCreateInfo layoutInfo{};
+			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+			layoutInfo.bindingCount = descriptorSetBindingsCount;
+			layoutInfo.pBindings = descriptorSetLayoutBindings.data();
 
-			vkCheckError(vkCreatePipelineLayout(GraphicsHandler::get()->logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout)) {
-				COMPHILOG_CORE_FATAL("failed to create pipeline layout!");
-				throw std::runtime_error("failed to create pipeline layout!");
+			vkCheckError(vkCreateDescriptorSetLayout(GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &graphicsSetLayouts[i].descriptorSetLayout)) {
+				COMPHILOG_CORE_FATAL("failed to create descriptor set layout!");
+				throw std::runtime_error("failed to create descriptor set layout!");
 			}
 
-			COMPHILOG_CORE_INFO("created pipelineLayout successfully!");
 		}
 
-		uint stageCount = config.pipelineLayoutConfig.shaderPrograms.size();
+		//Create Pipeline Layout
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.setLayoutCount = layoutSetsCount; //Descriptor set ID count
+		pipelineLayoutInfo.pSetLayouts = getSetLayouts(graphicsSetLayouts); //Descriptor set IDs ptr (layout(set = #))
+		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
+		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+
+		vkCheckError(vkCreatePipelineLayout(GraphicsHandler::get()->logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout)) {
+			COMPHILOG_CORE_FATAL("failed to create pipeline layout!");
+			throw std::runtime_error("failed to create pipeline layout!");
+		}
+
+		COMPHILOG_CORE_INFO("created pipelineLayout successfully!");
+
+		//Allocate DescriptorSets Once
+		for (size_t i = 0; i < layoutSetsCount; i++)
+		{
+			uint descriptorSetsSize = graphicsSetLayouts[i].descriptorPools.size();
+			graphicsSetLayouts[i].descriptorSets = std::vector<VkDescriptorSet>(descriptorSetsSize);
+			for (size_t n = 0; n < descriptorSetsSize; n++)
+			{
+				VkDescriptorSetAllocateInfo allocInfo{};
+				allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+				allocInfo.descriptorPool = graphicsSetLayouts[i].descriptorPools[n];
+				allocInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
+				allocInfo.pSetLayouts = &graphicsSetLayouts[i].descriptorSetLayout;
+
+				vkCheckError(vkAllocateDescriptorSets(GraphicsHandler::get()->logicalDevice, &allocInfo, graphicsSetLayouts[i].descriptorSets.data())) {
+					COMPHILOG_CORE_FATAL("failed to allocate descriptor sets!");
+					return;
+				}
+			}
+		}
+
+		uint stageCount = config.pipelineLayoutConfiguration.shaderPrograms.size();
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStagesInfo = std::vector<VkPipelineShaderStageCreateInfo>(stageCount);
 		for (size_t i = 0; i < stageCount; i++)
 		{
 			//Need to find a way to abstract Shader Modules after all ... DynamicCast It is !
 			//Just have to guarantee that ComphiAPI Creates a full obj of type ShaderProgram
-			ShaderProgram* _shaderProgram = dynamic_cast<ShaderProgram*>(config.pipelineLayoutConfig.shaderPrograms[i]);
+			ShaderProgram* _shaderProgram = static_cast<ShaderProgram*>(config.pipelineLayoutConfiguration.shaderPrograms[i]);
 
 			switch (_shaderProgram->GetType())
 			{
@@ -312,77 +334,74 @@ namespace Comphi::Vulkan {
 			throw std::runtime_error("failed to create graphics layout!");
 		}
 		COMPHILOG_CORE_INFO("created graphics pipeline successfully!");
+		
+		configuration = config;
 	}
 
-	void GraphicsPipeline::sendDescriptorSet()
+	void GraphicsPipeline::updateDescriptorSet(ShaderResourceDescriptorType type, uint setID, uint descriptorID, void* data)
 	{
+		//https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkWriteDescriptorSet.html
 
-		//INPUT RESOURCES 
-		std::vector<ITexture*>& textures
-		std::vector<UniformBuffer>& MVP_ubos
-		//---
+		std::vector<VkWriteDescriptorSet> descriptorWrites;
+		descriptorWrites.resize(1);
+		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[0].dstSet = graphicsSetLayouts[setID].descriptorSets[descriptorID];
+		descriptorWrites[0].dstBinding = descriptorID;
+		descriptorWrites[0].dstArrayElement = 0;
 
-		int MAX_FRAMES_IN_FLIGHT = *GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT;
-		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
-		
-		VkDescriptorSetAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = descriptorPoolObj;
-		allocInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
-		allocInfo.pSetLayouts = layouts.data();
+		VkDescriptorBufferInfo bufferInfo{};
+		VkDescriptorImageInfo imageInfo{};
 
-		descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-		vkCheckError(vkAllocateDescriptorSets(GraphicsHandler::get()->logicalDevice, &allocInfo, descriptorSets.data())) {
-			COMPHILOG_CORE_FATAL("failed to allocate descriptor sets!");
-			return;
-		}
-
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) { //move To MeshObject
-
-			//Next DrawCall Uniform DESCRIPTORS
-
-			//OBJECT VERTEX
-			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = MVP_ubos[i].bufferObj;
+		switch (type)
+		{
+		case ShaderResourceDescriptorType::UniformBuffer:
+		{
+			MemBuffer* buffer = static_cast<MemBuffer*>(data);
+			bufferInfo.buffer = buffer[0].bufferObj;
 			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(UniformBufferObject);
-
-			//OBJECT TEXTURES
-			VkDescriptorImageInfo imageInfo{};
-			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = static_cast<ImageView*>(textures[0])->imageView;
-			imageInfo.sampler = static_cast<ImageView*>(textures[0])->textureSampler;
-
-			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
-
-			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[0].dstSet = descriptorSets[i];
-			descriptorWrites[0].dstBinding = 0;
-			descriptorWrites[0].dstArrayElement = 0;
+			bufferInfo.range = buffer[0].bufferSize;
 			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			descriptorWrites[0].descriptorCount = 1;
 			descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[1].dstSet = descriptorSets[i];
-			descriptorWrites[1].dstBinding = 1;
-			descriptorWrites[1].dstArrayElement = 0;
-			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorWrites[1].descriptorCount = 1;
-			descriptorWrites[1].pImageInfo = &imageInfo;
-
-			vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+			break;
 		}
+
+		case ShaderResourceDescriptorType::ImageBufferSampler:
+		{
+			ImageView* imageArr = static_cast<ImageView*>(data);
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = imageArr[0].imageView;
+			imageInfo.sampler = imageArr[0].textureSampler;
+			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrites[0].descriptorCount = 1;
+			descriptorWrites[0].pImageInfo = &imageInfo;
+			break;
+		}
+
+		default:
+			break;
+		}
+
+		vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+
 		COMPHILOG_CORE_INFO("vkUpdateDescriptorSets success!");
 	}
 
 	void GraphicsPipeline::cleanUp()
 	{
-		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
-		vkDestroyDescriptorPool(Vulkan::GraphicsHandler::get()->logicalDevice, descriptorPoolObj, nullptr);
+		for (size_t i = 0; i < descriptorPools.size(); i++)
+		{
+			COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
+			vkDestroyDescriptorPool(Vulkan::GraphicsHandler::get()->logicalDevice, descriptorPools[i], nullptr);
+		}
+		descriptorPools.clear();
 
-		COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorSetLayout");
-		vkDestroyDescriptorSetLayout(Vulkan::GraphicsHandler::get()->logicalDevice, descriptorSetLayout, nullptr);
+		for (size_t i = 0; i < descriptorSetLayouts.size(); i++)
+		{
+			COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorSetLayout");
+			vkDestroyDescriptorSetLayout(Vulkan::GraphicsHandler::get()->logicalDevice, descriptorSetLayouts[i], nullptr);
+		}
+		descriptorSetLayouts.clear();
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
 		vkDestroyPipelineLayout(GraphicsHandler::get()->logicalDevice, pipelineLayout, nullptr);
@@ -391,5 +410,7 @@ namespace Comphi::Vulkan {
 		vkDestroyPipeline(GraphicsHandler::get()->logicalDevice, pipelineObj, nullptr);
 
 	}
+
+	
 
 }

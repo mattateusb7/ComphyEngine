@@ -23,8 +23,7 @@ namespace Comphi {
 		//Uniforms
 		//All kinds of data
 
-		//Binding IDS ?
-		//Binding points ID do not interfeer with eachother, each has their own IDs: Graphics, Compute, Ray_tracing (vkPipelineBindPoint)
+	
 	};
 
 	class IMaterial : public IObject //TODO: public IMaterial API / make virtual implementations for different Materials ? or generic for all
