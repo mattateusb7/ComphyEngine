@@ -40,6 +40,9 @@ public:
 
 	GameSceneLayer() : Layer("GameSceneLayer") { 
 		
+		GraphicsPipelineConfiguration config;
+		config.assemblySettings.topologyType = PrimitiveTopologyType::TriangleList;
+
 		//Texture
 		textureFile = Windows::FileRef("textures/viking_room.png");
 		texture = GraphicsAPI::create::Texture(textureFile);

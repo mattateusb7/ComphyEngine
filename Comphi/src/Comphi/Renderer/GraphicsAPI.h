@@ -16,6 +16,7 @@
 #include "Comphi/API/Shader.h"
 #include "Comphi/API/Texture.h"
 #include "Comphi/API/Material.h"
+#include "Comphi/API/GraphicsPipeline.h"
 
 namespace Comphi {
 

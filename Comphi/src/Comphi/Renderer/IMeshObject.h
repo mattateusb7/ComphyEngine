@@ -11,7 +11,7 @@ namespace Comphi {
 	{
 	public:
 		IFileRef* i_ModelFileOBJ;
-		std::shared_ptr<IMaterial> i_material; //TODO: Add Material-Attributes for vertexGroups
+		std::shared_ptr<IMaterial> i_material;
 		std::shared_ptr<IVertexBuffer> i_vertices;
 		std::shared_ptr<IIndexBuffer> i_indices;
 	};

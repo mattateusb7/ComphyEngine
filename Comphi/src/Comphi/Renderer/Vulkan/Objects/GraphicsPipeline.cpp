@@ -241,7 +241,7 @@ namespace Comphi::Vulkan {
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = layoutSetsCount; //Descriptor set ID count
-		pipelineLayoutInfo.pSetLayouts = getSetLayouts(graphicsSetLayouts); //Descriptor set IDs ptr (layout(set = #))
+		pipelineLayoutInfo.pSetLayouts = getSetLayouts(graphicsSetLayouts).data(); //Descriptor set IDs ptr (layout(set = #))
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -338,43 +338,59 @@ namespace Comphi::Vulkan {
 		configuration = config;
 	}
 
-	void GraphicsPipeline::updateDescriptorSet(ShaderResourceDescriptorType type, uint setID, uint descriptorID, void* data)
+	void GraphicsPipeline::updateDescriptorSet(uint setID, uint descriptorID)
 	{
 		//https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkWriteDescriptorSet.html
 
-		std::vector<VkWriteDescriptorSet> descriptorWrites;
-		descriptorWrites.resize(1);
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = graphicsSetLayouts[setID].descriptorSets[descriptorID];
-		descriptorWrites[0].dstBinding = descriptorID;
-		descriptorWrites[0].dstArrayElement = 0;
 
-		VkDescriptorBufferInfo bufferInfo{};
-		VkDescriptorImageInfo imageInfo{};
+		ShaderResourceDescriptorSet& descriptorSet = getDescriptorSet(setID, descriptorID);
 
-		switch (type)
+		VkWriteDescriptorSet descriptorWrite;
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = graphicsSetLayouts[setID].descriptorSets[descriptorID];
+		descriptorWrite.dstBinding = descriptorID;
+		descriptorWrite.dstArrayElement = 0;
+		//dstArrayElement is the starting element in that array.
+		//If the descriptor binding identified by dstSet and dstBinding has a 
+		//descriptor type of VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK then dstArrayElement 
+		//specifies the starting byte offset within the binding.
+
+		switch (descriptorSet.type)
 		{
 		case ShaderResourceDescriptorType::UniformBuffer:
 		{
-			MemBuffer* buffer = static_cast<MemBuffer*>(data);
-			bufferInfo.buffer = buffer[0].bufferObj;
-			bufferInfo.offset = 0;
-			bufferInfo.range = buffer[0].bufferSize;
-			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrites[0].descriptorCount = 1;
-			descriptorWrites[0].pBufferInfo = &bufferInfo;
+			MemBuffer* buffer = static_cast<MemBuffer*>(descriptorSet.data);
+
+			std::vector<VkDescriptorBufferInfo> buffersInfo;
+			buffersInfo.resize(descriptorSet.count);
+			for (size_t i = 0; i < descriptorSet.count; i++)
+			{
+				buffersInfo[i].buffer = buffer[i].bufferObj;
+				buffersInfo[i].range = buffer[i].bufferSize;
+				buffersInfo[i].offset = 0;
+			}
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount = descriptorSet.count;
+			descriptorWrite.pBufferInfo = buffersInfo.data();
 			break;
 		}
 
 		case ShaderResourceDescriptorType::ImageBufferSampler:
-		{
-			ImageView* imageArr = static_cast<ImageView*>(data);
-			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = imageArr[0].imageView;
-			imageInfo.sampler = imageArr[0].textureSampler;
-			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorWrites[0].descriptorCount = 1;
-			descriptorWrites[0].pImageInfo = &imageInfo;
+		{		
+			ImageView* imageArr = static_cast<ImageView*>(descriptorSet.data);
+
+			std::vector<VkDescriptorImageInfo> imageSamplers;
+			imageSamplers.resize(descriptorSet.count);
+			for (size_t i = 0; i < descriptorSet.count; i++)
+			{
+				imageSamplers[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				imageSamplers[i].imageView = imageArr[i].imageView;
+				imageSamplers[i].sampler = imageArr[i].textureSampler;
+			}
+
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrite.descriptorCount = descriptorSet.count;
+			descriptorWrite.pImageInfo = imageSamplers.data();
 			break;
 		}
 
@@ -382,26 +398,26 @@ namespace Comphi::Vulkan {
 			break;
 		}
 
-		vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, 1, &descriptorWrite, 0, nullptr);
 
 		COMPHILOG_CORE_INFO("vkUpdateDescriptorSets success!");
 	}
 
 	void GraphicsPipeline::cleanUp()
 	{
-		for (size_t i = 0; i < descriptorPools.size(); i++)
+		for (size_t i = 0; i < graphicsSetLayouts.size(); i++)
 		{
-			COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
-			vkDestroyDescriptorPool(Vulkan::GraphicsHandler::get()->logicalDevice, descriptorPools[i], nullptr);
-		}
-		descriptorPools.clear();
-
-		for (size_t i = 0; i < descriptorSetLayouts.size(); i++)
-		{
+			for (size_t n = 0; n < graphicsSetLayouts[i].descriptorSets.size(); n++)
+			{
+				COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
+				vkDestroyDescriptorPool(Vulkan::GraphicsHandler::get()->logicalDevice, graphicsSetLayouts[i].descriptorPools[n], nullptr);
+				
+			}
+			graphicsSetLayouts[i].descriptorPools.clear();
+			graphicsSetLayouts[i].descriptorSets.clear();
 			COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorSetLayout");
-			vkDestroyDescriptorSetLayout(Vulkan::GraphicsHandler::get()->logicalDevice, descriptorSetLayouts[i], nullptr);
+			vkDestroyDescriptorSetLayout(Vulkan::GraphicsHandler::get()->logicalDevice, graphicsSetLayouts[i].descriptorSetLayout, nullptr);
 		}
-		descriptorSetLayouts.clear();
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");
 		vkDestroyPipelineLayout(GraphicsHandler::get()->logicalDevice, pipelineLayout, nullptr);

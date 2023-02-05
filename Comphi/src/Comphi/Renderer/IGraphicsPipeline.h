@@ -12,22 +12,22 @@ namespace Comphi {
 	};
 
 	enum PrimitiveTopologyType {
-		TriangleList = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-		LineList = VK_PRIMITIVE_TOPOLOGY_LINE_LIST
+		TriangleList = 3,//VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+		LineList = 1//VK_PRIMITIVE_TOPOLOGY_LINE_LIST
 	};
 
 	enum PolygonMode { //TODO: Toggle Wireframe
-		Wireframe = VK_POLYGON_MODE_LINE,
-		PolygonFill = VK_POLYGON_MODE_FILL
+		Wireframe = 1,//VK_POLYGON_MODE_LINE
+		PolygonFill = 0//VK_POLYGON_MODE_FILL
 	};
 
 	enum CullingMode {
-		BackCulling = VK_CULL_MODE_BACK_BIT,
-		NoCulling = VK_CULL_MODE_NONE
+		BackCulling = 0x00000002,//VK_CULL_MODE_BACK_BIT,
+		NoCulling = 0 //VK_CULL_MODE_NONE
 	};
 
 	enum FrontFaceOrientation {
-		ClockWise = VK_FRONT_FACE_COUNTER_CLOCKWISE
+		ClockWise = 0,//VK_FRONT_FACE_COUNTER_CLOCKWISE
 	};
 	
 	struct AssemblySettings {
@@ -43,13 +43,13 @@ namespace Comphi {
 	};
 
 	enum PixelFormat { 
-		RGB_F32 = VK_FORMAT_R32G32B32_SFLOAT,
-		RG_F32 = VK_FORMAT_R32G32_SFLOAT
+		RGB_F32 = 106,//VK_FORMAT_R32G32B32_SFLOAT
+		RG_F32	= 103 //VK_FORMAT_R32G32_SFLOAT
 	};
 
 	enum vertexInputRate {
-		Unique = VK_VERTEX_INPUT_RATE_VERTEX, //Temp name
-		Instanced = VK_VERTEX_INPUT_RATE_INSTANCE
+		Unique		= 0,//VK_VERTEX_INPUT_RATE_VERTEX, //Temp name
+		Instanced	= 1//VK_VERTEX_INPUT_RATE_INSTANCE
 	};
 
 	struct VertexBindingDescription {
@@ -73,17 +73,18 @@ namespace Comphi {
 
 	//PIPELINE DESCTIPTOR SETS & POOL
 	enum ShaderStageFlags {
-		FragmentStage = VK_SHADER_STAGE_FRAGMENT_BIT,
-		VertexStage = VK_SHADER_STAGE_VERTEX_BIT
+		FragmentStage	= 0x00000010,//VK_SHADER_STAGE_FRAGMENT_BIT
+		VertexStage		= 0x00000001 //VK_SHADER_STAGE_VERTEX_BIT
 	};
 
 	enum ShaderResourceDescriptorType {
-		ImageBufferSampler = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		UniformBuffer = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+		ImageBufferSampler	= 1, //VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+		UniformBuffer		= 6 //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
 	};
 
 	struct ShaderResourceDescriptorSet {
 		//uint bindingID = 0; << arrayPos
+		void* data;
 		ShaderResourceDescriptorType type;
 		uint count = 1; //Default = 1, Off = 0 | Resource Array Of Type x
 		ShaderStageFlags flags;
@@ -121,7 +122,7 @@ namespace Comphi {
 	class IGraphicsPipeline
 	{
 	public:
-		IGraphicsPipeline() = default;
+		IGraphicsPipeline(GraphicsPipelineConfiguration configuration) : configuration(configuration) {};
 		~IGraphicsPipeline() = default;
 
 		GraphicsPipelineConfiguration configuration;

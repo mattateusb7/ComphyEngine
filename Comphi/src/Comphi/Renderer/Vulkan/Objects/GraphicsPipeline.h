@@ -22,24 +22,25 @@ namespace Comphi::Vulkan {
 		GraphicsPipeline() = default;
 		void initialize(GraphicsPipelineConfiguration config);
 		void cleanUp();
-	
-
-		void updateDescriptorSet(ShaderResourceDescriptorType type, uint setID, uint descriptorID, void* data);
-		void bindDescriptorsToCommandBuffer(uint setID, uint descriptorID);
+		void updateDescriptorSet(uint setID, uint descriptorID);
 
 	private:
 		VkPipelineLayout pipelineLayout;
 		VkPipeline pipelineObj;
 
 		std::vector<LayoutSet> graphicsSetLayouts;
-		
-		VkDescriptorSetLayout* getSetLayouts(std::vector<LayoutSet>& setLayoutsObj) {
+
+		inline ShaderResourceDescriptorSet& getDescriptorSet(uint setID, uint descriptorID) {
+			return configuration.pipelineLayoutConfiguration.layoutSets[setID].shaderResourceDescriptorSets[descriptorID];
+		}
+
+		std::vector<VkDescriptorSetLayout> getSetLayouts(std::vector<LayoutSet>& setLayoutsObj) {
 			std::vector<VkDescriptorSetLayout> setLayouts = std::vector<VkDescriptorSetLayout>(setLayoutsObj.size());
 			for (size_t i = 0; i < setLayoutsObj.size(); i++)
 			{
 				setLayouts[i] = setLayoutsObj[i].descriptorSetLayout;
 			}
-			return setLayouts.data();
+			return setLayouts;
 		}
 		//std::vector<LayoutSet> ComputeDescriptorSets;
 		//std::vector<LayoutSet> RayTracingDescriptorSets;

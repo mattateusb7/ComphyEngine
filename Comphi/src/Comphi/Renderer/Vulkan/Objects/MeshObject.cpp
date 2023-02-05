@@ -24,10 +24,6 @@ namespace Comphi::Vulkan {
 	void MeshObject::initializeMeshData() {
 		if (i_material.get() != nullptr) {
 			initializeMVPMatrices();
-			//send Data Layout To DesciptorPool
-			//TODO: Add DescriptoSetLayoutProperties Struct in the future to allow diferent layouts compatible with Descriptor Pool
-			//BUG: when multiple objects share same Material, there's a conflict between the Descriptor Set MVP buffers (crash!)
-			//Descriptor Sets are not sharable rn because each graphics pipeline gets bound to one model's MVPBuffer :(
 			static_cast<Material*>(i_material.get())->sendDescriptorSet(MVP_UBOs);
 		}
 	};
@@ -94,14 +90,12 @@ namespace Comphi::Vulkan {
 
 	void MeshObject::updateMVP(UniformBufferObject& mvpUBO, uint currentImage)
 	{
+		//updateMVP
 		void* data;
 		vkMapMemory(Vulkan::GraphicsHandler::get()->logicalDevice, MVP_UBOs[currentImage].bufferMemory, 0, sizeof(mvpUBO), 0, &data);
 		memcpy(data, &mvpUBO, sizeof(mvpUBO));
 		vkUnmapMemory(Vulkan::GraphicsHandler::get()->logicalDevice, MVP_UBOs[currentImage].bufferMemory);
-	}
 
-	void MeshObject::bind(void* commandBuffer)
-	{
 		//Bind VertexBuffers @0
 		VkBuffer vertexBuffers[] = { static_cast<VertexBuffer*>(i_vertices.get())->bufferObj };
 		VkDeviceSize offsets[] = { 0 }; //batch render
@@ -109,7 +103,8 @@ namespace Comphi::Vulkan {
 
 		//Bind IndexBuffers @1
 		vkCmdBindIndexBuffer(static_cast<VkCommandBuffer>(commandBuffer), static_cast<IndexBuffer*>(i_indices.get())->bufferObj, 0, VK_INDEX_TYPE_UINT32);
-
 	}
+
+
 
 }

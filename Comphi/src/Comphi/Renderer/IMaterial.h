@@ -2,6 +2,7 @@
 #include "Comphi/Allocation/IObject.h"
 #include "ITexture.h"
 #include "IShaderProgram.h"
+#include "IGraphicsPipeline.h"
 
 namespace Comphi {
 
@@ -11,22 +12,10 @@ namespace Comphi {
 
 	struct MaterialResources
 	{
-
-		GraphicsPipelineConfiguration pipelineConfiguration;
-
-		//TODO: DescriptorSets containing references to commandBuffer resources (Shader accessible data)
-		// Descriptor Sets : https://youtu.be/5VBVWCg7riQ?t=117
-
-		ShaderPrograms shaderPrograms = ShaderPrograms();
-		ShaderTextures shaderTextures = ShaderTextures();
-		//uniform MVPMatrix 
-		//Uniforms
-		//All kinds of data
-
-	
+		IGraphicsPipeline* graphicsPipeline;
 	};
 
-	class IMaterial : public IObject //TODO: public IMaterial API / make virtual implementations for different Materials ? or generic for all
-	{
-	};
+	class IMaterial : public IObject, public IGraphicsPipeline
+	{};
+
 }

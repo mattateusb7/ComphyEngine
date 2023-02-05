@@ -27,6 +27,7 @@ namespace Comphi {
 		GameObject(MeshData meshData = {}, TransformData transformData = {});
 		~GameObject() = default;
 		virtual void cleanUp() override {}; //TODO : Implement
+		
 		//GameObject Actions (single Action For now)
 		//TODO: may become vector of ActionHandles; 
 		//for now trying to keep "options open" (data Driven Maybe?)
