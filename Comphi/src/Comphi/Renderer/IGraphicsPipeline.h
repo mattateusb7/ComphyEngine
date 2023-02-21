@@ -1,10 +1,12 @@
 #pragma once
 #include "Comphi/Renderer/IShaderProgram.h"
+#include "Comphi/Renderer/IUniformBuffer.h"
 
 namespace Comphi {
 
+	//TODO: verify if this is the best way to Abstract VulkanSpeecifications (enums and stuff)
+
 	//GraphicsPipelineConfiguration Options:
-	//TODO: Abstract VulkanSpeecifications  (enums and stuff)
 
 	enum ColorBlendingModes {
 		AlphaBlend = 0,
@@ -65,34 +67,40 @@ namespace Comphi {
 		uint offset = 0; //offsetof(Vertex, color);
 	};
 
+	typedef std::vector<VertexAttributeBinding> VertexBindingFormat;
+
 	struct VertexBufferDescription {
 		std::vector<VertexBindingDescription> bindingDescriptions;
-		std::vector<VertexAttributeBinding> attributeDescriptionsBindings;
+		VertexBindingFormat attributeDescriptionsBindings;
 	};
-
 
 	//PIPELINE DESCTIPTOR SETS & POOL
-	enum ShaderStageFlags {
-		FragmentStage	= 0x00000010,//VK_SHADER_STAGE_FRAGMENT_BIT
-		VertexStage		= 0x00000001 //VK_SHADER_STAGE_VERTEX_BIT
-	};
 
 	enum ShaderResourceDescriptorType {
 		ImageBufferSampler	= 1, //VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
 		UniformBuffer		= 6 //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
 	};
 
-	struct ShaderResourceDescriptorSet {
-		//uint bindingID = 0; << arrayPos
-		void* data;
+	enum ResourceUpdateFrequency {
+		GlobalConstant		= 0,
+		PerScene			= 1,
+		PerMaterialInstance = 2,
+		PerObject			= 3,
+		PerObjectInstance	= 4
+	};
+
+	//bindingID = arrayPos?
+	struct DescriptorSetBinding {
+		//void* dataObjArray;
+		uint dataObjCount = 1; //Default = 1, Off = 0 | Resource Array Of Type x
 		ShaderResourceDescriptorType type;
-		uint count = 1; //Default = 1, Off = 0 | Resource Array Of Type x
 		ShaderStageFlags flags;
+		ResourceUpdateFrequency updateFrequency; //affects rendering Loop step
 	};
 
 	//PIPELINE LAYOUT
 	struct PipelineLayoutSet {
-		std::vector<ShaderResourceDescriptorSet> shaderResourceDescriptorSets;
+		std::vector<DescriptorSetBinding> shaderResourceDescriptorSets;
 		//std::vector<pushConstants> //TODO: Add Later
 	};
 
@@ -108,7 +116,7 @@ namespace Comphi {
 		PipelineLayoutConfiguration pipelineLayoutConfiguration{};
 
 		//TODO: Add missing Configurations v v v 
-		//pViewportState = &viewportState; //pDynamicState = &dynamicState;
+		//pViewportState = &viewportState; == //pDynamicState = &dynamicState;
 		//pMultisampleState = &multisampling;
 		//pDepthStencilState = &depthStencil; 
 		
@@ -119,13 +127,88 @@ namespace Comphi {
 	//	VkRect2D* scissor;
 	//}graphicsPipelineSetupData;
 
-	class IGraphicsPipeline
+	class IGraphicsPipeline : public IObject
 	{
 	public:
-		IGraphicsPipeline(GraphicsPipelineConfiguration configuration) : configuration(configuration) {};
+		IGraphicsPipeline() = default;
 		~IGraphicsPipeline() = default;
-
 		GraphicsPipelineConfiguration configuration;
-
+		//virtual void updateShaderResource() {};
 	};
+
 }
+
+/*
+SCENE GRAPH 
+
+
+
+Orb(GameObject){
+	Scene*
+	Trasform{
+		ParentTransform*
+	}
+}
+
+Materials[]
+{
+	Pipeline*
+	data*
+}
+
+
+Data[]
+{
+	Pipeline*
+	data*
+}
+
+Instance:Orb[]
+{
+	
+	
+	
+}
+
+Camera(EyeObserver){
+	SceneFilter*
+}
+
+//GAME SCENE GRAPH
+
+Scenes[] 
+{
+	Instances[]
+	{
+		Materials[]
+		{
+			Pipeline*
+			data*
+		}
+
+	}
+
+}
+
+//RENDER ENGINE: 
+
+Pipelines[] (Global)
+{
+	Scenes[] (PerScene)
+	{
+		RenderInstances[] (sorted By Material)
+		{
+			Materials[]{
+				Pipeline*
+				Shaders[]
+				Data[]{
+				}
+			}
+			
+		}
+
+	}
+}
+
+
+*/

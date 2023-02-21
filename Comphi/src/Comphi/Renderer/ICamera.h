@@ -1,11 +1,25 @@
 #pragma once
-#include "glm/mat4x4.hpp"
-namespace Comphi {
 
-	class ICamera 
+namespace Comphi {
+	
+	struct CameraProperties {
+		float FOV = 45.0f;
+		float NearPlane = 0.1f;
+		float FarPlane = 10.0f;
+	};
+
+	class ICamera
 	{
 	public:
-		virtual glm::mat4 getViewMatrix() = 0;
-		virtual glm::mat4 getProjectionMatrix() = 0;
+		CameraProperties properties;
+		//glm::mat4 getProjectionMatrix() {
+		//	glm::mat4 projectionMatrix = glm::perspective(
+		//		glm::radians(FOV),
+		//		(float)Vulkan::GraphicsHandler::get()->swapChainExtent->width / Vulkan::GraphicsHandler::get()->swapChainExtent->height,
+		//		NearPlane, FarPlane);
+		//	projectionMatrix[1][1] *= -1;
+		//
+		//	return projectionMatrix;
+		//}
 	};
 }

@@ -49,6 +49,18 @@ namespace Comphi::Vulkan {
 				}
 			}
 
+			/*
+			glm::mat4 Camera::getProjectionMatrix()
+			{
+				glm::mat4 projectionMatrix = glm::perspective(
+					glm::radians(FOV),
+					(float)Vulkan::GraphicsHandler::get()->swapChainExtent->width / Vulkan::GraphicsHandler::get()->swapChainExtent->height,
+					NearPlane, FarPlane);
+				projectionMatrix[1][1] *= -1;
+
+				return projectionMatrix;
+			}
+			*/
 
 			//Update Uniform Buffers MVP_UBOs per GameObject & submit Draw Command Buffer
 			for (size_t i = 0; i < ThisScene->sceneObjects.size(); i++)

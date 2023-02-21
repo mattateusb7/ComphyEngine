@@ -1,21 +1,33 @@
 #pragma once
+#include "Comphi/Allocation/IObject.h"
 
 namespace Comphi {
 
-	struct UniformBufferObject {
+	//Note: more structs can be defined by Client and passed using template initialization of shaderBufferData objects!
+
+	struct MVMatrixObject {
+		alignas(16) glm::mat4 model;
+		alignas(16) glm::mat4 view;
+	};
+	struct PMatrixObject {
+		alignas(16) glm::mat4 proj;
+	};
+
+	struct MVPMatrixObject { 
 		alignas(16) glm::mat4 model;
 		alignas(16) glm::mat4 view;
 		alignas(16) glm::mat4 proj;
 	};
 
-	//class IUniformBuffer : public UniformBufferObject
-	//{
-	//public:
-	//	void operator= (const UniformBufferObject& other) 
-	//	{
-	//		this->model = other.model;
-	//		this->view  = other.view;
-	//		this->proj  = other.proj;
-	//	};
-	//};
+	enum BufferUsage {
+		UniformBuffer,
+		VertexBuffer,
+		IndexBuffer
+	};
+
+	class IUniformBuffer : public IObject
+	{
+	public:
+		virtual void updateBufferData(const void* dataArray) = 0;
+	};
 }

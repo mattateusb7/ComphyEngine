@@ -1,7 +1,8 @@
 #pragma once
-#include "../../Renderer/IGraphicsContext.h"
-#include "GraphicsHandler.h"
-#include "Initialization/GraphicsInstance.h"
+#include "Comphi/Renderer/IGraphicsContext.h"
+#include "Comphi/Renderer/Vulkan/GraphicsHandler.h"
+#include "Comphi/Renderer/Vulkan/GraphicsInstance.h"
+#include "Comphi/Utils/Time.h"
 
 namespace Comphi::Vulkan {
 

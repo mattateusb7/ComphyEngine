@@ -9,51 +9,68 @@ public:
 
 	//TODO: Comphi namepsace objects should use platform & renderer independent interfaces (API)
 
+	IObjectPool poolA;
+
 	Windows::FileRef textureFile;
 	Windows::FileRef textureFile2;
-	TextureInstance texture;
-	TextureInstance texture2;
-	IObjectPool pool1;
+	TexturePtr texture;
+	TexturePtr texture2;
+
 	Windows::FileRef vert;
-	ShaderInstance vertShader;
-
 	Windows::FileRef frag;
-	ShaderInstance fragShader;
+	ShaderObjectPtr vertShader;
+	ShaderObjectPtr fragShader;
+	
+	GraphicsPipelineConfiguration simpleMaterialConfig;
+	MaterialPtr simpleMaterial;
 
-	MaterialInstance Albedo;
-	MaterialInstance Albedo1;
-	MaterialInstance Albedo2;
+	MaterialInstancePtr AlbedoA;
+	MaterialInstancePtr AlbedoB;
+	MaterialInstancePtr AlbedoC;
 
-	Windows::FileRef modelMesh;
-	MeshInstance meshObj;	
+	Windows::FileRef modelMeshA;
+	MeshObjectPtr meshObjA;
+	MeshBuffers meshBuffersA;
 
-	Windows::FileRef modelMesh1;
-	MeshInstance meshObj1;
+	Windows::FileRef modelMeshB;
+	MeshObjectPtr meshObjB;
+	MeshBuffers meshBuffersB;
 
-	GameObjectInstance gameObj;
-	GameObjectInstance gameObj1;
-	GameObjectInstance emptyObj;
+	EntityPtr gameObjA;
+	EntityPtr gameObjB;
+	EntityPtr emptyObj;
 
-	CameraInstance camObj;
+	CameraPtr camCmp;
+	TransformPtr transformCmp;
+	RendererPtr rendererCmp;
 
-	SceneInstance scene;
+	ScenePtr scene;
 
 	GameSceneLayer() : Layer("GameSceneLayer") { 
 		
-		GraphicsPipelineConfiguration config;
-		config.assemblySettings.topologyType = PrimitiveTopologyType::TriangleList;
+		PipelineLayoutSet layout0; //PerScene
+
+		DescriptorSetBinding binding0;
+		binding0.dataObjArray = &texture;
+		binding0.dataObjCount = 1;
+		binding0.flags = ShaderStageFlags::AllGraphics;
+		binding0.type = ShaderResourceDescriptorType::ImageBufferSampler;
+		layout0.shaderResourceDescriptorSets.push_back(binding0);
+		simpleMaterialConfig.pipelineLayoutConfiguration.layoutSets.push_back(layout0);
 
 		//Texture
 		textureFile = Windows::FileRef("textures/viking_room.png");
-		texture = GraphicsAPI::create::Texture(textureFile);
+		texture = GraphicsAPI::Rendering::Texture(textureFile);
 
 		textureFile2 = Windows::FileRef("textures/lain.jpg");
-		texture2 = GraphicsAPI::create::Texture(textureFile2);
+		texture2 = GraphicsAPI::Rendering::Texture(textureFile2);
 		
 		
 		//Shaders
-		MaterialResources materialResources;
-		materialResources.shaderTextures = { texture.get() };
+		albedoShaderResources.textures.push_back(texture);
+		//shaderResources.textures.push_back();
+		shaderResources.buffers.push_back(vert);
+
 
 		vert = Windows::FileRef("shaders/vert.spv");
 		frag = Windows::FileRef("shaders/frag.spv");
@@ -110,8 +127,8 @@ public:
 
 		//GameObject1
 		modelMesh = Windows::FileRef("models/viking_room.obj");
-		meshObj = GraphicsAPI::create::Mesh(modelMesh, Albedo);
-		gameObj = GraphicsAPI::create::GameObject({ meshObj });
+		meshObj = ComphiAPI::create::Mesh(modelMesh, Albedo);
+		gameObj = ComphiAPI::create::GameObject({ meshObj });
 		//gameObj1->action.updateCallback = [this](Time frameTime,void*) { //TODO: fix Lambda not defined when out of scope
 		//	gameObj1->transform.position = glm::vec3(0, 0, glm::sin(frameTime.deltaTime()));
 		//	gameObj1->transform.setEulerAngles(glm::vec3(0.0f, 0.0f, 45.0f) * frameTime.deltaTime());
@@ -182,7 +199,7 @@ public:
 	};
 
 	void OnEnd() override {
-		GraphicsAPI::cleanUpInstances();
+		ComphiAPI::cleanUpInstances();
 	};
 
 private:
@@ -192,6 +209,9 @@ class Sandbox : public Comphi::Application
 {
 public:
 	Sandbox() {
+		this->windowProperties.Width = 640;
+		this->windowProperties.Width = 528;
+
 		GameSceneLayer* Renderlayer = new GameSceneLayer();
 		PushLayer(*Renderlayer);
 		PushScene(Renderlayer->scene);

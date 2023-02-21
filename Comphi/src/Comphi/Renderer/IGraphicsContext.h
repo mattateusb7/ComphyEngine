@@ -1,5 +1,5 @@
 #pragma once
-#include "Comphi/API/Scene.h"
+#include "Comphi/API/SceneGraph/Scene.h"
 
 namespace Comphi {
 	class IGraphicsContext

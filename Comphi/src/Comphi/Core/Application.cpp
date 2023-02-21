@@ -12,7 +12,7 @@ namespace Comphi {
 		s_instance.reset(this);
 
 		//INIT WINDOW & EventCallback
-		m_Window = IWindow::Create();
+		m_Window = IWindow::Create(windowProperties);
 		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
 		//INIT IMGUI LAYER //TODO: temp ? (application may not want a default Imgui Overlay Layer)

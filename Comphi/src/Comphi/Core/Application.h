@@ -22,6 +22,10 @@ namespace Comphi {
 		inline IWindow& GetWindowHandler() { return *m_Window; };
 
 		inline static Application& Get() { return *s_instance; };
+
+	protected:
+		WindowProperties windowProperties;
+
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResized(WindowResizedEvent& e);
@@ -32,7 +36,7 @@ namespace Comphi {
 		IWindow* m_Window;
 		ImGuiLayer m_ImGuiLayer;
 		bool m_running = true;
-	private:
+
 		static std::unique_ptr<Application> s_instance;
 
 	};

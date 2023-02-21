@@ -4,7 +4,7 @@ namespace Comphi {
 
 	class IObject
 	{
-	public:
+	protected:
 		virtual void cleanUp() = 0;
 	};
 }

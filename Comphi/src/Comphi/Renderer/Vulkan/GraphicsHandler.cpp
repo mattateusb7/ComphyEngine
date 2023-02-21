@@ -1,7 +1,6 @@
 #include "cphipch.h"
 #include "GraphicsHandler.h"
-
-#include "Initialization/CommandPool.h"
+#include "Comphi/Renderer/Vulkan/Commands/CommandPool.h"
 
 namespace Comphi::Vulkan {
 

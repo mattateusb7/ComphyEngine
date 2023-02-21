@@ -11,5 +11,6 @@ namespace Comphi {
 		ITexture(IFileRef& imageFileRef) : imageFileRef(&imageFileRef) {};
 		//ITexture(IFileRef& imageFileRef) : imageFileRef(&imageFileRef) {}; //TODO: Pixeldata array
 		IFileRef* imageFileRef;
+		virtual void* getDataPtr() {};
 	};
 }
