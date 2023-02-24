@@ -21,7 +21,7 @@ namespace Comphi::Vulkan {
 		graphicsInstance = std::make_unique<GraphicsInstance>();
 	}
 
-	void GraphicsContext::SetScenes(MultiScene& scenes)
+	void GraphicsContext::SetScenes(SceneGraph& scenes)
 	{
 		this->scenes = &scenes;
 	}
@@ -35,51 +35,13 @@ namespace Comphi::Vulkan {
 		VkCommandBuffer& commandBuffer = graphicsInstance->swapchain->getCurrentFrameGraphicsCommandBuffer();
 		graphicsInstance->swapchain->beginRenderPassCommandBuffer(commandBuffer);
 
-		for (size_t i = 0; i < scenes->size(); i++)
-		{
-			Scene* ThisScene = (*scenes)[i].get();
-			if (ThisScene == nullptr) continue;
-
-			//Action UpdateCallback
-			for (size_t i = 0; i < ThisScene->sceneObjects.size(); i++)
-			{
-				ActionHandle handle = ThisScene->sceneObjects[i]->action;
-				if (handle.updateCallback) {
-					handle.updateCallback(FrameTime, 0);
-				}
-			}
-
-			/*
-			glm::mat4 Camera::getProjectionMatrix()
-			{
-				glm::mat4 projectionMatrix = glm::perspective(
-					glm::radians(FOV),
-					(float)Vulkan::GraphicsHandler::get()->swapChainExtent->width / Vulkan::GraphicsHandler::get()->swapChainExtent->height,
-					NearPlane, FarPlane);
-				projectionMatrix[1][1] *= -1;
-
-				return projectionMatrix;
-			}
-			*/
-
-			//Update Uniform Buffers MVP_UBOs per GameObject & submit Draw Command Buffer
-			for (size_t i = 0; i < ThisScene->sceneObjects.size(); i++)
-			{
-				UniformBufferObject ubo{};
-				ubo.model = ThisScene->sceneObjects[i]->transform.getModelMatrix();
-				ubo.view = ThisScene->sceneCamera->getViewMatrix();
-				ubo.proj = ThisScene->sceneCamera->getProjectionMatrix();
-
-				static_cast<MeshObject*>(ThisScene->sceneObjects[i]->mesh.get())->updateMVP(ubo, graphicsInstance->swapchain->currentFrame);
-				//ThisScene->sceneObjects[i]->action.startCallback(FrameTime, 0);
-
-				//TODO: InstancedObjects
-				//Draw Command Buffer Submission:
-				//One command Buffer / render Pass , per Object 
-				//we are able to send multiple vkCmdDraw inside same renderpass Command ! : https://vkguide.dev/docs/chapter-3/scene_management/
-				graphicsInstance->swapchain->drawCommandBuffer(commandBuffer, *static_cast<MeshObject*>(ThisScene->sceneObjects[i]->mesh.get()));  //TODO: This is not OK either
-			}
-		}
+		//Traverse Render Scene Graph
+			//foreach GlobalConstant
+			//foreach Scene
+			//foreach Material
+			//foreach MaterialInstance
+			//foreach Object
+			//foreach ObjectInstance
 		
 		graphicsInstance->swapchain->endRenderPassCommandBuffer(commandBuffer);
 

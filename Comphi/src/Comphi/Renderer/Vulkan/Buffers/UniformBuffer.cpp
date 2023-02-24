@@ -6,6 +6,7 @@ namespace Comphi::Vulkan {
     template<typename T>
     inline UniformBuffer<T>::UniformBuffer(const T* dataArray, const uint count, BufferUsage usage) : IUniformBuffer(bufferUsafe)
     {
+        this->usage = usage;
         bufferSize = sizeof(dataArray[0]) * count;
 
         VkBufferUsageFlagBits usageFlags;

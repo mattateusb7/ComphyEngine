@@ -11,7 +11,7 @@ namespace Comphi::Vulkan {
 	public:
 		GraphicsContext(GLFWwindow& windowHandle);
 		virtual void Init() override;
-		virtual void SetScenes(MultiScene& scenes) override;
+		virtual void SetScenes(SceneGraph& scenes) override;
 		virtual void Draw() override;
 		virtual void ResizeWindow(uint x, uint y) override;
 		virtual void ResizeFramebuffer(uint x, uint y) override;
@@ -20,7 +20,7 @@ namespace Comphi::Vulkan {
 		std::unique_ptr<GraphicsInstance> graphicsInstance;
 
 		Time FrameTime; //TODO: Debug ?
-		MultiScene* scenes;
+		SceneGraph* scenes;
 
 	protected:
 		bool _framebufferResized = false;

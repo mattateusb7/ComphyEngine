@@ -12,14 +12,6 @@ namespace Comphi {
 	{
 	public:
 		CameraProperties properties;
-		//glm::mat4 getProjectionMatrix() {
-		//	glm::mat4 projectionMatrix = glm::perspective(
-		//		glm::radians(FOV),
-		//		(float)Vulkan::GraphicsHandler::get()->swapChainExtent->width / Vulkan::GraphicsHandler::get()->swapChainExtent->height,
-		//		NearPlane, FarPlane);
-		//	projectionMatrix[1][1] *= -1;
-		//
-		//	return projectionMatrix;
-		//}
+		virtual glm::mat4 getProjectionMatrix() = 0;
 	};
 }

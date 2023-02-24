@@ -3,13 +3,16 @@
 
 namespace Comphi {
 
+	class Transform;
+	typedef std::shared_ptr<Transform> TransformPtr;
+
 	class Transform : public Component
 	{
 	public:
+		Transform(TransformPtr parent = nullptr);
 		Transform() = default;
-		~Transform() = default;
 
-		Transform* parent;
+		TransformPtr parent;
 
 		glm::vec3 getForwardVector();
 		glm::vec3 getLookVector();
@@ -44,7 +47,5 @@ namespace Comphi {
 		const glm::vec3 forward = glm::vec3(0, 1, 0);
 	
 	}
-
-	typedef std::shared_ptr<Transform> TransformPtr;
 
 }

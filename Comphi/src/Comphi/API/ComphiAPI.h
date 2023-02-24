@@ -15,6 +15,7 @@
 #include "Comphi/API/Components/Renderer.h"
 
 #include "Comphi/API/Rendering/MeshObject.h"
+#include "Comphi/API/Rendering/CustomMeshObject.h"
 #include "Comphi/API/Rendering/ShaderBufferData.h"
 #include "Comphi/API/Rendering/ShaderObject.h"
 #include "Comphi/API/Rendering/TextureObject.h"
@@ -51,9 +52,10 @@ namespace Comphi {
 		};
 
 		struct Components {
-			static CameraPtr Camera(CameraProperties CameraProperties, IObjectPool* pool = &objectPool);
+			static CameraPtr Camera(CameraProperties CameraProperties = {}, IObjectPool* pool = &objectPool);
 			static TransformPtr Transform(IObjectPool* pool = &objectPool);
-			static RendererPtr Renderer(MaterialInstance& material, MeshData& mesh, IObjectPool* pool = &objectPool);
+			static TransformPtr Transform(TransformPtr& parent, IObjectPool* pool = &objectPool);
+			static RendererPtr Renderer(MeshObjectPtr& meshObject, MaterialInstancePtr& materialInstance, IObjectPool* pool = &objectPool);
 			//TODO: new components
 			//Light
 			//Script
@@ -61,26 +63,28 @@ namespace Comphi {
 
 		struct Rendering {
 			//Material
-			static MaterialPtr Material(GraphicsPipelineConfiguration config, IObjectPool* pool = &objectPool);
+			static MaterialPtr Material(IObjectPool* pool = &objectPool);
 			static ShaderObjectPtr Shader(ShaderType shaderType, IFileRef& file, IObjectPool* pool = &objectPool);
 
 			//Material Instance
 			static MaterialInstancePtr MaterialInstance(MaterialPtr& parent, IObjectPool* pool = &objectPool);
 			static TexturePtr Texture(IFileRef& fileref, IObjectPool* pool = &objectPool);
-			template<typename T>
-			static ShaderBufferDataPtr ShaderBufferData (const T& dataArray, const uint count, BufferUsage usage = BufferUsage::UniformBuffer, IObjectPool* pool = &objectPool);
-
-			static VertexBufferDataPtr	VertexBufferData(const VertexArray& dataArray, IObjectPool* pool = &objectPool);
-			static IndexBufferDataPtr	IndexBufferData(const IndexArray& dataArray, IObjectPool* pool = &objectPool);
 			
 			template<typename T>
-			static UniformBufferDataPtr UniformBufferData(const T& dataArray, const uint count, IObjectPool* pool = &objectPool);
-
+			static ShaderBufferDataPtr ShaderBufferData (const T& dataArray, const uint count, BufferUsage usage = BufferUsage::UniformBuffer, IObjectPool* pool = &objectPool);
+			
+			static ShaderBufferDataPtr	VertexBufferData(const VertexArray& dataArray, IObjectPool* pool = &objectPool);
+			static ShaderBufferDataPtr	IndexBufferData(const IndexArray& dataArray, IObjectPool* pool = &objectPool);
+			template<typename T>
+			static ShaderBufferDataPtr UniformBufferData(const T& dataArray, const uint count, IObjectPool* pool = &objectPool);
 
 			//Renderer
 			static MeshObjectPtr MeshObject(IFileRef& modelFile, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
 			static MeshObjectPtr MeshObject(MeshData& data, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
 			static MeshObjectPtr MeshObject(VertexArray& vertexData, IndexArray& indexData, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
+			
+			template<typename typename vx, typename ix>
+			static CustomMeshObject<vx,ix>::Ptr MeshObject(CustomMeshDataBuffers<vx,ix> customMeshDataBuffers, IObjectPool* pool = &objectPool);
 		};
 
 

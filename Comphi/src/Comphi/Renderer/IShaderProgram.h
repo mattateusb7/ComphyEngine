@@ -13,7 +13,7 @@ namespace Comphi{
 		ComputeShader,
 	};
 
-	enum ShaderStageFlags {
+	enum ShaderStageFlag {
 		FragmentStage = 0x00000010,//VK_SHADER_STAGE_FRAGMENT_BIT
 		VertexStage = 0x00000001, //VK_SHADER_STAGE_VERTEX_BIT
 		AllGraphics = 0x0000001F,

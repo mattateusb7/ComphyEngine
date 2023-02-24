@@ -11,12 +11,6 @@ namespace Comphi {
 	};*/
 
 	typedef std::shared_ptr<IUniformBuffer> ShaderBufferDataPtr;
-
-	typedef std::shared_ptr<IUniformBuffer> UniformBufferDataPtr							   ;
-	typedef std::shared_ptr<IUniformBuffer> VertexBufferDataPtr;
-	typedef std::shared_ptr<IUniformBuffer> IndexBufferDataPtr ;
-
-
 	typedef std::vector<ShaderBufferDataPtr> ShaderBuffers;
 
 

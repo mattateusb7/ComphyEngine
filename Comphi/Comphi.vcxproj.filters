@@ -1515,6 +1515,9 @@
     <ClInclude Include="vendor\tinyobjloader\tiny_obj_loader.h">
       <Filter>vendor\tinyobjloader</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\API\Rendering\CustomMeshObject.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\Camera.h" />
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Comphi\API\ComphiAPI.cpp">
@@ -1616,5 +1619,8 @@
     <ClCompile Include="src\cphipch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Comphi\API\Rendering\CustomMeshObject.cpp" />
+    <ClCompile Include="src\Comphi\API\Rendering\Material.cpp" />
+    <ClCompile Include="src\Comphi\API\Rendering\MaterialInstance.cpp" />
   </ItemGroup>
 </Project>

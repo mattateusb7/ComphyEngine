@@ -52,19 +52,26 @@ namespace Comphi {
         return transform;
     }
 
-    RendererPtr ComphiAPI::Components::Renderer(MaterialInstance& material, MeshData& mesh, IObjectPool* pool)
+    TransformPtr ComphiAPI::Components::Transform(TransformPtr& parent, IObjectPool* pool)
     {
-        auto renderer = std::make_shared<Comphi::Renderer>(material, mesh);
+        auto transform = std::make_shared<Comphi::Transform>();
+        pool->Add(transform.get());
+        return transform;
+    }
+
+    RendererPtr ComphiAPI::Components::Renderer(MeshObjectPtr& meshObject, MaterialInstancePtr& materialInstance, IObjectPool* pool)
+    {
+        auto renderer = std::make_shared<Comphi::Renderer>(meshObject, materialInstance);
         pool->Add(renderer.get());
         return renderer;
     }
 
-    MaterialPtr ComphiAPI::Rendering::Material(GraphicsPipelineConfiguration config, IObjectPool* pool)
+    MaterialPtr ComphiAPI::Rendering::Material(IObjectPool* pool)
     {
-        //Vulkan
-        auto graphicsPipeline = std::make_shared<Vulkan::GraphicsPipeline>(config);
+        //Vulkan Material Pipeline
+        auto graphicsPipeline = std::make_shared<Vulkan::GraphicsPipeline>();
         auto material = std::make_shared<Comphi::Material>(graphicsPipeline);
-        pool->Add((IGraphicsPipeline*)material.get());
+        pool->Add((IGraphicsPipeline*)graphicsPipeline.get());
         return material;
     }
 
@@ -104,14 +111,14 @@ namespace Comphi {
         return buffer;
     }
 
-    VertexBufferDataPtr ComphiAPI::Rendering::VertexBufferData(const VertexArray& dataArray, IObjectPool* pool)
+    ShaderBufferDataPtr ComphiAPI::Rendering::VertexBufferData(const VertexArray& dataArray, IObjectPool* pool)
     {
         auto buffer = Rendering::ShaderBufferData<VertexArray>(dataArray, dataArray.size(), BufferUsage::VertexBuffer, pool);
         pool->Add(buffer.get());
         return buffer;
     }
 
-    IndexBufferDataPtr ComphiAPI::Rendering::IndexBufferData(const IndexArray& dataArray, IObjectPool* pool)
+    ShaderBufferDataPtr ComphiAPI::Rendering::IndexBufferData(const IndexArray& dataArray, IObjectPool* pool)
     {
         auto buffer = Rendering::ShaderBufferData<IndexArray>(dataArray, dataArray.size(), BufferUsage::IndexBuffer, pool);
         pool->Add(buffer.get());
@@ -119,11 +126,19 @@ namespace Comphi {
     }
 
     template<typename T>
-    UniformBufferDataPtr ComphiAPI::Rendering::UniformBufferData(const T& dataArray, const uint count, IObjectPool* pool)
+    ShaderBufferDataPtr ComphiAPI::Rendering::UniformBufferData(const T& dataArray, const uint count, IObjectPool* pool)
     {
         auto buffer = Rendering::ShaderBufferData<T>(dataArray, dataArray.size(), BufferUsage::UniformBuffer, pool);
         pool->Add(buffer.get());
         return buffer;
+    }
+
+    template<typename typename vx, typename ix>
+    CustomMeshObject<vx, ix>::Ptr ComphiAPI::Rendering::MeshObject(CustomMeshDataBuffers<vx, ix> customMeshDataBuffers, IObjectPool* pool)
+    {
+        auto mesh = std::make_shared<CustomMeshObject<vx, ix>>(customMeshDataBuffers);
+        pool->Add(mesh.get());
+        return mesh;
     }
 
     MeshObjectPtr ComphiAPI::Rendering::MeshObject(IFileRef& modelFile, MeshBuffers& meshBuffers, IObjectPool* pool)

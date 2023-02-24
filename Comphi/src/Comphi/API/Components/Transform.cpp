@@ -2,6 +2,10 @@
 #include "Transform.h"
 
 namespace Comphi {
+	Transform::Transform(TransformPtr parent)
+	{
+		this->parent.reset(parent.get());
+	}
 
 	glm::vec3 Transform::getForwardVector()
 	{

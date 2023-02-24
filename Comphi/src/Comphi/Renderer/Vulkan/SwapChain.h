@@ -35,7 +35,6 @@ namespace Comphi::Vulkan {
 		uint32_t currentFrame = 0;
 
 		void beginRenderPassCommandBuffer(VkCommandBuffer& commandBuffer);
-		void drawCommandBuffer(VkCommandBuffer& commandBuffer, MeshObject& meshObj);
 		void endRenderPassCommandBuffer(VkCommandBuffer& commandBuffer);
 
 		VkFence& getCurrentFrameFence();

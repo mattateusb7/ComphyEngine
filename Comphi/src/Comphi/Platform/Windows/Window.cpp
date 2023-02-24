@@ -176,7 +176,7 @@ namespace Comphi::Windows {
 		glfwPollEvents();
 	}
 
-	void Window::OnBeginUpdate(MultiScene& scenes)
+	void Window::OnBeginUpdate(SceneGraph& scenes)
 	{
 		m_GraphicsContext->SetScenes(scenes);
 		m_GraphicsContext->Draw();

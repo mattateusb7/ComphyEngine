@@ -5,11 +5,25 @@ namespace Comphi {
 
 	struct Scene
 	{
-		std::vector<Entity*> sceneObjects;
+	public:
+		void addEntity(EntityPtr& entity);
+
+	protected:
+
+
+		std::vector<EntityPtr> renderableObjects;
+		std::vector<EntityPtr> cameraObjects;
+		//std::vector<MaterialPtr> materials;
+		//std::vector<MaterialInstancePtr> materialInstances;
+		std::vector<MeshObjectPtr> meshInstances;
 		
 	};
 
-	//typedef std::vector<SceneInstance> MultiScene;
+	struct sceneGraphList {
+
+	};
+
 	typedef std::shared_ptr<Scene> ScenePtr;
+	typedef std::vector<ScenePtr> SceneGraph;
 }
 

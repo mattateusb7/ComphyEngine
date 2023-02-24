@@ -7,85 +7,44 @@ class GameSceneLayer : public Comphi::Layer
 {
 public:
 
-	//TODO: Comphi namepsace objects should use platform & renderer independent interfaces (API)
-
 	IObjectPool poolA;
 
+	//Shaders
+	Windows::FileRef vert;
+	Windows::FileRef frag;
+	ShaderObjectPtr vertShader;
+	ShaderObjectPtr fragShader;
+
+	//Model A
+	Windows::FileRef modelMeshA;
+	MeshData meshDataA;
+	MeshBuffers meshBuffersA;
+	MeshObjectPtr meshObjA;
+
+	//Cube Model B
+	MeshObjectPtr cubeVX;
+	MeshBuffers meshBuffersB;
+
+	//Textures
 	Windows::FileRef textureFile;
 	Windows::FileRef textureFile2;
 	TexturePtr texture;
 	TexturePtr texture2;
 
-	Windows::FileRef vert;
-	Windows::FileRef frag;
-	ShaderObjectPtr vertShader;
-	ShaderObjectPtr fragShader;
-	
-	GraphicsPipelineConfiguration simpleMaterialConfig;
+	//Material and instances
 	MaterialPtr simpleMaterial;
-
 	MaterialInstancePtr AlbedoA;
 	MaterialInstancePtr AlbedoB;
-	MaterialInstancePtr AlbedoC;
 
-	Windows::FileRef modelMeshA;
-	MeshObjectPtr meshObjA;
-	MeshBuffers meshBuffersA;
-
-	Windows::FileRef modelMeshB;
-	MeshObjectPtr meshObjB;
-	MeshBuffers meshBuffersB;
-
+	//GameObjects
 	EntityPtr gameObjA;
-	EntityPtr gameObjB;
+	EntityPtr CameraObj;
 	EntityPtr emptyObj;
-
-	CameraPtr camCmp;
-	TransformPtr transformCmp;
-	RendererPtr rendererCmp;
 
 	ScenePtr scene;
 
 	GameSceneLayer() : Layer("GameSceneLayer") { 
-		
-		PipelineLayoutSet layout0; //PerScene
 
-		DescriptorSetBinding binding0;
-		binding0.dataObjArray = &texture;
-		binding0.dataObjCount = 1;
-		binding0.flags = ShaderStageFlags::AllGraphics;
-		binding0.type = ShaderResourceDescriptorType::ImageBufferSampler;
-		layout0.shaderResourceDescriptorSets.push_back(binding0);
-		simpleMaterialConfig.pipelineLayoutConfiguration.layoutSets.push_back(layout0);
-
-		//Texture
-		textureFile = Windows::FileRef("textures/viking_room.png");
-		texture = GraphicsAPI::Rendering::Texture(textureFile);
-
-		textureFile2 = Windows::FileRef("textures/lain.jpg");
-		texture2 = GraphicsAPI::Rendering::Texture(textureFile2);
-		
-		
-		//Shaders
-		albedoShaderResources.textures.push_back(texture);
-		//shaderResources.textures.push_back();
-		shaderResources.buffers.push_back(vert);
-
-
-		vert = Windows::FileRef("shaders/vert.spv");
-		frag = Windows::FileRef("shaders/frag.spv");
-		vertShader = GraphicsAPI::create::ShaderProgram(ShaderType::VertexShader, vert);
-		fragShader = GraphicsAPI::create::ShaderProgram(ShaderType::FragmentShader, frag);
-
-		ShaderPrograms AlbedoShader = { vertShader.get() , fragShader.get() };
-		materialResources.shaderPrograms = AlbedoShader;
-
-		//Materials
-		Albedo = GraphicsAPI::create::Material(materialResources);
-
-		materialResources.shaderTextures = {texture2.get()};
-		Albedo1 = GraphicsAPI::create::Material(materialResources);
-		Albedo2 = GraphicsAPI::create::Material(materialResources);
 
 		//Mesh
 		const VertexArray vertices = {
@@ -125,10 +84,51 @@ public:
 			4, 7, 6,   6, 5, 4    // v4-v7-v6, v6-v5-v4 (back)
 		};
 
+		modelMeshA = Windows::FileRef("models/viking_room.obj");
+		meshObjA = ComphiAPI::Rendering::MeshObject(modelMeshA, meshBuffersA);
+		cubeVX = ComphiAPI::Rendering::MeshObject(cubeVx,CubeIx, meshBuffersB);
+
+		vert = Windows::FileRef("shaders/vert.spv");
+		frag = Windows::FileRef("shaders/frag.spv");
+		vertShader = ComphiAPI::Rendering::Shader(ShaderType::VertexShader, vert);
+		fragShader = ComphiAPI::Rendering::Shader(ShaderType::FragmentShader, frag);
+
+		//Material / Graphics Pipeline
+		simpleMaterial = ComphiAPI::Rendering::Material();
+		simpleMaterial->addDefaultVertexBindingDescription();
+		simpleMaterial->addLayoutSet(ResourceUpdateFrequency::PerScene); 
+		simpleMaterial->addLayoutSet(ResourceUpdateFrequency::PerMaterialInstance); 
+		simpleMaterial->addLayoutSet(ResourceUpdateFrequency::PerMeshObject);
+		simpleMaterial->addShaderResourceToLayoutset(0, 1, ShaderResourceDescriptorType::UniformBuffer); //Camera projection (& Lights)
+		simpleMaterial->addShaderResourceToLayoutset(1, 1, ShaderResourceDescriptorType::ImageBufferSampler); //Material resources : Texture
+		simpleMaterial->addShaderResourceToLayoutset(2, 1, ShaderResourceDescriptorType::UniformBuffer); //Mesh ModelViewMatrix 
+		simpleMaterial->addShader(vertShader);
+		simpleMaterial->addShader(fragShader);
+		simpleMaterial->initialize();
+
+		//Texture
+		textureFile = Windows::FileRef("textures/viking_room.png");
+		texture = ComphiAPI::Rendering::Texture(textureFile);
+
+		textureFile2 = Windows::FileRef("textures/lain.jpg");
+		texture2 = ComphiAPI::Rendering::Texture(textureFile2);
+
+		//MaterialInstances
+		AlbedoA = ComphiAPI::Rendering::MaterialInstance(simpleMaterial);
+		AlbedoA->linkTexture(texture);
+
 		//GameObject1
-		modelMesh = Windows::FileRef("models/viking_room.obj");
-		meshObj = ComphiAPI::create::Mesh(modelMesh, Albedo);
-		gameObj = ComphiAPI::create::GameObject({ meshObj });
+		gameObjA = ComphiAPI::SceneGraph::Entity();
+		gameObjA->AddComponent(ComphiAPI::Components::Transform());
+		gameObjA->AddComponent(ComphiAPI::Components::Renderer(meshObjA,AlbedoA));
+		
+		CameraObj = ComphiAPI::SceneGraph::Entity();
+		CameraObj->AddComponent(ComphiAPI::Components::Transform());
+		CameraObj->AddComponent(ComphiAPI::Components::Camera());
+
+		scene = ComphiAPI::SceneGraph::Scene();
+
+		//gameObjA->GetComponent<Renderer>()->;
 		//gameObj1->action.updateCallback = [this](Time frameTime,void*) { //TODO: fix Lambda not defined when out of scope
 		//	gameObj1->transform.position = glm::vec3(0, 0, glm::sin(frameTime.deltaTime()));
 		//	gameObj1->transform.setEulerAngles(glm::vec3(0.0f, 0.0f, 45.0f) * frameTime.deltaTime());
@@ -136,16 +136,16 @@ public:
 
 		//GameObject2
 		/*modelMesh1 = Windows::FileRef("models/BLEPOSPACE.obj");
-		meshObj1 = GraphicsAPI::create::Mesh(modelMesh1, Albedo1); //TODO: fix materials / descriptor sets not share-able ...
-		gameObj1 = GraphicsAPI::create::GameObject({ meshObj1 }, { gameObj.get() });
+		meshObj1 = ComphiAPI::Rendering::Mesh(modelMesh1, Albedo1); //TODO: fix materials / descriptor sets not share-able ...
+		gameObj1 = ComphiAPI::Rendering::GameObject({ meshObj1 }, { gameObj.get() });
 
 		//Camera
 		Transform scaleup  = Transform();
 		scaleup.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-		emptyObj = GraphicsAPI::create::GameObject({ GraphicsAPI::create::Mesh(cubeVx, CubeIx, Albedo2) }, { nullptr, scaleup });
-		camObj = GraphicsAPI::create::Camera({}, { emptyObj.get() });
+		emptyObj = ComphiAPI::Rendering::GameObject({ ComphiAPI::Rendering::Mesh(cubeVx, CubeIx, Albedo2) }, { nullptr, scaleup });
+		camObj = ComphiAPI::Rendering::Camera({}, { emptyObj.get() });
 
-		scene = GraphicsAPI::create::Scene();
+		scene = ComphiAPI::Rendering::Scene();
 		scene->sceneObjects.push_back(gameObj);
 		scene->sceneObjects.push_back(gameObj1);
 		scene->sceneObjects.push_back(emptyObj);
@@ -219,6 +219,6 @@ public:
 private:
 };
 
-Comphi::Application* Comphi::CreateApplication() {
+Comphi::Application* Comphi::RenderingApplication() {
 	return new Sandbox();
 }

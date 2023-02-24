@@ -7,7 +7,7 @@ namespace Comphi {
 	public:
 		virtual void Init() = 0;
 		virtual void Draw() = 0;
-		virtual void SetScenes(MultiScene& scenes) = 0; //TODO: Refactor ?
+		virtual void SetScenes(SceneGraph& scenes) = 0;
 		virtual void ResizeWindow(uint x, uint y) = 0;
 		virtual void ResizeFramebuffer(uint x, uint y) = 0;
 		virtual void CleanUp() = 0;

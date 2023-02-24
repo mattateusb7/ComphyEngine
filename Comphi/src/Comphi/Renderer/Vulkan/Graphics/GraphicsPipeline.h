@@ -17,16 +17,15 @@ namespace Comphi::Vulkan {
 	class GraphicsPipeline : public IGraphicsPipeline
 	{
 	public:
-		GraphicsPipeline(GraphicsPipelineConfiguration config) {
-			initialize(config);
-		}
+		GraphicsPipeline() = default;
+		virtual void initialize() override;
+
 		//Todo: try to upgrade 
 		void updateDescriptorSet(void* dataObjectsArray, uint setID, uint descriptorID);
 		
 		virtual void cleanUp() override;
 
 	private:
-		void initialize(GraphicsPipelineConfiguration config);
 		VkPipelineLayout pipelineLayout;
 		VkPipeline pipelineObj;
 

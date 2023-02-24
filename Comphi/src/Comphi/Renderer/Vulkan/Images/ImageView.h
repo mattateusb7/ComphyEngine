@@ -14,9 +14,11 @@ namespace Comphi::Vulkan {
 		virtual void cleanUp() override; //IObject
 
 		VkImageView imageView;
-		VkSampler textureSampler;
+		VkSampler textureSampler; 
+		//TODO maybe separate sampler from texture 
+		//and use it as a shader resource that can be reused for differernt textures
 		ImageBuffer imageBuffer;
-		void*
+		//void*
 
 		ImageView() = default;
 

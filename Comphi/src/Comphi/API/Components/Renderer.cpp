@@ -3,10 +3,9 @@
 
 namespace Comphi {
 	
-	Renderer::Renderer(MaterialInstance& material, MeshObject& meshObject)
+	Renderer::Renderer(MeshObjectPtr& meshObject, MaterialInstancePtr& material)
+		: meshObject(meshObject), material(material)
 	{
-
-		renderData.vertexBuffer->updateBufferData(meshData.vertexData.data());
-		renderData.indexBuffer->updateBufferData(meshData.indexData.data());
+	
 	}
 }

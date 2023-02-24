@@ -12,6 +12,7 @@ namespace Comphi {
 	class MeshObject : public IObject
 	{
 	public:
+		//Default VertexAttribute Desctiption
 		MeshObject(IFileRef& modelFile, MeshBuffers& meshBuffers);
 		MeshObject(MeshData& meshData, MeshBuffers& meshBuffers);
 		MeshObject(VertexArray& vertexData, IndexArray& indexData, MeshBuffers& meshBuffers);
@@ -20,7 +21,6 @@ namespace Comphi {
 
 		MeshData meshData;
 		MeshBuffers meshBuffers;
-
 		virtual void cleanUp() override {};
 
 	private:

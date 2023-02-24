@@ -370,35 +370,6 @@ namespace Comphi::Vulkan {
 
 	}
 
-	void SwapChain::drawCommandBuffer(VkCommandBuffer& commandBuffer, MeshObject& meshObj)
-	{
-		static_cast<Material*>(meshObj.i_material.get())->bindGraphicsPipeline(commandBuffer);
-
-		meshObj.bind(commandBuffer);
-
-		//dynamic VIEWPORT/SCISSOR SETUP
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = static_cast<float>(swapChainExtent.width);
-		viewport.height = static_cast<float>(swapChainExtent.height);
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = swapChainExtent;
-		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-		//Only bind new descriptor set if this material differs from lastMaterial (group all materials / Instanced objects) ?
-		static_cast<Material*>(meshObj.i_material.get())->bindDescriptorSet(commandBuffer, currentFrame);
-
-		//DRAW COMMAND
-		vkCmdDrawIndexed(commandBuffer, meshObj.i_indices->i_indexCount, 1, 0, 0, 0);
-		//vkCmdDraw(commandBuffer, this->vertexBuffers[0]->vertexCount, 1, 0, 0);
-	}
-
 	void Comphi::Vulkan::SwapChain::endRenderPassCommandBuffer(VkCommandBuffer& commandBuffer)
 	{
 		vkCmdEndRenderPass(commandBuffer);

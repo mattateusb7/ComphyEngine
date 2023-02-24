@@ -35,7 +35,7 @@ namespace Comphi {
 		while (m_running) {
 
 			//Draw Loop
-			m_Window->OnBeginUpdate(m_ScenesToRender);
+			m_Window->OnBeginUpdate(m_sceneGraph);
 			
 			//Action Loop
 			for (auto layer : m_LayerStack) {
@@ -73,16 +73,16 @@ namespace Comphi {
 		}
 	}
 
-	void Application::PushScene(SceneInstance& scene)
+	void Application::PushScene(ScenePtr& scene)
 	{
-		m_ScenesToRender.push_back(scene);
+		m_sceneGraph.push_back(scene);
 	}
 
-	void Application::PopScene(SceneInstance& scene)
+	void Application::PopScene(ScenePtr& scene)
 	{
-		auto it = std::find(m_ScenesToRender.begin(), m_ScenesToRender.end(), scene);
-		if (it != m_ScenesToRender.end()) {
-			m_ScenesToRender.erase(it);
+		auto it = std::find(m_sceneGraph.begin(), m_sceneGraph.end(), scene);
+		if (it != m_sceneGraph.end()) {
+			m_sceneGraph.erase(it);
 		}
 	}
 

@@ -19,7 +19,7 @@ namespace Comphi {
 
 	MeshObject::MeshObject(VertexArray& vertexData, IndexArray& indexData, MeshBuffers& meshBuffers)
 	{
-		fillEmptyIndexArray(vertexData,indexData);
+		fillEmptyIndexArray(vertexData, indexData);
 		meshData.vertexData = vertexData;
 		meshData.indexData = indexData;
 		initMeshBuffers(meshBuffers);

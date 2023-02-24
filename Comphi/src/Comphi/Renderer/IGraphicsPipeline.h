@@ -45,33 +45,33 @@ namespace Comphi {
 	};
 
 	enum PixelFormat { 
-		RGB_F32 = 106,//VK_FORMAT_R32G32B32_SFLOAT
-		RG_F32	= 103 //VK_FORMAT_R32G32_SFLOAT
+		RGBA_F32 = 109, //VK_FORMAT_R32G32B32A32_SFLOAT
+		RGB_F32	 = 106, //VK_FORMAT_R32G32B32_SFLOAT
+		RG_F32	 = 103, //VK_FORMAT_R32G32_SFLOAT
+		R_F32	 = 100	//VK_FORMAT_R32_SFLOAT 
 	};
 
 	enum vertexInputRate {
-		Unique		= 0,//VK_VERTEX_INPUT_RATE_VERTEX, //Temp name
-		Instanced	= 1//VK_VERTEX_INPUT_RATE_INSTANCE
+		PerVertex	= 0, //VK_VERTEX_INPUT_RATE_VERTEX,
+		PerInstance	= 1	 //VK_VERTEX_INPUT_RATE_INSTANCE
 	};
 
-	struct VertexBindingDescription {
-		uint ID = 0;
-		uint stride = 0;
-		vertexInputRate inputRate = Unique;
+	struct VertexBufferBindingDescription {
+		uint bufferBindingID = 0; //buffer ID
+		uint vertexStride = 0; //sizeof(Vertex) the size of each vertex in bytes
+		vertexInputRate inputRate = PerVertex;
 	};
 
-	struct VertexAttributeBinding {
-		uint ID = 0;
-		uint location = 0;
+	struct VertexAttributeBindingDescription {
+		uint bufferBindingID = 0; //which buffer ID to read from
+		uint shaderLocationID = 0; //shader variable location
 		PixelFormat format = RGB_F32;
 		uint offset = 0; //offsetof(Vertex, color);
 	};
 
-	typedef std::vector<VertexAttributeBinding> VertexBindingFormat;
-
-	struct VertexBufferDescription {
-		std::vector<VertexBindingDescription> bindingDescriptions;
-		VertexBindingFormat attributeDescriptionsBindings;
+	struct VertexBuffersLayoutConfiguration {
+		std::vector<VertexBufferBindingDescription> vertexBufferBindingDescriptors;
+		std::vector<VertexAttributeBindingDescription> vertexAttributeFormatDescriptors;
 	};
 
 	//PIPELINE DESCTIPTOR SETS & POOL
@@ -82,25 +82,24 @@ namespace Comphi {
 	};
 
 	enum ResourceUpdateFrequency {
-		GlobalConstant		= 0,
+		GlobalData			= 0,
 		PerScene			= 1,
 		PerMaterialInstance = 2,
-		PerObject			= 3,
-		PerObjectInstance	= 4
+		PerMeshObject		= 3,
+		PerEntity			= 4
 	};
 
 	//bindingID = arrayPos?
 	struct DescriptorSetBinding {
-		//void* dataObjArray;
-		uint dataObjCount = 1; //Default = 1, Off = 0 | Resource Array Of Type x
-		ShaderResourceDescriptorType type;
-		ShaderStageFlags flags;
-		ResourceUpdateFrequency updateFrequency; //affects rendering Loop step
+		uint dataObjectArrayCount = 1; //Default = 1, Off = 0 | Resource Array Of Type x
+		ShaderResourceDescriptorType resourceType;
+		ShaderStageFlag shaderStage;
 	};
 
 	//PIPELINE LAYOUT
 	struct PipelineLayoutSet {
 		std::vector<DescriptorSetBinding> shaderResourceDescriptorSets;
+		ResourceUpdateFrequency updateFrequency; //affects rendering Loop step
 		//std::vector<pushConstants> //TODO: Add Later
 	};
 
@@ -112,7 +111,7 @@ namespace Comphi {
 	struct GraphicsPipelineConfiguration {
 		AssemblySettings assemblySettings{};
 		RasterizerSettings rasterizerSettings{};
-		VertexBufferDescription vertexInputDescription{};
+		VertexBuffersLayoutConfiguration vertexInputLayoutConfiguration{};
 		PipelineLayoutConfiguration pipelineLayoutConfiguration{};
 
 		//TODO: Add missing Configurations v v v 
@@ -130,9 +129,8 @@ namespace Comphi {
 	class IGraphicsPipeline : public IObject
 	{
 	public:
-		IGraphicsPipeline() = default;
-		~IGraphicsPipeline() = default;
 		GraphicsPipelineConfiguration configuration;
+		virtual void initialize() = 0;
 		//virtual void updateShaderResource() {};
 	};
 

@@ -8,7 +8,10 @@ namespace Comphi{
 	class Renderer : public Component
 	{
 	public:
-		Renderer(MaterialInstance& material, MeshObject& meshObject);
+		Renderer(MeshObjectPtr& meshObject, MaterialInstancePtr& material);
+		
+		MeshObjectPtr& meshObject;
+		MaterialInstancePtr& material;
 		~Renderer() = default;
 	};
 	
