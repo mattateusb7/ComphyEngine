@@ -47,7 +47,7 @@ namespace Comphi::Vulkan {
 		//SCENE 
 		
 		//Traverse Render Scene Graph and look for updates?
-
+		/*
 		for (const auto& renderID : sceneGraph->sortedEntities) { //All entities share Material & MaterialInstance
 
 			std::vector<VkWriteDescriptorSet> descriptorSetUpdates;

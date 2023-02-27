@@ -85,10 +85,9 @@ public:
 
 		//meshBuffersA.indexBuffer = ComphiAPI::Rendering::IndexBufferData()
 
-		modelMeshA = Windows::FileRef("models/viking_room.obj");
+	/*  modelMeshA = Windows::FileRef("models/viking_room.obj");
 		meshObjA = ComphiAPI::Rendering::MeshObject(modelMeshA, meshBuffersA);
 		cubeVX = ComphiAPI::Rendering::MeshObject(cubeVx,CubeIx, meshBuffersB);
-
 		vert = Windows::FileRef("shaders/vert.spv");
 		frag = Windows::FileRef("shaders/frag.spv");
 		vertShader = ComphiAPI::Rendering::Shader(ShaderType::VertexShader, vert);
@@ -121,7 +120,7 @@ public:
 		gameObjA->AddComponent(ComphiAPI::Components::Transform());
 		gameObjA->AddComponent(ComphiAPI::Components::Renderer(meshObjA,AlbedoA));
 		
-		//auto ModelViewMatrix = Comphi::ComphiAPI::Rendering::ShaderBufferData(gameObjA->GetComponent<Transform>()->getModelViewMatrix(), 1);
+		//auto ModelViewMatrix = Comphi::ComphiAPI::Rendering::UniformBufferData(gameObjA->GetComponent<Transform>()->getModelViewMatrix(), 1);
 		//ModelViewMatrix->updateBufferData()
 		//gameObjA->GetComponent<Transform>()->getModelMatrix();
 		

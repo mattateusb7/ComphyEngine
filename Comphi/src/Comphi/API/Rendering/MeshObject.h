@@ -10,6 +10,7 @@ namespace Comphi {
 		ShaderBufferDataPtr indexBuffer;
 	};
 
+	//template<typename vx = Vertex, typename ix = Index>
 	class MeshObject : public IObject
 	{
 	public:
@@ -18,13 +19,14 @@ namespace Comphi {
 		MeshObject(MeshData& meshData, MeshBuffers& meshBuffers);
 		MeshObject(VertexArray& vertexData, IndexArray& indexData, MeshBuffers& meshBuffers);
 
-		static IndexArray& fillEmptyIndexArray(VertexArray& vertexData, IndexArray& indexData);
-
 		MeshData meshData;
 		MeshBuffers meshBuffers;
 		virtual void cleanUp() override {};
 
+		//typedef std::shared_ptr<MeshObject<vx, ix>> Ptr;
+
 	private:
+		static IndexArray& fillEmptyIndexArray(VertexArray& vertexData, IndexArray& indexData);
 		void initMeshBuffers(MeshBuffers& meshBuffers);
 	};
 

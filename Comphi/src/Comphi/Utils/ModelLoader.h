@@ -23,6 +23,7 @@ namespace Comphi {
 		IndexArray indexData;
 	};
 
+
 	class ModelLoader
 	{
 	public:

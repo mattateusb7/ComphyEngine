@@ -8,6 +8,7 @@ namespace Comphi::Vulkan {
     {
     public:
         UniformBuffer(const T* dataArray, const uint count, BufferUsage usage = BufferUsage::UniformBuffer);
+        //Initialize(const T* dataArray, const uint count, BufferUsage usage = BufferUsage::UniformBuffer);
     };
 
     template<typename T>

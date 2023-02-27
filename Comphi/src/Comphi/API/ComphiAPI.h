@@ -70,21 +70,17 @@ namespace Comphi {
 			static MaterialInstancePtr MaterialInstance(MaterialPtr& parent, IObjectPool* pool = &objectPool);
 			static TexturePtr Texture(IFileRef& fileref, IObjectPool* pool = &objectPool);
 			
+			//Shader Buffers
 			template<typename T>
-			static ShaderBufferDataPtr ShaderBufferData (const T& dataArray, const uint count, BufferUsage usage = BufferUsage::UniformBuffer, IObjectPool* pool = &objectPool);
+			static ShaderBufferDataPtr ShaderBufferData (const T& dataArray, const uint count, BufferUsage usage, IObjectPool* pool = &objectPool);
 			
-			static ShaderBufferDataPtr	VertexBufferData(const VertexArray& dataArray, IObjectPool* pool = &objectPool);
-			static ShaderBufferDataPtr	IndexBufferData(const IndexArray& dataArray, IObjectPool* pool = &objectPool);
-			template<typename T>
-			static ShaderBufferDataPtr UniformBufferData(const T& dataArray, const uint count, IObjectPool* pool = &objectPool);
-
-			//Renderer
+			//MeshObject
 			static MeshObjectPtr MeshObject(IFileRef& modelFile, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
 			static MeshObjectPtr MeshObject(MeshData& data, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
 			static MeshObjectPtr MeshObject(VertexArray& vertexData, IndexArray& indexData, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
 			
-			template<typename vx, typename ix>
-			static CustomMeshObject<vx,ix>::Ptr MeshObject(CustomMeshDataBuffers<vx,ix> customMeshDataBuffers, IObjectPool* pool = &objectPool);
+			//template<typename vx, typename ix>
+			//static CustomMeshObject<vx,ix>::Ptr MeshObject(CustomMeshDataBuffers<vx,ix> customMeshDataBuffers, IObjectPool* pool = &objectPool);
 		};
 
 
