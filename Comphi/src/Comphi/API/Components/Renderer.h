@@ -12,6 +12,7 @@ namespace Comphi{
 		
 		MeshObjectPtr& meshObject;
 		MaterialInstancePtr& material;
+
 		~Renderer() = default;
 	};
 	

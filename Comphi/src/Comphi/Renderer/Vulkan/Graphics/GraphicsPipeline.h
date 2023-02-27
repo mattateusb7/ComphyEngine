@@ -20,14 +20,13 @@ namespace Comphi::Vulkan {
 		GraphicsPipeline() = default;
 		virtual void initialize() override;
 
-		//Todo: try to upgrade 
-		void updateDescriptorSet(void* dataObjectsArray, uint setID, uint descriptorID);
+		VkWriteDescriptorSet getDescriptorSetWrite(void* dataObjectsArray, uint setID, uint descriptorID);
 		
 		virtual void cleanUp() override;
 
+		VkPipeline pipelineObj;
 	private:
 		VkPipelineLayout pipelineLayout;
-		VkPipeline pipelineObj;
 
 		std::vector<LayoutSet> graphicsSetLayouts;
 

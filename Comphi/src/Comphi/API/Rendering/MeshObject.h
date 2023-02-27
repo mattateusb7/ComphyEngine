@@ -1,6 +1,7 @@
 #pragma once
 #include "Comphi/Utils/ModelLoader.h"
 #include "Comphi/API/Rendering/ShaderBufferData.h"
+#include "ShaderBinding.h"
 
 namespace Comphi {
 
@@ -31,4 +32,8 @@ namespace Comphi {
 
 }
 
-
+//template<> struct std::hash<Comphi::MeshObjectPtr> {
+//	size_t operator()(Comphi::MeshObjectPtr const& mesh) const {
+//		return mesh->UID;
+//	}
+//};

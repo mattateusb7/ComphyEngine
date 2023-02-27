@@ -16,7 +16,7 @@ namespace Comphi::Vulkan {
 
 		void allocateMemoryBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 		
-		virtual void updateBufferData(const void* dataArray);
+		virtual void updateBufferData(const void* dataArray) override;
 
 		VkBuffer bufferObj;
 		VkDeviceMemory bufferMemory;

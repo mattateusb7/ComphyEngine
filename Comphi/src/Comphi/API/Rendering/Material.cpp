@@ -21,7 +21,13 @@ namespace Comphi {
 		vertexAttribute.bufferBindingID = layoutBindingID;
 		vertexAttribute.shaderLocationID = layoutLocationID;
 		vertexAttribute.format = format;
-		vertexAttribute.offset = offsetof(T, member);
+
+		T temp;
+		vertexAttribute.offset = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(&std::mem_fn(member)(temp)));
+		
+		//auto memberValue = std::mem_fn(member)(T{});
+		//vertexAttribute.offset = offsetof(T, memberValue);
+		
 		configuration.vertexInputLayoutConfiguration.vertexAttributeFormatDescriptors.push_back(vertexAttribute);
 	}
 
@@ -38,19 +44,15 @@ namespace Comphi {
 		configuration.pipelineLayoutConfiguration.shaderPrograms.push_back(shaderObject.get());
 	}
 
-	void Material::addLayoutSet(ResourceUpdateFrequency updateFrequency)
-	{
-		PipelineLayoutSet layout;
-		layout.updateFrequency = updateFrequency;
-		configuration.pipelineLayoutConfiguration.layoutSets.push_back(layout);
-	}
-
-	void Material::addShaderResourceToLayoutset(uint layoutSetID, uint dataObjectArrayCount, ShaderResourceDescriptorType type, ShaderStageFlag shaderStage)
+	void Material::addShaderResource(uint layoutSetID, uint dataObjectArrayCount, ShaderResourceDescriptorType type, ShaderStageFlag shaderStage)
 	{
 		DescriptorSetBinding binding;
 		binding.dataObjectArrayCount = dataObjectArrayCount;
 		binding.resourceType = type;
 		binding.shaderStage = shaderStage;
+
+		if (layoutSetID+1 > configuration.pipelineLayoutConfiguration.layoutSets.size())
+			configuration.pipelineLayoutConfiguration.layoutSets.resize(layoutSetID+1);
 
 		configuration.pipelineLayoutConfiguration.layoutSets[layoutSetID].shaderResourceDescriptorSets.push_back(binding);
 

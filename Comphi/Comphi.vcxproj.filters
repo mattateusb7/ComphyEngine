@@ -111,6 +111,9 @@
     <ClInclude Include="src\Comphi\API\Components\Transform.h">
       <Filter>src\Comphi\API\Components</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\API\Rendering\CustomMeshObject.h">
+      <Filter>src\Comphi\API\Rendering</Filter>
+    </ClInclude>
     <ClInclude Include="src\Comphi\API\Rendering\Material.h">
       <Filter>src\Comphi\API\Rendering</Filter>
     </ClInclude>
@@ -118,6 +121,9 @@
       <Filter>src\Comphi\API\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\API\Rendering\MeshObject.h">
+      <Filter>src\Comphi\API\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\API\Rendering\ShaderBinding.h">
       <Filter>src\Comphi\API\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\API\Rendering\ShaderBufferData.h">
@@ -132,7 +138,7 @@
     <ClInclude Include="src\Comphi\API\SceneGraph\Entity.h">
       <Filter>src\Comphi\API\SceneGraph</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\API\SceneGraph\Scene.h">
+    <ClInclude Include="src\Comphi\API\SceneGraph\SceneGraph.h">
       <Filter>src\Comphi\API\SceneGraph</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Allocation\IObject.h">
@@ -222,6 +228,9 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Commands\CommandPool.h">
       <Filter>src\Comphi\Renderer\Vulkan\Commands</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\Camera.h">
+      <Filter>src\Comphi\Renderer\Vulkan\Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\GraphicsPipeline.h">
       <Filter>src\Comphi\Renderer\Vulkan\Graphics</Filter>
     </ClInclude>
@@ -255,7 +264,13 @@
     <ClInclude Include="src\Comphi\UI\ImGui\ImGuiLayer.h">
       <Filter>src\Comphi\UI\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="src\Comphi\Utils\DataHandling.h">
+      <Filter>src\Comphi\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="src\Comphi\Utils\ModelLoader.h">
+      <Filter>src\Comphi\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Comphi\Utils\Random.h">
       <Filter>src\Comphi\Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Comphi\Utils\Time.h">
@@ -1515,9 +1530,6 @@
     <ClInclude Include="vendor\tinyobjloader\tiny_obj_loader.h">
       <Filter>vendor\tinyobjloader</Filter>
     </ClInclude>
-    <ClInclude Include="src\Comphi\API\Rendering\CustomMeshObject.h" />
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\Camera.h" />
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Comphi\API\ComphiAPI.cpp">
@@ -1532,13 +1544,25 @@
     <ClCompile Include="src\Comphi\API\Components\Transform.cpp">
       <Filter>src\Comphi\API\Components</Filter>
     </ClCompile>
+    <ClCompile Include="src\Comphi\API\Rendering\CustomMeshObject.cpp">
+      <Filter>src\Comphi\API\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\Rendering\Material.cpp">
+      <Filter>src\Comphi\API\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\Rendering\MaterialInstance.cpp">
+      <Filter>src\Comphi\API\Rendering</Filter>
+    </ClCompile>
     <ClCompile Include="src\Comphi\API\Rendering\MeshObject.cpp">
+      <Filter>src\Comphi\API\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\API\Rendering\ShaderBinding.cpp">
       <Filter>src\Comphi\API\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\API\SceneGraph\Entity.cpp">
       <Filter>src\Comphi\API\SceneGraph</Filter>
     </ClCompile>
-    <ClCompile Include="src\Comphi\API\SceneGraph\Scene.cpp">
+    <ClCompile Include="src\Comphi\API\SceneGraph\SceneGraph.cpp">
       <Filter>src\Comphi\API\SceneGraph</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Allocation\IObjectPool.cpp">
@@ -1573,6 +1597,9 @@
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Commands\CommandPool.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Graphics\Camera.cpp">
+      <Filter>src\Comphi\Renderer\Vulkan\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Graphics\GraphicsPipeline.cpp">
       <Filter>src\Comphi\Renderer\Vulkan\Graphics</Filter>
@@ -1619,8 +1646,6 @@
     <ClCompile Include="src\cphipch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Comphi\API\Rendering\CustomMeshObject.cpp" />
-    <ClCompile Include="src\Comphi\API\Rendering\Material.cpp" />
-    <ClCompile Include="src\Comphi\API\Rendering\MaterialInstance.cpp" />
+    <ClCompile Include="src\Comphi\API\Rendering\ShaderBufferData.cpp" />
   </ItemGroup>
 </Project>

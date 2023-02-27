@@ -13,7 +13,7 @@ namespace Comphi {
 	};
 
 	template<typename vx = Vertex, typename ix = Index>
-	class CustomMeshObject : IObject //MeshObject
+	class CustomMeshObject : IObject 
 	{
 	public:
 		//Custom data VertexAttribute Desctiption

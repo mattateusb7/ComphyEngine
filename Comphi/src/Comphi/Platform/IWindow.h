@@ -2,7 +2,7 @@
 #include "Comphi/Events/Event.h"
 #include "Comphi/Core/LayerStack.h"
 #include "Comphi/UI/ImGui/ImGuiLayer.h"
-#include "Comphi/API/SceneGraph/Scene.h"
+#include "Comphi/API/SceneGraph/SceneGraph.h"
 
 namespace Comphi{
 	
@@ -26,7 +26,7 @@ namespace Comphi{
 
 		virtual void OnWindowResized(uint x, uint y) = 0;
 		virtual void OnFramebufferResized(uint x, uint y) = 0;
-		virtual void OnBeginUpdate(SceneGraph& scenes) = 0;
+		virtual void OnBeginUpdate(SceneGraphPtr& sceneGraph) = 0;
 		virtual void OnUpdate() = 0;
 		virtual void Shutdown() = 0;
 

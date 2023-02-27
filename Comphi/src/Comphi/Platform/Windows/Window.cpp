@@ -176,9 +176,9 @@ namespace Comphi::Windows {
 		glfwPollEvents();
 	}
 
-	void Window::OnBeginUpdate(SceneGraph& scenes)
+	void Window::OnBeginUpdate(SceneGraphPtr& sceneGraph)
 	{
-		m_GraphicsContext->SetScenes(scenes);
+		m_GraphicsContext->SetScenes(sceneGraph);
 		m_GraphicsContext->Draw();
 	}
 

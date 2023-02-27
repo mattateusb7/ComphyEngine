@@ -3,10 +3,6 @@
 
 namespace Comphi{
 
-	Camera::Camera(CameraProperties cameraProperties)
-	{
-		properties = cameraProperties;
-	}
 }
 
 

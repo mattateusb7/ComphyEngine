@@ -78,15 +78,16 @@ namespace Comphi {
 
 	enum ShaderResourceDescriptorType {
 		ImageBufferSampler	= 1, //VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-		UniformBuffer		= 6 //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+		UniformBufferData	= 6 //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
 	};
 
-	enum ResourceUpdateFrequency {
+	enum LayoutSetUpdateFrequency {
 		GlobalData			= 0,
 		PerScene			= 1,
 		PerMaterialInstance = 2,
 		PerMeshObject		= 3,
-		PerEntity			= 4
+		PerEntity			= 4,
+		Disabled			= 5
 	};
 
 	//bindingID = arrayPos?
@@ -99,7 +100,7 @@ namespace Comphi {
 	//PIPELINE LAYOUT
 	struct PipelineLayoutSet {
 		std::vector<DescriptorSetBinding> shaderResourceDescriptorSets;
-		ResourceUpdateFrequency updateFrequency; //affects rendering Loop step
+		LayoutSetUpdateFrequency updateFrequency; //affects rendering Loop step ?
 		//std::vector<pushConstants> //TODO: Add Later
 	};
 
@@ -131,7 +132,9 @@ namespace Comphi {
 	public:
 		GraphicsPipelineConfiguration configuration;
 		virtual void initialize() = 0;
+		virtual void cleanUp() override {};
 		//virtual void updateShaderResource() {};
+		//std::unique_ptr<Vulkan::GraphicsPipeline> m_pipeline;
 	};
 
 }

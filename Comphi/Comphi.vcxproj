@@ -153,11 +153,12 @@
     <ClInclude Include="src\Comphi\API\Rendering\Material.h" />
     <ClInclude Include="src\Comphi\API\Rendering\MaterialInstance.h" />
     <ClInclude Include="src\Comphi\API\Rendering\MeshObject.h" />
+    <ClInclude Include="src\Comphi\API\Rendering\ShaderBinding.h" />
     <ClInclude Include="src\Comphi\API\Rendering\ShaderBufferData.h" />
     <ClInclude Include="src\Comphi\API\Rendering\ShaderObject.h" />
     <ClInclude Include="src\Comphi\API\Rendering\TextureObject.h" />
     <ClInclude Include="src\Comphi\API\SceneGraph\Entity.h" />
-    <ClInclude Include="src\Comphi\API\SceneGraph\Scene.h" />
+    <ClInclude Include="src\Comphi\API\SceneGraph\SceneGraph.h" />
     <ClInclude Include="src\Comphi\Allocation\IObject.h" />
     <ClInclude Include="src\Comphi\Allocation\IObjectPool.h" />
     <ClInclude Include="src\Comphi\Core\Application.h" />
@@ -189,7 +190,6 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Commands\CommandPool.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\Camera.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\GraphicsPipeline.h" />
-    <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\Camera.cpp" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\MeshObject.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Graphics\ShaderProgram.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\GraphicsContext.h" />
@@ -200,7 +200,9 @@
     <ClInclude Include="src\Comphi\Renderer\Vulkan\SwapChain.h" />
     <ClInclude Include="src\Comphi\Renderer\Vulkan\Sync\SyncObjectsFactory.h" />
     <ClInclude Include="src\Comphi\UI\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\Comphi\Utils\DataHandling.h" />
     <ClInclude Include="src\Comphi\Utils\ModelLoader.h" />
+    <ClInclude Include="src\Comphi\Utils\Random.h" />
     <ClInclude Include="src\Comphi\Utils\Time.h" />
     <ClInclude Include="src\cphipch.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
@@ -627,11 +629,13 @@
     <ClCompile Include="src\Comphi\API\Components\Renderer.cpp" />
     <ClCompile Include="src\Comphi\API\Components\Transform.cpp" />
     <ClCompile Include="src\Comphi\API\Rendering\CustomMeshObject.cpp" />
+    <ClCompile Include="src\Comphi\API\Rendering\Material.cpp" />
     <ClCompile Include="src\Comphi\API\Rendering\MaterialInstance.cpp" />
     <ClCompile Include="src\Comphi\API\Rendering\MeshObject.cpp" />
-    <ClCompile Include="src\Comphi\API\Rendering\Material.cpp" />
+    <ClCompile Include="src\Comphi\API\Rendering\ShaderBinding.cpp" />
+    <ClCompile Include="src\Comphi\API\Rendering\ShaderBufferData.cpp" />
     <ClCompile Include="src\Comphi\API\SceneGraph\Entity.cpp" />
-    <ClCompile Include="src\Comphi\API\SceneGraph\Scene.cpp" />
+    <ClCompile Include="src\Comphi\API\SceneGraph\SceneGraph.cpp" />
     <ClCompile Include="src\Comphi\Allocation\IObjectPool.cpp" />
     <ClCompile Include="src\Comphi\Core\Application.cpp" />
     <ClCompile Include="src\Comphi\Core\Layer.cpp" />
@@ -643,6 +647,9 @@
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Buffers\MemBuffer.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Buffers\UniformBuffer.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Commands\CommandPool.cpp" />
+    <ClCompile Include="src\Comphi\Renderer\Vulkan\Graphics\Camera.cpp">
+      <ObjectFileName>$(IntDir)\Camera1.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Graphics\GraphicsPipeline.cpp" />
     <ClCompile Include="src\Comphi\Renderer\Vulkan\Graphics\MeshObject.cpp">
       <ObjectFileName>$(IntDir)\MeshObject1.obj</ObjectFileName>

@@ -2,7 +2,7 @@
 #include "Transform.h"
 
 namespace Comphi {
-	Transform::Transform(TransformPtr parent)
+	Transform::Transform(TransformPtr& parent)
 	{
 		this->parent.reset(parent.get());
 	}

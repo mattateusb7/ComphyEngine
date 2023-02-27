@@ -1,5 +1,7 @@
 #include "cphipch.h"
 #include "Camera.h"
+#include "Camera.h"
+#include "Camera.h"
 
 namespace Comphi::Vulkan {
 
@@ -13,4 +15,5 @@ namespace Comphi::Vulkan {
 		
 		return projectionMatrix;
 	}
+
 }

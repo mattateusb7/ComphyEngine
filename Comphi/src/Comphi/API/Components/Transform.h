@@ -9,7 +9,7 @@ namespace Comphi {
 	class Transform : public Component
 	{
 	public:
-		Transform(TransformPtr parent = nullptr);
+		Transform(TransformPtr& parent);
 		Transform() = default;
 
 		TransformPtr parent;

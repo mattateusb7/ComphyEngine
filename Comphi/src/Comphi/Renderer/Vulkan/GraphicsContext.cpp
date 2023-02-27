@@ -1,5 +1,6 @@
 #include "cphipch.h"
 #include "GraphicsContext.h"
+#include "Comphi/API/Components/Transform.h"
 
 namespace Comphi::Vulkan {
 
@@ -21,9 +22,9 @@ namespace Comphi::Vulkan {
 		graphicsInstance = std::make_unique<GraphicsInstance>();
 	}
 
-	void GraphicsContext::SetScenes(SceneGraph& scenes)
+	void GraphicsContext::SetScenes(SceneGraphPtr& sceneGraph)
 	{
-		this->scenes = &scenes;
+		this->sceneGraph = sceneGraph;
 	}
 
 #pragma region //DEBUG!
@@ -35,13 +36,76 @@ namespace Comphi::Vulkan {
 		VkCommandBuffer& commandBuffer = graphicsInstance->swapchain->getCurrentFrameGraphicsCommandBuffer();
 		graphicsInstance->swapchain->beginRenderPassCommandBuffer(commandBuffer);
 
-		//Traverse Render Scene Graph
-			//foreach GlobalConstant
-			//foreach Scene
-			//foreach Material
-			//foreach MaterialInstance
-			//foreach Object
-			//foreach ObjectInstance
+		Entity* currEntity;
+		MeshObject* currMesh;
+		MaterialInstance* currMaterialInst;
+		Material* currMaterial;
+		IGraphicsPipeline* igraphicsPipeline;
+		GraphicsPipeline* gpipeline;
+
+		//https://computergraphics.stackexchange.com/questions/4499/how-to-change-sampler-pipeline-states-at-runtime-in-vulkan
+		//SCENE 
+		
+		//Traverse Render Scene Graph and look for updates?
+
+		for (const auto& renderID : sceneGraph->sortedEntities) { //All entities share Material & MaterialInstance
+
+			std::vector<VkWriteDescriptorSet> descriptorSetUpdates;
+
+			if (currMaterial != renderID.material.get()) {
+				currMaterial = renderID.material.get();
+				igraphicsPipeline = static_cast<IGraphicsPipeline*>(currMaterial);
+				gpipeline = static_cast<GraphicsPipeline*>(igraphicsPipeline);
+				vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gpipeline->pipelineObj);
+			}
+
+			//MATERIAL_INSTANCE 
+			if (currMaterialInst != renderID.materialInstance.get()) {
+				currMaterialInst = renderID.materialInstance.get();
+				
+				for (auto& bindings : currMaterialInst->textureBindings) {
+					for (auto& sortedBindings : bindings.second) {
+						//bindings.first << LayoutSetUpdateFrequency
+						//Texture bindings
+						gpipeline->getDescriptorSetWrite(sortedBindings.textures.data(), sortedBindings.setID, sortedBindings.descriptorID);
+					}
+				}
+				for (auto& bindings : currMaterialInst->bufferBindings) {
+					for (auto& sortedBindings : bindings.second) {
+						//bindings.first << LayoutSetUpdateFrequency
+						//Buffer Bindings
+						gpipeline->getDescriptorSetWrite(sortedBindings.buffers.data(), sortedBindings.setID, sortedBindings.descriptorID);
+					}
+				}
+			}
+
+			
+			for (const auto& cam : sceneGraph->cameras) {
+				cam->getProjectionMatrix();
+				for (const auto& entity : renderID.entityList) {
+					entity->GetComponent<Transform>()->getModelViewMatrix();
+
+				}
+			}
+
+			if (descriptorSetUpdates.size() != 0)
+			{
+				vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, descriptorSetUpdates.size(), descriptorSetUpdates.data(), 0, nullptr);
+			}
+					
+		}
+
+		/*for (size_t i = 0; i < sceneGraph->size(); i++)
+		{
+			SceneGraphPtr& scene = (*sceneGraph)[i];
+			for (size_t e = 0; e < scene->entityList.size(); e++)
+			{
+				EntityPtr& entity = scene->entityList;
+
+			}
+
+			sceneGraph[s][i]->cameraList;
+		}*/
 		
 		graphicsInstance->swapchain->endRenderPassCommandBuffer(commandBuffer);
 

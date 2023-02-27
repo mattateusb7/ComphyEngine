@@ -30,7 +30,7 @@ namespace Comphi {
 		if (indexData.size() == 0) {
 			for (size_t i = 0; i < vertexData.size(); i++)
 			{
-				indexData.push_back(i);
+				indexData.push_back(indexData.size());
 			}
 		}
 		return indexData;

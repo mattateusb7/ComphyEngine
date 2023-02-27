@@ -1,5 +1,6 @@
 #pragma once 
 #include "Comphi/Platform/IWindow.h"
+#include "Comphi/API/SceneGraph/SceneGraph.h"
 
 namespace Comphi {
 
@@ -12,8 +13,8 @@ namespace Comphi {
 		void Run();
 
 		void OnEvent(Event& e);
-		void PushScene(ScenePtr& scene);
-		void PopScene(ScenePtr& scene);
+		void PushScene(SceneGraphPtr& scene);
+		void PopScene(SceneGraphPtr& scene);
 		void PushLayer(Layer& layer);
 		void PushOverlay(Layer& overlay);
 		void PopLayer(Layer& layer);
@@ -32,7 +33,7 @@ namespace Comphi {
 		bool OnFramebufferResized(FramebufferResizedEvent& e);
 	
 		LayerStack m_LayerStack;
-		SceneGraph m_sceneGraph;
+		SceneGraphPtr* m_sceneGraph;
 		IWindow* m_Window;
 		ImGuiLayer m_ImGuiLayer;
 		bool m_running = true;

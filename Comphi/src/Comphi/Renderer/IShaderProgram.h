@@ -38,6 +38,7 @@ namespace Comphi{
 		virtual const uint GetType(){ return (uint)m_shaderType; };
 		IFileRef& shaderFile;
 		std::string entryPointFunctionName = "main";
+		virtual void cleanUp() override {};
 	protected:
 		ShaderType m_shaderType;
 	};

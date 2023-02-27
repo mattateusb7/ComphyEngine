@@ -1,4 +1,5 @@
 #pragma once
+#include "Comphi/Allocation/IObject.h"
 
 namespace Comphi {
 	
@@ -8,7 +9,7 @@ namespace Comphi {
 		float FarPlane = 10.0f;
 	};
 
-	class ICamera
+	class ICamera : public IObject
 	{
 	public:
 		CameraProperties properties;

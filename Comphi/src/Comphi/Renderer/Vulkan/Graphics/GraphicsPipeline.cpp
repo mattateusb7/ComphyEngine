@@ -4,7 +4,7 @@
 
 namespace Comphi::Vulkan {
 
-	void GraphicsPipeline::initialize()
+	void GraphicsPipeline::initialize() 
 	{
 		//TODO: Move all this code to separate Functions
 		
@@ -335,7 +335,7 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("created graphics pipeline successfully!");
 	}
 
-	void GraphicsPipeline::updateDescriptorSet(void* dataObjectsArray, uint setID, uint descriptorID)
+	VkWriteDescriptorSet GraphicsPipeline::getDescriptorSetWrite(void* dataObjectsArray, uint setID, uint descriptorID)
 	{
 		//https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkWriteDescriptorSet.html
 
@@ -354,7 +354,7 @@ namespace Comphi::Vulkan {
 
 		switch (descriptorSet.resourceType)
 		{
-		case ShaderResourceDescriptorType::UniformBuffer:
+		case ShaderResourceDescriptorType::UniformBufferData:
 		{
 			MemBuffer* buffer = static_cast<MemBuffer*>(dataObjectsArray);
 
@@ -395,9 +395,8 @@ namespace Comphi::Vulkan {
 			break;
 		}
 
-		//vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, 1, &descriptorWrite, 0, nullptr);
-		//
-		//COMPHILOG_CORE_INFO("vkUpdateDescriptorSets success!");
+		return descriptorWrite;
+
 	}
 
 	void GraphicsPipeline::cleanUp()

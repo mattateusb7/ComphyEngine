@@ -6,6 +6,7 @@
 #include "Comphi/Renderer/Vulkan/Graphics/GraphicsPipeline.h"
 #include "Comphi/Renderer/Vulkan/Images/ImageView.h"
 #include "Comphi/Renderer/Vulkan/Buffers/UniformBuffer.h"
+#include "Comphi/Renderer/Vulkan/Graphics/Camera.h"
 
 namespace Comphi {
 
@@ -25,9 +26,9 @@ namespace Comphi {
         return nullptr;
     }
 
-    ScenePtr ComphiAPI::SceneGraph::Scene()
+    SceneGraphPtr ComphiAPI::SceneGraph::Scene()
     {
-        ScenePtr scene = std::make_shared<Comphi::Scene>();
+        auto scene = std::make_shared<Comphi::SceneGraph>();
         return scene;
     }
 
@@ -38,11 +39,12 @@ namespace Comphi {
         return entity;
     }
 
-    CameraPtr ComphiAPI::Components::Camera(CameraProperties cameraProperties, IObjectPool* pool)
+    CameraPtr ComphiAPI::Components::Camera(IObjectPool* pool)
     {
-        auto camera = std::make_shared<Comphi::Camera>(cameraProperties);
-        pool->Add(camera.get());
-        return camera;
+        auto camera = std::make_shared<Vulkan::Camera>();
+        //auto cameraComp = std::make_shared<Comphi::Camera>(static_cast<ICamera*>(camera.get()));
+        //pool->Add((ICamera*)cameraComp.get());
+        return std::make_shared<Comphi::Camera>();//std::static_pointer_cast<Comphi::Camera>();
     }
 
     TransformPtr ComphiAPI::Components::Transform(IObjectPool* pool)
@@ -54,7 +56,7 @@ namespace Comphi {
 
     TransformPtr ComphiAPI::Components::Transform(TransformPtr& parent, IObjectPool* pool)
     {
-        auto transform = std::make_shared<Comphi::Transform>();
+        auto transform = std::make_shared<Comphi::Transform>(parent);
         pool->Add(transform.get());
         return transform;
     }
@@ -70,18 +72,17 @@ namespace Comphi {
     {
         //Vulkan Material Pipeline
         auto graphicsPipeline = std::make_shared<Vulkan::GraphicsPipeline>();
-        auto material = std::make_shared<Comphi::Material>(graphicsPipeline);
-        pool->Add((IGraphicsPipeline*)graphicsPipeline.get());
-        return material;
+        //auto material = std::make_shared<Comphi::Material>(static_cast<IGraphicsPipeline*>(graphicsPipeline.get()));
+        //pool->Add((IGraphicsPipeline*)material.get());
+        return std::make_shared<Comphi::Material>();//std::static_pointer_cast<Comphi::Material>(graphicsPipeline);
     }
 
     ShaderObjectPtr ComphiAPI::Rendering::Shader(ShaderType shaderType, IFileRef& file, IObjectPool* pool)
     {
         //Vulkan
         auto shaderProgram = std::make_shared<Comphi::Vulkan::ShaderProgram>(shaderType, file);
-        auto shader = std::make_shared<Comphi::IShaderProgram>(shaderProgram);
-        pool->Add(shader.get());
-        return shader;
+        pool->Add(shaderProgram.get());
+        return shaderProgram;
     }
 
     MaterialInstancePtr ComphiAPI::Rendering::MaterialInstance(MaterialPtr& parent, IObjectPool* pool)
@@ -96,9 +97,7 @@ namespace Comphi {
     {
         auto imgView = std::make_shared<Vulkan::ImageView>();
         imgView->initTextureImageView(fileref);
-        
-        auto texture = std::make_shared<Comphi::ITexture>(imgView);
-        
+        auto texture = std::make_shared<Comphi::ITexture>(*imgView);
         pool->Add(texture.get());
         return texture;
     }
@@ -106,7 +105,7 @@ namespace Comphi {
     template<typename T>
     ShaderBufferDataPtr ComphiAPI::Rendering::ShaderBufferData(const T& dataArray, const uint count, BufferUsage usage, IObjectPool* pool)
     {
-        auto buffer = std::make_shared<Vulkan::UniformBuffer<T>>(dataArray,count,usage);
+        auto buffer = std::make_shared<Vulkan::UniformBuffer<T>>(&dataArray,count,usage);
         pool->Add(buffer.get());
         return buffer;
     }
@@ -133,7 +132,7 @@ namespace Comphi {
         return buffer;
     }
 
-    template<typename typename vx, typename ix>
+    template<typename vx, typename ix>
     CustomMeshObject<vx, ix>::Ptr ComphiAPI::Rendering::MeshObject(CustomMeshDataBuffers<vx, ix> customMeshDataBuffers, IObjectPool* pool)
     {
         auto mesh = std::make_shared<CustomMeshObject<vx, ix>>(customMeshDataBuffers);

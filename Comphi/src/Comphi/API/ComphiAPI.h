@@ -7,7 +7,7 @@
 
 #include "Comphi/Utils/Time.h"
 
-#include "Comphi/API/SceneGraph/Scene.h"
+#include "Comphi/API/SceneGraph/SceneGraph.h"
 #include "Comphi/API/SceneGraph/Entity.h"
 
 #include "Comphi/API/Components/Camera.h"
@@ -47,12 +47,12 @@ namespace Comphi {
 		static inline RenderingAPI getActiveAPI() { return activeAPI; }
 
 		struct SceneGraph {
-			static ScenePtr Scene();
+			static SceneGraphPtr Scene();
 			static EntityPtr Entity(IObjectPool* pool = &objectPool);
 		};
 
 		struct Components {
-			static CameraPtr Camera(CameraProperties CameraProperties = {}, IObjectPool* pool = &objectPool);
+			static CameraPtr Camera(IObjectPool* pool = &objectPool);
 			static TransformPtr Transform(IObjectPool* pool = &objectPool);
 			static TransformPtr Transform(TransformPtr& parent, IObjectPool* pool = &objectPool);
 			static RendererPtr Renderer(MeshObjectPtr& meshObject, MaterialInstancePtr& materialInstance, IObjectPool* pool = &objectPool);
@@ -83,7 +83,7 @@ namespace Comphi {
 			static MeshObjectPtr MeshObject(MeshData& data, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
 			static MeshObjectPtr MeshObject(VertexArray& vertexData, IndexArray& indexData, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
 			
-			template<typename typename vx, typename ix>
+			template<typename vx, typename ix>
 			static CustomMeshObject<vx,ix>::Ptr MeshObject(CustomMeshDataBuffers<vx,ix> customMeshDataBuffers, IObjectPool* pool = &objectPool);
 		};
 

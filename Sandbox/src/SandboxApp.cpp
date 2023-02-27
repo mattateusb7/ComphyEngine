@@ -1,5 +1,4 @@
 #include <Comphi.h>
-#include <imgui.h>
 
 using namespace Comphi;
 
@@ -41,7 +40,7 @@ public:
 	EntityPtr CameraObj;
 	EntityPtr emptyObj;
 
-	ScenePtr scene;
+	SceneGraphPtr scene;
 
 	GameSceneLayer() : Layer("GameSceneLayer") { 
 
@@ -84,6 +83,8 @@ public:
 			4, 7, 6,   6, 5, 4    // v4-v7-v6, v6-v5-v4 (back)
 		};
 
+		//meshBuffersA.indexBuffer = ComphiAPI::Rendering::IndexBufferData()
+
 		modelMeshA = Windows::FileRef("models/viking_room.obj");
 		meshObjA = ComphiAPI::Rendering::MeshObject(modelMeshA, meshBuffersA);
 		cubeVX = ComphiAPI::Rendering::MeshObject(cubeVx,CubeIx, meshBuffersB);
@@ -96,12 +97,9 @@ public:
 		//Material / Graphics Pipeline
 		simpleMaterial = ComphiAPI::Rendering::Material();
 		simpleMaterial->addDefaultVertexBindingDescription();
-		simpleMaterial->addLayoutSet(ResourceUpdateFrequency::PerScene); 
-		simpleMaterial->addLayoutSet(ResourceUpdateFrequency::PerMaterialInstance); 
-		simpleMaterial->addLayoutSet(ResourceUpdateFrequency::PerMeshObject);
-		simpleMaterial->addShaderResourceToLayoutset(0, 1, ShaderResourceDescriptorType::UniformBuffer); //Camera projection (& Lights)
-		simpleMaterial->addShaderResourceToLayoutset(1, 1, ShaderResourceDescriptorType::ImageBufferSampler); //Material resources : Texture
-		simpleMaterial->addShaderResourceToLayoutset(2, 1, ShaderResourceDescriptorType::UniformBuffer); //Mesh ModelViewMatrix 
+		simpleMaterial->addShaderResource(0, 1, ShaderResourceDescriptorType::UniformBufferData); //Camera projection (& Lights)
+		simpleMaterial->addShaderResource(1, 1, ShaderResourceDescriptorType::ImageBufferSampler); //Material resources : Texture
+		simpleMaterial->addShaderResource(2, 1, ShaderResourceDescriptorType::UniformBufferData); //Mesh ModelViewMatrix 
 		simpleMaterial->addShader(vertShader);
 		simpleMaterial->addShader(fragShader);
 		simpleMaterial->initialize();
@@ -115,18 +113,32 @@ public:
 
 		//MaterialInstances
 		AlbedoA = ComphiAPI::Rendering::MaterialInstance(simpleMaterial);
-		AlbedoA->linkTexture(texture);
+		AlbedoA->bindTextures(texture2, 0, 1, PerScene);
+		AlbedoA->bindTextures(texture,	1, 1, PerMaterialInstance);
 
 		//GameObject1
 		gameObjA = ComphiAPI::SceneGraph::Entity();
 		gameObjA->AddComponent(ComphiAPI::Components::Transform());
 		gameObjA->AddComponent(ComphiAPI::Components::Renderer(meshObjA,AlbedoA));
 		
+		//auto ModelViewMatrix = Comphi::ComphiAPI::Rendering::ShaderBufferData(gameObjA->GetComponent<Transform>()->getModelViewMatrix(), 1);
+		//ModelViewMatrix->updateBufferData()
+		//gameObjA->GetComponent<Transform>()->getModelMatrix();
+		
+		//AlbedoA->bindBuffers(, 1, PerMeshObject);
+
 		CameraObj = ComphiAPI::SceneGraph::Entity();
 		CameraObj->AddComponent(ComphiAPI::Components::Transform());
 		CameraObj->AddComponent(ComphiAPI::Components::Camera());
 
+		//auto camProjMatrixBuff = Comphi::ComphiAPI::Rendering::ShaderBufferData(CameraObj->GetComponent<Camera>()->getProjectionMatrix(), 1);
+		//camProjMatrixBuff->updateBufferData(&CameraObj->GetComponent<Camera>()->getProjectionMatrix());
+		
+		//AlbedoA->bindBuffers(camProjMatrixBuff, 1, PerScene);
+
 		scene = ComphiAPI::SceneGraph::Scene();
+		scene->addEntity(gameObjA);
+		scene->addEntity(CameraObj);
 
 		//gameObjA->GetComponent<Renderer>()->;
 		//gameObj1->action.updateCallback = [this](Time frameTime,void*) { //TODO: fix Lambda not defined when out of scope
@@ -219,6 +231,6 @@ public:
 private:
 };
 
-Comphi::Application* Comphi::RenderingApplication() {
+Comphi::Application* Comphi::CreateApplication() {
 	return new Sandbox();
 }

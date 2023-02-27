@@ -7,12 +7,11 @@ namespace Comphi::Vulkan {
 	class Camera : public ICamera
 	{
 	public:
-		Camera();
-		~Camera();
-
-	private:
 		// Inherited via ICamera
 		virtual glm::mat4 getProjectionMatrix() override;
+
+		// Inherited via ICamera
+		virtual void cleanUp() override {};
 
 	};
 
