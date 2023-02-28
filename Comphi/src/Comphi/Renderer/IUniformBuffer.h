@@ -28,6 +28,7 @@ namespace Comphi {
 	class IUniformBuffer : public IObject
 	{
 	public:
+		BufferUsage bufferUsage;
 		virtual void updateBufferData(const void* dataArray) = 0;
 	};
 }

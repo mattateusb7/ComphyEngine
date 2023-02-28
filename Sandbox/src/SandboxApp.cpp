@@ -85,7 +85,7 @@ public:
 
 		//meshBuffersA.indexBuffer = ComphiAPI::Rendering::IndexBufferData()
 
-	/*  modelMeshA = Windows::FileRef("models/viking_room.obj");
+		modelMeshA = Windows::FileRef("models/viking_room.obj");
 		meshObjA = ComphiAPI::Rendering::MeshObject(modelMeshA, meshBuffersA);
 		cubeVX = ComphiAPI::Rendering::MeshObject(cubeVx,CubeIx, meshBuffersB);
 		vert = Windows::FileRef("shaders/vert.spv");

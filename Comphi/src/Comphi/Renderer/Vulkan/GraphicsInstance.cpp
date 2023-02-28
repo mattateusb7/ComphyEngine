@@ -465,10 +465,13 @@ namespace Comphi::Vulkan {
 		createInfo.enabledLayerCount = 0;
 #endif //!NDEBUG
 
+		//I'm Overriding Validation layers on VulkanSDK vkconfig.exe, because OBS layer Causes interfeerence on the engine logger...
+
 		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS) {
 			COMPHILOG_CORE_FATAL("failed to create logical device!");
 			throw std::runtime_error("failed to create logical device");
 		}
+
 		COMPHILOG_CORE_INFO("Logical Device creation successful!");
 
 		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &graphicsQueue);

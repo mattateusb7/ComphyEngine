@@ -40,9 +40,11 @@ namespace Comphi {
 	void MeshObject::initMeshBuffers(MeshBuffers& meshBuffers)
 	{
 		this->meshBuffers = meshBuffers;
+		
 		this->meshBuffers.vertexBuffer = std::make_shared<Vulkan::UniformBuffer<Vertex>>(meshData.vertexData.data(), meshData.vertexData.size(), BufferUsage::VertexBuffer);
-		this->meshBuffers.indexBuffer = std::make_shared<Vulkan::UniformBuffer<Index>>(meshData.indexData.data(), meshData.indexData.size(), BufferUsage::IndexBuffer);
 		this->meshBuffers.vertexBuffer->updateBufferData(meshData.vertexData.data());
+		
+		this->meshBuffers.indexBuffer = std::make_shared<Vulkan::UniformBuffer<Index>>(meshData.indexData.data(), meshData.indexData.size(), BufferUsage::IndexBuffer);
 		this->meshBuffers.indexBuffer->updateBufferData(meshData.indexData.data());
 	}
 

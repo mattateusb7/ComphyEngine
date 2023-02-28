@@ -68,14 +68,6 @@ namespace Comphi::Vulkan {
 
         CommandPool::endCommandBuffer(commandBuffer);
     }
-
-    void Comphi::Vulkan::MemBuffer::updateBufferData(const void* dataArray)
-    {
-        void* data; //staging buffer device memory pointer
-        vkMapMemory(GraphicsHandler::get()->logicalDevice, bufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, dataArray, (size_t)bufferSize);
-        vkUnmapMemory(GraphicsHandler::get()->logicalDevice, bufferMemory);
-    }
     
     void MemBuffer::cleanUp()
     {

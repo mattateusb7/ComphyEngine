@@ -4,7 +4,7 @@
 
 namespace Comphi::Vulkan {
 
-	class MemBuffer : public IUniformBuffer
+	class MemBuffer
 	{
 	public:
 
@@ -15,14 +15,12 @@ namespace Comphi::Vulkan {
 		static void copyBufferTo(VkBuffer& srcBuffer, VkBuffer& dstBuffer, uint copySize);
 
 		void allocateMemoryBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-		
-		virtual void updateBufferData(const void* dataArray) override;
 
 		VkBuffer bufferObj;
 		VkDeviceMemory bufferMemory;
 		VkDeviceSize bufferSize;
 
-		void cleanUp() override;
+		void cleanUp();
 	};
 
 
