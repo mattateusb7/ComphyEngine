@@ -3,44 +3,49 @@
 
 namespace Comphi {
 
-	void ShaderBinding::bindTextures(ShaderTextures& textures, uint setID, uint descriptorID, LayoutSetUpdateFrequency updateFreq)
+	void ShaderBinding::bindTextures(std::vector<TexturePtr>& textures, LayoutSetUpdateFrequency layoutSetID, uint descriptorID)
 	{
+		//std::vector<ITexture*>
+		//for (auto const& tex : textures) {
+		//
+		//}
+
 		TextureBinding textureBinding = {
-			setID, descriptorID,
+			layoutSetID, descriptorID,
 			textures
 		};
-		textureBindings[updateFreq].push_back(textureBinding);
+		textureBindings[layoutSetID].push_back(textureBinding);
 	}
 
-	void ShaderBinding::bindBuffers(ShaderBuffers& buffers, uint setID, uint descriptorID, LayoutSetUpdateFrequency updateFreq)
+	void ShaderBinding::bindBuffers(std::vector<BufferDataPtr>& buffers, LayoutSetUpdateFrequency layoutSetID, uint descriptorID)
 	{
 		BufferBinding bufferBinding = {
-			setID, descriptorID,
+			layoutSetID, descriptorID,
 			buffers
 		};
-		bufferBindings[updateFreq].push_back(bufferBinding);
+		bufferBindings[layoutSetID].push_back(bufferBinding);
 	}
 
-	void ShaderBinding::bindTextures(TexturePtr& texture, uint setID, uint descriptorID, LayoutSetUpdateFrequency updateFreq)
+	void ShaderBinding::bindTexture(TexturePtr& texture, LayoutSetUpdateFrequency layoutSetID, uint descriptorID)
 	{
-		auto textures = ShaderTextures();
+		auto textures = std::vector<TexturePtr>();
 		textures.push_back(texture);
 		TextureBinding textureBinding = {
-			setID, descriptorID,
+			layoutSetID, descriptorID,
 			textures
 		};
-		textureBindings[updateFreq].push_back(textureBinding);
+		textureBindings[layoutSetID].push_back(textureBinding);
 	}
 
-	void ShaderBinding::bindBuffers(ShaderBufferDataPtr& bufferData, uint setID, uint descriptorID, LayoutSetUpdateFrequency updateFreq)
+	void ShaderBinding::bindBuffer(BufferDataPtr& bufferData, LayoutSetUpdateFrequency layoutSetID, uint descriptorID)
 	{
-		auto buffers = ShaderBuffers();
+		auto buffers = std::vector<BufferDataPtr>();
 		buffers.push_back(bufferData);
 		BufferBinding bufferBinding = {
-			setID, descriptorID,
+			layoutSetID, descriptorID,
 			buffers
 		};
-		bufferBindings[updateFreq].push_back(bufferBinding);
+		bufferBindings[layoutSetID].push_back(bufferBinding);
 
 	}
 }

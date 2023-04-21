@@ -38,6 +38,9 @@ public:
 	//GameObjects
 	EntityPtr gameObjA;
 	EntityPtr CameraObj;
+	BufferDataPtr ProjMx;
+	BufferDataPtr ModelViewMx;
+
 	EntityPtr emptyObj;
 
 	SceneGraphPtr scene;
@@ -85,9 +88,7 @@ public:
 
 		//meshBuffersA.indexBuffer = ComphiAPI::Rendering::IndexBufferData()
 
-		modelMeshA = Windows::FileRef("models/viking_room.obj");
-		meshObjA = ComphiAPI::Rendering::MeshObject(modelMeshA, meshBuffersA);
-		cubeVX = ComphiAPI::Rendering::MeshObject(cubeVx,CubeIx, meshBuffersB);
+
 		vert = Windows::FileRef("shaders/vert.spv");
 		frag = Windows::FileRef("shaders/frag.spv");
 		vertShader = ComphiAPI::Rendering::Shader(ShaderType::VertexShader, vert);
@@ -96,9 +97,9 @@ public:
 		//Material / Graphics Pipeline
 		simpleMaterial = ComphiAPI::Rendering::Material();
 		simpleMaterial->addDefaultVertexBindingDescription();
-		simpleMaterial->addShaderResource(0, 1, ShaderResourceDescriptorType::UniformBufferData); //Camera projection (& Lights)
-		simpleMaterial->addShaderResource(1, 1, ShaderResourceDescriptorType::ImageBufferSampler); //Material resources : Texture
-		simpleMaterial->addShaderResource(2, 1, ShaderResourceDescriptorType::UniformBufferData); //Mesh ModelViewMatrix 
+		simpleMaterial->createShaderResourceLayoutSetDescriptorSetBinding(PerMaterialInstance, 0, 1, UniformBufferData); //Camera projection (& Lights)
+		simpleMaterial->createShaderResourceLayoutSetDescriptorSetBinding(PerMaterialInstance, 1, 1, ImageBufferSampler, ShaderStageFlag::FragmentStage); //Textures
+		simpleMaterial->createShaderResourceLayoutSetDescriptorSetBinding(PerMaterialInstance, 2, 1, UniformBufferData); //Mesh & ModelViewMatrix 
 		simpleMaterial->addShader(vertShader);
 		simpleMaterial->addShader(fragShader);
 		simpleMaterial->initialize();
@@ -112,32 +113,34 @@ public:
 
 		//MaterialInstances
 		AlbedoA = ComphiAPI::Rendering::MaterialInstance(simpleMaterial);
-		AlbedoA->bindTextures(texture2, 0, 1, PerScene);
-		AlbedoA->bindTextures(texture,	1, 1, PerMaterialInstance);
+		AlbedoA->bindTexture(texture, PerMaterialInstance, 1);
 
 		//GameObject1
+		modelMeshA = Windows::FileRef("models/viking_room.obj");
+		meshObjA = ComphiAPI::Rendering::MeshObject(modelMeshA, meshBuffersA);
+		//cubeVX = ComphiAPI::Rendering::MeshObject(cubeVx, CubeIx, meshBuffersB);
+
 		gameObjA = ComphiAPI::SceneGraph::Entity();
 		gameObjA->AddComponent(ComphiAPI::Components::Transform());
 		gameObjA->AddComponent(ComphiAPI::Components::Renderer(meshObjA,AlbedoA));
 		
-		//auto ModelViewMatrix = Comphi::ComphiAPI::Rendering::UniformBufferData(gameObjA->GetComponent<Transform>()->getModelViewMatrix(), 1);
-		//ModelViewMatrix->updateBufferData()
-		//gameObjA->GetComponent<Transform>()->getModelMatrix();
-		
-		//AlbedoA->bindBuffers(, 1, PerMeshObject);
+		ModelViewMx = Comphi::ComphiAPI::Rendering::BufferData(&gameObjA->GetComponent<Transform>()->getModelViewMatrix()[0], sizeof(glm::mat4), 1, UniformBuffer);
+		AlbedoA->bindBuffer(ModelViewMx, PerMaterialInstance, 0);
 
 		CameraObj = ComphiAPI::SceneGraph::Entity();
 		CameraObj->AddComponent(ComphiAPI::Components::Transform());
 		CameraObj->AddComponent(ComphiAPI::Components::Camera());
 
+		ProjMx = Comphi::ComphiAPI::Rendering::BufferData(&gameObjA->GetComponent<Transform>()->getModelViewMatrix()[0], sizeof(glm::mat4), 1, UniformBuffer);
+		AlbedoA->bindBuffer(ProjMx, PerMaterialInstance, 2);
+
 		//auto camProjMatrixBuff = Comphi::ComphiAPI::Rendering::ShaderBufferData(CameraObj->GetComponent<Camera>()->getProjectionMatrix(), 1);
 		//camProjMatrixBuff->updateBufferData(&CameraObj->GetComponent<Camera>()->getProjectionMatrix());
-		
 		//AlbedoA->bindBuffers(camProjMatrixBuff, 1, PerScene);
 
 		scene = ComphiAPI::SceneGraph::Scene();
-		scene->addEntity(gameObjA);
 		scene->addEntity(CameraObj);
+		scene->addEntity(gameObjA);
 
 		//gameObjA->GetComponent<Renderer>()->;
 		//gameObj1->action.updateCallback = [this](Time frameTime,void*) { //TODO: fix Lambda not defined when out of scope

@@ -1,7 +1,7 @@
 #include "cphipch.h"
 #include "GraphicsPipeline.h"
 #include "Comphi/Renderer/Vulkan/Graphics/ShaderProgram.h"
-
+	
 namespace Comphi::Vulkan {
 
 	void GraphicsPipeline::initialize() 
@@ -9,8 +9,8 @@ namespace Comphi::Vulkan {
 		//TODO: Move all this code to separate Functions
 		
 		//---------- VertexBufferDescriptions
-		uint vertexBindingDescriptionCount = configuration.vertexInputLayoutConfiguration.vertexBufferBindingDescriptors.size();
-		uint vertexAttributeBindingsCount = configuration.vertexInputLayoutConfiguration.vertexAttributeFormatDescriptors.size();
+		size_t vertexBindingDescriptionCount = configuration.vertexInputLayoutConfiguration.vertexBufferBindingDescriptors.size();
+		size_t vertexAttributeBindingsCount = configuration.vertexInputLayoutConfiguration.vertexAttributeFormatDescriptors.size();
 
 		std::vector<VkVertexInputBindingDescription> vertexBufferBindingDescriptors = std::vector<VkVertexInputBindingDescription>(vertexBindingDescriptionCount);
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptors = std::vector<VkVertexInputAttributeDescription>(vertexAttributeBindingsCount);
@@ -186,61 +186,62 @@ namespace Comphi::Vulkan {
 		//TODO: Test if we can have N DescriptorSetLayouts and One DescriptorPool per descriptorSet Layout
 
 		//Dynamic DescriptorSetLayout & Pool Creation !
-		uint layoutSetsCount = configuration.pipelineLayoutConfiguration.layoutSets.size();
-		uint MAX_FRAMES_IN_FLIGHT = static_cast<uint>(*GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT); //TODO: Validate this with some tests
-		graphicsSetLayouts = std::vector<LayoutSet>(layoutSetsCount);
+		size_t MAX_FRAMES_IN_FLIGHT = static_cast<uint>(*GraphicsHandler::get()->MAX_FRAMES_IN_FLIGHT); //TODO: Validate this with some tests
+		
+		size_t layoutSetsCount = configuration.pipelineLayoutConfiguration.layoutSets.size();
+		pipelineSetLayouts = std::vector<LayoutSet>(layoutSetsCount);
+		auto descriptorSetLayouts = std::vector<VkDescriptorSetLayout>(layoutSetsCount);
+
+		std::vector<VkDescriptorPoolSize> poolSizes;
+		uint poolSizesMaxSets = 0;
 		for (size_t i = 0; i < layoutSetsCount; i++)
 		{
+			pipelineSetLayouts[i].descriptorSetBindingsCount = configuration.pipelineLayoutConfiguration.layoutSets[i].shaderResourceDescriptorSetBindings.size();
+			pipelineSetLayouts[i].descriptorSetBindings = std::vector<VkDescriptorSetLayoutBinding>(pipelineSetLayouts[i].descriptorSetBindingsCount);
+			auto& descriptorSetBindings = pipelineSetLayouts[i].descriptorSetBindings;
 
-			uint descriptorSetBindingsCount = configuration.pipelineLayoutConfiguration.layoutSets[i].shaderResourceDescriptorSets.size();
-
-			std::vector<VkDescriptorPoolSize> descriptorPoolSizes = std::vector<VkDescriptorPoolSize>(descriptorSetBindingsCount);
-			std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>(descriptorSetBindingsCount);
-			for (size_t n = 0; n < descriptorSetBindingsCount; n++)
+			for (size_t n = 0; n < pipelineSetLayouts[i].descriptorSetBindingsCount; n++)
 			{
-				//Descriptor Sets data
-				DescriptorSetBinding& descriptorSet = configuration.pipelineLayoutConfiguration.layoutSets[i].shaderResourceDescriptorSets[n];
-				descriptorSetLayoutBindings[n].binding = n;
-				descriptorSetLayoutBindings[n].descriptorType = (VkDescriptorType)descriptorSet.resourceType;
-				descriptorSetLayoutBindings[n].descriptorCount = descriptorSet.dataObjectArrayCount;
-				descriptorSetLayoutBindings[n].stageFlags = (VkShaderStageFlags)descriptorSet.shaderStage;
-				descriptorSetLayoutBindings[n].pImmutableSamplers = nullptr; // Optional : relevant for image sampling
+				//Descriptor Sets Layout data
+				DescriptorSetBinding& descriptorSet = configuration.pipelineLayoutConfiguration.layoutSets[i].shaderResourceDescriptorSetBindings[n];
+				descriptorSetBindings[n].binding = n;
+				descriptorSetBindings[n].descriptorType = (VkDescriptorType)descriptorSet.resourceType;
+				descriptorSetBindings[n].descriptorCount = descriptorSet.resourceCount;
+				descriptorSetBindings[n].stageFlags = (VkShaderStageFlags)descriptorSet.shaderStage;
+				descriptorSetBindings[n].pImmutableSamplers = nullptr; // Optional : relevant for image sampling
 
-				//Descriptor Pools data
-				descriptorPoolSizes[n].type = (VkDescriptorType)descriptorSet.resourceType;
-				descriptorPoolSizes[n].descriptorCount = descriptorSet.dataObjectArrayCount * MAX_FRAMES_IN_FLIGHT; 
+				//Descriptor Pool Allocation data
+				VkDescriptorPoolSize descriptorPoolSize;
+				descriptorPoolSize.type = (VkDescriptorType)descriptorSet.resourceType;
+				descriptorPoolSize.descriptorCount = descriptorSet.resourceCount * MAX_FRAMES_IN_FLIGHT;
+				poolSizes.push_back(descriptorPoolSize);
+				poolSizesMaxSets += descriptorPoolSize.descriptorCount;
 
-				VkDescriptorPoolCreateInfo poolInfo{};
-				poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-				poolInfo.poolSizeCount = descriptorSetBindingsCount;
-				poolInfo.pPoolSizes = descriptorPoolSizes.data();
-				poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT;
-
-				vkCheckError(vkCreateDescriptorPool(GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &graphicsSetLayouts[i].descriptorPools[n])) {
-					COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
-					throw std::runtime_error("failed to create descriptor pool!");
-				};
+				COMPHILOG_CORE_INFO("created descriptorSet {0} !", n);
 
 			}
 
 			//Create Layout Set
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			layoutInfo.bindingCount = descriptorSetBindingsCount;
-			layoutInfo.pBindings = descriptorSetLayoutBindings.data();
+			layoutInfo.bindingCount = pipelineSetLayouts[i].descriptorSetBindingsCount;
+			layoutInfo.pBindings = descriptorSetBindings.data();
 
-			vkCheckError(vkCreateDescriptorSetLayout(GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &graphicsSetLayouts[i].descriptorSetLayout)) {
+			vkCheckError(vkCreateDescriptorSetLayout(GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &pipelineSetLayouts[i].descriptorSetLayout)) {
 				COMPHILOG_CORE_FATAL("failed to create descriptor set layout!");
 				throw std::runtime_error("failed to create descriptor set layout!");
 			}
 
+			COMPHILOG_CORE_INFO("created LayoutSet {0} !", i);
+
+			descriptorSetLayouts[i] = pipelineSetLayouts[i].descriptorSetLayout;
 		}
 
 		//Create Pipeline Layout
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = layoutSetsCount; //Descriptor set ID count
-		pipelineLayoutInfo.pSetLayouts = getSetLayouts(graphicsSetLayouts).data(); //Descriptor set IDs ptr (layout(set = #))
+		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data(); //Descriptor set IDs ptr (layout(set = #))
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -251,32 +252,42 @@ namespace Comphi::Vulkan {
 
 		COMPHILOG_CORE_INFO("created pipelineLayout successfully!");
 
-		//Allocate DescriptorSets Once
+		//Allocate DescriptorsPool 
+		VkDescriptorPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = poolSizes.size();
+		poolInfo.pPoolSizes = poolSizes.data();
+		poolInfo.maxSets = poolSizesMaxSets;
+
+		vkCheckError(vkCreateDescriptorPool(GraphicsHandler::get()->logicalDevice, &poolInfo, nullptr, &pipelineDescriptorPool)) {
+			COMPHILOG_CORE_FATAL("failed to create descriptor pool!");
+			throw std::runtime_error("failed to create descriptor pool!");
+		};
+
+		COMPHILOG_CORE_INFO("allocated Material DescriptorPool successfully!");
+
+		//Allocate DescriptorSets
 		for (size_t i = 0; i < layoutSetsCount; i++)
 		{
-			uint descriptorSetsSize = graphicsSetLayouts[i].descriptorPools.size();
-			graphicsSetLayouts[i].descriptorSets = std::vector<VkDescriptorSet>(descriptorSetsSize);
-			for (size_t n = 0; n < descriptorSetsSize; n++)
-			{
-				VkDescriptorSetAllocateInfo allocInfo{};
-				allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-				allocInfo.descriptorPool = graphicsSetLayouts[i].descriptorPools[n];
-				allocInfo.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
-				allocInfo.pSetLayouts = &graphicsSetLayouts[i].descriptorSetLayout;
-
-				vkCheckError(vkAllocateDescriptorSets(GraphicsHandler::get()->logicalDevice, &allocInfo, graphicsSetLayouts[i].descriptorSets.data())) {
-					COMPHILOG_CORE_FATAL("failed to allocate descriptor sets!");
-					return;
-				}
+			if (pipelineSetLayouts[i].descriptorSetBindingsCount == 0) continue; //skip dummies
+			
+			VkDescriptorSetAllocateInfo allocInfo{};
+			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			allocInfo.descriptorSetCount = 1;
+			allocInfo.descriptorPool = pipelineDescriptorPool;
+			allocInfo.pSetLayouts = &pipelineSetLayouts[i].descriptorSetLayout;
+			vkCheckError(vkAllocateDescriptorSets(GraphicsHandler::get()->logicalDevice, &allocInfo, &pipelineSetLayouts[i].descriptorSet)) {
+				COMPHILOG_CORE_FATAL("failed to allocate descriptor sets!");
+				return;
 			}
+			COMPHILOG_CORE_INFO("allocated DescriptorSets of Layout {0} successfully!", i);
+
 		}
 
-		uint stageCount = configuration.pipelineLayoutConfiguration.shaderPrograms.size();
+		size_t stageCount = configuration.pipelineLayoutConfiguration.shaderPrograms.size();
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStagesInfo = std::vector<VkPipelineShaderStageCreateInfo>(stageCount);
 		for (size_t i = 0; i < stageCount; i++)
 		{
-			//Need to find a way to abstract Shader Modules after all ... DynamicCast It is !
-			//Just have to guarantee that ComphiAPI Creates a full obj of type ShaderProgram
 			ShaderProgram* _shaderProgram = static_cast<ShaderProgram*>(configuration.pipelineLayoutConfiguration.shaderPrograms[i]);
 
 			switch (_shaderProgram->GetType())
@@ -308,7 +319,6 @@ namespace Comphi::Vulkan {
 		pipelineInfo.stageCount = stageCount;
 		pipelineInfo.pStages = shaderStagesInfo.data();
 
-
 		//pipelineInfo.pStages = shaderStages.data(); 
 		//pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
 
@@ -335,16 +345,15 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("created graphics pipeline successfully!");
 	}
 
-	VkWriteDescriptorSet GraphicsPipeline::getDescriptorSetWrite(void* dataObjectsArray, uint setID, uint descriptorID)
+	VkWriteDescriptorSet GraphicsPipeline::getDescriptorSetWrite(void* dataObjectsArray, LayoutSetUpdateFrequency setID, uint descriptorID)
 	{
 		//https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkWriteDescriptorSet.html
-
 
 		DescriptorSetBinding& descriptorSet = getDescriptorSet(setID, descriptorID);
 
 		VkWriteDescriptorSet descriptorWrite;
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = graphicsSetLayouts[setID].descriptorSets[descriptorID];
+		descriptorWrite.dstSet = pipelineSetLayouts[setID].descriptorSet;
 		descriptorWrite.dstBinding = descriptorID;
 		descriptorWrite.dstArrayElement = 0;
 		//dstArrayElement is the starting element in that array.
@@ -354,31 +363,32 @@ namespace Comphi::Vulkan {
 
 		switch (descriptorSet.resourceType)
 		{
-		case ShaderResourceDescriptorType::UniformBufferData:
+		case DescriptorSetResourceType::UniformBufferData:
 		{
 			MemBuffer* buffer = static_cast<MemBuffer*>(dataObjectsArray);
 
 			std::vector<VkDescriptorBufferInfo> buffersInfo;
-			buffersInfo.resize(descriptorSet.dataObjectArrayCount);
-			for (size_t i = 0; i < descriptorSet.dataObjectArrayCount; i++)
+			buffersInfo.resize(descriptorSet.resourceCount);
+			for (size_t i = 0; i < descriptorSet.resourceCount; i++)
 			{
 				buffersInfo[i].buffer = buffer[i].bufferObj;
 				buffersInfo[i].range = buffer[i].bufferSize;
 				buffersInfo[i].offset = 0;
 			}
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrite.descriptorCount = descriptorSet.dataObjectArrayCount;
+			descriptorWrite.descriptorCount = descriptorSet.resourceCount;
 			descriptorWrite.pBufferInfo = buffersInfo.data();
 			break;
 		}
 
-		case ShaderResourceDescriptorType::ImageBufferSampler:
-		{		
-			ImageView* imageArr = static_cast<ImageView*>(dataObjectsArray);
+		case DescriptorSetResourceType::ImageBufferSampler:
+		{	
+
+			auto imageArr = reinterpret_cast<ImageView*>(dataObjectsArray);
 
 			std::vector<VkDescriptorImageInfo> imageSamplers;
-			imageSamplers.resize(descriptorSet.dataObjectArrayCount);
-			for (size_t i = 0; i < descriptorSet.dataObjectArrayCount; i++)
+			imageSamplers.resize(descriptorSet.resourceCount);
+			for (size_t i = 0; i < descriptorSet.resourceCount; i++)
 			{
 				imageSamplers[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 				imageSamplers[i].imageView = imageArr[i].imageView;
@@ -386,7 +396,7 @@ namespace Comphi::Vulkan {
 			}
 
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorWrite.descriptorCount = descriptorSet.dataObjectArrayCount;
+			descriptorWrite.descriptorCount = descriptorSet.resourceCount;
 			descriptorWrite.pImageInfo = imageSamplers.data();
 			break;
 		}
@@ -401,18 +411,14 @@ namespace Comphi::Vulkan {
 
 	void GraphicsPipeline::cleanUp()
 	{
-		for (size_t i = 0; i < graphicsSetLayouts.size(); i++)
+		for (size_t i = 0; i < pipelineSetLayouts.size(); i++)
 		{
-			for (size_t n = 0; n < graphicsSetLayouts[i].descriptorSets.size(); n++)
-			{
-				COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
-				vkDestroyDescriptorPool(Vulkan::GraphicsHandler::get()->logicalDevice, graphicsSetLayouts[i].descriptorPools[n], nullptr);
-				
-			}
-			graphicsSetLayouts[i].descriptorPools.clear();
-			graphicsSetLayouts[i].descriptorSets.clear();
+			COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorPool");
+			vkDestroyDescriptorPool(Vulkan::GraphicsHandler::get()->logicalDevice, pipelineDescriptorPool, nullptr);
+			pipelineSetLayouts[i].descriptorSetBindings.clear(); //pipeline clears descriptor sets :3
+
 			COMPHILOG_CORE_INFO("vkDestroy Destroy descriptorSetLayout");
-			vkDestroyDescriptorSetLayout(Vulkan::GraphicsHandler::get()->logicalDevice, graphicsSetLayouts[i].descriptorSetLayout, nullptr);
+			vkDestroyDescriptorSetLayout(Vulkan::GraphicsHandler::get()->logicalDevice, pipelineSetLayouts[i].descriptorSetLayout, nullptr);
 		}
 
 		COMPHILOG_CORE_INFO("vkDestroy Destroy PipelineLayout");

@@ -11,30 +11,45 @@ namespace Comphi {
 		auto cam = entity->GetComponent<Camera>();
 		auto renderer = entity->GetComponent<Renderer>();
 
-		if (cam != nullptr) {
+		if (cam.get() != nullptr) {
 			cameras.push_back(cam);
 		}
 
-		if (renderer != nullptr) {
+		if (renderer.get() != nullptr) {
 
-			UniqueRenderID urid = { 
-				renderer->material->parent, 
-				renderer->material, 
-				renderer->meshObject 
+			BatchRenderID brID = { 
+				renderer->material->parent,
+				renderer->material
 			};
-			auto elem = sortedEntities.find(urid);
+			
+			MeshInstancingRenderID mirID = {
+				renderer->meshObject
+			};
 
-			//Not Found
-			if (elem == sortedEntities.end()) {
-				urid.entityList.push_back(entity);
-				sortedEntities.insert(urid);
+			auto batch = batchRenderIDs.find(brID);
+
+			//if Not Found create batch & instance
+			if (batch == batchRenderIDs.end()) {
+				mirID.instancedMeshEntities.push_back(entity);
+				brID.meshInstancingRenderIDs.insert(mirID);
+				batchRenderIDs.insert(brID);
 				return;
 			}
 
-			//Found
-			auto& entityList = const_cast<UniqueRenderID&>(*elem);
-			entityList.entityList.push_back(entity);
-			
+			//else Found
+			auto& batchID = const_cast<BatchRenderID&>(*batch);
+			auto meshInstance = batchID.meshInstancingRenderIDs.find(mirID);
+
+			//if batch found but no instance, add instance to batch
+			if (meshInstance != batchID.meshInstancingRenderIDs.end()) {
+				mirID.instancedMeshEntities.push_back(entity);
+				batchID.meshInstancingRenderIDs.insert(mirID);
+				return;
+			}
+
+			//else (batch + instance) add Mesh to instances of batch
+			auto& meshInstanceID = const_cast<MeshInstancingRenderID&>(*meshInstance);
+			meshInstanceID.instancedMeshEntities.push_back(entity);
 		}
 
 		//TODO: Add Scripts

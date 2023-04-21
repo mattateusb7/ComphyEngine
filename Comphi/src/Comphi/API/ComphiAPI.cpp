@@ -42,9 +42,10 @@ namespace Comphi {
     CameraPtr ComphiAPI::Components::Camera(IObjectPool* pool)
     {
         auto camera = std::make_shared<Vulkan::Camera>();
-        //auto cameraComp = std::make_shared<Comphi::Camera>(static_cast<ICamera*>(camera.get()));
-        //pool->Add((ICamera*)cameraComp.get());
-        return std::make_shared<Comphi::Camera>();//std::static_pointer_cast<Comphi::Camera>();
+        auto icamera = std::static_pointer_cast<ICamera>(camera);
+        auto camobj = std::make_shared<Comphi::Camera>(icamera);
+        pool->Add(camera.get());
+        return camobj;
     }
 
     TransformPtr ComphiAPI::Components::Transform(IObjectPool* pool)
@@ -72,9 +73,10 @@ namespace Comphi {
     {
         //Vulkan Material Pipeline
         auto graphicsPipeline = std::make_shared<Vulkan::GraphicsPipeline>();
-        //auto material = std::make_shared<Comphi::Material>(static_cast<IGraphicsPipeline*>(graphicsPipeline.get()));
-        //pool->Add((IGraphicsPipeline*)material.get());
-        return std::make_shared<Comphi::Material>();//std::static_pointer_cast<Comphi::Material>(graphicsPipeline);
+        auto igraphics = std::static_pointer_cast<IGraphicsPipeline>(graphicsPipeline);
+        auto material = std::make_shared<Comphi::Material>(igraphics);
+        pool->Add(igraphics.get());
+        return material;
     }
 
     ShaderObjectPtr ComphiAPI::Rendering::Shader(ShaderType shaderType, IFileRef& file, IObjectPool* pool)
@@ -97,15 +99,15 @@ namespace Comphi {
     {
         auto imgView = std::make_shared<Vulkan::ImageView>();
         imgView->initTextureImageView(fileref);
-        auto texture = std::make_shared<Comphi::ITexture>(*imgView);
+        //auto texture = std::make_shared<Comphi::ITexture>(*imgView); // <<< this is not Ok !
         pool->Add(texture.get());
         return texture;
     }
 
-    template<typename T>
-    ShaderBufferDataPtr ComphiAPI::Rendering::ShaderBufferData(const T& dataArray, const uint count, BufferUsage usage, IObjectPool* pool)
+    //template<typename T>
+    BufferDataPtr ComphiAPI::Rendering::BufferData(const void* dataArray, const uint size, const uint count, BufferUsage usage, IObjectPool* pool)
     {
-        auto buffer = std::make_shared<Vulkan::UniformBuffer<T>>(&dataArray,count,usage);
+        auto buffer = std::make_shared<Vulkan::UniformBuffer>(&dataArray, size, count, usage);
         pool->Add(buffer.get());
         return buffer;
     }

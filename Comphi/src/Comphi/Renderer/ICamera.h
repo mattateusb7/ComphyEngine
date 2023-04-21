@@ -15,4 +15,6 @@ namespace Comphi {
 		CameraProperties properties;
 		virtual glm::mat4 getProjectionMatrix() = 0;
 	};
+
+	typedef std::shared_ptr<ICamera> ICameraPtr;
 }

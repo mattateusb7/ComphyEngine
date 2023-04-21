@@ -8,8 +8,8 @@ namespace Comphi {
 	struct CustomMeshDataBuffers {
 		std::vector<vx> vertexDataArray;
 		std::vector<ix> indexDataArray;
-		ShaderBufferDataPtr vertexBuffer;
-		ShaderBufferDataPtr indexBuffer;
+		BufferDataPtr vertexBuffer;
+		BufferDataPtr indexBuffer;
 	};
 
 	template<typename vx = Vertex, typename ix = Index>

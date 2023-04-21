@@ -160,6 +160,9 @@ namespace Comphi::Vulkan {
 		return true;
 	}
 
+//Todo : Move to Logger Class
+#pragma region Logger / Debuger
+
 	void GraphicsInstance::setupDebugMessenger() {
 		VkDebugUtilsMessengerCreateInfoEXT createInfo;
 		populateDebugMessengerCreateInfo(createInfo);
@@ -213,6 +216,7 @@ namespace Comphi::Vulkan {
 
 		return VK_FALSE;
 	}
+#pragma endregion
 
 	VkResult GraphicsInstance::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
 		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");

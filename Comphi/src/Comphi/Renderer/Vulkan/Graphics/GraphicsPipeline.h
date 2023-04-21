@@ -10,8 +10,9 @@ namespace Comphi::Vulkan {
 	
 	struct LayoutSet {
 		VkDescriptorSetLayout descriptorSetLayout;
-		std::vector<VkDescriptorSet> descriptorSets;
-		std::vector<VkDescriptorPool> descriptorPools;
+		VkDescriptorSet descriptorSet;
+		std::vector<VkDescriptorSetLayoutBinding> descriptorSetBindings;
+		uint descriptorSetBindingsCount;
 	};
 
 	class GraphicsPipeline : public IGraphicsPipeline
@@ -20,15 +21,19 @@ namespace Comphi::Vulkan {
 		GraphicsPipeline() = default;
 		virtual void initialize() override;
 
-		VkWriteDescriptorSet getDescriptorSetWrite(void* dataObjectsArray, uint setID, uint descriptorID);
+		VkWriteDescriptorSet getDescriptorSetWrite(void* dataObjectsArray, LayoutSetUpdateFrequency setID, uint descriptorID);
 		
 		virtual void cleanUp() override;
 
 		VkPipeline pipelineObj;
 	private:
 		VkPipelineLayout pipelineLayout;
+		std::vector<LayoutSet> pipelineSetLayouts;
+		VkDescriptorPool pipelineDescriptorPool;
 
-		std::vector<LayoutSet> graphicsSetLayouts;
+		inline DescriptorSetBinding& getDescriptorSet(uint setID, uint descriptorID) {
+			return configuration.pipelineLayoutConfiguration.layoutSets[setID].shaderResourceDescriptorSetBindings[descriptorID];
+		}
 
 		/*/virtual std::vector<ShaderProgram*> getShaderPrograms() {
 			std::vector<ShaderProgram*> list;
@@ -40,18 +45,14 @@ namespace Comphi::Vulkan {
 			}
 		}*/
 
-		inline DescriptorSetBinding& getDescriptorSet(uint setID, uint descriptorID) {
-			return configuration.pipelineLayoutConfiguration.layoutSets[setID].shaderResourceDescriptorSets[descriptorID];
-		}
-
-		std::vector<VkDescriptorSetLayout> getSetLayouts(std::vector<LayoutSet>& setLayoutsObj) {
-			std::vector<VkDescriptorSetLayout> setLayouts = std::vector<VkDescriptorSetLayout>(setLayoutsObj.size());
-			for (size_t i = 0; i < setLayoutsObj.size(); i++)
-			{
-				setLayouts[i] = setLayoutsObj[i].descriptorSetLayout;
-			}
-			return setLayouts;
-		}
+		//std::vector<VkDescriptorSetLayout> getSetLayouts(std::vector<LayoutSet>& setLayoutsObj) {
+		//	std::vector<VkDescriptorSetLayout> setLayouts = std::vector<VkDescriptorSetLayout>(setLayoutsObj.size());
+		//	for (size_t i = 0; i < setLayoutsObj.size(); i++)
+		//	{
+		//		setLayouts[i] = setLayoutsObj[i].descriptorSetLayout;
+		//	}
+		//	return setLayouts;
+		//}
 		//std::vector<LayoutSet> ComputeDescriptorSets;
 		//std::vector<LayoutSet> RayTracingDescriptorSets;
 

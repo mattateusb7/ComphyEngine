@@ -53,7 +53,7 @@ namespace Comphi {
 				return (std::static_pointer_cast<T>(componentList[i]));
 			}
 		}
-
+		return nullptr;
 	}
 }
 

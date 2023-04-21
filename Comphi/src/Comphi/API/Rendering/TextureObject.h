@@ -10,5 +10,4 @@ namespace Comphi {
 	};*/
 
 	typedef std::shared_ptr<ITexture> TexturePtr;
-	typedef std::vector<TexturePtr> ShaderTextures;
 }

@@ -36,82 +36,117 @@ namespace Comphi::Vulkan {
 		VkCommandBuffer& commandBuffer = graphicsInstance->swapchain->getCurrentFrameGraphicsCommandBuffer();
 		graphicsInstance->swapchain->beginRenderPassCommandBuffer(commandBuffer);
 
-		Entity* currEntity;
-		MeshObject* currMesh;
-		MaterialInstance* currMaterialInst;
-		Material* currMaterial;
-		IGraphicsPipeline* igraphicsPipeline;
-		GraphicsPipeline* gpipeline;
-
 		//https://computergraphics.stackexchange.com/questions/4499/how-to-change-sampler-pipeline-states-at-runtime-in-vulkan
 		//SCENE 
 		
-		//Traverse Render Scene Graph and look for updates?
-		/*
-		for (const auto& renderID : sceneGraph->sortedEntities) { //All entities share Material & MaterialInstance
+		//LayoutSetUpdateFrequency
+				//	GlobalData = 0,
+				//	PerScene = 1,
+				//	PerMaterialInstance = 2,
+				//	PerMeshObject = 3,
+				//	PerEntity = 4,
+				//	Disabled = 5
+				//std::vector<VkWriteDescriptorSet> globalUpdates;
+				//std::vector<VkWriteDescriptorSet> sceneUpdates;
+				//std::vector<VkWriteDescriptorSet> materialUpdates;
+				//std::vector<VkWriteDescriptorSet> meshUpdates;
+				//std::vector<VkWriteDescriptorSet> entityUpdates;
 
-			std::vector<VkWriteDescriptorSet> descriptorSetUpdates;
+		//Traverse Render SceneGraph 
+		for (const auto& cam : sceneGraph->cameras) {
 
-			if (currMaterial != renderID.material.get()) {
-				currMaterial = renderID.material.get();
-				igraphicsPipeline = static_cast<IGraphicsPipeline*>(currMaterial);
-				gpipeline = static_cast<GraphicsPipeline*>(igraphicsPipeline);
-				vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gpipeline->pipelineObj);
-			}
-
-			//MATERIAL_INSTANCE 
-			if (currMaterialInst != renderID.materialInstance.get()) {
-				currMaterialInst = renderID.materialInstance.get();
-				
-				for (auto& bindings : currMaterialInst->textureBindings) {
-					for (auto& sortedBindings : bindings.second) {
-						//bindings.first << LayoutSetUpdateFrequency
-						//Texture bindings
-						gpipeline->getDescriptorSetWrite(sortedBindings.textures.data(), sortedBindings.setID, sortedBindings.descriptorID);
-					}
-				}
-				for (auto& bindings : currMaterialInst->bufferBindings) {
-					for (auto& sortedBindings : bindings.second) {
-						//bindings.first << LayoutSetUpdateFrequency
-						//Buffer Bindings
-						gpipeline->getDescriptorSetWrite(sortedBindings.buffers.data(), sortedBindings.setID, sortedBindings.descriptorID);
-					}
-				}
-			}
-
+			//Scene Data Updates (Camera & Lights) : 
+			//auto projectionMx = cam->getProjectionMatrix();
 			
-			for (const auto& cam : sceneGraph->cameras) {
-				cam->getProjectionMatrix();
-				for (const auto& entity : renderID.entityList) {
-					entity->GetComponent<Transform>()->getModelViewMatrix();
+			for (const auto& batchID : sceneGraph->batchRenderIDs) {
+				
+				//batch instanced render for each camera
+
+				//Material binding : 
+				//IGraphicsPipelinePtr igraphicsPipeline = std::static_pointer_cast<IGraphicsPipeline>(batchID.material);
+				IGraphicsPipelinePtr igraphicsPipeline = batchID.material->getIPipelinePtr();
+				GraphicsPipeline* gpipeline = static_cast<GraphicsPipeline*>(igraphicsPipeline.get());
+				vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gpipeline->pipelineObj);
+				
+				std::vector<VkWriteDescriptorSet> descriptorSetUpdates;
+				MaterialInstance* currMaterialInst = batchID.materialInstance.get();
+				
+				auto texureBindings = currMaterialInst->textureBindings[PerMaterialInstance];
+				auto bufferBindings = currMaterialInst->bufferBindings[PerMaterialInstance];
+
+				//auto projectionDescriptor = gpipeline->getDescriptorSetWrite(, PerMaterialInstance, 0); //TODO : This needs to be dynamic
+				//descriptorSetUpdates.push_back(projectionDescriptor);
+				//ModelViewMatrix->updateBufferData();
+				//gameObjA->GetComponent<Transform>()->getModelMatrix();
+				//Material Resources Updates : (update scene and global next scene sloop ? PUSH FRONT ?)
+
+				for (auto& sortedBindings : texureBindings) {
+					//bindings.first << LayoutSetUpdateFrequency
+					//Texture bindings
+					auto textures = gpipeline->getDescriptorSetWrite(sortedBindings.textures[0].get(), PerMaterialInstance, sortedBindings.descriptorID);
+					descriptorSetUpdates.push_back(textures);
+				}
+
+				for (auto& sortedBindings : bufferBindings) {
+					//bindings.first << LayoutSetUpdateFrequency
+					//Buffer Bindings
+					auto buffers = gpipeline->getDescriptorSetWrite(sortedBindings.buffers.data(), PerMaterialInstance, sortedBindings.descriptorID);
+					descriptorSetUpdates.push_back(buffers);
+				}
+
+				for (const auto& instanceID : batchID.meshInstancingRenderIDs)
+				{
+					//Same material + groups of instances with different mesh
+					// --- 
+					
+					for (const auto& entityInst : instanceID.instancedMeshEntities) {
+						//Mesh Instance & Data Updates :
+						//Same material + groups of instances with same mesh
+						//auto modelViewMx = entityInst->GetComponent<Transform>()->getModelViewMatrix();
+						//auto modelViewDescriptor = gpipeline->getDescriptorSetWrite(&modelViewMx[0], PerMaterialInstance, 2); //TODO : This needs to be dynamic
+						//descriptorSetUpdates.push_back(modelViewDescriptor);
+					}
 
 				}
-			}
 
-			if (descriptorSetUpdates.size() != 0)
-			{
-				vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, descriptorSetUpdates.size(), descriptorSetUpdates.data(), 0, nullptr);
+				if (descriptorSetUpdates.size() != 0)
+				{
+					vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, descriptorSetUpdates.size(), descriptorSetUpdates.data(), 0, nullptr);
+				}
+
 			}
-					
+			
 		}
 
-		/*for (size_t i = 0; i < sceneGraph->size(); i++)
-		{
-			SceneGraphPtr& scene = (*sceneGraph)[i];
-			for (size_t e = 0; e < scene->entityList.size(); e++)
-			{
-				EntityPtr& entity = scene->entityList;
-
-			}
-
-			sceneGraph[s][i]->cameraList;
-		}*/
-		
 		graphicsInstance->swapchain->endRenderPassCommandBuffer(commandBuffer);
 
 		FrameTime.Start();
 
 	}
+
+	/*
+	
+	for (size_t i = 0; i < LayoutSetUpdateFrequency::Max; i++)
+				{
+					switch ((LayoutSetUpdateFrequency)i)
+					{
+					case Comphi::GlobalData:
+						break;
+					case Comphi::PerScene:
+						break;
+					case Comphi::PerMaterialInstance:
+
+						break;
+					case Comphi::PerMeshInstance:
+						break;
+					case Comphi::PerEntity:
+						break;
+					case Comphi::Max:
+					default:
+						break;
+					}
+				}
+	*/
 
 #pragma endregion
 

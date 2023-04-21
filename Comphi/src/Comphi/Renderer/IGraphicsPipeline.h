@@ -76,7 +76,7 @@ namespace Comphi {
 
 	//PIPELINE DESCTIPTOR SETS & POOL
 
-	enum ShaderResourceDescriptorType {
+	enum DescriptorSetResourceType {
 		ImageBufferSampler	= 1, //VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
 		UniformBufferData	= 6 //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
 	};
@@ -85,22 +85,22 @@ namespace Comphi {
 		GlobalData			= 0,
 		PerScene			= 1,
 		PerMaterialInstance = 2,
-		PerMeshObject		= 3,
+		PerMeshInstance		= 3,
 		PerEntity			= 4,
-		Disabled			= 5
+		Max					= 5
 	};
 
 	//bindingID = arrayPos?
 	struct DescriptorSetBinding {
-		uint dataObjectArrayCount = 1; //Default = 1, Off = 0 | Resource Array Of Type x
-		ShaderResourceDescriptorType resourceType;
+		uint resourceCount = 1; //Default = 1, Off = 0 | Resource Array Of Type x
+		DescriptorSetResourceType resourceType;
 		ShaderStageFlag shaderStage;
 	};
 
 	//PIPELINE LAYOUT
 	struct PipelineLayoutSet {
-		std::vector<DescriptorSetBinding> shaderResourceDescriptorSets;
-		LayoutSetUpdateFrequency updateFrequency; //affects rendering Loop step ?
+		std::vector<DescriptorSetBinding> shaderResourceDescriptorSetBindings;
+		LayoutSetUpdateFrequency updateFrequency;
 		//std::vector<pushConstants> //TODO: Add Later
 	};
 
@@ -136,6 +136,8 @@ namespace Comphi {
 		//virtual void updateShaderResource() {};
 		//std::unique_ptr<Vulkan::GraphicsPipeline> m_pipeline;
 	};
+
+	typedef std::shared_ptr<IGraphicsPipeline> IGraphicsPipelinePtr;
 
 }
 

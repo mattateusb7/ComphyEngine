@@ -12,8 +12,6 @@ namespace Comphi {
 		~ShaderBufferData() = default;
 	};*/
 
-	typedef std::shared_ptr<IUniformBuffer> ShaderBufferDataPtr;
-	typedef std::vector<ShaderBufferDataPtr> ShaderBuffers;
-
+	typedef std::shared_ptr<IUniformBuffer> BufferDataPtr;
 
 }

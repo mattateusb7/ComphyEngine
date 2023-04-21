@@ -1,15 +1,17 @@
 #version 450
 
 //Vertex DATA 
-layout(binding = 0, location = 0) in vec3 inPosition;
-layout(binding = 0, location = 1) in vec3 inColor;
-layout(binding = 0, location = 2) in vec2 inTexCoord;
+layout(location = 0) in vec3 inPosition;
+layout(location = 1) in vec3 inColor;
+layout(location = 2) in vec2 inTexCoord;
 
-layout(set = 0, binding = 0) uniform UniformBufferObject {
+//resources
+
+layout(set = 2, binding = 0) uniform UniformBufferObject1 {
     mat4 proj;
 } projectionMx;
 
-layout(set = 2, binding = 0) uniform UniformBufferObject {
+layout(set = 2, binding = 2) uniform UniformBufferObject2 {
     mat4 model;
     mat4 view;
 } modelViewMx;

@@ -7,6 +7,10 @@ namespace Comphi {
 	class Material : public IGraphicsPipeline
 	{
 	public:
+
+		Material(IGraphicsPipelinePtr& pipeline) : IGraphicsPipeline(*pipeline.get()) {
+			this->pipeline = pipeline;
+		}
 		
 		void addDefaultVertexBindingDescription();
 		
@@ -17,10 +21,19 @@ namespace Comphi {
 		inline void addVertexAttribute(uint layoutBindingID, uint layoutLocationID, const M T::* member, PixelFormat format = R_F32);
 
 		void addShader(ShaderObjectPtr shaderObject);
-		void addShaderResource(uint layoutSetID, uint dataObjectArrayCount, ShaderResourceDescriptorType type = UniformBufferData, ShaderStageFlag shaderStage = ShaderStageFlag::AllGraphics);
+		void createShaderResourceLayoutSetDescriptorSetBinding(LayoutSetUpdateFrequency layoutSetID, uint bindingID, uint resourceDescriptorSetCount, DescriptorSetResourceType type = UniformBufferData, ShaderStageFlag shaderStage = ShaderStageFlag::AllGraphics);
 
-		virtual void initialize() override {};
+		virtual void initialize() override {
+			pipeline->configuration = configuration;
+			pipeline->initialize(); 
+			configuration = pipeline->configuration;
+		};
 
+		IGraphicsPipelinePtr getIPipelinePtr() {
+			return pipeline;
+		}
+	private:
+		IGraphicsPipelinePtr pipeline;
 	};
 
 	typedef std::shared_ptr<Material> MaterialPtr;

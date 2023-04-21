@@ -6,27 +6,35 @@
 namespace Comphi {
 
 	struct ShaderBindingIds {
-		uint setID;
+		uint layoutSetID;
 		uint descriptorID;
 	};
 
 	struct TextureBinding : ShaderBindingIds {
-		ShaderTextures& textures;
+		std::vector<TexturePtr>& textures;
+	};
+	
+	struct BufferBinding : ShaderBindingIds {
+		std::vector<BufferDataPtr>& buffers;
 	};
 
-	struct BufferBinding : ShaderBindingIds {
-		ShaderBuffers& buffers;
-	};
+	//struct TextureBinding : ShaderBindingIds {
+	//	std::vector<TexturePtr>& textures;
+	//};
+	//
+	//struct BufferBinding : ShaderBindingIds {
+	//	std::vector<BufferDataPtr>& buffers;
+	//};
 
 	class ShaderBinding
 	{
 	public:
 		ShaderBinding() = default;
-		void bindTextures(ShaderTextures& textures, uint setID, uint descriptorID, LayoutSetUpdateFrequency updateFreq = LayoutSetUpdateFrequency::PerMaterialInstance);
-		void bindBuffers(ShaderBuffers& buffers, uint setID, uint descriptorID, LayoutSetUpdateFrequency updateFreq = LayoutSetUpdateFrequency::PerMaterialInstance);
+		void bindTextures(std::vector<TexturePtr>& textures, LayoutSetUpdateFrequency setID, uint descriptorID);
+		void bindBuffers(std::vector<BufferDataPtr>& buffers, LayoutSetUpdateFrequency setID, uint descriptorID);
 		
-		void bindTextures(TexturePtr& texture, uint setID, uint descriptorID, LayoutSetUpdateFrequency updateFreq = LayoutSetUpdateFrequency::PerMaterialInstance);
-		void bindBuffers(ShaderBufferDataPtr& bufferData, uint setID, uint descriptorID, LayoutSetUpdateFrequency updateFreq = LayoutSetUpdateFrequency::PerMaterialInstance);
+		void bindTexture(TexturePtr& texture, LayoutSetUpdateFrequency setID, uint descriptorID);
+		void bindBuffer(BufferDataPtr& bufferData, LayoutSetUpdateFrequency setID, uint descriptorID);
 
 		std::map<LayoutSetUpdateFrequency, std::vector<TextureBinding>> textureBindings;
 		std::map<LayoutSetUpdateFrequency, std::vector<BufferBinding>> bufferBindings;

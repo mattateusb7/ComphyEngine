@@ -71,8 +71,8 @@ namespace Comphi {
 			static TexturePtr Texture(IFileRef& fileref, IObjectPool* pool = &objectPool);
 			
 			//Shader Buffers
-			template<typename T>
-			static ShaderBufferDataPtr ShaderBufferData (const T& dataArray, const uint count, BufferUsage usage, IObjectPool* pool = &objectPool);
+			//template<typename T>
+			static BufferDataPtr BufferData (const void* dataArray, const uint size, const uint count, BufferUsage usage, IObjectPool* pool = &objectPool);
 			
 			//MeshObject
 			static MeshObjectPtr MeshObject(IFileRef& modelFile, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
@@ -96,5 +96,6 @@ namespace Comphi {
 		static inline std::shared_ptr<IGraphicsContext> currentGraphicsContext = nullptr;
 
 	};
+
 
 }

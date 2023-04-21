@@ -6,8 +6,8 @@
 namespace Comphi {
 
 	struct MeshBuffers{
-		ShaderBufferDataPtr vertexBuffer;
-		ShaderBufferDataPtr indexBuffer;
+		BufferDataPtr vertexBuffer;
+		BufferDataPtr indexBuffer;
 	};
 
 	//template<typename vx = Vertex, typename ix = Index>

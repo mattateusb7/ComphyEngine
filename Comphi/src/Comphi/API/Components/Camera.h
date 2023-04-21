@@ -8,9 +8,13 @@ namespace Comphi {
 	class Camera : public Component, public ICamera
 	{
 	public:
-		Camera() = default;
+		Camera(ICameraPtr& iCameraPtr) : ICamera(*iCameraPtr.get()) {
+			this->iCameraPtr = iCameraPtr;
+		}
 		virtual void cleanUp() override {};
-		virtual glm::mat4 getProjectionMatrix() override { return ((ICamera*)this)->getProjectionMatrix(); };
+		virtual glm::mat4 getProjectionMatrix() override { return iCameraPtr->getProjectionMatrix(); };
+	private:
+		ICameraPtr iCameraPtr;
 	};
 
 	typedef std::shared_ptr<Camera> CameraPtr;
