@@ -83,7 +83,7 @@ namespace Comphi::Vulkan {
 				for (auto& sortedBindings : texureBindings) {
 					//bindings.first << LayoutSetUpdateFrequency
 					//Texture bindings
-					auto textures = gpipeline->getDescriptorSetWrite(sortedBindings.textures[0].get(), PerMaterialInstance, sortedBindings.descriptorID);
+					auto textures = gpipeline->getDescriptorSetWrite(sortedBindings.textures.data(), PerMaterialInstance, sortedBindings.descriptorID);
 					descriptorSetUpdates.push_back(textures);
 				}
 
@@ -96,22 +96,29 @@ namespace Comphi::Vulkan {
 
 				for (const auto& instanceID : batchID.meshInstancingRenderIDs)
 				{
-					//Same material + groups of instances with different mesh
+					//  material + groups of instances with different mesh
 					// --- 
+					instanceID.meshObject->meshBuffers.vertexBuffer;
+					instanceID.meshObject->meshBuffers.indexBuffer;
 					
 					for (const auto& entityInst : instanceID.instancedMeshEntities) {
 						//Mesh Instance & Data Updates :
 						//Same material + groups of instances with same mesh
-						//auto modelViewMx = entityInst->GetComponent<Transform>()->getModelViewMatrix();
-						//auto modelViewDescriptor = gpipeline->getDescriptorSetWrite(&modelViewMx[0], PerMaterialInstance, 2); //TODO : This needs to be dynamic
-						//descriptorSetUpdates.push_back(modelViewDescriptor);
-					}
 
+						auto transform = entityInst->GetComponent<Transform>();
+						transform->bufferMVMatrix->updateBufferData(&transform->getModelViewMatrix()[0]);
+						auto modelViewDescriptor = gpipeline->getDescriptorSetWrite(transform->bufferMVMatrix.get(), PerMaterialInstance, 0); //<< SetID & DescriptorID need to be dynamic!
+						descriptorSetUpdates.push_back(modelViewDescriptor);
+
+						cam->bufferPMatrix->updateBufferData(&cam->getProjectionMatrix()[0]);
+						auto projectionDescriptor = gpipeline->getDescriptorSetWrite(cam->bufferPMatrix.get(), PerMaterialInstance, 2); //<< SetID& DescriptorID need to be dynamic!
+						descriptorSetUpdates.push_back(projectionDescriptor);
+					}
 				}
 
 				if (descriptorSetUpdates.size() != 0)
 				{
-					vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, descriptorSetUpdates.size(), descriptorSetUpdates.data(), 0, nullptr);
+					vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, descriptorSetUpdates.size(), descriptorSetUpdates.data(), 0, 0);
 				}
 
 			}

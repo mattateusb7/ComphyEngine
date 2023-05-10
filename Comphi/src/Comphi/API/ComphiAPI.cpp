@@ -26,50 +26,53 @@ namespace Comphi {
         return nullptr;
     }
 
-    SceneGraphPtr ComphiAPI::SceneGraph::Scene()
-    {
-        auto scene = std::make_shared<Comphi::SceneGraph>();
-        return scene;
-    }
-
-    EntityPtr ComphiAPI::SceneGraph::Entity(IObjectPool* pool)
-    {
-        auto entity = std::make_shared<Comphi::Entity>();
-        pool->Add(entity.get());
-        return entity;
-    }
-
-    CameraPtr ComphiAPI::Components::Camera(IObjectPool* pool)
+    CameraPtr ComphiAPI::CreateComponent::Camera(IObjectPool* pool)
     {
         auto camera = std::make_shared<Vulkan::Camera>();
         auto icamera = std::static_pointer_cast<ICamera>(camera);
         auto camobj = std::make_shared<Comphi::Camera>(icamera);
+        camobj->bufferPMatrix = CreateObject::BufferData(&camobj->getProjectionMatrix()[0], sizeof(glm::mat4), 1, UniformBuffer);
         pool->Add(camera.get());
         return camobj;
     }
 
-    TransformPtr ComphiAPI::Components::Transform(IObjectPool* pool)
+    TransformPtr ComphiAPI::CreateComponent::Transform(IObjectPool* pool)
     {
         auto transform = std::make_shared<Comphi::Transform>();
+        transform->bufferMVMatrix = CreateObject::BufferData(&transform->getModelViewMatrix()[0], sizeof(glm::mat4), 1, UniformBuffer);
         pool->Add(transform.get());
         return transform;
     }
 
-    TransformPtr ComphiAPI::Components::Transform(TransformPtr& parent, IObjectPool* pool)
+    TransformPtr ComphiAPI::CreateComponent::Transform(TransformPtr& parent, IObjectPool* pool)
     {
         auto transform = std::make_shared<Comphi::Transform>(parent);
+        transform->bufferMVMatrix = CreateObject::BufferData(&transform->getModelViewMatrix()[0], sizeof(glm::mat4), 1, UniformBuffer);
         pool->Add(transform.get());
         return transform;
     }
 
-    RendererPtr ComphiAPI::Components::Renderer(MeshObjectPtr& meshObject, MaterialInstancePtr& materialInstance, IObjectPool* pool)
+    RendererPtr ComphiAPI::CreateComponent::Renderer(MeshObjectPtr& meshObject, MaterialInstancePtr& materialInstance, IObjectPool* pool)
     {
         auto renderer = std::make_shared<Comphi::Renderer>(meshObject, materialInstance);
         pool->Add(renderer.get());
         return renderer;
     }
 
-    MaterialPtr ComphiAPI::Rendering::Material(IObjectPool* pool)
+    SceneGraphPtr ComphiAPI::CreateObject::Scene()
+    {
+        auto scene = std::make_shared<Comphi::SceneGraph>();
+        return scene;
+    }
+
+    EntityPtr ComphiAPI::CreateObject::Entity(IObjectPool* pool)
+    {
+        auto entity = std::make_shared<Comphi::Entity>();
+        pool->Add(entity.get());
+        return entity;
+    }
+
+    MaterialPtr ComphiAPI::CreateObject::Material(IObjectPool* pool)
     {
         //Vulkan Material Pipeline
         auto graphicsPipeline = std::make_shared<Vulkan::GraphicsPipeline>();
@@ -79,7 +82,7 @@ namespace Comphi {
         return material;
     }
 
-    ShaderObjectPtr ComphiAPI::Rendering::Shader(ShaderType shaderType, IFileRef& file, IObjectPool* pool)
+    ShaderObjectPtr ComphiAPI::CreateObject::Shader(ShaderType shaderType, IFileRef& file, IObjectPool* pool)
     {
         //Vulkan
         auto shaderProgram = std::make_shared<Comphi::Vulkan::ShaderProgram>(shaderType, file);
@@ -87,7 +90,7 @@ namespace Comphi {
         return shaderProgram;
     }
 
-    MaterialInstancePtr ComphiAPI::Rendering::MaterialInstance(MaterialPtr& parent, IObjectPool* pool)
+    MaterialInstancePtr ComphiAPI::CreateObject::MaterialInstance(MaterialPtr& parent, IObjectPool* pool)
     {
         //Vulkan
         auto materialInst = std::make_shared<Comphi::MaterialInstance>(parent);
@@ -95,17 +98,17 @@ namespace Comphi {
         return materialInst;
     }
 
-    TexturePtr ComphiAPI::Rendering::Texture(IFileRef& fileref, IObjectPool* pool)
+    TexturePtr ComphiAPI::CreateObject::Texture(IFileRef& fileref, IObjectPool* pool)
     {
         auto imgView = std::make_shared<Vulkan::ImageView>();
         imgView->initTextureImageView(fileref);
-        //auto texture = std::make_shared<Comphi::ITexture>(*imgView); // <<< this is not Ok !
+        auto texture = std::static_pointer_cast<Comphi::ITexture>(imgView); // <<< this is not Ok !
         pool->Add(texture.get());
         return texture;
     }
 
     //template<typename T>
-    BufferDataPtr ComphiAPI::Rendering::BufferData(const void* dataArray, const uint size, const uint count, BufferUsage usage, IObjectPool* pool)
+    BufferDataPtr ComphiAPI::CreateObject::BufferData(const void* dataArray, const uint size, const uint count, BufferUsage usage, IObjectPool* pool)
     {
         auto buffer = std::make_shared<Vulkan::UniformBuffer>(&dataArray, size, count, usage);
         pool->Add(buffer.get());
@@ -120,23 +123,23 @@ namespace Comphi {
         return mesh;
     }*/
 
-    MeshObjectPtr ComphiAPI::Rendering::MeshObject(IFileRef& modelFile, MeshBuffers& meshBuffers, IObjectPool* pool)
+    MeshObjectPtr ComphiAPI::CreateObject::MeshObject(IFileRef& modelFile, IObjectPool* pool)
     {
-        auto mesh = std::make_shared<Comphi::MeshObject>(modelFile,meshBuffers);
+        auto mesh = std::make_shared<Comphi::MeshObject>(modelFile);
         pool->Add(mesh.get());
         return mesh;
     }
 
-    MeshObjectPtr ComphiAPI::Rendering::MeshObject(MeshData& data, MeshBuffers& meshBuffers, IObjectPool* pool)
+    MeshObjectPtr ComphiAPI::CreateObject::MeshObject(MeshData& data, IObjectPool* pool)
     {
-        auto mesh = std::make_shared<Comphi::MeshObject>(data, meshBuffers);
+        auto mesh = std::make_shared<Comphi::MeshObject>(data);
         pool->Add(mesh.get());
         return mesh;
     }
 
-    MeshObjectPtr ComphiAPI::Rendering::MeshObject(VertexArray& vertexData, IndexArray& indexData, MeshBuffers& meshBuffers, IObjectPool* pool)
+    MeshObjectPtr ComphiAPI::CreateObject::MeshObject(VertexArray& vertexData, IndexArray& indexData, IObjectPool* pool)
     {
-        auto mesh = std::make_shared<Comphi::MeshObject>(vertexData, indexData, meshBuffers);
+        auto mesh = std::make_shared<Comphi::MeshObject>(vertexData, indexData);
         pool->Add(mesh.get());
         return mesh;
     }

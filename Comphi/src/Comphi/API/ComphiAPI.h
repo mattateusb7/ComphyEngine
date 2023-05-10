@@ -46,12 +46,7 @@ namespace Comphi {
 		
 		static inline RenderingAPI getActiveAPI() { return activeAPI; }
 
-		struct SceneGraph {
-			static SceneGraphPtr Scene();
-			static EntityPtr Entity(IObjectPool* pool = &objectPool);
-		};
-
-		struct Components {
+		struct CreateComponent {
 			static CameraPtr Camera(IObjectPool* pool = &objectPool);
 			static TransformPtr Transform(IObjectPool* pool = &objectPool);
 			static TransformPtr Transform(TransformPtr& parent, IObjectPool* pool = &objectPool);
@@ -61,7 +56,10 @@ namespace Comphi {
 			//Script
 		};
 
-		struct Rendering {
+		struct CreateObject {
+			static SceneGraphPtr Scene();
+			static EntityPtr Entity(IObjectPool* pool = &objectPool);
+
 			//Material
 			static MaterialPtr Material(IObjectPool* pool = &objectPool);
 			static ShaderObjectPtr Shader(ShaderType shaderType, IFileRef& file, IObjectPool* pool = &objectPool);
@@ -75,9 +73,9 @@ namespace Comphi {
 			static BufferDataPtr BufferData (const void* dataArray, const uint size, const uint count, BufferUsage usage, IObjectPool* pool = &objectPool);
 			
 			//MeshObject
-			static MeshObjectPtr MeshObject(IFileRef& modelFile, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
-			static MeshObjectPtr MeshObject(MeshData& data, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
-			static MeshObjectPtr MeshObject(VertexArray& vertexData, IndexArray& indexData, MeshBuffers& meshBuffers, IObjectPool* pool = &objectPool);
+			static MeshObjectPtr MeshObject(IFileRef& modelFile, IObjectPool* pool = &objectPool);
+			static MeshObjectPtr MeshObject(MeshData& data, IObjectPool* pool = &objectPool);
+			static MeshObjectPtr MeshObject(VertexArray& vertexData, IndexArray& indexData, IObjectPool* pool = &objectPool);
 			
 			//template<typename vx, typename ix>
 			//static CustomMeshObject<vx,ix>::Ptr MeshObject(CustomMeshDataBuffers<vx,ix> customMeshDataBuffers, IObjectPool* pool = &objectPool);

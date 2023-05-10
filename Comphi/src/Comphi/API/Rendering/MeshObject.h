@@ -15,9 +15,9 @@ namespace Comphi {
 	{
 	public:
 		//Default VertexAttribute Desctiption
-		MeshObject(IFileRef& modelFile, MeshBuffers& meshBuffers);
-		MeshObject(MeshData& meshData, MeshBuffers& meshBuffers);
-		MeshObject(VertexArray& vertexData, IndexArray& indexData, MeshBuffers& meshBuffers);
+		MeshObject(IFileRef& modelFile);
+		MeshObject(MeshData& meshData);
+		MeshObject(VertexArray& vertexData, IndexArray& indexData);
 
 		MeshData meshData;
 		MeshBuffers meshBuffers;
@@ -27,7 +27,7 @@ namespace Comphi {
 
 	private:
 		static IndexArray& fillEmptyIndexArray(VertexArray& vertexData, IndexArray& indexData);
-		void initMeshBuffers(MeshBuffers& meshBuffers);
+		void initMeshBuffers();
 	};
 
 	typedef std::shared_ptr<MeshObject> MeshObjectPtr;

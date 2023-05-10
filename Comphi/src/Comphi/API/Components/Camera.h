@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "Comphi/Renderer/ICamera.h"
+#include "Comphi/API/Rendering/ShaderBufferData.h"
 
 namespace Comphi {
 
@@ -13,6 +14,7 @@ namespace Comphi {
 		}
 		virtual void cleanUp() override {};
 		virtual glm::mat4 getProjectionMatrix() override { return iCameraPtr->getProjectionMatrix(); };
+		BufferDataPtr bufferPMatrix;
 	private:
 		ICameraPtr iCameraPtr;
 	};

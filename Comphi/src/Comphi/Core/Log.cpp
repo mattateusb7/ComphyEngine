@@ -8,7 +8,7 @@ namespace Comphi {
 
 	void Log::Init() {
 
-		spdlog::set_pattern("%^%H:%M:%S|%n| %v%$");
+		spdlog::set_pattern("%^%H:%M:%S_%e|%n| %v%$");
 		
 		s_CoreLogger = spdlog::stdout_color_mt("Engine");
 		s_CoreLogger->set_level(spdlog::level::trace);

@@ -6,8 +6,7 @@ namespace Comphi {
 	//Note: more structs can be defined by Client and passed using template initialization of shaderBufferData objects!
 
 	struct MVMatrixObject {
-		alignas(16) glm::mat4 model;
-		alignas(16) glm::mat4 view;
+		alignas(16) glm::mat4 modelview;
 	};
 	struct PMatrixObject {
 		alignas(16) glm::mat4 proj;

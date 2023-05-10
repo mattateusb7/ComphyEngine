@@ -11,11 +11,11 @@ namespace Comphi {
 	};
 
 	struct TextureBinding : ShaderBindingIds {
-		std::vector<TexturePtr>& textures;
+		std::vector<ITexture*> textures;
 	};
 	
 	struct BufferBinding : ShaderBindingIds {
-		std::vector<BufferDataPtr>& buffers;
+		std::vector<IUniformBuffer*> buffers;
 	};
 
 	//struct TextureBinding : ShaderBindingIds {
@@ -30,8 +30,8 @@ namespace Comphi {
 	{
 	public:
 		ShaderBinding() = default;
-		void bindTextures(std::vector<TexturePtr>& textures, LayoutSetUpdateFrequency setID, uint descriptorID);
-		void bindBuffers(std::vector<BufferDataPtr>& buffers, LayoutSetUpdateFrequency setID, uint descriptorID);
+		//void bindTextures(std::vector<TexturePtr>& textures, LayoutSetUpdateFrequency setID, uint descriptorID);
+		//void bindBuffers(std::vector<BufferDataPtr>& buffers, LayoutSetUpdateFrequency setID, uint descriptorID);
 		
 		void bindTexture(TexturePtr& texture, LayoutSetUpdateFrequency setID, uint descriptorID);
 		void bindBuffer(BufferDataPtr& bufferData, LayoutSetUpdateFrequency setID, uint descriptorID);

@@ -4,26 +4,26 @@
 
 namespace Comphi {
 
-	MeshObject::MeshObject(IFileRef& modelFile, MeshBuffers& meshBuffers)
+	MeshObject::MeshObject(IFileRef& modelFile)
 	{
 		ModelLoader::ParseObj(modelFile, meshData);
 		fillEmptyIndexArray(meshData.vertexData, meshData.indexData);
-		initMeshBuffers(meshBuffers);
+		initMeshBuffers();
 	}
 
-	MeshObject::MeshObject(MeshData& meshData, MeshBuffers& meshBuffers)
+	MeshObject::MeshObject(MeshData& meshData)
 	{
 		fillEmptyIndexArray(meshData.vertexData, meshData.indexData);
 		this->meshData = meshData;
-		initMeshBuffers(meshBuffers);
+		initMeshBuffers();
 	}
 
-	MeshObject::MeshObject(VertexArray& vertexData, IndexArray& indexData, MeshBuffers& meshBuffers)
+	MeshObject::MeshObject(VertexArray& vertexData, IndexArray& indexData)
 	{
 		fillEmptyIndexArray(vertexData, indexData);
 		meshData.vertexData = vertexData;
 		meshData.indexData = indexData;
-		initMeshBuffers(meshBuffers);
+		initMeshBuffers();
 	}
 
 	IndexArray& MeshObject::fillEmptyIndexArray(VertexArray& vertexData, IndexArray& indexData)
@@ -37,15 +37,13 @@ namespace Comphi {
 		return indexData;
 	}
 
-	void MeshObject::initMeshBuffers(MeshBuffers& meshBuffers)
+	void MeshObject::initMeshBuffers()
 	{
-		this->meshBuffers = meshBuffers;
+		meshBuffers.vertexBuffer = std::make_shared<Vulkan::UniformBuffer>(meshData.vertexData.data(), sizeof(meshData.vertexData[0]), meshData.vertexData.size(), BufferUsage::VertexBuffer);
+		meshBuffers.vertexBuffer->updateBufferData(meshData.vertexData.data());
 		
-		this->meshBuffers.vertexBuffer = std::make_shared<Vulkan::UniformBuffer>(meshData.vertexData.data(), sizeof(meshData.vertexData[0]), meshData.vertexData.size(), BufferUsage::VertexBuffer);
-		this->meshBuffers.vertexBuffer->updateBufferData(meshData.vertexData.data());
-		
-		this->meshBuffers.indexBuffer = std::make_shared<Vulkan::UniformBuffer>(meshData.indexData.data(), sizeof(meshData.indexData[0]), meshData.indexData.size(), BufferUsage::IndexBuffer);
-		this->meshBuffers.indexBuffer->updateBufferData(meshData.indexData.data());
+		meshBuffers.indexBuffer = std::make_shared<Vulkan::UniformBuffer>(meshData.indexData.data(), sizeof(meshData.indexData[0]), meshData.indexData.size(), BufferUsage::IndexBuffer);
+		meshBuffers.indexBuffer->updateBufferData(meshData.indexData.data());
 	}
 
 }

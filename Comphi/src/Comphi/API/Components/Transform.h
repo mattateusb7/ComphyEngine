@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include "../Rendering/ShaderBufferData.h"
 
 namespace Comphi {
 
@@ -27,6 +28,7 @@ namespace Comphi {
 		glm::mat4 getModelMatrix();
 		glm::mat4 getViewMatrix();
 		glm::mat4 getModelViewMatrix();
+		BufferDataPtr bufferMVMatrix;
 
 		glm::vec3 getRelativePosition();
 		glm::vec3 getRelativeScale();
@@ -37,7 +39,6 @@ namespace Comphi {
 		glm::vec3 scale = glm::vec3(1.0f);
 		//glm::vec3 skew; //in the 4th dimension
 		//glm::vec3 prespective;
-
 	};
 
 	namespace Coordinates {

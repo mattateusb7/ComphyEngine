@@ -7,6 +7,7 @@ namespace Comphi {
 	class ITexture : public IObject
 	{
 	public:
+
 		ITexture() = default;
 		ITexture(IFileRef& imageFileRef) : imageFileRef(&imageFileRef) {};
 		//ITexture(IFileRef& imageFileRef) : imageFileRef(&imageFileRef) {}; //TODO: Pixeldata array

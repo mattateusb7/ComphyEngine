@@ -7,20 +7,19 @@ layout(location = 2) in vec2 inTexCoord;
 
 //resources
 
-layout(set = 2, binding = 0) uniform UniformBufferObject1 {
-    mat4 proj;
+layout(set = 2, binding = 0) uniform resourceBuffer0 {
+    mat4 data;
 } projectionMx;
 
-layout(set = 2, binding = 2) uniform UniformBufferObject2 {
-    mat4 model;
-    mat4 view;
+layout(set = 2, binding = 2) uniform resourceBuffer1{
+    mat4 data;
 } modelViewMx;
 
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 
 void main() {
-    gl_Position = projectionMx.proj * modelViewMx.view * modelViewMx.model * vec4(inPosition, 1.0);
+    gl_Position = projectionMx.data * modelViewMx.data * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragTexCoord = inTexCoord;
 }

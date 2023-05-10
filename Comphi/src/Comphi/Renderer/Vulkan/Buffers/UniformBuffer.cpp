@@ -43,8 +43,7 @@ namespace Comphi::Vulkan {
     void Comphi::Vulkan::UniformBuffer::updateBufferData(const void* dataArray)
     {
         if (bufferUsage == BufferUsage::UniformBuffer) {
-            const MemBuffer* this_membuffer = this;
-            copyData(*this_membuffer, dataArray);
+            copyData(*this, dataArray);
             return;
         }
 
