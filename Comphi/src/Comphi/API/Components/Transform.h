@@ -27,8 +27,7 @@ namespace Comphi {
 
 		glm::mat4 getModelMatrix();
 		glm::mat4 getViewMatrix();
-		glm::mat4 getModelViewMatrix();
-		BufferDataPtr bufferMVMatrix;
+		BufferDataPtr bufferModelMatrix;
 
 		glm::vec3 getRelativePosition();
 		glm::vec3 getRelativeScale();

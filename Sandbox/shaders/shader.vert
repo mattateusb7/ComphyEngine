@@ -9,17 +9,17 @@ layout(location = 2) in vec2 inTexCoord;
 
 layout(set = 2, binding = 0) uniform resourceBuffer0 {
     mat4 data;
-} projectionMx;
+} projectionViewMx;
 
 layout(set = 2, binding = 2) uniform resourceBuffer1{
     mat4 data;
-} modelViewMx;
+} modelMx;
 
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 
 void main() {
-    gl_Position = projectionMx.data * modelViewMx.data * vec4(inPosition, 1.0);
+    gl_Position = projectionViewMx.data * modelMx.data * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragTexCoord = inTexCoord;
 }

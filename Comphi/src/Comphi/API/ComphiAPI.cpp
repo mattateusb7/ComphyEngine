@@ -31,7 +31,7 @@ namespace Comphi {
         auto camera = std::make_shared<Vulkan::Camera>();
         auto icamera = std::static_pointer_cast<ICamera>(camera);
         auto camobj = std::make_shared<Comphi::Camera>(icamera);
-        camobj->bufferPMatrix = CreateObject::BufferData(&camobj->getProjectionMatrix()[0], sizeof(glm::mat4), 1, UniformBuffer);
+        camobj->bufferPMatrix = CreateObject::BufferData(nullptr, sizeof(glm::mat4), 1, UniformBuffer);
         pool->Add(camera.get());
         return camobj;
     }
@@ -39,7 +39,7 @@ namespace Comphi {
     TransformPtr ComphiAPI::CreateComponent::Transform(IObjectPool* pool)
     {
         auto transform = std::make_shared<Comphi::Transform>();
-        transform->bufferMVMatrix = CreateObject::BufferData(&transform->getModelViewMatrix()[0], sizeof(glm::mat4), 1, UniformBuffer);
+        transform->bufferModelMatrix = CreateObject::BufferData(nullptr, sizeof(glm::mat4), 1, UniformBuffer);
         pool->Add(transform.get());
         return transform;
     }
@@ -47,7 +47,7 @@ namespace Comphi {
     TransformPtr ComphiAPI::CreateComponent::Transform(TransformPtr& parent, IObjectPool* pool)
     {
         auto transform = std::make_shared<Comphi::Transform>(parent);
-        transform->bufferMVMatrix = CreateObject::BufferData(&transform->getModelViewMatrix()[0], sizeof(glm::mat4), 1, UniformBuffer);
+        transform->bufferModelMatrix = CreateObject::BufferData(nullptr, sizeof(glm::mat4), 1, UniformBuffer);
         pool->Add(transform.get());
         return transform;
     }

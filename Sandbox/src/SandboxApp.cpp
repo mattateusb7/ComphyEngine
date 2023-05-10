@@ -32,7 +32,7 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 		{{-0.5f,-0.5f,-0.5f} , {0.0f, 0.0f, 0.0f} , {1.0f, 1.0f}}
 	};
 
-	IndexArray CubeIx = {
+	IndexArray cubeIx = {
 		0, 1, 2,   2, 3, 0,   // v0-v1-v2, v2-v3-v0 (front)
 		0, 3, 4,   4, 5, 0,   // v0-v3-v4, v4-v5-v0 (right)
 		0, 5, 6,   6, 1, 0,   // v0-v5-v6, v6-v1-v0 (top)
@@ -49,16 +49,19 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 	//Material / Graphics Pipeline
 	simpleMaterial = ComphiAPI::CreateObject::Material();
 	simpleMaterial->addDefaultVertexBindingDescription();
-	simpleMaterial->createShaderResourceLayoutSetDescriptorSetBinding(PerMaterialInstance, 0, 1, UniformBufferData); //Camera projection (& Lights)
+	simpleMaterial->createShaderResourceLayoutSetDescriptorSetBinding(PerMaterialInstance, 0, 1, UniformBufferData); //Camera ViewProjectionMatrix (& Lights)
 	simpleMaterial->createShaderResourceLayoutSetDescriptorSetBinding(PerMaterialInstance, 1, 1, ImageBufferSampler, ShaderStageFlag::FragmentStage); //Textures
-	simpleMaterial->createShaderResourceLayoutSetDescriptorSetBinding(PerMaterialInstance, 2, 1, UniformBufferData); //Mesh & ModelViewMatrix 
+	simpleMaterial->createShaderResourceLayoutSetDescriptorSetBinding(PerMaterialInstance, 2, 1, UniformBufferData); //Mesh & ModelMatrix 
 	simpleMaterial->addShader(vertShader);
 	simpleMaterial->addShader(fragShader);
+	simpleMaterial->configuration.rasterizerSettings.cullMode = CullingMode::NoCulling;
 	simpleMaterial->initialize();
 	
 	//Mesh 1
 	modelMeshA = Windows::FileRef("models/viking_room.obj");
 	meshObjA = ComphiAPI::CreateObject::MeshObject(modelMeshA);
+
+	cubeVX = ComphiAPI::CreateObject::MeshObject(cubeVx, cubeIx);
 
 	//Texture
 	textureFile = Windows::FileRef("textures/viking_room.png");
@@ -72,17 +75,18 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 	AlbedoA->bindTexture(texture, PerMaterialInstance, 1);
 	
 	gameObjA = ComphiAPI::CreateObject::Entity();
-	auto transformComponent = gameObjA->AddComponent(ComphiAPI::CreateComponent::Transform());
+	auto& transformComponent = gameObjA->AddComponent(ComphiAPI::CreateComponent::Transform());
 	gameObjA->AddComponent(ComphiAPI::CreateComponent::Renderer(meshObjA, AlbedoA));
 
-	AlbedoA->bindBuffer(transformComponent->bufferMVMatrix, PerMaterialInstance, 2);
-
 	CameraObj = ComphiAPI::CreateObject::Entity();
-	CameraObj->AddComponent(ComphiAPI::CreateComponent::Transform());
-	auto cameraComponent = CameraObj->AddComponent(ComphiAPI::CreateComponent::Camera());
+	auto& cameraTransform = CameraObj->AddComponent(ComphiAPI::CreateComponent::Transform());
+	auto& cameraComponent = CameraObj->AddComponent(ComphiAPI::CreateComponent::Camera());
 	
-	AlbedoA->bindBuffer(cameraComponent->bufferPMatrix, PerMaterialInstance, 0);
-	
+	//cameraTransform->position = glm::vec3(0.0, 3.0f, 1.0f);
+	//cameraTransform->position = glm::vec3(1.0, 1.0f, 1.0f);
+	cameraComponent->properties.FOV = 100;
+	cameraTransform->lookAt(glm::vec3(1.0f, 0.0f, 0.0f));
+
 	scene = ComphiAPI::CreateObject::Scene();
 	scene->addEntity(CameraObj);
 	scene->addEntity(gameObjA);
@@ -104,14 +108,10 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 	emptyObj = ComphiAPI::CreateObject::GameObject({ ComphiAPI::CreateObject::Mesh(cubeVx, CubeIx, Albedo2) }, { nullptr, scaleup });
 	camObj = ComphiAPI::CreateObject::Camera({}, { emptyObj.get() });
 
-	scene = ComphiAPI::CreateObject::Scene();
-	scene->sceneObjects.push_back(gameObj);
-	scene->sceneObjects.push_back(gameObj1);
-	scene->sceneObjects.push_back(emptyObj);
-	scene->sceneCamera = (camObj);
 	*/
 
 }
+
 void GameSceneLayer::OnStart()
 {
 

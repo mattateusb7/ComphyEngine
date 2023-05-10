@@ -45,7 +45,6 @@ namespace Comphi::Vulkan {
 				//	PerMaterialInstance = 2,
 				//	PerMeshObject = 3,
 				//	PerEntity = 4,
-				//	Disabled = 5
 				//std::vector<VkWriteDescriptorSet> globalUpdates;
 				//std::vector<VkWriteDescriptorSet> sceneUpdates;
 				//std::vector<VkWriteDescriptorSet> materialUpdates;
@@ -55,73 +54,105 @@ namespace Comphi::Vulkan {
 		//Traverse Render SceneGraph 
 		for (const auto& cam : sceneGraph->cameras) {
 
+			//SAME CAMERA
 			//Scene Data Updates (Camera & Lights) : 
-			//auto projectionMx = cam->getProjectionMatrix();
-			
-			for (const auto& batchID : sceneGraph->batchRenderIDs) {
+			glm::mat4 viewProjectionMx = glm::mat4(cam.camera->getProjectionMatrix() * cam.transform->getViewMatrix());
+			cam.camera->bufferPMatrix->updateBufferData(&viewProjectionMx[0]); // TODO: FIX PROJECTION !
+
+			//dynamic VIEWPORT/SCISSOR SETUP
+			VkViewport viewport{};
+			viewport.x = 0.0f;
+			viewport.y = 0.0f;
+			viewport.width = static_cast<float>(GraphicsHandler::get()->swapChainExtent->width);
+			viewport.height = static_cast<float>(GraphicsHandler::get()->swapChainExtent->height);
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+			VkRect2D scissor{};
+			scissor.offset = { 0, 0 };
+			scissor.extent = *GraphicsHandler::get()->swapChainExtent;
+			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+			for (const auto& batchID : sceneGraph->renderBatches) { //BATCH
 				
-				//batch instanced render for each camera
+				//DIFERENT MATERIALS 
+				std::vector<VkWriteDescriptorSet> descriptorSetUpdates;
 
 				//Material binding : 
-				//IGraphicsPipelinePtr igraphicsPipeline = std::static_pointer_cast<IGraphicsPipeline>(batchID.material);
-				IGraphicsPipelinePtr igraphicsPipeline = batchID.material->getIPipelinePtr();
+				IGraphicsPipelinePtr igraphicsPipeline = batchID.material->getIPipelinePtr(); //TODO: streamline these Interface conversions later
 				GraphicsPipeline* gpipeline = static_cast<GraphicsPipeline*>(igraphicsPipeline.get());
-				vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gpipeline->pipelineObj);
 				
-				std::vector<VkWriteDescriptorSet> descriptorSetUpdates;
+				//Camera DescriptorSet:
+				auto projectionDescriptor = gpipeline->getDescriptorSetWrite(cam.camera->bufferPMatrix.get(), PerMaterialInstance, 0); //<< SetID& DescriptorID need to be dynamic!
+				descriptorSetUpdates.push_back(projectionDescriptor);
+				
+				//Material Descriptor Sets:
 				MaterialInstance* currMaterialInst = batchID.materialInstance.get();
-				
 				auto texureBindings = currMaterialInst->textureBindings[PerMaterialInstance];
 				auto bufferBindings = currMaterialInst->bufferBindings[PerMaterialInstance];
 
-				//auto projectionDescriptor = gpipeline->getDescriptorSetWrite(, PerMaterialInstance, 0); //TODO : This needs to be dynamic
-				//descriptorSetUpdates.push_back(projectionDescriptor);
-				//ModelViewMatrix->updateBufferData();
-				//gameObjA->GetComponent<Transform>()->getModelMatrix();
-				//Material Resources Updates : (update scene and global next scene sloop ? PUSH FRONT ?)
-
+				//Texture bindings
 				for (auto& sortedBindings : texureBindings) {
-					//bindings.first << LayoutSetUpdateFrequency
-					//Texture bindings
 					auto textures = gpipeline->getDescriptorSetWrite(sortedBindings.textures.data(), PerMaterialInstance, sortedBindings.descriptorID);
 					descriptorSetUpdates.push_back(textures);
 				}
 
+				//Buffer Bindings
 				for (auto& sortedBindings : bufferBindings) {
-					//bindings.first << LayoutSetUpdateFrequency
-					//Buffer Bindings
 					auto buffers = gpipeline->getDescriptorSetWrite(sortedBindings.buffers.data(), PerMaterialInstance, sortedBindings.descriptorID);
 					descriptorSetUpdates.push_back(buffers);
 				}
 
-				for (const auto& instanceID : batchID.meshInstancingRenderIDs)
+				for (const auto& instanceID : batchID.renderMeshInstances) //MESH INSTANCES
 				{
-					//  material + groups of instances with different mesh
+					//  SAME MATERIAL + DIFFERENT MESHES
 					// --- 
-					instanceID.meshObject->meshBuffers.vertexBuffer;
-					instanceID.meshObject->meshBuffers.indexBuffer;
 					
-					for (const auto& entityInst : instanceID.instancedMeshEntities) {
+					//Move this to function, build a unique buffer with all instanced objects to draw in a single call
+					auto vbuffer = static_cast<IUniformBuffer*>(instanceID.meshObject->meshBuffers.vertexBuffer.get());
+					auto vmembuffer = dynamic_cast<MemBuffer*>(vbuffer);
+					auto ibuffer = static_cast<IUniformBuffer*>(instanceID.meshObject->meshBuffers.indexBuffer.get());
+					auto imembuffer = dynamic_cast<MemBuffer*>(ibuffer);
+
+					VkDeviceSize offset = 0 ; //batch render
+					vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vmembuffer->bufferObj, &offset);
+					vkCmdBindIndexBuffer(commandBuffer, imembuffer->bufferObj, 0, VK_INDEX_TYPE_UINT32);
+
+					for (const auto& entityInst : instanceID.instancedMeshEntities) { //ENTITY SPECIFIC 
 						//Mesh Instance & Data Updates :
-						//Same material + groups of instances with same mesh
+						//SAME MATERIAL + SAME MESHES
 
 						auto transform = entityInst->GetComponent<Transform>();
-						transform->bufferMVMatrix->updateBufferData(&transform->getModelViewMatrix()[0]);
-						auto modelViewDescriptor = gpipeline->getDescriptorSetWrite(transform->bufferMVMatrix.get(), PerMaterialInstance, 0); //<< SetID & DescriptorID need to be dynamic!
+						transform->bufferModelMatrix->updateBufferData(&transform->getModelMatrix()[0]);
+						auto modelViewDescriptor = gpipeline->getDescriptorSetWrite(transform->bufferModelMatrix.get(), PerMaterialInstance, 2); //<< SetID & DescriptorID need to be dynamic!
 						descriptorSetUpdates.push_back(modelViewDescriptor);
 
-						cam->bufferPMatrix->updateBufferData(&cam->getProjectionMatrix()[0]);
-						auto projectionDescriptor = gpipeline->getDescriptorSetWrite(cam->bufferPMatrix.get(), PerMaterialInstance, 2); //<< SetID& DescriptorID need to be dynamic!
-						descriptorSetUpdates.push_back(projectionDescriptor);
+					}//ENTITY SPECIFIC
+
+					if (descriptorSetUpdates.size() != 0)
+					{
+						vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, descriptorSetUpdates.size(), descriptorSetUpdates.data(), 0, 0);
+					}
+
+					gpipeline->bindDescriptorSets(commandBuffer);
+					vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gpipeline->pipelineObj);
+					vkCmdDrawIndexed(commandBuffer, instanceID.meshObject->meshData.indexData.size(), instanceID.instancedMeshEntities.size(), 0, 0, 0);
+				
+				}//MESH INSTANCES
+
+				//Clean DescriptorSetWrites
+				for (auto& var : descriptorSetUpdates)
+				{
+					if (var.pBufferInfo != NULL) {
+						delete(var.pBufferInfo);
+					}
+					if (var.pImageInfo != NULL) {
+						delete(var.pImageInfo);
 					}
 				}
 
-				if (descriptorSetUpdates.size() != 0)
-				{
-					vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, descriptorSetUpdates.size(), descriptorSetUpdates.data(), 0, 0);
-				}
-
-			}
+			}//BATCH
 			
 		}
 
@@ -130,30 +161,6 @@ namespace Comphi::Vulkan {
 		FrameTime.Start();
 
 	}
-
-	/*
-	
-	for (size_t i = 0; i < LayoutSetUpdateFrequency::Max; i++)
-				{
-					switch ((LayoutSetUpdateFrequency)i)
-					{
-					case Comphi::GlobalData:
-						break;
-					case Comphi::PerScene:
-						break;
-					case Comphi::PerMaterialInstance:
-
-						break;
-					case Comphi::PerMeshInstance:
-						break;
-					case Comphi::PerEntity:
-						break;
-					case Comphi::Max:
-					default:
-						break;
-					}
-				}
-	*/
 
 #pragma endregion
 
@@ -262,6 +269,8 @@ namespace Comphi::Vulkan {
 		}
 
 		graphicsInstance->swapchain->incrementSwapChainFrame();
+
+		//throw std::runtime_error("The End of the World");
 	}
 
 	void GraphicsContext::CleanUp()

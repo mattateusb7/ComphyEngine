@@ -75,11 +75,6 @@ namespace Comphi {
 		return glm::lookAt(getRelativePosition(), getLookVector(), getUpVector());
 	}
 
-	glm::mat4 Transform::getModelViewMatrix()
-	{
-		return getViewMatrix() * getModelMatrix();
-	}
-
 	glm::vec3 Transform::getRelativePosition()
 	{
 		if (parent != nullptr) {

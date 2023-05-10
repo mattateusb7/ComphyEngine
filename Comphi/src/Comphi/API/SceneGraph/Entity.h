@@ -37,7 +37,7 @@ namespace Comphi {
 	{
 		//sanity-Check
 		static_assert(std::is_base_of<Component, T>::value, "Sub-Component not derived from BaseClass Component!");
-
+		//componentPtr->ownerEntity = this;
 		componentList.push_back(componentPtr);
 		return componentPtr;
 	}

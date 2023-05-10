@@ -22,13 +22,13 @@ namespace Comphi::Vulkan {
 		virtual void initialize() override;
 
 		VkWriteDescriptorSet getDescriptorSetWrite(void* dataObjectsArray, LayoutSetUpdateFrequency setID, uint descriptorID);
-		
+		void bindDescriptorSets(VkCommandBuffer& commandBuffer);
 		virtual void cleanUp() override;
 
 		VkPipeline pipelineObj;
 	private:
 		VkPipelineLayout pipelineLayout;
-		std::vector<LayoutSet> pipelineSetLayouts;
+		std::vector<LayoutSet> pipelineLayoutsSets;
 		VkDescriptorPool pipelineDescriptorPool;
 
 		inline DescriptorSetBinding& getDescriptorSet(uint setID, uint descriptorID) {
