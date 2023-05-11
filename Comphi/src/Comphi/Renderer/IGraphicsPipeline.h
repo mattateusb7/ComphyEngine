@@ -39,7 +39,7 @@ namespace Comphi {
 	struct RasterizerSettings {
 		PolygonMode polygonRenderMode;
 		float lineWidth = 1.0f;
-		CullingMode cullMode = BackCulling; //TODO: Toggle culling mode 
+		CullingMode cullMode = BackCulling; 
 		FrontFaceOrientation frontFace = ClockWise;
 		ColorBlendingModes blendingMode = AlphaBlend;
 	};
@@ -85,9 +85,8 @@ namespace Comphi {
 		GlobalData			= 0,
 		PerScene			= 1,
 		PerMaterialInstance = 2,
-		PerMeshInstance		= 3,
-		PerEntity			= 4,
-		Max					= 5
+		PerEntity			= 3,
+		Max					= 4
 	};
 
 	//bindingID = arrayPos?
@@ -118,7 +117,8 @@ namespace Comphi {
 		//TODO: Add missing Configurations v v v 
 		//pViewportState = &viewportState; == //pDynamicState = &dynamicState;
 		//pMultisampleState = &multisampling;
-		//pDepthStencilState = &depthStencil; 
+		//pDepthStencilState = &depthStencil;
+		//Custom RenderPasses
 		
 	};
 
@@ -133,85 +133,8 @@ namespace Comphi {
 		GraphicsPipelineConfiguration configuration;
 		virtual void initialize() = 0;
 		virtual void cleanUp() override {};
-		//virtual void updateShaderResource() {};
-		//std::unique_ptr<Vulkan::GraphicsPipeline> m_pipeline;
 	};
 
 	typedef std::shared_ptr<IGraphicsPipeline> IGraphicsPipelinePtr;
 
 }
-
-/*
-SCENE GRAPH 
-
-
-
-Orb(GameObject){
-	Scene*
-	Trasform{
-		ParentTransform*
-	}
-}
-
-Materials[]
-{
-	Pipeline*
-	data*
-}
-
-
-Data[]
-{
-	Pipeline*
-	data*
-}
-
-Instance:Orb[]
-{
-	
-	
-	
-}
-
-Camera(EyeObserver){
-	SceneFilter*
-}
-
-//GAME SCENE GRAPH
-
-Scenes[] 
-{
-	Instances[]
-	{
-		Materials[]
-		{
-			Pipeline*
-			data*
-		}
-
-	}
-
-}
-
-//RENDER ENGINE: 
-
-Pipelines[] (Global)
-{
-	Scenes[] (PerScene)
-	{
-		RenderInstances[] (sorted By Material)
-		{
-			Materials[]{
-				Pipeline*
-				Shaders[]
-				Data[]{
-				}
-			}
-			
-		}
-
-	}
-}
-
-
-*/

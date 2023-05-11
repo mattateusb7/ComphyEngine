@@ -31,7 +31,7 @@ namespace Comphi {
         auto camera = std::make_shared<Vulkan::Camera>();
         auto icamera = std::static_pointer_cast<ICamera>(camera);
         auto camobj = std::make_shared<Comphi::Camera>(icamera);
-        camobj->bufferPMatrix = CreateObject::BufferData(nullptr, sizeof(glm::mat4), 1, UniformBuffer);
+        camobj->bufferViewProjectionMatrix = CreateObject::BufferData(nullptr, sizeof(glm::mat4), 1, UniformBuffer);
         pool->Add(camera.get());
         return camobj;
     }
@@ -102,7 +102,7 @@ namespace Comphi {
     {
         auto imgView = std::make_shared<Vulkan::ImageView>();
         imgView->initTextureImageView(fileref);
-        auto texture = std::static_pointer_cast<Comphi::ITexture>(imgView); // <<< this is not Ok !
+        auto texture = std::static_pointer_cast<Comphi::ITexture>(imgView);
         pool->Add(texture.get());
         return texture;
     }

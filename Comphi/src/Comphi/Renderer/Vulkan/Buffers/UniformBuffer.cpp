@@ -28,14 +28,10 @@ namespace Comphi::Vulkan {
             break;
         }
 
-        if (bufferUsage == BufferUsage::UniformBuffer) {
-            allocateMemoryBuffer(bufferSize,
-                usageFlags, accessFlags);
-            return;
-        }
-
         allocateMemoryBuffer(bufferSize,
             usageFlags, accessFlags);
+
+        if (bufferUsage == BufferUsage::UniformBuffer) return;
 
         updateBufferData(dataArray);
     }

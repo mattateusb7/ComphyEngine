@@ -56,8 +56,27 @@ namespace Comphi::Vulkan {
 
 			//SAME CAMERA
 			//Scene Data Updates (Camera & Lights) : 
-			glm::mat4 viewProjectionMx = glm::mat4(cam.camera->getProjectionMatrix() * cam.transform->getViewMatrix());
-			cam.camera->bufferPMatrix->updateBufferData(&viewProjectionMx[0]); // TODO: FIX PROJECTION !
+			//glm::mat4 test = glm::mat4
+			//	(0, 0, 0, 1,
+			//	0, 0, 0, 2,
+			//	0, 0, 0, 3,
+			//	0, 0, 0, 4);
+
+			//glm::mat4 projectionMatrix = glm::perspective(
+			//	glm::radians(properties.FOV),
+			//	(float)GraphicsHandler::get()->swapChainExtent->width / GraphicsHandler::get()->swapChainExtent->height,
+			//	properties.NearPlane, properties.FarPlane);
+			//projectionMatrix[1][1] *= -1;
+
+			struct MVMatrixObject {
+				alignas(16) glm::mat4 modelview;
+			};
+
+			size_t m4 = sizeof(glm::mat4);
+			size_t mx = sizeof(MVMatrixObject);
+
+			glm::mat4 viewProjectionMx = cam.camera->getProjectionMatrix() * cam.transform->getViewMatrix();
+			cam.camera->bufferViewProjectionMatrix->updateBufferData(&viewProjectionMx[0]);
 
 			//dynamic VIEWPORT/SCISSOR SETUP
 			VkViewport viewport{};
@@ -83,9 +102,7 @@ namespace Comphi::Vulkan {
 				IGraphicsPipelinePtr igraphicsPipeline = batchID.material->getIPipelinePtr(); //TODO: streamline these Interface conversions later
 				GraphicsPipeline* gpipeline = static_cast<GraphicsPipeline*>(igraphicsPipeline.get());
 				
-				//Camera DescriptorSet:
-				auto projectionDescriptor = gpipeline->getDescriptorSetWrite(cam.camera->bufferPMatrix.get(), PerMaterialInstance, 0); //<< SetID& DescriptorID need to be dynamic!
-				descriptorSetUpdates.push_back(projectionDescriptor);
+				
 				
 				//Material Descriptor Sets:
 				MaterialInstance* currMaterialInst = batchID.materialInstance.get();
@@ -124,9 +141,14 @@ namespace Comphi::Vulkan {
 						//SAME MATERIAL + SAME MESHES
 
 						auto transform = entityInst->GetComponent<Transform>();
+						//glm::mat4 test2 = cam.camera->getProjectionMatrix() * cam.transform->getViewMatrix() * transform->getModelMatrix();
 						transform->bufferModelMatrix->updateBufferData(&transform->getModelMatrix()[0]);
 						auto modelViewDescriptor = gpipeline->getDescriptorSetWrite(transform->bufferModelMatrix.get(), PerMaterialInstance, 2); //<< SetID & DescriptorID need to be dynamic!
 						descriptorSetUpdates.push_back(modelViewDescriptor);
+
+						//Camera DescriptorSet:
+						auto projectionDescriptor = gpipeline->getDescriptorSetWrite(cam.camera->bufferViewProjectionMatrix.get(), PerMaterialInstance, 0); //<< SetID& DescriptorID need to be dynamic!
+						descriptorSetUpdates.push_back(projectionDescriptor);
 
 					}//ENTITY SPECIFIC
 

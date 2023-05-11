@@ -82,10 +82,9 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 	auto& cameraTransform = CameraObj->AddComponent(ComphiAPI::CreateComponent::Transform());
 	auto& cameraComponent = CameraObj->AddComponent(ComphiAPI::CreateComponent::Camera());
 	
-	//cameraTransform->position = glm::vec3(0.0, 3.0f, 1.0f);
-	//cameraTransform->position = glm::vec3(1.0, 1.0f, 1.0f);
-	cameraComponent->properties.FOV = 100;
+	cameraTransform->position = glm::vec3(0.0, 0.0f, 0.0f);
 	cameraTransform->lookAt(glm::vec3(1.0f, 0.0f, 0.0f));
+	cameraComponent->properties.FOV = 70;
 
 	scene = ComphiAPI::CreateObject::Scene();
 	scene->addEntity(CameraObj);
@@ -119,34 +118,40 @@ void GameSceneLayer::OnStart()
 
 void GameSceneLayer::OnUpdate()
 {
-
-	//Works with HotReloadinng <3 ! (only allows manipulation of already sent data)
-	//recompiling Sandbox.exe refreshes the code without the need to recompile the engine (simply re-links the static engine lib ).
-	//TODO: detect when a hotreload is done and call "UpdateOnce after hotreload" function. (to send new values) 
-
-	/*
 	time.Stop(); //TODO: send as parameter ?
 
-	camObj->transform.position = glm::vec3(0.0, -3.0f, 1.0f);
+	//gameObjA->GetComponent<Transform>()->position = glm::vec3(-1.0f,0.0f,0.0f);
+	/*
+	
+
+	CameraObj->GetComponent<Transform>()->position = glm::vec3(0.0, 3.0f, 1.0f);
+	CameraObj->GetComponent<Transform>()->lookAt(glm::vec3(0.0, 0.0f, 0.0f));
+	CameraObj->GetComponent<Transform>()->setEulerAngles(glm::vec3(0.0, 0.0f, 0.0f));
+	//CameraObj->GetComponent<Transform>()->eulerRotation(glm::vec3(0.0f, 45.0f * time.deltaTime(), 0));
+	CameraObj->GetComponent<Camera>()->properties.FOV = 70;
+
+	//camObj->transform.position = glm::vec3(0.0, -3.0f, 1.0f);
+	////camObj->transform.parent = &emptyObj->transform;
 	//camObj->transform.parent = &emptyObj->transform;
-	camObj->transform.parent = &emptyObj->transform;
-	//camObj->transform.parent = nullptr;
-	emptyObj->transform.parent = &gameObj1->transform;
+	////camObj->transform.parent = nullptr;
+	//emptyObj->transform.parent = &gameObj1->transform;
+	*/
+	gameObjA->GetComponent<Transform>()->eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * -45.0f));
+	/*
 
-	emptyObj->transform.eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * -45.0f));
-
-	gameObj->transform.eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * 0.0f));
-	gameObj->transform.position = (glm::vec3(0.0f, 0.0f, glm::sin(time.sinceBegining())/2.0f));
-
-	gameObj1->transform.position = (glm::vec3(glm::cos(time.sinceBegining())/2.0f, 0, 1.0f));
-
-	camObj->FOV = 70;
+	//gameObj->transform.eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * 0.0f));
+	//gameObj->transform.position = (glm::vec3(0.0f, 0.0f, glm::sin(time.sinceBegining())/2.0f));
+	//
+	//gameObj1->transform.position = (glm::vec3(glm::cos(time.sinceBegining())/2.0f, 0, 1.0f));
+	//
+	//camObj->FOV = 70;
 	//camObj->transform.lookAt(glm::vec3(0.0f,0.0f,0.0f));
 	//camObj->transform.setEulerAngles(glm::vec3(0,0,0));
 	//camObj->transform.eulerRotation(glm::vec3(0.0f, 45.0f * time.deltaTime(), 0));
+	
+	*/
 
 	time.Start(); //TODO : Start automatically after scripts ?
-	*/
 }
 void GameSceneLayer::OnUIRender()
 {

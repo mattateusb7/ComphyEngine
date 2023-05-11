@@ -1,7 +1,5 @@
 #include "cphipch.h"
 #include "Camera.h"
-#include "Camera.h"
-#include "Camera.h"
 
 namespace Comphi::Vulkan {
 
@@ -12,7 +10,14 @@ namespace Comphi::Vulkan {
 			(float)GraphicsHandler::get()->swapChainExtent->width / GraphicsHandler::get()->swapChainExtent->height,
 			properties.NearPlane, properties.FarPlane);
 		projectionMatrix[1][1] *= -1;
-		
+
+		//glm::mat4 projectionMatrix1 = glm::ortho(
+		//	GraphicsHandler::get()->swapChainExtent->width / 2,
+		//	GraphicsHandler::get()->swapChainExtent->width / 2,
+		//	GraphicsHandler::get()->swapChainExtent->height / 2,
+		//	GraphicsHandler::get()->swapChainExtent->height / 2);
+		//projectionMatrix1[1][1] *= -1;
+
 		return projectionMatrix;
 	}
 

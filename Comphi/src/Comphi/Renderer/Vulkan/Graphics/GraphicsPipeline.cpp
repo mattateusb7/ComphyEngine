@@ -227,10 +227,18 @@ namespace Comphi::Vulkan {
 			//	continue;
 
 			//Create Layout Set
-			VkDescriptorSetLayoutCreateInfo layoutInfo{};
+			//VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsCreateInfo = {};
+			//bindingFlagsCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+			//bindingFlagsCreateInfo.bindingCount = 1;
+			//VkDescriptorBindingFlags flags = { VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT };
+			//bindingFlagsCreateInfo.pBindingFlags = &flags;
+			//REQUIRES : VK_EXT_descriptor_indexing
+
+			VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 			layoutInfo.bindingCount = pipelineLayoutsSets[i].descriptorSetBindingsCount;
 			layoutInfo.pBindings = descriptorSetBindings.data();
+			//layoutInfo.pNext = &bindingFlagsCreateInfo;
 
 			vkCheckError(vkCreateDescriptorSetLayout(GraphicsHandler::get()->logicalDevice, &layoutInfo, nullptr, &pipelineLayoutsSets[i].descriptorSetLayout)) {
 				COMPHILOG_CORE_FATAL("failed to create descriptor set layout!");
