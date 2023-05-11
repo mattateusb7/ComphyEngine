@@ -113,7 +113,7 @@ namespace Comphi::Vulkan {
 			glfwWaitEvents();
 		}
 
-		vkWaitForFences(GraphicsHandler::get()->logicalDevice, 3, inFlightFences.data(), VK_TRUE, UINT64_MAX);
+		vkWaitForFences(GraphicsHandler::get()->logicalDevice, inFlightFences.size(), inFlightFences.data(), VK_TRUE, UINT64_MAX);
 		currentFrame = 0;
 		
 		//TODO: SyncFrames with swapchain recreate operation

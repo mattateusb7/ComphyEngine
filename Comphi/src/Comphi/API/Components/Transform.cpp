@@ -9,7 +9,7 @@ namespace Comphi {
 
 	glm::vec3 Transform::getForwardVector()
 	{
-		if (parent != nullptr) {
+		if (parent.get() != nullptr) {
 			return quaternionRotation * parent->getForwardVector();
 		}
 		return quaternionRotation * Coordinates::forward;
@@ -17,7 +17,7 @@ namespace Comphi {
 
 	glm::vec3 Transform::getUpVector()
 	{
-		if (parent != nullptr) {
+		if (parent.get() != nullptr) {
 			return  quaternionRotation * parent->getUpVector();
 		}
 		return quaternionRotation * Coordinates::up;
@@ -25,7 +25,7 @@ namespace Comphi {
 
 	glm::vec3 Transform::getRightVector()
 	{
-		if (parent != nullptr) {
+		if (parent.get() != nullptr) {
 			return  quaternionRotation * parent->getRightVector();
 		}
 		return quaternionRotation * Coordinates::right;
@@ -33,7 +33,7 @@ namespace Comphi {
 	
 	glm::vec3 Transform::getLookVector()
 	{
-		if (parent != nullptr) {
+		if (parent.get() != nullptr) {
 			return  getRelativePosition() + getForwardVector();
 		}
 		return position + getForwardVector();
@@ -56,7 +56,24 @@ namespace Comphi {
 
 	glm::quat Transform::lookAt(glm::vec3 point)
 	{
-		return quaternionRotation = glm::quatLookAt(glm::normalize(point - getRelativePosition()), getUpVector());
+		return quaternionRotation; // this is not working = glm::quatLookAt(glm::normalize(point - getRelativePosition()), getUpVector());
+		
+		/*glm::quat LookAt(const glm::vec3 & from, const glm::vec3 & to, const glm::vec3 & up)
+		{
+			glm::vec3 forward = glm::normalize(to - from);
+			glm::vec3 right = glm::normalize(glm::cross(up, forward));
+			glm::vec3 newUp = glm::normalize(glm::cross(forward, right));
+
+			glm::mat4 viewMatrix = glm::mat4(
+				right.x, newUp.x, -forward.x, 0.0f,
+				right.y, newUp.y, -forward.y, 0.0f,
+				right.z, newUp.z, -forward.z, 0.0f,
+				-glm::dot(right, from), -glm::dot(newUp, from), glm::dot(forward, from), 1.0f);
+
+			return glm::quat_cast(viewMatrix);
+		}*/
+								   
+		//return quaternionRotation = LookAt(getRelativePosition(), point, getUpVector());
 	}
 
 	glm::mat4 Transform::getModelMatrix()
@@ -77,7 +94,7 @@ namespace Comphi {
 
 	glm::vec3 Transform::getRelativePosition()
 	{
-		if (parent != nullptr) {
+		if (parent.get() != nullptr) {
 			return parent->getRelativePosition() + (parent->quaternionRotation * position);
 		}
 		return position;
@@ -85,7 +102,7 @@ namespace Comphi {
 
 	glm::vec3 Transform::getRelativeScale()
 	{
-		if (parent != nullptr) {
+		if (parent.get() != nullptr) {
 			return parent->getRelativeScale() * scale;
 		}
 		return scale;
@@ -93,7 +110,7 @@ namespace Comphi {
 
 	glm::quat Transform::getRelativeRotation()
 	{
-		if (parent != nullptr) {
+		if (parent.get() != nullptr) {
 			return parent->getRelativeRotation() * quaternionRotation;
 		}
 		return quaternionRotation;

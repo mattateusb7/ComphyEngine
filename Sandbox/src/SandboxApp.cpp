@@ -82,8 +82,8 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 	auto& cameraTransform = CameraObj->AddComponent(ComphiAPI::CreateComponent::Transform());
 	auto& cameraComponent = CameraObj->AddComponent(ComphiAPI::CreateComponent::Camera());
 	
-	cameraTransform->position = glm::vec3(0.0, 0.0f, 0.0f);
-	cameraTransform->lookAt(glm::vec3(1.0f, 0.0f, 0.0f));
+	cameraTransform->position = glm::vec3(0.0, 0.0f, 1.0f);
+	//cameraTransform->lookAt(glm::vec3(1.0f, 0.0f, 0.0f));
 	cameraComponent->properties.FOV = 70;
 
 	scene = ComphiAPI::CreateObject::Scene();
@@ -121,22 +121,23 @@ void GameSceneLayer::OnUpdate()
 	time.Stop(); //TODO: send as parameter ?
 
 	//gameObjA->GetComponent<Transform>()->position = glm::vec3(-1.0f,0.0f,0.0f);
-	/*
 	
-
-	CameraObj->GetComponent<Transform>()->position = glm::vec3(0.0, 3.0f, 1.0f);
-	CameraObj->GetComponent<Transform>()->lookAt(glm::vec3(0.0, 0.0f, 0.0f));
+	
+	//CameraObj->GetComponent<Transform>()->parent = gameObjA->GetComponent<Transform>();
+	CameraObj->GetComponent<Transform>()->position = glm::vec3(0, 1.0f, -3 + glm::sin(time.sinceBegining()) / 2.0f);
+	//CameraObj->GetComponent<Transform>()->lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 	CameraObj->GetComponent<Transform>()->setEulerAngles(glm::vec3(0.0, 0.0f, 0.0f));
 	//CameraObj->GetComponent<Transform>()->eulerRotation(glm::vec3(0.0f, 45.0f * time.deltaTime(), 0));
-	CameraObj->GetComponent<Camera>()->properties.FOV = 70;
+	CameraObj->GetComponent<Camera>()->properties.FOV = 120;
 
 	//camObj->transform.position = glm::vec3(0.0, -3.0f, 1.0f);
 	////camObj->transform.parent = &emptyObj->transform;
 	//camObj->transform.parent = &emptyObj->transform;
 	////camObj->transform.parent = nullptr;
 	//emptyObj->transform.parent = &gameObj1->transform;
-	*/
-	gameObjA->GetComponent<Transform>()->eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * -45.0f));
+	gameObjA->GetComponent<Transform>()->scale = glm::vec3(3, 3, 3);
+	//gameObjA->GetComponent<Transform>()->eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * -10.0f));
+	gameObjA->GetComponent<Transform>()->setEulerAngles(glm::vec3(-90, 45, 0));
 	/*
 
 	//gameObj->transform.eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * 0.0f));
