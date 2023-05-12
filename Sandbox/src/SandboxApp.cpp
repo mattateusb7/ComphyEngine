@@ -90,25 +90,6 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 	scene->addEntity(CameraObj);
 	scene->addEntity(gameObjA);
 
-	//gameObjA->GetComponent<Renderer>()->;
-	//gameObj1->action.updateCallback = [this](Time frameTime,void*) { //TODO: fix Lambda not defined when out of scope
-	//	gameObj1->transform.position = glm::vec3(0, 0, glm::sin(frameTime.deltaTime()));
-	//	gameObj1->transform.setEulerAngles(glm::vec3(0.0f, 0.0f, 45.0f) * frameTime.deltaTime());
-	//};
-
-	//GameObject2
-	/*modelMesh1 = Windows::FileRef("models/BLEPOSPACE.obj");
-	meshObj1 = ComphiAPI::CreateObject::Mesh(modelMesh1, Albedo1); //TODO: fix materials / descriptor sets not share-able ...
-	gameObj1 = ComphiAPI::CreateObject::GameObject({ meshObj1 }, { gameObj.get() });
-
-	//Camera
-	Transform scaleup  = Transform();
-	scaleup.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	emptyObj = ComphiAPI::CreateObject::GameObject({ ComphiAPI::CreateObject::Mesh(cubeVx, CubeIx, Albedo2) }, { nullptr, scaleup });
-	camObj = ComphiAPI::CreateObject::Camera({}, { emptyObj.get() });
-
-	*/
-
 }
 
 void GameSceneLayer::OnStart()
@@ -120,40 +101,18 @@ void GameSceneLayer::OnUpdate()
 {
 	time.Stop(); //TODO: send as parameter ?
 
-	//gameObjA->GetComponent<Transform>()->position = glm::vec3(-1.0f,0.0f,0.0f);
-	
-	
 	//CameraObj->GetComponent<Transform>()->parent = gameObjA->GetComponent<Transform>();
 	CameraObj->GetComponent<Transform>()->position = glm::vec3(0, 1.0f, -3 + glm::sin(time.sinceBegining()) / 2.0f);
 	//CameraObj->GetComponent<Transform>()->lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 	CameraObj->GetComponent<Transform>()->setEulerAngles(glm::vec3(0.0, 0.0f, 0.0f));
-	//CameraObj->GetComponent<Transform>()->eulerRotation(glm::vec3(0.0f, 45.0f * time.deltaTime(), 0));
 	CameraObj->GetComponent<Camera>()->properties.FOV = 120;
 
-	//camObj->transform.position = glm::vec3(0.0, -3.0f, 1.0f);
-	////camObj->transform.parent = &emptyObj->transform;
-	//camObj->transform.parent = &emptyObj->transform;
-	////camObj->transform.parent = nullptr;
-	//emptyObj->transform.parent = &gameObj1->transform;
 	gameObjA->GetComponent<Transform>()->scale = glm::vec3(3, 3, 3);
-	//gameObjA->GetComponent<Transform>()->eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * -10.0f));
 	gameObjA->GetComponent<Transform>()->setEulerAngles(glm::vec3(-90, 45, 0));
-	/*
-
-	//gameObj->transform.eulerRotation(glm::vec3(0.0f, 0.0f, time.deltaTime() * 0.0f));
-	//gameObj->transform.position = (glm::vec3(0.0f, 0.0f, glm::sin(time.sinceBegining())/2.0f));
-	//
-	//gameObj1->transform.position = (glm::vec3(glm::cos(time.sinceBegining())/2.0f, 0, 1.0f));
-	//
-	//camObj->FOV = 70;
-	//camObj->transform.lookAt(glm::vec3(0.0f,0.0f,0.0f));
-	//camObj->transform.setEulerAngles(glm::vec3(0,0,0));
-	//camObj->transform.eulerRotation(glm::vec3(0.0f, 45.0f * time.deltaTime(), 0));
-	
-	*/
 
 	time.Start(); //TODO : Start automatically after scripts ?
 }
+
 void GameSceneLayer::OnUIRender()
 {
 
