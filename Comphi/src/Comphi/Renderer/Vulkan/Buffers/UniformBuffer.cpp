@@ -16,6 +16,10 @@ namespace Comphi::Vulkan {
             usageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
             accessFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
             break;
+        case BufferUsage::BufferStorageDynamic:
+            usageFlags = VkBufferUsageFlagBits(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+            accessFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+            break;
         case BufferUsage::VertexBuffer:
             usageFlags = VkBufferUsageFlagBits(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
             accessFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
@@ -24,9 +28,14 @@ namespace Comphi::Vulkan {
             usageFlags = VkBufferUsageFlagBits(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
             accessFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
             break;
+        case BufferUsage::DrawIndirect:
+            usageFlags = VkBufferUsageFlagBits(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT);
+            accessFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+            break;
         default:
             break;
         }
+        
 
         allocateMemoryBuffer(bufferSize,
             usageFlags, accessFlags);

@@ -373,6 +373,7 @@ namespace Comphi::Vulkan {
 		switch (descriptorSet.resourceType)
 		{
 		case DescriptorSetResourceType::UniformBufferData:
+		case DescriptorSetResourceType::StorageBufferDynamic:
 		{
 			auto uniformBufferArr = static_cast<IUniformBuffer**>(dataObjectsArray);
 			IUniformBuffer* uniformBufferPtr = nullptr;
@@ -396,7 +397,7 @@ namespace Comphi::Vulkan {
 				buffersInfo[i].range = memBuffer->bufferSize;
 				buffersInfo[i].offset = 0;
 			}
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorType = VkDescriptorType(descriptorSet.resourceType);
 			descriptorWrite.descriptorCount = descriptorSet.resourceCount;
 
 			VkDescriptorBufferInfo* buffersInfoCopy = new VkDescriptorBufferInfo[descriptorSet.resourceCount];
@@ -420,7 +421,7 @@ namespace Comphi::Vulkan {
 				imageSamplers[i].sampler = imageView[0]->textureSampler;
 			}
 
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrite.descriptorType = VkDescriptorType(descriptorSet.resourceType);;
 			descriptorWrite.descriptorCount = descriptorSet.resourceCount;
 
 			VkDescriptorImageInfo* imageSamplersCopy = new VkDescriptorImageInfo[descriptorSet.resourceCount];
@@ -450,7 +451,9 @@ namespace Comphi::Vulkan {
 			descriptorSets.push_back(set.descriptorSet);
 		}
 
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1, descriptorSets.data(), 0, nullptr);
+		uint32_t dynamicDescriptors = 0; //1
+		uint32_t* dynamicStorageStartOffsets = NULL;// {0};
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1, descriptorSets.data(), dynamicDescriptors, dynamicStorageStartOffsets);
 
 	}
 

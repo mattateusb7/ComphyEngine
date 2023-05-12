@@ -41,10 +41,13 @@ namespace Comphi {
 
 	void Material::addDefaultVertexBindingDescription()
 	{
-		addVertexBindingID<Vertex>(0);
+		addVertexBindingID<Vertex>(0,PerVertex);
 		addVertexAttribute(0,0,&Vertex::pos,PixelFormat::RGB_F32);
 		addVertexAttribute(0,1,&Vertex::color,PixelFormat::RGB_F32);
 		addVertexAttribute(0,2,&Vertex::texCoord,PixelFormat::RG_F32);
+
+		//addVertexBindingID<void>(1, PerInstance);
+		//No Instance specific Data
 	}
 
 	void Material::addShader(ShaderObjectPtr shaderObject)

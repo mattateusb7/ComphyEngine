@@ -49,7 +49,7 @@ namespace Comphi {
 			auto meshInstance = batchID.renderMeshInstances.find(renderMeshInstance);
 
 			//if batch found but no instance, add instance to batch
-			if (meshInstance != batchID.renderMeshInstances.end()) {
+			if (meshInstance == batchID.renderMeshInstances.end()) {
 				renderMeshInstance.instancedMeshEntities.push_back(entity);
 				batchID.renderMeshInstances.insert(renderMeshInstance);
 				return;

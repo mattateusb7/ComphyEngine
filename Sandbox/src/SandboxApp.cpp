@@ -54,7 +54,7 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 	simpleMaterial->createShaderResourceLayoutSetDescriptorSetBinding(PerMaterialInstance, 2, 1, UniformBufferData); //Mesh & ModelMatrix 
 	simpleMaterial->addShader(vertShader);
 	simpleMaterial->addShader(fragShader);
-	simpleMaterial->configuration.rasterizerSettings.cullMode = CullingMode::NoCulling;
+	simpleMaterial->configuration.rasterizerSettings.cullMode = CullingMode::BackCulling;
 	simpleMaterial->initialize();
 	
 	//Mesh 1
@@ -73,27 +73,50 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 	//MaterialInstances
 	AlbedoA = ComphiAPI::CreateObject::MaterialInstance(simpleMaterial);
 	AlbedoA->bindTexture(texture, PerMaterialInstance, 1);
+
+	AlbedoB = ComphiAPI::CreateObject::MaterialInstance(simpleMaterial);
+	AlbedoB->bindTexture(texture2, PerMaterialInstance, 1);
 	
 	gameObjA = ComphiAPI::CreateObject::Entity();
 	auto& transformComponent = gameObjA->AddComponent(ComphiAPI::CreateComponent::Transform());
 	gameObjA->AddComponent(ComphiAPI::CreateComponent::Renderer(meshObjA, AlbedoA));
 
+	gameObjB = ComphiAPI::CreateObject::Entity();
+	auto& transformComponentB = gameObjB->AddComponent(ComphiAPI::CreateComponent::Transform());
+	gameObjB->AddComponent(ComphiAPI::CreateComponent::Renderer(cubeVX, AlbedoB));
+
+	gameObjC = ComphiAPI::CreateObject::Entity();
+	auto& transformComponentC = gameObjC->AddComponent(ComphiAPI::CreateComponent::Transform());
+	gameObjC->AddComponent(ComphiAPI::CreateComponent::Renderer(cubeVX, AlbedoA));
+	//diff mesh, same materal inst works (1 draw call per object)
+	// 
+	//gameObjC->AddComponent(ComphiAPI::CreateComponent::Renderer(cubeVX, AlbedoB));
+	//same mesh, diff matInst fails in instanced rendering <<< WIP Mesh Instancing
+
 	CameraObj = ComphiAPI::CreateObject::Entity();
 	auto& cameraTransform = CameraObj->AddComponent(ComphiAPI::CreateComponent::Transform());
 	auto& cameraComponent = CameraObj->AddComponent(ComphiAPI::CreateComponent::Camera());
 	
-	cameraTransform->position = glm::vec3(0.0, 0.0f, 1.0f);
-	//cameraTransform->lookAt(glm::vec3(1.0f, 0.0f, 0.0f));
-	cameraComponent->properties.FOV = 70;
-
 	scene = ComphiAPI::CreateObject::Scene();
 	scene->addEntity(CameraObj);
 	scene->addEntity(gameObjA);
+	scene->addEntity(gameObjB);
+ 	//scene->addEntity(gameObjC);
 
 }
 
 void GameSceneLayer::OnStart()
 {
+	gameObjA->GetComponent<Transform>()->setEulerAngles(glm::vec3(-90, 45, 0));
+	gameObjA->GetComponent<Transform>()->scale = glm::vec3(3, 3, 3);
+
+	gameObjB->GetComponent<Transform>()->scale = glm::vec3(0.5f, 0.5f, 0.5f);
+
+	//CameraObj->GetComponent<Transform>()->parent = gameObjA->GetComponent<Transform>();
+	//CameraObj->GetComponent<Transform>()->lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+	CameraObj->GetComponent<Transform>()->setEulerAngles(glm::vec3(0.0, 0.0f, 0.0f));
+	CameraObj->GetComponent<Camera>()->properties.FOV = 70;
+	//CameraObj->GetComponent<Transform>()->parent = gameObjB->GetComponent<Transform>();
 
 }
 
@@ -101,14 +124,12 @@ void GameSceneLayer::OnUpdate()
 {
 	time.Stop(); //TODO: send as parameter ?
 
-	//CameraObj->GetComponent<Transform>()->parent = gameObjA->GetComponent<Transform>();
-	CameraObj->GetComponent<Transform>()->position = glm::vec3(0, 1.0f, -3 + glm::sin(time.sinceBegining()) / 2.0f);
-	//CameraObj->GetComponent<Transform>()->lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-	CameraObj->GetComponent<Transform>()->setEulerAngles(glm::vec3(0.0, 0.0f, 0.0f));
-	CameraObj->GetComponent<Camera>()->properties.FOV = 120;
+	CameraObj->GetComponent<Transform>()->position = glm::vec3(0.5f, 1.0f, -2 + glm::sin(time.sinceBegining()) / 2.0f);
 
-	gameObjA->GetComponent<Transform>()->scale = glm::vec3(3, 3, 3);
-	gameObjA->GetComponent<Transform>()->setEulerAngles(glm::vec3(-90, 45, 0));
+	gameObjB->GetComponent<Transform>()->position = glm::vec3(glm::sin(time.sinceBegining()), 1 + glm::sin(time.sinceBegining()) / 2.0f, glm::cos(time.sinceBegining()));
+	gameObjB->GetComponent<Transform>()->eulerRotation(glm::vec3(glm::sin(time.sinceBegining())/3.0f, 1 + glm::sin(time.sinceBegining()) / 2.0f, glm::cos(time.sinceBegining())/2.0f ));
+	
+	gameObjA->GetComponent<Transform>()->eulerRotation(glm::vec3(0, 0, 10.0f * time.deltaTime()));
 
 	time.Start(); //TODO : Start automatically after scripts ?
 }

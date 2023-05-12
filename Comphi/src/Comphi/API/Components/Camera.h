@@ -13,7 +13,10 @@ namespace Comphi {
 			this->iCameraPtr = iCameraPtr;
 		}
 		virtual void cleanUp() override {};
-		virtual glm::mat4 getProjectionMatrix() override { return iCameraPtr->getProjectionMatrix(); };
+		virtual glm::mat4 getProjectionMatrix() override { 
+			iCameraPtr->properties = properties; //TODO: this is not ideal
+			return iCameraPtr->getProjectionMatrix(); 
+		};
 		BufferDataPtr bufferViewProjectionMatrix;
 	private:
 		ICameraPtr iCameraPtr;

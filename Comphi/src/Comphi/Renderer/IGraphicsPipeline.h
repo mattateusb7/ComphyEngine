@@ -52,8 +52,8 @@ namespace Comphi {
 	};
 
 	enum vertexInputRate {
-		PerVertex	= 0, //VK_VERTEX_INPUT_RATE_VERTEX,
-		PerInstance	= 1	 //VK_VERTEX_INPUT_RATE_INSTANCE
+		PerVertex = 0, //VK_VERTEX_INPUT_RATE_VERTEX,
+		PerInstance = 1 //VK_VERTEX_INPUT_RATE_INSTANCE
 	};
 
 	struct VertexBufferBindingDescription {
@@ -77,8 +77,9 @@ namespace Comphi {
 	//PIPELINE DESCTIPTOR SETS & POOL
 
 	enum DescriptorSetResourceType {
-		ImageBufferSampler	= 1, //VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-		UniformBufferData	= 6 //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+		ImageBufferSampler = 1, //VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+		UniformBufferData = 6, //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+		StorageBufferDynamic = 9 //VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC
 	};
 
 	enum LayoutSetUpdateFrequency {

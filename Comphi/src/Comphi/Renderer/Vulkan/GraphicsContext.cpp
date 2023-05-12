@@ -1,6 +1,8 @@
 #include "cphipch.h"
 #include "GraphicsContext.h"
 #include "Comphi/API/Components/Transform.h"
+#include "Comphi/API/Rendering/ShaderBinding.h"
+#include "Comphi/Renderer/Vulkan/Buffers/UniformBuffer.h"
 
 namespace Comphi::Vulkan {
 
@@ -29,6 +31,7 @@ namespace Comphi::Vulkan {
 
 #pragma region //DEBUG!
 
+	std::shared_ptr<UniformBuffer> bufferInstanceTransforms;
 	void GraphicsContext::updateSceneLoop() {
 		
 		FrameTime.Stop();
@@ -37,44 +40,21 @@ namespace Comphi::Vulkan {
 		graphicsInstance->swapchain->beginRenderPassCommandBuffer(commandBuffer);
 
 		//https://computergraphics.stackexchange.com/questions/4499/how-to-change-sampler-pipeline-states-at-runtime-in-vulkan
-		//SCENE 
 		
-		//LayoutSetUpdateFrequency
-				//	GlobalData = 0,
-				//	PerScene = 1,
-				//	PerMaterialInstance = 2,
-				//	PerMeshObject = 3,
-				//	PerEntity = 4,
-				//std::vector<VkWriteDescriptorSet> globalUpdates;
-				//std::vector<VkWriteDescriptorSet> sceneUpdates;
-				//std::vector<VkWriteDescriptorSet> materialUpdates;
-				//std::vector<VkWriteDescriptorSet> meshUpdates;
-				//std::vector<VkWriteDescriptorSet> entityUpdates;
-
+		//MESH INSTANCING (WIP)
+		//was trying to send dynamic storage buffer to binding point 2.2
+		//	-- still trying to figure out how to setup dynamic descriptor set bindings 
+		//can also try to send 4 binding points (vec4 to build model matrix in shader)
+		//	-- through vertexdata binding point 1 using Instanced Rate 
+	
+		//BATCHED DRAW (WIP)
+		//trying to use DrawIndirectIndexed to send a batched drawCall instead of multiple draw cmds
+	
+		//need to fix descriptor binding validation errors first
 		//Traverse Render SceneGraph 
 		for (const auto& cam : sceneGraph->cameras) {
 
 			//SAME CAMERA
-			//Scene Data Updates (Camera & Lights) : 
-			//glm::mat4 test = glm::mat4
-			//	(0, 0, 0, 1,
-			//	0, 0, 0, 2,
-			//	0, 0, 0, 3,
-			//	0, 0, 0, 4);
-
-			//glm::mat4 projectionMatrix = glm::perspective(
-			//	glm::radians(properties.FOV),
-			//	(float)GraphicsHandler::get()->swapChainExtent->width / GraphicsHandler::get()->swapChainExtent->height,
-			//	properties.NearPlane, properties.FarPlane);
-			//projectionMatrix[1][1] *= -1;
-
-			struct MVMatrixObject {
-				alignas(16) glm::mat4 modelview;
-			};
-
-			size_t m4 = sizeof(glm::mat4);
-			size_t mx = sizeof(MVMatrixObject);
-
 			glm::mat4 viewProjectionMx = cam.camera->getProjectionMatrix() * cam.transform->getViewMatrix();
 			cam.camera->bufferViewProjectionMatrix->updateBufferData(&viewProjectionMx[0]);
 
@@ -93,88 +73,111 @@ namespace Comphi::Vulkan {
 			scissor.extent = *GraphicsHandler::get()->swapChainExtent;
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-			for (const auto& batchID : sceneGraph->renderBatches) { //BATCH
+			for (const auto& batchID : sceneGraph->renderBatches) { //BATCH DRAW
 				
 				//DIFERENT MATERIALS 
 				std::vector<VkWriteDescriptorSet> descriptorSetUpdates;
+				//std::vector<VkWriteDescriptorSet> materialDescriptorSetUpdates;
+				//std::vector<VkWriteDescriptorSet> entityDescriptorSetUpdates;
 
 				//Material binding : 
 				IGraphicsPipelinePtr igraphicsPipeline = batchID.material->getIPipelinePtr(); //TODO: streamline these Interface conversions later
 				GraphicsPipeline* gpipeline = static_cast<GraphicsPipeline*>(igraphicsPipeline.get());
 				
-				
+				//Camera DescriptorSet:
+				auto projectionDescriptor = gpipeline->getDescriptorSetWrite(cam.camera->bufferViewProjectionMatrix.get(), PerMaterialInstance, 0); //<< SetID& DescriptorID need to be dynamic!
+				descriptorSetUpdates.push_back(projectionDescriptor);
 				
 				//Material Descriptor Sets:
 				MaterialInstance* currMaterialInst = batchID.materialInstance.get();
 				auto texureBindings = currMaterialInst->textureBindings[PerMaterialInstance];
 				auto bufferBindings = currMaterialInst->bufferBindings[PerMaterialInstance];
 
-				//Texture bindings
+				//Matrial Instance Texture bindings
 				for (auto& sortedBindings : texureBindings) {
 					auto textures = gpipeline->getDescriptorSetWrite(sortedBindings.textures.data(), PerMaterialInstance, sortedBindings.descriptorID);
 					descriptorSetUpdates.push_back(textures);
 				}
 
-				//Buffer Bindings
+				//Matrial Instance Buffer Bindings
 				for (auto& sortedBindings : bufferBindings) {
 					auto buffers = gpipeline->getDescriptorSetWrite(sortedBindings.buffers.data(), PerMaterialInstance, sortedBindings.descriptorID);
 					descriptorSetUpdates.push_back(buffers);
 				}
 
-				for (const auto& instanceID : batchID.renderMeshInstances) //MESH INSTANCES
+				//std::vector<VkDrawIndexedIndirectCommand> batchDraws;
+				for (const auto& meshInstance : batchID.renderMeshInstances) //MESH INSTANCES GROUP
 				{
 					//  SAME MATERIAL + DIFFERENT MESHES
 					// --- 
 					
 					//Move this to function, build a unique buffer with all instanced objects to draw in a single call
-					auto vbuffer = static_cast<IUniformBuffer*>(instanceID.meshObject->meshBuffers.vertexBuffer.get());
+					auto vbuffer = static_cast<IUniformBuffer*>(meshInstance.meshObject->meshBuffers.vertexBuffer.get());
 					auto vmembuffer = dynamic_cast<MemBuffer*>(vbuffer);
-					auto ibuffer = static_cast<IUniformBuffer*>(instanceID.meshObject->meshBuffers.indexBuffer.get());
+					auto ibuffer = static_cast<IUniformBuffer*>(meshInstance.meshObject->meshBuffers.indexBuffer.get());
 					auto imembuffer = dynamic_cast<MemBuffer*>(ibuffer);
 
 					VkDeviceSize offset = 0 ; //batch render
 					vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vmembuffer->bufferObj, &offset);
+					//vkCmdBindVertexBuffers(commandBuffer, 1, 1, nullptr, &offset);
 					vkCmdBindIndexBuffer(commandBuffer, imembuffer->bufferObj, 0, VK_INDEX_TYPE_UINT32);
 
-					for (const auto& entityInst : instanceID.instancedMeshEntities) { //ENTITY SPECIFIC 
+					std::vector<glm::mat4> instanceTransforms;
+					for (const auto& entityInst : meshInstance.instancedMeshEntities) { //ENTITY SPECIFIC 
 						//Mesh Instance & Data Updates :
 						//SAME MATERIAL + SAME MESHES
 
 						auto transform = entityInst->GetComponent<Transform>();
-						//glm::mat4 test2 = cam.camera->getProjectionMatrix() * cam.transform->getViewMatrix() * transform->getModelMatrix();
 						transform->bufferModelMatrix->updateBufferData(&transform->getModelMatrix()[0]);
 						auto modelViewDescriptor = gpipeline->getDescriptorSetWrite(transform->bufferModelMatrix.get(), PerMaterialInstance, 2); //<< SetID & DescriptorID need to be dynamic!
 						descriptorSetUpdates.push_back(modelViewDescriptor);
-
-						//Camera DescriptorSet:
-						auto projectionDescriptor = gpipeline->getDescriptorSetWrite(cam.camera->bufferViewProjectionMatrix.get(), PerMaterialInstance, 0); //<< SetID& DescriptorID need to be dynamic!
-						descriptorSetUpdates.push_back(projectionDescriptor);
+						//instanceTransforms.push_back(transform->getModelMatrix());
 
 					}//ENTITY SPECIFIC
+
+					//Instanced Entity Transforms Descriptor:
+					//bufferInstanceTransforms = std::make_shared<Vulkan::UniformBuffer>(instanceTransforms.data(), sizeof(glm::mat4), instanceTransforms.size(), BufferStorageDynamic);
+					//auto instancedModelsDescriptor = gpipeline->getDescriptorSetWrite(&bufferInstanceTransforms, PerMaterialInstance, 2); //<< SetID & DescriptorID need to be dynamic!
+					//descriptorSetUpdates.push_back(instancedModelsDescriptor);
 
 					if (descriptorSetUpdates.size() != 0)
 					{
 						vkUpdateDescriptorSets(GraphicsHandler::get()->logicalDevice, descriptorSetUpdates.size(), descriptorSetUpdates.data(), 0, 0);
+						gpipeline->bindDescriptorSets(commandBuffer);
+						vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gpipeline->pipelineObj);
+
 					}
 
-					gpipeline->bindDescriptorSets(commandBuffer);
-					vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gpipeline->pipelineObj);
-					vkCmdDrawIndexed(commandBuffer, instanceID.meshObject->meshData.indexData.size(), instanceID.instancedMeshEntities.size(), 0, 0, 0);
-				
+					//VkDrawIndexedIndirectCommand drawInstance = {};
+					//drawInstance.firstInstance = 0;
+					//drawInstance.vertexOffset = 0;
+					//drawInstance.indexCount = meshInstance.meshObject->meshData.indexData.size();
+					//drawInstance.instanceCount = meshInstance.instancedMeshEntities.size();
+					//
+					//batchDraws.push_back(drawInstance);
+
+					//gpipeline->bindDescriptorSets(commandBuffer);
+					//vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gpipeline->pipelineObj);
+					vkCmdDrawIndexed(commandBuffer, meshInstance.meshObject->meshData.indexData.size(), meshInstance.instancedMeshEntities.size(), 0, 0, 0);
+
+					for (auto& var : descriptorSetUpdates)
+					{
+						if (var.pBufferInfo != NULL) {
+							delete(var.pBufferInfo);
+						}
+						if (var.pImageInfo != NULL) {
+							delete(var.pImageInfo);
+						}
+					}
+
 				}//MESH INSTANCES
 
-				//Clean DescriptorSetWrites
-				for (auto& var : descriptorSetUpdates)
-				{
-					if (var.pBufferInfo != NULL) {
-						delete(var.pBufferInfo);
-					}
-					if (var.pImageInfo != NULL) {
-						delete(var.pImageInfo);
-					}
-				}
+				//TODO: on draw indirect indexed, move pipeline and descriptor set binding to here!
+				//UniformBuffer bufferBatchDraws = Vulkan::UniformBuffer(batchDraws.data(), sizeof(VkDrawIndexedIndirectCommand), batchDraws.size(), DrawIndirect);
+				//bufferBatchDraws.updateBufferData(batchDraws.data());
+				//vkCmdDrawIndexedIndirect(commandBuffer, bufferBatchDraws.bufferObj, 0, batchDraws.size(), 0);
 
-			}//BATCH
+			}//BATCH DRAW
 			
 		}
 

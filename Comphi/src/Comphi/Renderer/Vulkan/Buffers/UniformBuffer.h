@@ -11,6 +11,7 @@ namespace Comphi::Vulkan {
         //Initialize(const T* dataArray, const uint count, BufferUsage usage = BufferUsage::UniformBuffer);
         virtual void updateBufferData(const void* dataArray) override;
         virtual void cleanUp() override { static_cast<MemBuffer*>(this)->cleanUp(); }
+        ~UniformBuffer() { cleanUp(); }
     private :
         void copyData(const MemBuffer& membuffer, const void* dataArray);
     };

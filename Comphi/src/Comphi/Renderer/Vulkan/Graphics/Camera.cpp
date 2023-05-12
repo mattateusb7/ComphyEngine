@@ -5,9 +5,11 @@ namespace Comphi::Vulkan {
 
 	glm::mat4 Camera::getProjectionMatrix()
 	{
+		float aspect = (float)GraphicsHandler::get()->swapChainExtent->width / GraphicsHandler::get()->swapChainExtent->height;
+		float fov_x = atan(tan(properties.FOV / 2) * aspect) * 2;
 		glm::mat4 projectionMatrix = glm::perspective(
 			glm::radians(properties.FOV),
-			(float)GraphicsHandler::get()->swapChainExtent->width / GraphicsHandler::get()->swapChainExtent->height,
+			aspect,
 			properties.NearPlane, properties.FarPlane);
 		projectionMatrix[1][1] *= -1;
 
