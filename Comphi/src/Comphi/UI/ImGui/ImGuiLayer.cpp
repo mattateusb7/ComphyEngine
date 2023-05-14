@@ -2,7 +2,7 @@
 #include "ImGuiLayer.h"
 
 #include "Comphi/Core/Application.h"
-#include "Comphi/Renderer/GraphicsAPI.h"
+#include "Comphi/API/ComphiAPI.h"
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
@@ -53,8 +53,8 @@ namespace Comphi {
 		//auto window = std::static_pointer_cast<GLFWwindow>(Application::Get().GetWindow().GetNativeWindow());
 		auto window = static_cast<GLFWwindow*>((Application::Get().GetWindowHandler().GetNativeWindow()));
 
-		switch (GraphicsAPI::getActiveAPI()) {
-		case GraphicsAPI::Vulkan:
+		switch (ComphiAPI::getActiveAPI()) {
+		case ComphiAPI::Vulkan:
 			ImGui_ImplGlfw_InitForVulkan(window , true);
 			//ImGui_ImplVulkan_Init(NULL,NULL); //!fix
 			break;
@@ -89,8 +89,8 @@ namespace Comphi {
 	void ImGuiLayer::OnDetach()
 	{
 		
-		switch (GraphicsAPI::getActiveAPI()) {
-		case GraphicsAPI::Vulkan:
+		switch (ComphiAPI::getActiveAPI()) {
+		case ComphiAPI::Vulkan:
 			ImGui_ImplVulkan_Shutdown();
 			break;
 		default:
@@ -106,8 +106,8 @@ namespace Comphi {
 	void ImGuiLayer::Begin()
 	{
 		
-		switch (GraphicsAPI::getActiveAPI()) {
-		case GraphicsAPI::Vulkan:
+		switch (ComphiAPI::getActiveAPI()) {
+		case ComphiAPI::Vulkan:
 			ImGui_ImplVulkan_NewFrame();
 			break;
 		default:
@@ -131,8 +131,8 @@ namespace Comphi {
 		//Rendering 
 		ImGui::Render();
 
-		switch (GraphicsAPI::getActiveAPI()) {
-		case GraphicsAPI::Vulkan:
+		switch (ComphiAPI::getActiveAPI()) {
+		case ComphiAPI::Vulkan:
 			ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),NULL); //TODO: Fix imGUI for vulkan
 			break;
 		default:

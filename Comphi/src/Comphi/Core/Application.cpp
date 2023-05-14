@@ -12,7 +12,7 @@ namespace Comphi {
 		s_instance.reset(this);
 
 		//INIT WINDOW & EventCallback
-		m_Window = IWindow::Create();
+		m_Window = IWindow::Create(windowProperties);
 		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
 		//INIT IMGUI LAYER //TODO: temp ? (application may not want a default Imgui Overlay Layer)
@@ -35,7 +35,7 @@ namespace Comphi {
 		while (m_running) {
 
 			//Draw Loop
-			m_Window->OnBeginUpdate(m_ScenesToRender);
+			m_Window->OnBeginUpdate(*m_sceneGraph);
 			
 			//Action Loop
 			for (auto layer : m_LayerStack) {
@@ -73,17 +73,17 @@ namespace Comphi {
 		}
 	}
 
-	void Application::PushScene(SceneInstance& scene)
+	void Application::PushScene(SceneGraphPtr& scene)
 	{
-		m_ScenesToRender.push_back(scene);
+		m_sceneGraph = &scene;
 	}
 
-	void Application::PopScene(SceneInstance& scene)
+	void Application::PopScene(SceneGraphPtr& scene)
 	{
-		auto it = std::find(m_ScenesToRender.begin(), m_ScenesToRender.end(), scene);
-		if (it != m_ScenesToRender.end()) {
-			m_ScenesToRender.erase(it);
-		}
+		//auto it = std::find(m_sceneGraph.begin(), m_sceneGraph.end(), scene);
+		//if (it != m_sceneGraph.end()) {
+		//	m_sceneGraph.erase(it);
+		//}
 	}
 
 	void Application::PushLayer(Layer& layer)

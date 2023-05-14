@@ -10,7 +10,7 @@ namespace Comphi::Windows {
 		Window(const WindowProperties& props);
 
 		void OnUpdate() override;
-		void OnBeginUpdate(MultiScene& scenes) override;
+		void OnBeginUpdate(SceneGraphPtr& sceneGraph) override;
 		void OnWindowResized(uint x, uint y) override;
 		void OnFramebufferResized(uint x, uint y) override;
 

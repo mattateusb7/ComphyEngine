@@ -22,7 +22,7 @@
 	#define COMPHILOG_ASSERT(b,...)
 #endif
 
-//Let GLFW include Vulkan
+//Let GLFW include Vulkan	
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -41,6 +41,6 @@
 #define vkCheckError(x) if(x != VK_SUCCESS)
 
 namespace Comphi {
-	typedef uint32_t uint;
+	typedef uint32_t uint; //TODO: change to uint32
 	typedef uint64_t uint64;
 }

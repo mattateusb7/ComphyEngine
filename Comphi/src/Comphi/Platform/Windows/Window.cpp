@@ -1,6 +1,6 @@
 #include "cphipch.h"
 #include "Window.h"
-#include "Comphi/Renderer/GraphicsAPI.h"
+#include "Comphi/API/ComphiAPI.h"
 
 Comphi::IWindow* Comphi::IWindow::Create(const WindowProperties& props)
 {
@@ -35,11 +35,11 @@ namespace Comphi::Windows {
 
 		COMPHILOG_CORE_INFO("GLFW Initialized.");
 
-		//Select GraphicsAPI
-		GraphicsAPI::select::Vulkan();
+		//Select ComphiAPI
+		ComphiAPI::select::Vulkan();
 
-		switch (GraphicsAPI::getActiveAPI()) {
-			case GraphicsAPI::Vulkan: {
+		switch (ComphiAPI::getActiveAPI()) {
+			case ComphiAPI::Vulkan: {
 				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 				//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); //block window resize (make into property?)
 				break;
@@ -154,7 +154,7 @@ namespace Comphi::Windows {
 
 		COMPHILOG_CORE_INFO("Creating Window {0} ({1},{2}) - Success!", props.Title, props.Width, props.Height);
 
-		m_GraphicsContext.reset(GraphicsAPI::create::GraphicsContext(m_Window));
+		m_GraphicsContext.reset(ComphiAPI::Init::GraphicsContext(m_Window));
 		m_GraphicsContext->Init();
 	}
 
@@ -176,9 +176,9 @@ namespace Comphi::Windows {
 		glfwPollEvents();
 	}
 
-	void Window::OnBeginUpdate(MultiScene& scenes)
+	void Window::OnBeginUpdate(SceneGraphPtr& sceneGraph)
 	{
-		m_GraphicsContext->SetScenes(scenes);
+		m_GraphicsContext->SetScenes(sceneGraph);
 		m_GraphicsContext->Draw();
 	}
 
@@ -194,8 +194,8 @@ namespace Comphi::Windows {
 
 	void Window::SetVSync(bool enabled)
 	{
-		switch (GraphicsAPI::getActiveAPI()) {
-			case GraphicsAPI::RenderingAPI::Vulkan: {
+		switch (ComphiAPI::getActiveAPI()) {
+			case ComphiAPI::RenderingAPI::Vulkan: {
 				// TODO: togle VSYNC
 				break;
 			}

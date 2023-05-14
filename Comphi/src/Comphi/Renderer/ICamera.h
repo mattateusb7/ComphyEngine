@@ -1,11 +1,20 @@
 #pragma once
-#include "glm/mat4x4.hpp"
-namespace Comphi {
+#include "Comphi/Allocation/IObject.h"
 
-	class ICamera 
+namespace Comphi {
+	
+	struct CameraProperties {
+		float FOV = 45.0f;
+		float NearPlane = 0.1f;
+		float FarPlane = 10.0f;
+	};
+
+	class ICamera : public IObject
 	{
 	public:
-		virtual glm::mat4 getViewMatrix() = 0;
+		CameraProperties properties;
 		virtual glm::mat4 getProjectionMatrix() = 0;
 	};
+
+	typedef std::shared_ptr<ICamera> ICameraPtr;
 }

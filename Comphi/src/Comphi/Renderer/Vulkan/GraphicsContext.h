@@ -1,16 +1,18 @@
 #pragma once
-#include "../../Renderer/IGraphicsContext.h"
-#include "GraphicsHandler.h"
-#include "Initialization/GraphicsInstance.h"
+#include "Comphi/Renderer/IGraphicsContext.h"
+#include "Comphi/Renderer/Vulkan/GraphicsHandler.h"
+#include "Comphi/Renderer/Vulkan/GraphicsInstance.h"
+#include "Comphi/Renderer/Vulkan/Graphics/GraphicsPipeline.h"
+#include "Comphi/Utils/Time.h"
 
 namespace Comphi::Vulkan {
 
-	class GraphicsContext : public IGraphicsContext //AKA Renderer
+	class GraphicsContext : public IGraphicsContext
 	{
 	public:
 		GraphicsContext(GLFWwindow& windowHandle);
 		virtual void Init() override;
-		virtual void SetScenes(MultiScene& scenes) override;
+		virtual void SetScenes(SceneGraphPtr& sceneGraph) override;
 		virtual void Draw() override;
 		virtual void ResizeWindow(uint x, uint y) override;
 		virtual void ResizeFramebuffer(uint x, uint y) override;
@@ -19,7 +21,7 @@ namespace Comphi::Vulkan {
 		std::unique_ptr<GraphicsInstance> graphicsInstance;
 
 		Time FrameTime; //TODO: Debug ?
-		MultiScene* scenes;
+		SceneGraphPtr sceneGraph;
 
 	protected:
 		bool _framebufferResized = false;

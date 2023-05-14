@@ -2,7 +2,7 @@
 #include "Comphi/Events/Event.h"
 #include "Comphi/Core/LayerStack.h"
 #include "Comphi/UI/ImGui/ImGuiLayer.h"
-#include "Comphi/API/Scene.h"
+#include "Comphi/API/SceneGraph/SceneGraph.h"
 
 namespace Comphi{
 	
@@ -14,7 +14,7 @@ namespace Comphi{
 		EventCallback EventCallback;
 
 		WindowProperties(const std::string& title = "[Comphi Engine]",
-			uint width = 1280, uint height = 720)
+			uint width = 1920, uint height = 1080)
 			: Title(title), Width(width), Height(height) {}
 	};
 
@@ -26,7 +26,7 @@ namespace Comphi{
 
 		virtual void OnWindowResized(uint x, uint y) = 0;
 		virtual void OnFramebufferResized(uint x, uint y) = 0;
-		virtual void OnBeginUpdate(MultiScene& scenes) = 0;
+		virtual void OnBeginUpdate(SceneGraphPtr& sceneGraph) = 0;
 		virtual void OnUpdate() = 0;
 		virtual void Shutdown() = 0;
 

@@ -15,10 +15,13 @@
 #endif // WINDOWS
 // ---
  
-//Rendering
-#include "Comphi/Renderer/GraphicsAPI.h"
+//API
+#include "Comphi/API/ComphiAPI.h"
 // ---
 
 // ------------ Comphi Entry Point ------------
 #include "Comphi/Core/EntryPoint.h"
 // --------------------------------------------
+
+//UI
+#include <imgui.h>
