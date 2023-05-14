@@ -106,7 +106,7 @@ public:
 		};
 
 		//GameObject1
-		/*modelMesh = Windows::FileRef("models/viking_room.obj");
+		modelMesh = Windows::FileRef("models/viking_room.obj");
 		meshObj = GraphicsAPI::create::Mesh(modelMesh, Albedo);
 		gameObj = GraphicsAPI::create::GameObject({ meshObj });
 		//gameObj1->action.updateCallback = [this](Time frameTime,void*) { //TODO: fix Lambda not defined when out of scope
@@ -130,7 +130,7 @@ public:
 		scene->sceneObjects.push_back(gameObj1);
 		scene->sceneObjects.push_back(emptyObj);
 		scene->sceneCamera = (camObj);
-		*/
+		
 	
 	}; 
 	
@@ -145,7 +145,7 @@ public:
 		//recompiling Sandbox.exe refreshes the code without the need to recompile the engine (simply re-links the static engine lib ).
 		//TODO: detect when a hotreload is done and call "UpdateOnce after hotreload" function. (to send new values) 
 
-		/*
+		
 		time.Stop(); //TODO: send as parameter ?
 
 		camObj->transform.position = glm::vec3(0.0, -3.0f, 1.0f);
@@ -167,7 +167,7 @@ public:
 		//camObj->transform.eulerRotation(glm::vec3(0.0f, 45.0f * time.deltaTime(), 0));
 
 		time.Start(); //TODO : Start automatically after scripts ?
-		*/
+		
 	};
 
 	void OnUIRender() override {};
