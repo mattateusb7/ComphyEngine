@@ -2,7 +2,6 @@
 
 GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 
-
 	//Mesh
 	const VertexArray vertices = {
 		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
@@ -62,7 +61,7 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 	meshObjA = ComphiAPI::CreateObject::MeshObject(modelMeshA);
 
 	cubeVX = ComphiAPI::CreateObject::MeshObject(cubeVx, cubeIx);
-
+  
 	//Texture
 	textureFile = Windows::FileRef("textures/viking_room.png");
 	texture = ComphiAPI::CreateObject::Texture(textureFile);
