@@ -10,7 +10,7 @@ Build Instructions:
 
 ## Development Roadmap
 - Vulkan Renderer
-- **Comphi API Polish & renderer optimization** ← **WE ARE HERE**
+- **Comphi API Polish, ECS & renderer optimization** ← **WE ARE HERE**
 - Imgui Integration
 - Networking 
 - OpenXR Integration
