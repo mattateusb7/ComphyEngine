@@ -9,11 +9,12 @@ Build Instructions:
 - run Sandbox Project as startupProject
 
 ## Development Roadmap
-- Vulkan Renderer
+- Vulkan Renderer R&D
 - **Comphi API Polish, ECS & renderer optimization** ← **WE ARE HERE**
 - Imgui Integration
 - Networking 
 - OpenXR Integration
+- Audio Integration
 - **Alpha 1.0 Release**
 - Animation System
 - Physx Integration
