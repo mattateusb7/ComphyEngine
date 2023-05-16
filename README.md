@@ -11,10 +11,11 @@ Build Instructions:
 ## Development Roadmap
 - Vulkan Renderer
 - **Comphi API Polish & renderer optimization** ← **WE ARE HERE**
-- Imgui Integration 
-- OpenXR Integration 
+- Imgui Integration
 - Networking 
+- OpenXR Integration
+- **Alpha 1.0 Release**
 - Animation System
 - Physx Integration
 - Engine Polish 
-- **Engine Beta 1.0 Release** !
+- **Beta 1.0 Release**
