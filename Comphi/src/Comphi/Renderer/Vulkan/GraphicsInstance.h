@@ -10,7 +10,7 @@ namespace Comphi::Vulkan {
 		void cleanUp();
 		GraphicsInstance();
 
-#ifndef NDEBUG
+#ifdef NDEBUG_Logger
 		VkDebugUtilsMessengerEXT debugMessenger;
 #endif //!NDEBUG
 
@@ -41,7 +41,7 @@ namespace Comphi::Vulkan {
 		std::unique_ptr<SwapChain> swapchain;
 	protected:
 
-#ifndef NDEBUG
+#ifdef NDEBUG_Logger
 
 		//Validation Layers
 		const std::vector<const char*> validationLayers = {

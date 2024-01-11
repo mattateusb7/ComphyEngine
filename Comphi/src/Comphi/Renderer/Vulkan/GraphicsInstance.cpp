@@ -10,7 +10,7 @@ namespace Comphi::Vulkan {
 	GraphicsInstance::GraphicsInstance()
 	{
 		createVKInstance();
-#ifndef NDEBUG
+#ifdef NDEBUG_Logger
 		setupDebugMessenger();
 #endif //!NDEBUG
 		createSurface();
@@ -42,7 +42,7 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Logical Device");
 		vkDestroyDevice(logicalDevice, nullptr);
 
-#ifndef NDEBUG
+#ifdef NDEBUG_Logger
 		COMPHILOG_CORE_INFO("vkDestroy Destroy Debug Utils");
 		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 #endif //!NDEBUG
@@ -88,10 +88,8 @@ namespace Comphi::Vulkan {
 		createInfo.pApplicationInfo = &appInfo;
 
 		auto extensions = getRequiredGLFWExtensions();
-#ifdef NDEBUG
-		createInfo.enabledLayerCount = 0;
-		createInfo.pNext = nullptr;
-#else
+
+#ifdef NDEBUG_Logger
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		//VK_KHR_synchronization2
 			//VK_KHR_get_physical_device_properties2 
@@ -108,6 +106,9 @@ namespace Comphi::Vulkan {
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		populateDebugMessengerCreateInfo(debugCreateInfo);
 		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
+#else
+		createInfo.enabledLayerCount = 0;
+		createInfo.pNext = nullptr;
 
 #endif //!NDEBUG
 
@@ -129,7 +130,7 @@ namespace Comphi::Vulkan {
 		COMPHILOG_CORE_INFO("vk instance creation successful!");
 	}
 
-#ifndef NDEBUG
+#ifdef NDEBUG_Logger
 	bool GraphicsInstance::checkValidationLayerSupport(const std::vector<const char*>& validationLayers) {
 
 		COMPHILOG_CORE_TRACE("Requesting Validation Layers");
@@ -463,7 +464,7 @@ namespace Comphi::Vulkan {
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-#ifndef NDEBUG 
+#ifdef NDEBUG_Logger 
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
 #else

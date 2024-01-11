@@ -22,6 +22,11 @@
 	#define COMPHILOG_ASSERT(b,...)
 #endif
 
+//Debug Vulkan Logger
+#ifndef NDEBUG
+	#define NDEBUG_Logger
+#endif
+
 //Let GLFW include Vulkan	
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
