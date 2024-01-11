@@ -39,7 +39,7 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 		7, 4, 3,   3, 2, 7,   // v7-v4-v3, v3-v2-v7 (bottom)
 		4, 7, 6,   6, 5, 4    // v4-v7-v6, v6-v5-v4 (back)
 	};
-
+	
 	vert = Windows::FileRef("shaders/vert.spv");
 	frag = Windows::FileRef("shaders/frag.spv");
 	vertShader = ComphiAPI::CreateObject::Shader(ShaderType::VertexShader, vert);
@@ -54,6 +54,7 @@ GameSceneLayer::GameSceneLayer() : Layer("GameSceneLayer") {
 	simpleMaterial->addShader(vertShader);
 	simpleMaterial->addShader(fragShader);
 	simpleMaterial->configuration.rasterizerSettings.cullMode = CullingMode::BackCulling;
+	simpleMaterial->configuration.rasterizerSettings.polygonRenderMode = PolygonMode::PolygonFill;
 	simpleMaterial->initialize();
 	
 	//Mesh 1
@@ -130,7 +131,19 @@ void GameSceneLayer::OnUpdate()
 	
 	gameObjA->GetComponent<Transform>()->eulerRotation(glm::vec3(0, 0, 10.0f * time.deltaTime()));
 
+	//static int count = 0;
+	//if(count % 2 == 0)
+	//	gameObjB->GetComponent<Renderer>()->material->bindTexture(texture, PerMaterialInstance, 1);
+	//else
+	//	gameObjB->GetComponent<Renderer>()->material->bindTexture(texture2, PerMaterialInstance, 1);
+
 	time.Start(); //TODO : Start automatically after scripts ?
+	
+	//static int count = 0;
+	//if(count == 1)
+	//	assert(0);
+	
+	//count += 1;
 }
 
 void GameSceneLayer::OnUIRender()

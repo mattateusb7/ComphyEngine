@@ -44,6 +44,7 @@ namespace Comphi {
 		static void hash_combine(uint64_t& seed, const T& value) {
 			seed ^= std::hash<T>()(value) + PHI + (seed << 6) + (seed >> 2);
 		}
+		//https://probablydance.com/2018/06/16/fibonacci-hashing-the-optimization-that-the-world-forgot-or-a-better-alternative-to-integer-modulo/
 
 	};
 }

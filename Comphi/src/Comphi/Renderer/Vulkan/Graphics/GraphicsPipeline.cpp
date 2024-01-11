@@ -230,9 +230,9 @@ namespace Comphi::Vulkan {
 			//VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsCreateInfo = {};
 			//bindingFlagsCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
 			//bindingFlagsCreateInfo.bindingCount = 1;
-			//VkDescriptorBindingFlags flags = { VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT };
+			//VkDescriptorBindingFlags flags = { VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT }; //VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT
 			//bindingFlagsCreateInfo.pBindingFlags = &flags;
-			//REQUIRES : VK_EXT_descriptor_indexing
+			//POSSIBLY REQUIRES : VK_EXT_descriptor_indexing https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VK_EXT_descriptor_indexing.html
 
 			VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
